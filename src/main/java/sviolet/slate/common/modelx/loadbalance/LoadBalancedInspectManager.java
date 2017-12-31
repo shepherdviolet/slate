@@ -84,7 +84,7 @@ public class LoadBalancedInspectManager implements Destroyable {
 
     /**
      * 设置探测间隔
-     * @param inspectInterval 检测间隔ms
+     * @param inspectInterval 检测间隔ms, >0, 建议>1000
      */
     public void setInspectInterval(long inspectInterval) {
         //探测间隔
@@ -96,7 +96,7 @@ public class LoadBalancedInspectManager implements Destroyable {
     }
 
     /**
-     * @param verboseLog true:打印更多的调试日志
+     * @param verboseLog true:打印更多的调试日志, 默认关闭
      */
     public void setVerboseLog(boolean verboseLog) {
         this.verboseLog = verboseLog;
