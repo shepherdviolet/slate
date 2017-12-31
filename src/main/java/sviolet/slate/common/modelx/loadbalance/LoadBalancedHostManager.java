@@ -19,7 +19,6 @@
 
 package sviolet.slate.common.modelx.loadbalance;
 
-import org.jetbrains.annotations.Nullable;
 import sviolet.thistle.model.thread.LazySingleThreadPool;
 
 import java.util.*;
@@ -44,7 +43,6 @@ public class LoadBalancedHostManager {
      * [线程安全的]
      * @return 获取一个远端
      */
-    @Nullable
     public Host nextHost(){
 
         Host[] hostArray = this.hostArray.get();

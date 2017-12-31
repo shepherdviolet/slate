@@ -28,7 +28,7 @@ repositories {
 
 dependencies {
     //required
-    implementation 'com.github.shepherdviolet:thistle:7.1-SNAPSHOT'
+    implementation ('com.github.shepherdviolet:thistle:7.1-SNAPSHOT'){ transitive = false }
 
     //optional
 
