@@ -26,7 +26,9 @@ public class InspectManagerTelnetCommonTest {
         LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
         hostManager.setHostArray(new String[]{
                 "http://www.baidu.com",
-                "https://api.beeb.com.cn"
+                "https://api.beeb.com.cn",
+                "http://127.0.0.1:8080",
+                "http://127.0.0.1:8081"
         });
 
         LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager();
