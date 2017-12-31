@@ -190,14 +190,26 @@ public class LoadBalancedHostManager {
             this.blockingTime = blockingTime;
         }
 
+        /**
+         * @return URL
+         */
         public String getUrl() {
             return url;
         }
 
+        /**
+         * 阻断远端
+         * @param duration 阻断的时间ms
+         */
         public void block(long duration){
             blockingTime.set(System.currentTimeMillis() + duration);
         }
 
+        /**
+         * 该远端是否被阻断
+         * @param currentTimeMillis 当前时间戳
+         * @return true:被阻断(不可用), false:未阻断(可用)
+         */
         private boolean isBlocked(long currentTimeMillis){
             return currentTimeMillis < blockingTime.get();
         }

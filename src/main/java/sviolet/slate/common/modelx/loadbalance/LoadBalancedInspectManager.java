@@ -31,6 +31,7 @@ import java.util.concurrent.Executor;
 
 /**
  * 均衡负载--网络状态探测管理器(内置常驻调度线程一个), 可以使用close方法关闭(关闭后不再探测网络状态)
+ * @author S.Violet
  */
 public class LoadBalancedInspectManager implements Destroyable {
 

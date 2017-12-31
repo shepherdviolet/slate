@@ -25,22 +25,32 @@ import sviolet.thistle.util.common.NetworkUtils;
 
 import java.net.URI;
 
+/**
+ * 负载均衡--模拟TELNET方式探测网络状况
+ *
+ * @author S.Violet
+ */
 public class TelnetLoadBalanceInspector implements LoadBalanceInspector {
+
+    private static final String HTTPS_SCHEME = "https";
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
     public boolean inspect(String url, long timeout) {
         try {
+            //解析url
             URI uri = URI.create(url);
+            //处理端口
             int port = uri.getPort();
             if (port < 0){
-                if ("https".equals(uri.getScheme())){
+                if (HTTPS_SCHEME.equals(uri.getScheme())){
                     port = 443;
                 } else {
                     port = 80;
                 }
             }
+            //telnet
             return inspectByTelnet(uri.getHost(), port, timeout);
         } catch (Exception e) {
             if (logger.isErrorEnabled()){
