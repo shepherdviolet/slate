@@ -19,6 +19,8 @@
 
 package sviolet.slate.common.modelx.loadbalance;
 
+import sviolet.slate.common.modelx.loadbalance.inspector.TelnetLoadBalanceInspector;
+
 public class InspectManagerTelnetCommonTest {
 
     public static void main(String[] args) {
@@ -35,6 +37,7 @@ public class InspectManagerTelnetCommonTest {
         inspectManager.setHostManager(hostManager);
         inspectManager.setInspectInterval(5000L);
         inspectManager.setInspector(new TelnetLoadBalanceInspector());
+        inspectManager.setVerboseLog(true);
 
     }
 
