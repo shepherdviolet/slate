@@ -21,6 +21,6 @@ package sviolet.slate.common.modelx.loadbalance;
 
 public interface LoadBalanceInspector {
 
-    boolean inspect(String hostname, int port);
+    boolean inspect(String url, long timeout);
 
 }

@@ -29,6 +29,7 @@ repositories {
 dependencies {
     //required
     implementation("com.github.shepherdviolet:thistle:$version_thistleVersion") { transitive = false }
+    implementation("ch.qos.logback:logback-classic:1.2.3")
 
     //optional
 
