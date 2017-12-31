@@ -1,0 +1,37 @@
+apply plugin: 'java'
+
+group project_group_id
+version project_version
+
+//compat android
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+//set compile encoding
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+//set doc encoding
+javadoc {
+    options {
+        encoding "UTF-8"
+        charSet 'UTF-8'
+    }
+}
+
+repositories {
+    maven { url mvn_local_repo }
+    jcenter()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    //required
+    implementation 'com.github.shepherdviolet:thistle:7.1-SNAPSHOT'
+
+    //optional
+
+    //test
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
