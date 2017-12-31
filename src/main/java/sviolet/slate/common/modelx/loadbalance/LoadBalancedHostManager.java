@@ -119,6 +119,26 @@ public class LoadBalancedHostManager {
         settingThreadPool.execute(settingInstallTask);
     }
 
+    /**
+     * 获得当前远端状态
+     * @return value=true:可用, value=false:不可用
+     */
+    public Map<String, Boolean> getHostsStatus(){
+        Host[] hostArray = this.hostArray.get();
+
+        if (hostArray.length <= 0){
+            return new HashMap<>(0);
+        }
+
+        long currentTimeMillis = System.currentTimeMillis();
+
+        Map<String, Boolean> status = new HashMap<>(hostArray.length);
+        for (Host host : hostArray){
+            status.put(host.getUrl(), !host.isBlocked(currentTimeMillis));
+        }
+        return status;
+    }
+
     Host[] getHostArray(){
         return this.hostArray.get();
     }

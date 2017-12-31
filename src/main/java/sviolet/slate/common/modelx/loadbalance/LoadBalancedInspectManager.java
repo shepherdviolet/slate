@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import sviolet.thistle.entity.Destroyable;
 import sviolet.thistle.util.common.ThreadPoolExecutorUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -58,6 +59,15 @@ public class LoadBalancedInspectManager implements Destroyable {
      */
     public void setHostManager(LoadBalancedHostManager hostManager) {
         this.hostManager = hostManager;
+    }
+
+    /**
+     * 设置网络状态探测器
+     * @param inspector 探测器
+     */
+    public void setInspector(LoadBalanceInspector inspector){
+        this.inspectors = new ArrayList<>(1);
+        this.inspectors.add(inspector);
     }
 
     /**
