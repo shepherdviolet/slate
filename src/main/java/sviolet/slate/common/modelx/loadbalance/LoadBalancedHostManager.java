@@ -39,6 +39,8 @@ public class LoadBalancedHostManager {
     private AtomicReference<Host[]> hostArray = new AtomicReference<>(new Host[0]);
     private Map<String, Integer> hostIndexMap = new HashMap<>(0);
 
+    private boolean returnNullIfAllBlocked = false;
+
     /**
      * [线程安全的]
      * @return 获取一个远端
@@ -71,7 +73,7 @@ public class LoadBalancedHostManager {
             refugeCount = (refugeCount + 1) % hostArray.length;
         }
 
-        return hostArray[mainCount];
+        return returnNullIfAllBlocked ? null : hostArray[mainCount];
 
     }
 
@@ -117,6 +119,14 @@ public class LoadBalancedHostManager {
         newSettings.set(hosts);
 
         settingThreadPool.execute(settingInstallTask);
+    }
+
+    /**
+     * 如果设置为false(默认), 当所有远端都被阻断时, nextHost方法返回一个后端.
+     * 如果设置为true, 当所有远端都被阻断时, nextHost方法返回null.
+     */
+    public void setReturnNullIfAllBlocked(boolean returnNullIfAllBlocked) {
+        this.returnNullIfAllBlocked = returnNullIfAllBlocked;
     }
 
     /**

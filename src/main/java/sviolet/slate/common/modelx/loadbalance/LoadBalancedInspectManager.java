@@ -35,7 +35,7 @@ import java.util.concurrent.Executor;
  */
 public class LoadBalancedInspectManager implements Destroyable {
 
-    private static final long DEFAULT_INSPECT_INTERVAL = 20000L;
+    private static final long DEFAULT_INSPECT_INTERVAL = 10000L;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -84,9 +84,12 @@ public class LoadBalancedInspectManager implements Destroyable {
 
     /**
      * 设置探测间隔
-     * @param inspectInterval 检测间隔ms, >0, 建议>1000
+     * @param inspectInterval 检测间隔ms, > 0 , 建议 > 5000
      */
     public void setInspectInterval(long inspectInterval) {
+        if (inspectInterval <= 0){
+            throw new IllegalArgumentException("inspectInterval must > 0 (usually > 5000)");
+        }
         //探测间隔
         this.inspectInterval = inspectInterval;
         //探测超时
