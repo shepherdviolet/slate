@@ -33,6 +33,7 @@ import java.util.concurrent.Executor;
  */
 public class LoadBalancedInspectManager implements Destroyable {
 
+    private static final boolean DEBUG = false;
     private static final long DEFAULT_INSPECT_INTERVAL = 20000L;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -140,6 +141,9 @@ public class LoadBalancedInspectManager implements Destroyable {
         inspectThreadPool.execute(new Runnable() {
             @Override
             public void run() {
+                if (DEBUG) {
+                    logger.debug("Inspect: inspecting " + host.getUrl());
+                }
                 List<LoadBalanceInspector> inspectors = LoadBalancedInspectManager.this.inspectors;
                 if (inspectors == null){
                     logger.debug("Inspect: no inspectors, skip inspect");
@@ -155,6 +159,9 @@ public class LoadBalancedInspectManager implements Destroyable {
                 if (block){
                     host.block(blockDuration);
                     logger.debug("Inspect: block " + host.getUrl());
+                }
+                if (DEBUG) {
+                    logger.debug("Inspect: inspected " + host.getUrl());
                 }
             }
         });
