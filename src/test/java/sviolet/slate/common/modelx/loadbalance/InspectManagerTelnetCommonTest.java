@@ -25,13 +25,13 @@ public class InspectManagerTelnetCommonTest {
 
         LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
         hostManager.setHostArray(new String[]{
-                "www.baidu.com",
-                "api.beeb.com.cn"
+                "http://www.baidu.com",
+                "https://api.beeb.com.cn"
         });
 
         LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager();
         inspectManager.setHostManager(hostManager);
-        inspectManager.setInspectInterval(20000L);
+        inspectManager.setInspectInterval(5000L);
         inspectManager.setInspector(new TelnetLoadBalanceInspector());
 
     }

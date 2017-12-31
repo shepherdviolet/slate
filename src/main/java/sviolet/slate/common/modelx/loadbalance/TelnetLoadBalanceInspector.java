@@ -33,7 +33,15 @@ public class TelnetLoadBalanceInspector implements LoadBalanceInspector {
     public boolean inspect(String url, long timeout) {
         try {
             URI uri = URI.create(url);
-            return inspectByTelnet(uri.getHost(), uri.getPort(), timeout);
+            int port = uri.getPort();
+            if (port < 0){
+                if ("https".equals(uri.getScheme())){
+                    port = 443;
+                } else {
+                    port = 80;
+                }
+            }
+            return inspectByTelnet(uri.getHost(), port, timeout);
         } catch (Exception e) {
             if (logger.isErrorEnabled()){
                 logger.error("Inspect: invalid url " + url, e);
