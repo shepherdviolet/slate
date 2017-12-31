@@ -21,6 +21,9 @@ package sviolet.slate.common.modelx.loadbalance;
 
 import sviolet.slate.common.modelx.loadbalance.inspector.HttpGetLoadBalanceInspector;
 
+/**
+ * 主动探测器--HTTP GET方式测试案例
+ */
 public class InspectManagerHttpGetCommonTest {
 
     public static void main(String[] args) {

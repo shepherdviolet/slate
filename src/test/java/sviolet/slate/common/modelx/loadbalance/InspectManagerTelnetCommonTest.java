@@ -21,6 +21,9 @@ package sviolet.slate.common.modelx.loadbalance;
 
 import sviolet.slate.common.modelx.loadbalance.inspector.TelnetLoadBalanceInspector;
 
+/**
+ * 主动探测器(TELNET)测试
+ */
 public class InspectManagerTelnetCommonTest {
 
     public static void main(String[] args) {
