@@ -13,16 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Project GitHub: https://github.com/shepherdviolet/thistle
+ * Project GitHub: https://github.com/shepherdviolet/slate-common
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.modelx.loadbalance;
+package sviolet.slate.common.modelx.loadbalance.classic;
 
-public class LoadBalancedOkHttpClient <BodyType> {
+public class HttpRejectException extends Exception {
 
-    public void post(){
+    private int code;
 
+    public HttpRejectException(int code) {
+        super("Http rejected, code:" + code);
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
     }
 
 }
