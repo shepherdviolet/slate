@@ -19,28 +19,57 @@
 
 package sviolet.slate.common.modelx.loadbalance;
 
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import sviolet.slate.common.modelx.loadbalance.classic.LoadBalancedOkHttpClient;
+import sviolet.slate.common.modelx.loadbalance.inspector.TelnetLoadBalanceInspector;
 
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ *
+ */
 public class LoadBalancedOkHttpClientTest {
 
-    private static class MyLoadBalancedOkHttpClient extends LoadBalancedOkHttpClient {
+    public static void main(String[] args) {
 
-        @Override
-        protected OkHttpClient initOkHttpClient() {
-            return new OkHttpClient();
+        LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
+        hostManager.setHostArray(new String[]{
+                "http://127.0.0.1:8080",
+                "http://127.0.0.1:8081"
+        });
+
+        LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager();
+        inspectManager.setHostManager(hostManager);
+        inspectManager.setInspectInterval(5000L);
+        inspectManager.setInspector(new TelnetLoadBalanceInspector());
+        inspectManager.setVerboseLog(true);
+
+        LoadBalancedOkHttpClient client = new LoadBalancedOkHttpClient();
+        client.setHostManager(hostManager);
+        client.setPassiveBlockDuration(3000L);
+
+//        byte[] response = client.syncPostForBytes("/post/json", "hello".getBytes("utf-8"));
+//        System.out.println(response != null ? new String(response, "UTF-8") : "null");
+
+        Map<String, Object> params = new HashMap<>(2);
+        params.put("name", "wang");
+        params.put("key", "123");
+
+        byte[] response = new byte[0];
+        try {
+            response = client.syncGetForBytes("/get/json", params);
+            System.out.println(response != null ? new String(response, "UTF-8") : "null");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        @Override
-        protected Request buildPostRequest(String url, String urlSuffix, String body) {
-            return new Request.Builder()
-                    .url(url + urlSuffix)
-                    .post(RequestBody.create(MediaType.parse("application/json;charset=utf-8"), body))
-                    .build();
+        try {
+            response = client.syncGetForBytes("/get/json", params);
+            System.out.println(response != null ? new String(response, "UTF-8") : "null");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
 }
