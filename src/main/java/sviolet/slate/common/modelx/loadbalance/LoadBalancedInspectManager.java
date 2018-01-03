@@ -224,7 +224,7 @@ public class LoadBalancedInspectManager implements Destroyable {
                 if (block){
                     host.block(blockDuration);
                     if (logger.isInfoEnabled()) {
-                        logger.info("Inspect: block " + host.getUrl());
+                        logger.info("Inspect: block " + host.getUrl() + " " + blockDuration);
                     }
                 }
                 if (verboseLog) {
