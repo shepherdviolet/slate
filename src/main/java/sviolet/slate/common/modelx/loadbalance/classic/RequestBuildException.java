@@ -19,10 +19,12 @@
 
 package sviolet.slate.common.modelx.loadbalance.classic;
 
+/**
+ * 构建Request对象时报错
+ *
+ * @author S.Violet
+ */
 public class RequestBuildException extends Exception {
-
-    public RequestBuildException() {
-    }
 
     public RequestBuildException(String message) {
         super(message);
@@ -30,14 +32,6 @@ public class RequestBuildException extends Exception {
 
     public RequestBuildException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    public RequestBuildException(Throwable cause) {
-        super(cause);
-    }
-
-    public RequestBuildException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 
 }

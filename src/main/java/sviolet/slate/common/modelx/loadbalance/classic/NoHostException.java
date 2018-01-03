@@ -19,25 +19,15 @@
 
 package sviolet.slate.common.modelx.loadbalance.classic;
 
+/**
+ * 当前没有可发送的后端
+ *
+ * @author S.Violet
+ */
 public class NoHostException extends Exception {
-
-    public NoHostException() {
-    }
 
     public NoHostException(String message) {
         super(message);
-    }
-
-    public NoHostException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public NoHostException(Throwable cause) {
-        super(cause);
-    }
-
-    public NoHostException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 
 }

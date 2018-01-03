@@ -19,6 +19,11 @@
 
 package sviolet.slate.common.modelx.loadbalance.classic;
 
+/**
+ * Http请求拒绝异常
+ *
+ * @author S.Violet
+ */
 public class HttpRejectException extends Exception {
 
     private int code;
