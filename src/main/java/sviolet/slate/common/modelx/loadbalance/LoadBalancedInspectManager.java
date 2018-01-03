@@ -31,6 +31,20 @@ import java.util.concurrent.Executor;
 
 /**
  * 均衡负载--网络状态探测管理器(内置常驻调度线程一个), 可以使用close方法关闭(关闭后不再探测网络状态)
+ *
+ * <pre>{@code
+ *      //实例化
+ *      LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager();
+ *      //设置要探测的远端管理器(必须)
+ *      inspectManager.setHostManager(hostManager);
+ *      //探测间隔(阻断时长为该值的两倍, 探测超时为该值的1/4)
+ *      inspectManager.setInspectInterval(10000L);
+ *      //设置探测器
+ *      inspectManager.setInspector(new TelnetLoadBalanceInspector());
+ *      //允许输出调试日志
+ *      inspectManager.setVerboseLog(true);
+ * }</pre>
+ *
  * @author S.Violet
  */
 public class LoadBalancedInspectManager implements Destroyable {

@@ -28,6 +28,18 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 负载均衡--远端URL管理器
+ * 
+ * <pre>{@code
+ *      //实例化
+ *      LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
+ *      //设置/刷新远端清单(线程安全/异步更新)
+ *      hostManager.setHostArray(new String[]{
+ *          "http://www.baidu.com",
+ *          "https://api.beeb.com.cn",
+ *          "http://127.0.0.1:8080",
+ *          "http://127.0.0.1:8081"
+ *      });
+ * }</pre>
  *
  * @author S.Violet
  */
