@@ -37,6 +37,23 @@ import java.util.Map;
 /**
  * 支持均衡负载的OkHttpClient(简单的示例模板, 建议自行实现)
  *
+ * <pre>{@code
+ *      LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
+ *      hostManager.setHostArray(new String[]{
+ *          "http://127.0.0.1:8080",
+ *          "http://127.0.0.1:8081"
+ *      });
+ *
+ *      LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager();
+ *      inspectManager.setHostManager(hostManager);
+ *      inspectManager.setInspectInterval(5000L);
+ *      inspectManager.setInspector(new TelnetLoadBalanceInspector());
+ *
+ *      LoadBalancedOkHttpClient client = new LoadBalancedOkHttpClient();
+ *      client.setHostManager(hostManager);
+ *      client.setPassiveBlockDuration(3000L);
+ * }</pre>
+ *
  * @author S.Violet
  */
 public class LoadBalancedOkHttpClient {
