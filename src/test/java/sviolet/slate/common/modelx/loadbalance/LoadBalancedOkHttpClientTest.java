@@ -19,16 +19,24 @@
 
 package sviolet.slate.common.modelx.loadbalance;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sviolet.slate.common.modelx.loadbalance.classic.HttpRejectException;
 import sviolet.slate.common.modelx.loadbalance.classic.LoadBalancedOkHttpClient;
+import sviolet.slate.common.modelx.loadbalance.classic.NoHostException;
+import sviolet.slate.common.modelx.loadbalance.classic.RequestBuildException;
 import sviolet.slate.common.modelx.loadbalance.inspector.TelnetLoadBalanceInspector;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * 支持均衡负载的OkHttpClient测试案例
  */
 public class LoadBalancedOkHttpClientTest {
+
+    private static Logger logger = LoggerFactory.getLogger(LoadBalancedOkHttpClientTest.class);
 
     public static void main(String[] args) {
 
@@ -44,32 +52,64 @@ public class LoadBalancedOkHttpClientTest {
         inspectManager.setInspector(new TelnetLoadBalanceInspector());
         inspectManager.setVerboseLog(true);
 
-        LoadBalancedOkHttpClient client = new LoadBalancedOkHttpClient();
+        final LoadBalancedOkHttpClient client = new LoadBalancedOkHttpClient();
         client.setHostManager(hostManager);
         client.setPassiveBlockDuration(3000L);
 
-//        byte[] response = client.syncPostForBytes("/post/json", "hello".getBytes("utf-8"));
-//        System.out.println(response != null ? new String(response, "UTF-8") : "null");
+        postTask(client);
+//        getTask(client);
 
-        Map<String, Object> params = new HashMap<>(2);
-        params.put("name", "wang");
-        params.put("key", "123");
+    }
 
-        byte[] response = new byte[0];
-        try {
-            response = client.syncGetForBytes("/get/json", params);
-            System.out.println(response != null ? new String(response, "UTF-8") : "null");
-        } catch (Exception e) {
-            e.printStackTrace();
+    private static void postTask(final LoadBalancedOkHttpClient client) {
+        for (int i = 0 ; i < 4 ; i++) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < 10000; i++) {
+                        try {
+                            byte[] response = client.syncPostForBytes("/post/json", "hello".getBytes("utf-8"));
+                            logger.debug("response:" + (response != null ? new String(response, "UTF-8") : "null"));
+                        } catch (NoHostException e) {
+                            logger.error("error: no host");
+                        } catch (RequestBuildException e) {
+                            logger.error("error: request build");
+                        } catch (IOException e) {
+                            logger.error("error: io " + e.getMessage());
+                        } catch (HttpRejectException e) {
+                            logger.error("reject: " + e.getCode());
+                        }
+                    }
+                }
+            }).start();
         }
+    }
 
-        try {
-            response = client.syncGetForBytes("/get/json", params);
-            System.out.println(response != null ? new String(response, "UTF-8") : "null");
-        } catch (Exception e) {
-            e.printStackTrace();
+    private static void getTask(final LoadBalancedOkHttpClient client) {
+        for (int i = 0 ; i < 4 ; i++) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < 10000; i++) {
+                        try {
+                            Map<String, Object> params = new HashMap<>(2);
+                            params.put("name", "tester");
+                            params.put("key", "123456");
+                            byte[] response = client.syncGetForBytes("/get/json", params);
+                            logger.debug("response:" + (response != null ? new String(response, "UTF-8") : "null"));
+                        } catch (NoHostException e) {
+                            logger.error("error: no host");
+                        } catch (RequestBuildException e) {
+                            logger.error("error: request build");
+                        } catch (IOException e) {
+                            logger.error("error: io " + e.getMessage());
+                        } catch (HttpRejectException e) {
+                            logger.error("reject: " + e.getCode());
+                        }
+                    }
+                }
+            }).start();
         }
-
     }
 
 }
