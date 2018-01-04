@@ -282,9 +282,7 @@ public class LoadBalancedOkHttpClient {
             //报文体
             return response.body();
         } catch (Throwable t) {
-            if (t instanceof ConnectException ||
-                    t instanceof SocketTimeoutException ||
-                    t instanceof UnknownHostException) {
+            if (needBlock(t)) {
                 //网络故障阻断后端
                 host.block(passiveBlockDuration);
                 if (logger.isInfoEnabled()){
@@ -348,6 +346,12 @@ public class LoadBalancedOkHttpClient {
                 .url(httpUrl)
                 .get()
                 .build();
+    }
+
+    protected boolean needBlock(Throwable t) {
+        return t instanceof ConnectException ||
+                t instanceof SocketTimeoutException ||
+                t instanceof UnknownHostException;
     }
 
 }
