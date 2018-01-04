@@ -211,7 +211,7 @@ public class LoadBalancedOkHttpClient {
             throw new RequestBuildException("Null request built");
         }
 
-        if (verboseLog) {
+        if (logger.isDebugEnabled()) {
             logger.debug("POST real url:" + request.url().toString());
         }
 
@@ -238,7 +238,7 @@ public class LoadBalancedOkHttpClient {
             throw new RequestBuildException("Null request built");
         }
 
-        if (verboseLog) {
+        if (logger.isDebugEnabled()) {
             logger.debug("GET real url:" + request.url().toString());
         }
 
