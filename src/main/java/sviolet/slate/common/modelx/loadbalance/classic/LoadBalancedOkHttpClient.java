@@ -23,6 +23,7 @@ import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager;
+import sviolet.thistle.util.conversion.ByteUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +53,7 @@ public class LoadBalancedOkHttpClient {
     private long passiveBlockDuration = PASSIVE_BLOCK_DURATION;
     private String mediaType = MEDIA_TYPE;
     private String encode = ENCODE;
+    private boolean verboseLog = false;
 
     public LoadBalancedOkHttpClient() {
         okHttpClient = initOkHttpClient();
@@ -87,6 +89,13 @@ public class LoadBalancedOkHttpClient {
      */
     public void setEncode(String encode) {
         this.encode = encode;
+    }
+
+    /**
+     * @param verboseLog true:打印更多的调试日志, 默认关闭
+     */
+    public void setVerboseLog(boolean verboseLog) {
+        this.verboseLog = verboseLog;
     }
 
     /**
@@ -187,6 +196,10 @@ public class LoadBalancedOkHttpClient {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
+        if (verboseLog) {
+            logger.debug("POST url:" + host.getUrl() + ", suffix:" + urlSuffix + ", body:" + ByteUtils.bytesToHex(body));
+        }
+
         //装配Request
         Request request;
         try {
@@ -198,6 +211,10 @@ public class LoadBalancedOkHttpClient {
             throw new RequestBuildException("Null request built");
         }
 
+        if (verboseLog) {
+            logger.debug("POST real url:" + request.url().toString());
+        }
+
         //请求
         return syncCall(host, request);
     }
@@ -205,6 +222,10 @@ public class LoadBalancedOkHttpClient {
     private ResponseBody syncGet(String urlSuffix, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
+
+        if (verboseLog) {
+            logger.debug("GET url:" + host.getUrl() + ", suffix:" + urlSuffix + ", params:" + params);
+        }
 
         //装配Request
         Request request;
@@ -215,6 +236,10 @@ public class LoadBalancedOkHttpClient {
         }
         if (request == null) {
             throw new RequestBuildException("Null request built");
+        }
+
+        if (verboseLog) {
+            logger.debug("GET real url:" + request.url().toString());
         }
 
         //请求
