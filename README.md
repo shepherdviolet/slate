@@ -1,4 +1,4 @@
-# slate-common 7.1
+# slate-common 7.2
 * JavaEE common library for private use
 * https://github.com/shepherdviolet/slate-common
 
@@ -10,7 +10,7 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 dependencies {
-    compile 'com.github.shepherdviolet:slate-common:7.1'
+    compile 'com.github.shepherdviolet:slate-common:7.2'
 }
 
 ```
