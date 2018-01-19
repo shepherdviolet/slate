@@ -55,6 +55,10 @@ public class LoadBalancedOkHttpClientTest {
         final LoadBalancedOkHttpClient client = new LoadBalancedOkHttpClient();
         client.setHostManager(hostManager);
         client.setPassiveBlockDuration(3000L);
+        client.setConnectTimeout(3000L);
+        client.setWriteTimeout(10000L);
+        client.setReadTimeout(10000L);
+//        client.setProxy("127.0.0.1:17711");
 
         postTask(client);
 //        getTask(client);

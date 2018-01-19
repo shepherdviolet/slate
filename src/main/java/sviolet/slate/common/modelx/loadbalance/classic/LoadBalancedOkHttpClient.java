@@ -28,16 +28,16 @@ import sviolet.thistle.util.conversion.ByteUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
-import java.net.URLEncoder;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 支持均衡负载的OkHttpClient(简单的示例模板, 建议自行实现)
  *
  * <pre>{@code
+ *
  *      LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
  *      hostManager.setHostArray(new String[]{
  *          "http://127.0.0.1:8080",
@@ -52,6 +52,11 @@ import java.util.Map;
  *      LoadBalancedOkHttpClient client = new LoadBalancedOkHttpClient();
  *      client.setHostManager(hostManager);
  *      client.setPassiveBlockDuration(3000L);
+ *      client.setConnectTimeout(3000L);
+ *      client.setWriteTimeout(10000L);
+ *      client.setReadTimeout(10000L);
+ *      //client.setProxy("127.0.0.1:17711");
+ *
  * }</pre>
  *
  * @author S.Violet
@@ -67,14 +72,11 @@ public class LoadBalancedOkHttpClient {
     private OkHttpClient okHttpClient;
     private LoadBalancedHostManager hostManager;
 
-    private long passiveBlockDuration = PASSIVE_BLOCK_DURATION;
-    private String mediaType = MEDIA_TYPE;
-    private String encode = ENCODE;
-    private boolean verboseLog = false;
+    private Settings settings = new Settings();
+    private boolean refreshSettings = false;
+    private ReentrantLock settingsLock = new ReentrantLock();
 
-    public LoadBalancedOkHttpClient() {
-        okHttpClient = initOkHttpClient();
-    }
+    //Settings ///////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * 设置远端管理器(必须)
@@ -89,7 +91,7 @@ public class LoadBalancedOkHttpClient {
      * @param passiveBlockDuration 阻断时长ms
      */
     public void setPassiveBlockDuration(long passiveBlockDuration) {
-        this.passiveBlockDuration = passiveBlockDuration;
+        settings.passiveBlockDuration = passiveBlockDuration;
     }
 
     /**
@@ -97,7 +99,7 @@ public class LoadBalancedOkHttpClient {
      * @param mediaType 设置MediaType
      */
     public void setMediaType(String mediaType) {
-        this.mediaType = mediaType;
+        settings.mediaType = mediaType;
     }
 
     /**
@@ -105,15 +107,120 @@ public class LoadBalancedOkHttpClient {
      * @param encode 编码
      */
     public void setEncode(String encode) {
-        this.encode = encode;
+        settings.encode = encode;
     }
 
     /**
+     * 打印更多的调试日志, 默认关闭
      * @param verboseLog true:打印更多的调试日志, 默认关闭
      */
     public void setVerboseLog(boolean verboseLog) {
-        this.verboseLog = verboseLog;
+        settings.verboseLog = verboseLog;
     }
+
+    /**
+     * 设置连接超时ms
+     * @param connectTimeout 连接超时ms
+     */
+    public void setConnectTimeout(long connectTimeout) {
+        try {
+            settingsLock.lock();
+            settings.connectTimeout = connectTimeout;
+            refreshSettings = true;
+        } finally {
+            settingsLock.unlock();
+        }
+    }
+
+    /**
+     * 设置写数据超时ms
+     * @param writeTimeout 写数据超时ms
+     */
+    public void setWriteTimeout(long writeTimeout) {
+        try {
+            settingsLock.lock();
+            settings.writeTimeout = writeTimeout;
+            refreshSettings = true;
+        } finally {
+            settingsLock.unlock();
+        }
+    }
+
+    /**
+     * 设置读数据超时ms
+     * @param readTimeout 读数据超时ms
+     */
+    public void setReadTimeout(long readTimeout) {
+        try {
+            settingsLock.lock();
+            settings.readTimeout = readTimeout;
+            refreshSettings = true;
+        } finally {
+            settingsLock.unlock();
+        }
+    }
+
+    /**
+     * CookieJar
+     * @param cookieJar CookieJar
+     */
+    public void setCookieJar(CookieJar cookieJar) {
+        try {
+            settingsLock.lock();
+            settings.cookieJar = cookieJar;
+            refreshSettings = true;
+        } finally {
+            settingsLock.unlock();
+        }
+    }
+
+    /**
+     * Proxy
+     * @param proxy 例如127.0.0.1:8080
+     * @throws IllegalArgumentException if the proxy string is invalid
+     * @throws NumberFormatException  if the string does not contain a parsable integer.
+     * @throws SecurityException if a security manager is present and permission to resolve the host name is denied.
+     */
+    public void setProxy(String proxy) {
+        Proxy proxyObj = null;
+        if (proxy == null){
+            throw new IllegalArgumentException("Invalid proxy string \"" + proxy + "\", correct \"X.X.X.X:XXX\", example \"127.0.0.1:8080\"");
+        }
+        int index = proxy.indexOf(":");
+        if (index <= 0 || index >= proxy.length() - 1){
+            throw new IllegalArgumentException("Invalid proxy string \"" + proxy + "\", correct \"X.X.X.X:XXX\", example \"127.0.0.1:8080\"");
+        }
+        try {
+            proxyObj = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(
+                    proxy.substring(0, index),
+                    Integer.parseInt(proxy.substring(index + 1))));
+        } catch (Throwable t){
+            throw new IllegalArgumentException("Invalid proxy string \"" + proxy + "\", correct \"X.X.X.X:XXX\", example \"127.0.0.1:8080\"");
+        }
+        try {
+            settingsLock.lock();
+            settings.proxy = proxyObj;
+            refreshSettings = true;
+        } finally {
+            settingsLock.unlock();
+        }
+    }
+
+    /**
+     * Dns
+     * @param dns Dns
+     */
+    public void setDns(Dns dns) {
+        try {
+            settingsLock.lock();
+            settings.dns = dns;
+            refreshSettings = true;
+        } finally {
+            settingsLock.unlock();
+        }
+    }
+
+    //Request /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * 同步POST请求
@@ -213,14 +320,14 @@ public class LoadBalancedOkHttpClient {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
-        if (verboseLog) {
+        if (settings.verboseLog) {
             logger.debug("POST url:" + host.getUrl() + ", suffix:" + urlSuffix + ", body:" + ByteUtils.bytesToHex(body));
         }
 
         //装配Request
         Request request;
         try {
-            request = buildPostRequest(host.getUrl(), urlSuffix, body);
+            request = buildPostRequest(host.getUrl(), urlSuffix, body, settings);
         } catch (Throwable t) {
             throw new RequestBuildException("Error while building request", t);
         }
@@ -240,14 +347,14 @@ public class LoadBalancedOkHttpClient {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
-        if (verboseLog) {
+        if (settings.verboseLog) {
             logger.debug("GET url:" + host.getUrl() + ", suffix:" + urlSuffix + ", params:" + params);
         }
 
         //装配Request
         Request request;
         try {
-            request = buildGetRequest(host.getUrl(), urlSuffix, params);
+            request = buildGetRequest(host.getUrl(), urlSuffix, params, settings);
         } catch (Throwable t) {
             throw new RequestBuildException("Error while building request", t);
         }
@@ -274,7 +381,7 @@ public class LoadBalancedOkHttpClient {
     private ResponseBody syncCall(LoadBalancedHostManager.Host host, Request request) throws IOException, HttpRejectException {
         try {
             //同步请求
-            Response response = okHttpClient.newCall(request).execute();
+            Response response = getOkHttpClient().newCall(request).execute();
             //Http拒绝
             if (!response.isSuccessful()) {
                 throw new HttpRejectException(response.code());
@@ -282,23 +389,59 @@ public class LoadBalancedOkHttpClient {
             //报文体
             return response.body();
         } catch (Throwable t) {
-            if (needBlock(t)) {
+            if (needBlock(t, settings)) {
                 //网络故障阻断后端
-                host.block(passiveBlockDuration);
+                host.block(settings.passiveBlockDuration);
                 if (logger.isInfoEnabled()){
-                    logger.info("Block " + host.getUrl() + " " + passiveBlockDuration);
+                    logger.info("Block " + host.getUrl() + " " + settings.passiveBlockDuration);
                 }
             }
             throw t;
         }
     }
 
+    private OkHttpClient getOkHttpClient(){
+        OkHttpClient client = okHttpClient;
+        if (client == null || refreshSettings) {
+            try {
+                settingsLock.lock();
+                client = okHttpClient;
+                if (client == null || refreshSettings) {
+                    client = createOkHttpClient(settings);
+                    okHttpClient = client;
+                    refreshSettings = false;
+                }
+            } finally {
+                settingsLock.unlock();
+            }
+        }
+        return client;
+    }
+
+    //Override //////////////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * 初始化OkHttpClient实例(复写本方法实现自定义的逻辑)
      * @return OkHttpClient实例
      */
-    protected OkHttpClient initOkHttpClient(){
-        return new OkHttpClient();
+    protected OkHttpClient createOkHttpClient(Settings settings){
+
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .connectTimeout(settings.connectTimeout, TimeUnit.MILLISECONDS)
+                .writeTimeout(settings.writeTimeout, TimeUnit.MILLISECONDS)
+                .readTimeout(settings.readTimeout, TimeUnit.MILLISECONDS);
+
+        if (settings.cookieJar != null) {
+            builder.cookieJar(settings.cookieJar);
+        }
+        if (settings.proxy != null) {
+            builder.proxy(settings.proxy);
+        }
+        if (settings.dns != null) {
+            builder.dns(settings.dns);
+        }
+
+        return builder.build();
     }
 
     /**
@@ -309,10 +452,10 @@ public class LoadBalancedOkHttpClient {
      * @return Request
      * @throws RequestBuildException 构建异常
      */
-    protected Request buildPostRequest(String url, String urlSuffix, byte[] body) throws RequestBuildException{
+    protected Request buildPostRequest(String url, String urlSuffix, byte[] body, Settings settings) throws RequestBuildException{
         return new Request.Builder()
                 .url(url + urlSuffix)
-                .post(RequestBody.create(MediaType.parse(mediaType), body))
+                .post(RequestBody.create(MediaType.parse(settings.mediaType), body))
                 .build();
     }
 
@@ -324,7 +467,7 @@ public class LoadBalancedOkHttpClient {
      * @return Request
      * @throws RequestBuildException 构建异常
      */
-    protected Request buildGetRequest(String url, String urlSuffix, Map<String, Object> params) throws RequestBuildException{
+    protected Request buildGetRequest(String url, String urlSuffix, Map<String, Object> params, Settings settings) throws RequestBuildException{
         HttpUrl httpUrl = HttpUrl.parse(url + urlSuffix);
         if (httpUrl == null){
             throw new RequestBuildException("Invalid url:" + url + urlSuffix);
@@ -334,7 +477,7 @@ public class LoadBalancedOkHttpClient {
             HttpUrl.Builder httpUrlBuilder = httpUrl.newBuilder();
             for (Map.Entry<String, Object> param : params.entrySet()) {
                 try {
-                    httpUrlBuilder.addEncodedQueryParameter(param.getKey(), URLEncoder.encode(param.getValue() != null ? param.getValue().toString() : "", encode));
+                    httpUrlBuilder.addEncodedQueryParameter(param.getKey(), URLEncoder.encode(param.getValue() != null ? param.getValue().toString() : "", settings.encode));
                 } catch (UnsupportedEncodingException e) {
                     throw new RequestBuildException("Error while encode to url format", e);
                 }
@@ -348,10 +491,26 @@ public class LoadBalancedOkHttpClient {
                 .build();
     }
 
-    protected boolean needBlock(Throwable t) {
+    protected boolean needBlock(Throwable t, Settings settings) {
         return t instanceof ConnectException ||
                 t instanceof SocketTimeoutException ||
                 t instanceof UnknownHostException;
+    }
+
+    public static class Settings {
+
+        private long passiveBlockDuration = PASSIVE_BLOCK_DURATION;
+        private String mediaType = MEDIA_TYPE;
+        private String encode = ENCODE;
+        private boolean verboseLog = false;
+
+        private long connectTimeout = 5000L;
+        private long writeTimeout = 60000L;
+        private long readTimeout = 60000L;
+        private CookieJar cookieJar;
+        private Proxy proxy;
+        private Dns dns;
+
     }
 
 }
