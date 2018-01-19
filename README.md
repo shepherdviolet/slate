@@ -7,7 +7,9 @@
 ```gradle
 
 repositories {
-    // maven central or jitpack.io
+    //local repository
+    //maven { url 'file:C:/m2repository/repository' }
+    //maven central or jitpack.io
     mavenCentral()
     maven { url 'https://jitpack.io' }
 }
@@ -17,15 +19,12 @@ dependencies {
 
 ```
 
-### Import dependencies from local repository
-
-```gradle
-
-repositories {
-    //replace by your path
-    maven { url 'file:C:/m2repository/repository' }
-}
-
+```maven
+    <dependency>    
+        <groupId>com.github.shepherdviolet</groupId>
+        <artifactId>slate-common</artifactId>
+        <version>7.2</version> 
+    </dependency>
 ```
 
 # How to exclude dependencies (optional)
@@ -41,4 +40,22 @@ repositories {
             exclude group:'com.squareup.okhttp3'
         }
     }
+```
+
+```maven
+    <dependency>    
+        <groupId>com.github.shepherdviolet</groupId>
+        <artifactId>slate-common</artifactId>
+        <version>7.2</version> 
+        <exclusions>  
+             <exclusion>	 
+                 <groupId>com.jcraft</groupId>		
+                 <artifactId>jsch</artifactId>  
+             </exclusion>  
+             <exclusion>	 
+                 <groupId>com.squareup.okhttp3</groupId>
+                 <artifactId>*</artifactId>  
+             </exclusion>  
+        </exclusions>  
+    </dependency>
 ```
