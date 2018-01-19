@@ -55,9 +55,9 @@ public class LoadBalancedHttpUrlConnClientTest {
         client.setConnectTimeout(3000);
         client.setReadTimeout(10000);
 
-        postOnce(client);
+//        postOnce(client);
 //        getOnce(client);
-//        postTask(client);
+        postTask(client);
 //        getTask(client);
 
     }
@@ -70,6 +70,7 @@ public class LoadBalancedHttpUrlConnClientTest {
             logger.error("error: no host");
         } catch (IOException e) {
             logger.error("error: io " + e.getMessage());
+            e.printStackTrace();
         } catch (HttpRejectException e) {
             logger.error("reject: " + e.getResponseCode());
         }
