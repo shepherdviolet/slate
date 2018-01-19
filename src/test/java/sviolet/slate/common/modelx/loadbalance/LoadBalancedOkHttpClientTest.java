@@ -72,6 +72,10 @@ public class LoadBalancedOkHttpClientTest {
                 public void run() {
                     for (int i = 0; i < 10000; i++) {
                         try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException ignore) {
+                        }
+                        try {
                             byte[] response = client.syncPostForBytes("/post/json", "hello".getBytes("utf-8"));
                             logger.debug("response:" + (response != null ? new String(response, "UTF-8") : "null"));
                         } catch (NoHostException e) {
@@ -81,7 +85,7 @@ public class LoadBalancedOkHttpClientTest {
                         } catch (IOException e) {
                             logger.error("error: io " + e.getMessage());
                         } catch (HttpRejectException e) {
-                            logger.error("reject: " + e.getCode());
+                            logger.error("reject: " + e.getResponseCode());
                         }
                     }
                 }
@@ -96,6 +100,10 @@ public class LoadBalancedOkHttpClientTest {
                 public void run() {
                     for (int i = 0; i < 10000; i++) {
                         try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException ignore) {
+                        }
+                        try {
                             Map<String, Object> params = new HashMap<>(2);
                             params.put("name", "tester");
                             params.put("key", "123456");
@@ -108,7 +116,7 @@ public class LoadBalancedOkHttpClientTest {
                         } catch (IOException e) {
                             logger.error("error: io " + e.getMessage());
                         } catch (HttpRejectException e) {
-                            logger.error("reject: " + e.getCode());
+                            logger.error("reject: " + e.getResponseCode());
                         }
                     }
                 }
