@@ -22,16 +22,13 @@ package sviolet.slate.common.modelx.loadbalance;
 import sviolet.thistle.model.thread.LazySingleThreadPool;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 负载均衡--远端URL管理器
- * 
+ *
  * <pre>{@code
  *      //实例化
  *      LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
@@ -61,29 +58,6 @@ public class LoadBalancedHostManager {
      * @return 获取一个远端
      */
     public Host nextHost(){
-
-        if (noSettings){
-            return null;
-        }
-
-        /*
-            因为设置Hosts是异步操作, 如果在初次设置完成前执行该方法, 会获取不到Host, 因此需要挂起线程等待设置完成(挂起60秒).
-            这里不使用循环锁, 因为被意外唤醒的可能性极低, 而本类主要用于后端, 实际上在SPRING初始化的时候就会完成异步设置,
-            一般不会发生问题. 即使被意外唤醒, 获取不到Host也只会导致个别交易失败.
-         */
-        if (!initialized) {
-            try {
-                initLock.lock();
-                if (!initialized){
-                    try {
-                        initCondition.await(60, TimeUnit.SECONDS);
-                    } catch (InterruptedException ignore) {
-                    }
-                }
-            } finally {
-                initLock.unlock();
-            }
-        }
 
         Host[] hostArray = this.hostArray.get();
 
@@ -122,11 +96,6 @@ public class LoadBalancedHostManager {
     private LazySingleThreadPool settingThreadPool = new LazySingleThreadPool("LoadBalancedHostManager-Setting-%d");
     private AtomicReference<List<String>> newSettings = new AtomicReference<>(null);
 
-    private volatile boolean noSettings = true;
-    private volatile boolean initialized = false;
-    private ReentrantLock initLock = new ReentrantLock();
-    private Condition initCondition = initLock.newCondition();
-
     /**
      * [线程安全的/异步的]
      * 设置/刷新远端列表
@@ -160,12 +129,8 @@ public class LoadBalancedHostManager {
         }
 
         newSettings.set(hosts);
-        settingThreadPool.execute(settingInstallTask);
 
-        /*
-            置为已设置Host的状态
-         */
-        noSettings = false;
+        settingThreadPool.execute(settingInstallTask);
     }
 
     /**
@@ -233,21 +198,6 @@ public class LoadBalancedHostManager {
 
                 LoadBalancedHostManager.this.hostArray.set(newHostArray);
                 hostIndexMap = newHostIndexMap;
-
-                /*
-                    置为初始化完成状态, 并通知挂起的线程
-                 */
-                if (!initialized) {
-                    initialized = true;
-                    try {
-                        initLock.lock();
-                        if (!initialized){
-                            initCondition.signalAll();
-                        }
-                    } finally {
-                        initLock.unlock();
-                    }
-                }
             }
         }
     };
