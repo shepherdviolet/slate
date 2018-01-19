@@ -111,6 +111,14 @@ public class LoadBalancedOkHttpClient {
     }
 
     /**
+     * 设置HTTP请求头参数
+     * @param headers 请求头参数
+     */
+    public void setHeaders(Map<String, String> headers) {
+        settings.headers = headers;
+    }
+
+    /**
      * 打印更多的调试日志, 默认关闭
      * @param verboseLog true:打印更多的调试日志, 默认关闭
      */
@@ -384,7 +392,7 @@ public class LoadBalancedOkHttpClient {
             Response response = getOkHttpClient().newCall(request).execute();
             //Http拒绝
             if (!response.isSuccessful()) {
-                throw new HttpRejectException(response.code());
+                throw new HttpRejectException(response.code(), response.message());
             }
             //报文体
             return response.body();
@@ -453,10 +461,17 @@ public class LoadBalancedOkHttpClient {
      * @throws RequestBuildException 构建异常
      */
     protected Request buildPostRequest(String url, String urlSuffix, byte[] body, Settings settings) throws RequestBuildException{
-        return new Request.Builder()
+        Request.Builder builder = new Request.Builder()
                 .url(url + urlSuffix)
-                .post(RequestBody.create(MediaType.parse(settings.mediaType), body))
-                .build();
+                .post(RequestBody.create(MediaType.parse(settings.mediaType), body));
+
+        Map<String, String> headers = settings.headers;
+        if (headers != null){
+            for (Map.Entry<String, String> entry : headers.entrySet()){
+                builder.addHeader(entry.getKey(), entry.getValue());
+            }
+        }
+        return builder.build();
     }
 
     /**
@@ -485,10 +500,17 @@ public class LoadBalancedOkHttpClient {
             httpUrl = httpUrlBuilder.build();
         }
 
-        return new Request.Builder()
+        Request.Builder builder = new Request.Builder()
                 .url(httpUrl)
-                .get()
-                .build();
+                .get();
+
+        Map<String, String> headers = settings.headers;
+        if (headers != null){
+            for (Map.Entry<String, String> entry : headers.entrySet()){
+                builder.addHeader(entry.getKey(), entry.getValue());
+            }
+        }
+        return builder.build();
     }
 
     protected boolean needBlock(Throwable t, Settings settings) {
@@ -502,6 +524,7 @@ public class LoadBalancedOkHttpClient {
         private long passiveBlockDuration = PASSIVE_BLOCK_DURATION;
         private String mediaType = MEDIA_TYPE;
         private String encode = ENCODE;
+        private Map<String, String> headers;
         private boolean verboseLog = false;
 
         private long connectTimeout = 5000L;

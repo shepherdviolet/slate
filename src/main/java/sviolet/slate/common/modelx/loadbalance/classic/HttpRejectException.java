@@ -27,14 +27,20 @@ package sviolet.slate.common.modelx.loadbalance.classic;
 public class HttpRejectException extends Exception {
 
     private int code;
+    private String message;
 
-    public HttpRejectException(int code) {
-        super("Http rejected, code:" + code);
+    public HttpRejectException(int code, String message) {
+        super("Http rejected, code:" + code + ", message:" + message);
         this.code = code;
+        this.message = message;
     }
 
-    public int getCode() {
+    public int getResponseCode() {
         return code;
+    }
+
+    public String getResponseMessage(){
+        return message;
     }
 
 }
