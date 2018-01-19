@@ -35,7 +35,23 @@ import java.util.Map;
  * 支持均衡负载的HttpUrlConnection Client(简单的示例模板, 建议自行实现)
  *
  * <pre>{@code
+ *  LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
+ *  hostManager.setHostArray(new String[]{
+ *      "http://127.0.0.1:8080",
+ *      "http://127.0.0.1:8081"
+ *  });
  *
+ *  LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager();
+ *  inspectManager.setHostManager(hostManager);
+ *  inspectManager.setInspectInterval(5000L);
+ *  inspectManager.setInspector(new TelnetLoadBalanceInspector());
+ *  inspectManager.setVerboseLog(true);
+ *
+ *  LoadBalancedHttpUrlConnClient client = new LoadBalancedHttpUrlConnClient();
+ *  client.setHostManager(hostManager);
+ *  client.setPassiveBlockDuration(3000L);
+ *  client.setConnectTimeout(3000);
+ *  client.setReadTimeout(10000);
  * }</pre>
  *
  * @author S.Violet
