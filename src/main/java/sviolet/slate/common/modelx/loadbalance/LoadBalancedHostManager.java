@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 负载均衡--远端URL管理器
@@ -96,6 +97,9 @@ public class LoadBalancedHostManager {
     private LazySingleThreadPool settingThreadPool = new LazySingleThreadPool("LoadBalancedHostManager-Setting-%d");
     private AtomicReference<List<String>> newSettings = new AtomicReference<>(null);
 
+    private boolean initialized = false;
+    private ReentrantLock initLock = new ReentrantLock();
+
     /**
      * [线程安全的/异步的]
      * 设置/刷新远端列表
@@ -128,8 +132,20 @@ public class LoadBalancedHostManager {
             }
         }
 
-        newSettings.set(hosts);
+        if (!initialized){
+            try {
+                initLock.lock();
+                if (!initialized){
+                    settingInstall(hosts);
+                    initialized = true;
+                    return;
+                }
+            } finally {
+                initLock.unlock();
+            }
+        }
 
+        newSettings.set(hosts);
         settingThreadPool.execute(settingInstallTask);
     }
 
@@ -170,37 +186,40 @@ public class LoadBalancedHostManager {
         public void run() {
             List<String> newSettings;
             while ((newSettings = LoadBalancedHostManager.this.newSettings.getAndSet(null)) != null){
-
-                Host[] hostArray = LoadBalancedHostManager.this.hostArray.get();
-
-                int newSize = newSettings.size();
-                Host[] newHostArray = new Host[newSize];
-                Map<String, Integer> newHostIndexMap = new HashMap<>(newSize);
-
-                for (int i = 0 ; i < newSize ; i++){
-
-                    String newUrl = newSettings.get(i);
-                    Integer oldIndex = hostIndexMap.get(newUrl);
-
-                    if (oldIndex != null){
-                        try {
-                            newHostArray[i] = new Host(newUrl, hostArray[oldIndex].blockingTime);
-                        } catch (Throwable ignore){
-                            newHostArray[i] = new Host(newUrl, new AtomicLong(0));
-                        }
-                    } else {
-                        newHostArray[i] = new Host(newUrl, new AtomicLong(0));
-                    }
-
-                    newHostIndexMap.put(newUrl, i);
-
-                }
-
-                LoadBalancedHostManager.this.hostArray.set(newHostArray);
-                hostIndexMap = newHostIndexMap;
+                settingInstall(newSettings);
             }
         }
     };
+
+    private void settingInstall(List<String> newSettings) {
+        Host[] hostArray = LoadBalancedHostManager.this.hostArray.get();
+
+        int newSize = newSettings.size();
+        Host[] newHostArray = new Host[newSize];
+        Map<String, Integer> newHostIndexMap = new HashMap<>(newSize);
+
+        for (int i = 0 ; i < newSize ; i++){
+
+            String newUrl = newSettings.get(i);
+            Integer oldIndex = hostIndexMap.get(newUrl);
+
+            if (oldIndex != null){
+                try {
+                    newHostArray[i] = new Host(newUrl, hostArray[oldIndex].blockingTime);
+                } catch (Throwable ignore){
+                    newHostArray[i] = new Host(newUrl, new AtomicLong(0));
+                }
+            } else {
+                newHostArray[i] = new Host(newUrl, new AtomicLong(0));
+            }
+
+            newHostIndexMap.put(newUrl, i);
+
+        }
+
+        LoadBalancedHostManager.this.hostArray.set(newHostArray);
+        hostIndexMap = newHostIndexMap;
+    }
 
     public static class Host {
 
