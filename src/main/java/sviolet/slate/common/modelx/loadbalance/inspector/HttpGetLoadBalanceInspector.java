@@ -36,15 +36,16 @@ import java.util.concurrent.TimeUnit;
 public class HttpGetLoadBalanceInspector implements LoadBalanceInspector {
 
     private static final int HTTP_SUCCESS = 200;
+    private static final long DEFAULT_TIMEOUT = 2000L;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private volatile OkHttpClient client = new OkHttpClient();
+    private volatile OkHttpClient client;
     private volatile String urlSuffix;
     private boolean verboseLog = false;
 
     public HttpGetLoadBalanceInspector() {
-        this("", 3000L);
+        this("", DEFAULT_TIMEOUT);
     }
 
     /**

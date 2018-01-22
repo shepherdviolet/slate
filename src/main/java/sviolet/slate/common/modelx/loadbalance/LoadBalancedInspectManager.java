@@ -21,12 +21,12 @@ package sviolet.slate.common.modelx.loadbalance;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sviolet.slate.common.modelx.loadbalance.inspector.TelnetLoadBalanceInspector;
 import sviolet.thistle.entity.Destroyable;
 import sviolet.thistle.util.common.ThreadPoolExecutorUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -54,7 +54,7 @@ public class LoadBalancedInspectManager implements Destroyable {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     private LoadBalancedHostManager hostManager;
-    private List<LoadBalanceInspector> inspectors;
+    private List<LoadBalanceInspector> inspectors = new ArrayList<>(1);
 
     private boolean closed = false;
     private boolean verboseLog = false;
@@ -67,6 +67,8 @@ public class LoadBalancedInspectManager implements Destroyable {
     private Executor inspectThreadPool = ThreadPoolExecutorUtils.newInstance(0, Integer.MAX_VALUE, 60, "LoadBalancedInspectManager-inspect-%d");
 
     public LoadBalancedInspectManager() {
+        //默认telnet探测器
+        inspectors.add(new TelnetLoadBalanceInspector());
         //开始探测
         dispatchStart();
     }
@@ -80,7 +82,7 @@ public class LoadBalancedInspectManager implements Destroyable {
     }
 
     /**
-     * 设置网络状态探测器(必须)
+     * 设置网络状态探测器, 如果不设置默认为telnet探测器
      * @param inspector 探测器
      */
     public void setInspector(LoadBalanceInspector inspector){
@@ -89,7 +91,7 @@ public class LoadBalancedInspectManager implements Destroyable {
     }
 
     /**
-     * 设置网络状态探测器(必须)
+     * 设置网络状态探测器, 如果不设置默认为telnet探测器
      * @param inspectors 探测器
      */
     public void setInspectors(List<LoadBalanceInspector> inspectors) {
