@@ -171,16 +171,8 @@ public class LoadBalancedInspectManager implements Destroyable {
                         continue;
                     }
                     //打印当前远端状态
-                    if (verboseLog) {
-                        StringBuilder stringBuilder = new StringBuilder("Host status:");
-                        Map<String, Boolean> hostsStatus = hostManager.getHostsStatus();
-                        for (Map.Entry<String, Boolean> entry : hostsStatus.entrySet()) {
-                            stringBuilder.append("\n>>>Host>>>");
-                            stringBuilder.append(entry.getKey());
-                            stringBuilder.append(":");
-                            stringBuilder.append(entry.getValue());
-                        }
-                        logger.debug(stringBuilder.toString());
+                    if (verboseLog && logger.isDebugEnabled()) {
+                        logger.debug(hostManager.printHostsStatus("Host status:"));
                     }
                     //探测所有远端
                     for (LoadBalancedHostManager.Host host : hostArray){
@@ -201,7 +193,7 @@ public class LoadBalancedInspectManager implements Destroyable {
         inspectThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                if (verboseLog) {
+                if (verboseLog && logger.isDebugEnabled()) {
                     logger.debug("Inspect: inspecting " + host.getUrl());
                 }
                 //持有探测器
@@ -241,7 +233,7 @@ public class LoadBalancedInspectManager implements Destroyable {
                         logger.info("Inspect: block " + host.getUrl() + " " + blockDuration);
                     }
                 }
-                if (verboseLog) {
+                if (verboseLog && logger.isDebugEnabled()) {
                     logger.debug("Inspect: inspected " + host.getUrl());
                 }
             }

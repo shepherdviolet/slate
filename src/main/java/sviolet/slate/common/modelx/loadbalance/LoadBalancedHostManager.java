@@ -19,7 +19,10 @@
 
 package sviolet.slate.common.modelx.loadbalance;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sviolet.thistle.model.thread.LazySingleThreadPool;
+import sviolet.thistle.util.common.CheckUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,6 +48,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author S.Violet
  */
 public class LoadBalancedHostManager {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private AtomicInteger mainCounter = new AtomicInteger(0);
     private AtomicInteger refugeCounter = new AtomicInteger(0);
@@ -104,10 +109,24 @@ public class LoadBalancedHostManager {
      * [线程安全的/异步的]
      * 设置/刷新远端列表
      *
+     * @param hosts 远端列表, 格式:"http://127.0.0.1:8081/,http://127.0.0.1:8082/"
+     */
+    public void setHosts(String hosts){
+        if (CheckUtils.isEmptyOrBlank(hosts)){
+            setHostList(new ArrayList<String>(0));
+            return;
+        }
+        setHostArray(hosts.split(","));
+    }
+
+    /**
+     * [线程安全的/异步的]
+     * 设置/刷新远端列表
+     *
      * @param hosts 远端列表
      */
     public void setHostArray(String[] hosts) {
-        if (hosts == null){
+        if (hosts == null || hosts.length <= 0){
             setHostList(new ArrayList<String>(0));
         } else {
             setHostList(Arrays.asList(hosts));
@@ -125,8 +144,9 @@ public class LoadBalancedHostManager {
             hosts = new ArrayList<>(0);
         }
 
+        //剔除空数据
         for (int i = 0 ; i < hosts.size() ; i++) {
-            if (hosts.get(i) == null){
+            if (CheckUtils.isEmptyOrBlank(hosts.get(i))){
                 hosts.remove(i);
                 i--;
             }
@@ -158,7 +178,7 @@ public class LoadBalancedHostManager {
     }
 
     /**
-     * 获得当前远端状态
+     * 获得当前远端列表和状态
      * @return value=true:可用, value=false:不可用
      */
     public Map<String, Boolean> getHostsStatus(){
@@ -175,6 +195,32 @@ public class LoadBalancedHostManager {
             status.put(host.getUrl(), !host.isBlocked(currentTimeMillis));
         }
         return status;
+    }
+
+    /**
+     * 文本方式输出当前远端列表和状态
+     * @param prefix 文本前缀
+     * @return 远端列表和状态
+     */
+    public String printHostsStatus(String prefix){
+        Host[] hostArray = this.hostArray.get();
+
+        StringBuilder stringBuilder = new StringBuilder(prefix != null ? prefix : "");
+
+        if (hostArray.length <= 0){
+            stringBuilder.append("\n>>> [No host]");
+            return stringBuilder.toString();
+        }
+
+        long currentTimeMillis = System.currentTimeMillis();
+
+        for (Host host : hostArray){
+            stringBuilder.append("\n>>> [");
+            stringBuilder.append(host.getUrl());
+            stringBuilder.append("] ");
+            stringBuilder.append(!host.isBlocked(currentTimeMillis));
+        }
+        return stringBuilder.toString();
     }
 
     Host[] getHostArray(){
@@ -200,7 +246,8 @@ public class LoadBalancedHostManager {
 
         for (int i = 0 ; i < newSize ; i++){
 
-            String newUrl = newSettings.get(i);
+            //trim
+            String newUrl = newSettings.get(i).trim();
             Integer oldIndex = hostIndexMap.get(newUrl);
 
             if (oldIndex != null){
@@ -219,6 +266,10 @@ public class LoadBalancedHostManager {
 
         LoadBalancedHostManager.this.hostArray.set(newHostArray);
         hostIndexMap = newHostIndexMap;
+
+        if (logger.isInfoEnabled()) {
+            logger.info(printHostsStatus("New hosts set:"));
+        }
     }
 
     public static class Host {
