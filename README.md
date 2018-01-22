@@ -20,10 +20,10 @@ dependencies {
 ```
 
 ```maven
-    <dependency>    
+    <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>7.3</version> 
+        <version>7.3</version>
     </dependency>
 ```
 
@@ -43,19 +43,19 @@ dependencies {
 ```
 
 ```maven
-    <dependency>    
+    <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>7.3</version> 
-        <exclusions>  
-             <exclusion>	 
-                 <groupId>com.jcraft</groupId>		
-                 <artifactId>jsch</artifactId>  
-             </exclusion>  
-             <exclusion>	 
+        <version>7.3</version>
+        <exclusions>
+             <exclusion>
+                 <groupId>com.jcraft</groupId>
+                 <artifactId>jsch</artifactId>
+             </exclusion>
+             <exclusion>
                  <groupId>com.squareup.okhttp3</groupId>
-                 <artifactId>*</artifactId>  
-             </exclusion>  
-        </exclusions>  
+                 <artifactId>*</artifactId>
+             </exclusion>
+        </exclusions>
     </dependency>
 ```
