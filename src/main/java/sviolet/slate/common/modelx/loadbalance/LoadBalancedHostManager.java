@@ -22,7 +22,7 @@ package sviolet.slate.common.modelx.loadbalance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.thistle.model.thread.LazySingleThreadPool;
-import sviolet.thistle.util.common.CheckUtils;
+import sviolet.thistle.util.judge.CheckUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;

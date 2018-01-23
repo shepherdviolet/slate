@@ -23,7 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.slate.common.modelx.loadbalance.inspector.TelnetLoadBalanceInspector;
 import sviolet.thistle.entity.Destroyable;
-import sviolet.thistle.util.common.ThreadPoolExecutorUtils;
+import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
+import sviolet.thistle.util.lifecycle.DestroyableManageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,13 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * <p>均衡负载--网络状态探测管理器</p>
- * <p>注意:内置调度线程一个, 结束时必须使用close方法关闭(关闭后不再探测网络状态)</p>
+ *
+ * <p>
+ *     注意:<br>
+ *     1.如果你是Servlet项目, 可以注册sviolet.slate.common.helperx.servlet.SlateServletContextListener监听器, 监听器会帮你
+ *     自动销毁本探测器.
+ *     2.如果不是Servlet项目或没有注册监听器, 请在合适的时候调用close()方法销毁本实例, 以释放线程池.
+ * </p>
  *
  * <pre>{@code
  *      //实例化
@@ -96,6 +103,8 @@ public class LoadBalancedInspectManager implements Destroyable {
         inspectors.add(new TelnetLoadBalanceInspector());
         //开始探测
         dispatchStart();
+        //注册到管理器, 便于集中销毁
+        DestroyableManageUtils.register(this);
     }
 
     /**
@@ -156,8 +165,14 @@ public class LoadBalancedInspectManager implements Destroyable {
     @Override
     public void onDestroy() {
         closed = true;
-        dispatchThreadPool.shutdownNow();
-        inspectThreadPool.shutdownNow();
+        try {
+            dispatchThreadPool.shutdownNow();
+        } catch (Throwable ignore){
+        }
+        try {
+            inspectThreadPool.shutdownNow();
+        } catch (Throwable ignore){
+        }
     }
 
     protected boolean isBlockIfInspectorError(){

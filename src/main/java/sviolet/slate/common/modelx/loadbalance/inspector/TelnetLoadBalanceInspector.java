@@ -22,7 +22,7 @@ package sviolet.slate.common.modelx.loadbalance.inspector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.slate.common.modelx.loadbalance.LoadBalanceInspector;
-import sviolet.thistle.util.common.NetworkUtils;
+import sviolet.thistle.util.net.NetworkUtils;
 
 import java.net.URI;
 
