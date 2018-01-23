@@ -54,6 +54,25 @@ import java.util.Map;
  *  client.setReadTimeout(10000);
  * }</pre>
  *
+ * <pre>{@code
+ *
+ *  <bean id="loadBalancedHostManager" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager">
+ *      <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
+ *  </bean>
+ *
+ *  <bean id="loadBalancedInspector" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedInspectManager"
+ *      destroy-method="close">
+ *      <property name="hostManager" ref="loadBalancedHostManager"/>
+ *      <property name="inspectInterval" value="10000"/>
+ *  </bean>
+ *
+ *  <bean id="loadBalancedHttpUrlConnClient" class="sviolet.slate.common.modelx.loadbalance.classic.LoadBalancedHttpUrlConnClient">
+ *      <property name="hostManager" ref="loadBalancedHostManager"/>
+ *      <property name="passiveBlockDuration" value="3000"/>
+ *      <property name="connectTimeout" value="3000"/>
+ *      <property name="readTimeout" value="10000"/>
+ *  </bean>
+ *
  * @author S.Violet
  */
 public class LoadBalancedHttpUrlConnClient {

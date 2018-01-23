@@ -27,10 +27,11 @@ import sviolet.thistle.util.common.ThreadPoolExecutorUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
 /**
- * 均衡负载--网络状态探测管理器(内置常驻调度线程一个), 可以使用close方法关闭(关闭后不再探测网络状态)
+ * <p>均衡负载--网络状态探测管理器</p>
+ * <p>注意:内置调度线程一个, 结束时必须使用close方法关闭(关闭后不再探测网络状态)</p>
  *
  * <pre>{@code
  *      //实例化
@@ -43,6 +44,30 @@ import java.util.concurrent.Executor;
  *      inspectManager.setInspector(new TelnetLoadBalanceInspector());
  *      //允许输出调试日志
  *      inspectManager.setVerboseLog(true);
+ *
+ *      //关闭网络探测(停止线程)
+ *      inspectManager.close();
+ * }</pre>
+ *
+ * <pre>{@code
+ *
+ *  <bean id="loadBalancedHostManager" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager">
+ *      <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
+ *  </bean>
+ *
+ *  <bean id="loadBalancedInspector" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedInspectManager"
+ *      destroy-method="close">
+ *      <property name="hostManager" ref="loadBalancedHostManager"/>
+ *      <property name="inspectInterval" value="10000"/>
+ *  </bean>
+ *
+ *  <bean id="loadBalancedHttpUrlConnClient" class="sviolet.slate.common.modelx.loadbalance.classic.LoadBalancedHttpUrlConnClient">
+ *      <property name="hostManager" ref="loadBalancedHostManager"/>
+ *      <property name="passiveBlockDuration" value="3000"/>
+ *      <property name="connectTimeout" value="3000"/>
+ *      <property name="readTimeout" value="10000"/>
+ *  </bean>
+ *
  * }</pre>
  *
  * @author S.Violet
@@ -63,8 +88,8 @@ public class LoadBalancedInspectManager implements Destroyable {
     private long inspectTimeout = DEFAULT_INSPECT_INTERVAL / 4;
     private long blockDuration = DEFAULT_INSPECT_INTERVAL * 2;
 
-    private Executor dispatchThreadPool = ThreadPoolExecutorUtils.newInstance(1, 1, 60, "LoadBalancedInspectManager-dispatch-%d");
-    private Executor inspectThreadPool = ThreadPoolExecutorUtils.newInstance(0, Integer.MAX_VALUE, 60, "LoadBalancedInspectManager-inspect-%d");
+    private ExecutorService dispatchThreadPool = ThreadPoolExecutorUtils.newInstance(1, 1, 60, "LoadBalancedInspectManager-dispatch-%d");
+    private ExecutorService inspectThreadPool = ThreadPoolExecutorUtils.newInstance(0, Integer.MAX_VALUE, 60, "LoadBalancedInspectManager-inspect-%d");
 
     public LoadBalancedInspectManager() {
         //默认telnet探测器
@@ -131,6 +156,8 @@ public class LoadBalancedInspectManager implements Destroyable {
     @Override
     public void onDestroy() {
         closed = true;
+        dispatchThreadPool.shutdownNow();
+        inspectThreadPool.shutdownNow();
     }
 
     protected boolean isBlockIfInspectorError(){
@@ -144,17 +171,16 @@ public class LoadBalancedInspectManager implements Destroyable {
         dispatchThreadPool.execute(new Runnable() {
             @Override
             public void run() {
+                try {
+                    Thread.sleep(inspectInterval);
+                } catch (InterruptedException ignored) {
+                }
                 if (logger.isDebugEnabled()) {
                     logger.debug("Dispatch: start");
                 }
                 LoadBalancedHostManager hostManager;
                 LoadBalancedHostManager.Host[] hostArray;
                 while (!closed){
-                    //间隔
-                    try {
-                        Thread.sleep(inspectInterval);
-                    } catch (InterruptedException ignored) {
-                    }
                     //持有当前的hostManager
                     hostManager = LoadBalancedInspectManager.this.hostManager;
                     //检查是否配置
@@ -179,6 +205,11 @@ public class LoadBalancedInspectManager implements Destroyable {
                     //探测所有远端
                     for (LoadBalancedHostManager.Host host : hostArray){
                         inspect(host);
+                    }
+                    //间隔
+                    try {
+                        Thread.sleep(inspectInterval);
+                    } catch (InterruptedException ignored) {
                     }
                 }
                 if (logger.isDebugEnabled()) {
