@@ -34,7 +34,9 @@ import javax.servlet.ServletContextListener;
  *     2.销毁所有由ThreadPoolExecutorUtils创建的Executor<br>
  * </p>
  *
- * <p>建议使用本Slate库的Servlet工程, 在web.xml中注册此监听器(listener可以设置多个):</p>
+ * <p>建议使用本库的Servlet工程, 注册本监听器.</p>
+ *
+ * <p>Spring MVC: 在web.xml中注册此监听器(listener可以设置多个):</p>
  *
  * <pre>{@code
  *  <web-app ......>
@@ -47,6 +49,8 @@ import javax.servlet.ServletContextListener;
  *      ......
  *  </web-app>
  * }</pre>
+ *
+ * <p>Spring Boot: </p>
  *
  * @author S.Violet
  *

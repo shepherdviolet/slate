@@ -34,10 +34,10 @@ import java.util.concurrent.ExecutorService;
  * <p>均衡负载--网络状态探测管理器</p>
  *
  * <p>
- *     注意:<br>
+ *     注意!!!!!!<br>
  *     1.如果你是Servlet项目, 可以注册sviolet.slate.common.helperx.servlet.SlateServletContextListener监听器, 监听器会帮你
- *     自动销毁本探测器.
- *     2.如果不是Servlet项目或没有注册监听器, 请在合适的时候调用close()方法销毁本实例, 以释放线程池.
+ *     自动销毁本探测器.<br>
+ *     2.如果不是Servlet项目或没有注册监听器, 请在服务停止的时候调用close()方法销毁本实例, 以释放线程池.<br>
  * </p>
  *
  * <pre>{@code
@@ -51,30 +51,11 @@ import java.util.concurrent.ExecutorService;
  *      inspectManager.setInspector(new TelnetLoadBalanceInspector());
  *      //允许输出调试日志
  *      inspectManager.setVerboseLog(true);
- *
- *      //关闭网络探测(停止线程)
- *      inspectManager.close();
  * }</pre>
  *
  * <pre>{@code
- *
- *  <bean id="loadBalancedHostManager" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager">
- *      <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
- *  </bean>
- *
- *  <bean id="loadBalancedInspector" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedInspectManager"
- *      destroy-method="close">
- *      <property name="hostManager" ref="loadBalancedHostManager"/>
- *      <property name="inspectInterval" value="10000"/>
- *  </bean>
- *
- *  <bean id="loadBalancedHttpUrlConnClient" class="sviolet.slate.common.modelx.loadbalance.classic.LoadBalancedHttpUrlConnClient">
- *      <property name="hostManager" ref="loadBalancedHostManager"/>
- *      <property name="passiveBlockDuration" value="3000"/>
- *      <property name="connectTimeout" value="3000"/>
- *      <property name="readTimeout" value="10000"/>
- *  </bean>
- *
+ *      //重要:关闭探测器(停止线程)
+ *      inspectManager.close();
  * }</pre>
  *
  * @author S.Violet

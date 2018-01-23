@@ -32,7 +32,9 @@ import java.net.*;
 import java.util.Map;
 
 /**
- * 支持均衡负载的HttpUrlConnection Client(简单的示例模板, 建议自行实现)
+ * <p>支持均衡负载的HttpUrlConnection Client(简单的示例模板, 建议自行实现)</p>
+ *
+ * <p>Java:</p>
  *
  * <pre>{@code
  *  LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
@@ -53,6 +55,28 @@ import java.util.Map;
  *  client.setConnectTimeout(3000);
  *  client.setReadTimeout(10000);
  * }</pre>
+ *
+ * <p>Spring MVC: 注册了SlateServletContextListener的场合</p>
+ *
+ *  * <pre>{@code
+ *
+ *  <bean id="loadBalancedHostManager" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager">
+ *      <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
+ *  </bean>
+ *
+ *  <bean id="loadBalancedInspector" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedInspectManager">
+ *      <property name="hostManager" ref="loadBalancedHostManager"/>
+ *      <property name="inspectInterval" value="10000"/>
+ *  </bean>
+ *
+ *  <bean id="loadBalancedHttpUrlConnClient" class="sviolet.slate.common.modelx.loadbalance.classic.LoadBalancedHttpUrlConnClient">
+ *      <property name="hostManager" ref="loadBalancedHostManager"/>
+ *      <property name="passiveBlockDuration" value="3000"/>
+ *      <property name="connectTimeout" value="3000"/>
+ *      <property name="readTimeout" value="10000"/>
+ *  </bean>
+ *
+ * <p>Spring MVC: 没注册SlateServletContextListener的场合, 需要设置destroy-method="close"</p>
  *
  * <pre>{@code
  *

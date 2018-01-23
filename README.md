@@ -49,6 +49,10 @@ dependencies {
         <version>7.6</version>
         <exclusions>
              <exclusion>
+                 <groupId>javax.servlet</groupId>
+                 <artifactId>javax.servlet-api</artifactId>
+             </exclusion>
+             <exclusion>
                  <groupId>com.jcraft</groupId>
                  <artifactId>jsch</artifactId>
              </exclusion>
@@ -58,4 +62,26 @@ dependencies {
              </exclusion>
         </exclusions>
     </dependency>
+```
+
+# Register SlateServletContextListener (optional)
+
+* Spring MVC: Register in web.xml
+
+```gradle
+  <web-app ......>
+      <listener>
+          <listener-class>sviolet.slate.common.helperx.servlet.SlateServletContextListener</listener-class>
+      </listener>
+      <listener>
+          ......
+      </listener>
+      ......
+  </web-app>
+```
+
+* Spring Boot: Register in class
+
+```gradle
+
 ```
