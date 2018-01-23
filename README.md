@@ -1,4 +1,4 @@
-# slate-common 7.4
+# slate-common 7.5
 * JavaEE common library for private use
 * https://github.com/shepherdviolet/slate-common
 
@@ -14,7 +14,7 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 dependencies {
-    compile 'com.github.shepherdviolet:slate-common:7.4'
+    compile 'com.github.shepherdviolet:slate-common:7.5'
 }
 
 ```
@@ -23,7 +23,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>7.4</version>
+        <version>7.5</version>
     </dependency>
 ```
 
@@ -35,7 +35,7 @@ dependencies {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        compile ('com.github.shepherdviolet:slate-common:7.4') {
+        compile ('com.github.shepherdviolet:slate-common:7.5') {
             exclude group:'com.jcraft', module:'jsch'
             exclude group:'com.squareup.okhttp3'
         }
@@ -46,7 +46,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>7.4</version>
+        <version>7.5</version>
         <exclusions>
              <exclusion>
                  <groupId>com.jcraft</groupId>
