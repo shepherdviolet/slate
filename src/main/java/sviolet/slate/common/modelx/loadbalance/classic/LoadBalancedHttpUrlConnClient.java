@@ -73,6 +73,8 @@ import java.util.Map;
  *      <property name="readTimeout" value="10000"/>
  *  </bean>
  *
+ *  }</pre>
+ *
  * @author S.Violet
  */
 public class LoadBalancedHttpUrlConnClient {
