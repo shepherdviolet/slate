@@ -19,6 +19,8 @@
 
 package sviolet.slate.common.helperx.servlet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
 import sviolet.thistle.util.lifecycle.DestroyableManageUtils;
 
@@ -52,18 +54,32 @@ import javax.servlet.ServletContextListener;
  *
  * <p>Spring Boot: </p>
  *
+ * <pre>{@code
+ *  @Configuration
+ *  public class AppConf {
+ *      @Bean
+ *      public ServletContextListener slateServletContextListener() {
+ *          return new SlateServletContextListener();
+ *      }
+ *      ......
+ *  }
+ * }</pre>
+ *
  * @author S.Violet
  *
  */
 public class SlateServletContextListener implements ServletContextListener {
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-
+        logger.info("SlateServletContextListener init");
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+        logger.info("SlateServletContextListener destroy");
         DestroyableManageUtils.destroyAll();
         ThreadPoolExecutorUtils.shutdownNowAll();
     }

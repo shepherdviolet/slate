@@ -83,5 +83,12 @@ dependencies {
 * Spring Boot: Register in class
 
 ```gradle
-
+    @Configuration
+    public class AppConf {
+        @Bean
+        public ServletContextListener slateServletContextListener() {
+            return new SlateServletContextListener();
+        }
+        ......
+    }
 ```
