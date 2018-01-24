@@ -154,6 +154,7 @@ public class LoadBalancedInspectManager implements Destroyable {
             inspectThreadPool.shutdownNow();
         } catch (Throwable ignore){
         }
+        logger.info("Destroyed:" + this);
     }
 
     protected boolean isBlockIfInspectorError(){
