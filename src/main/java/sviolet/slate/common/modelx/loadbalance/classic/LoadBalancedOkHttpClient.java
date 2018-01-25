@@ -288,7 +288,9 @@ public class LoadBalancedOkHttpClient {
     //Request /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * 同步POST请求
+     * 同步POST请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常
+     *
      * @param urlSuffix url后缀
      * @param body 报文体
      * @return 二进制数据(可能为null)
@@ -319,7 +321,9 @@ public class LoadBalancedOkHttpClient {
     }
 
     /**
-     * 同步POST请求
+     * 同步POST请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常
+     *
      * @param urlSuffix url后缀
      * @param body 报文体
      * @return InputStream(可能为null), 注意:使用完必须关闭流!!!
@@ -343,7 +347,9 @@ public class LoadBalancedOkHttpClient {
     }
 
     /**
-     * 同步GET请求
+     * 同步GET请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常
+     *
      * @param urlSuffix url后缀
      * @param params 请求参数
      * @return 二进制数据(可能为null)
@@ -374,7 +380,9 @@ public class LoadBalancedOkHttpClient {
     }
 
     /**
-     * 同步GET请求
+     * 同步GET请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常
+     *
      * @param urlSuffix url后缀
      * @param params 请求参数
      * @return InputStream(可能为null), 注意:使用完必须关闭流!!!
@@ -398,7 +406,10 @@ public class LoadBalancedOkHttpClient {
     }
 
     /**
-     * 同步POST请求
+     * 同步POST请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常,
+     * 该方法不会根据maxReadLength限定最大读取长度
+     *
      * @param urlSuffix url后缀
      * @param body 报文体
      * @return ResponseBody(可能为null), 注意:使用完必须关闭(ResponseBody.close())!!!
@@ -435,7 +446,10 @@ public class LoadBalancedOkHttpClient {
     }
 
     /**
-     * 同步GET请求
+     * 同步GET请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常,
+     * 该方法不会根据maxReadLength限定最大读取长度
+     *
      * @param urlSuffix url后缀
      * @param params 请求参数
      * @return ResponseBody(可能为null), 注意:使用完必须关闭(ResponseBody.close())!!!
@@ -484,7 +498,7 @@ public class LoadBalancedOkHttpClient {
             //同步请求
             Response response = getOkHttpClient().newCall(request).execute();
             //Http拒绝
-            if (!response.isSuccessful()) {
+            if (!isSucceed(response)) {
                 throw new HttpRejectException(response.code(), response.message());
             }
             //报文体
@@ -615,6 +629,10 @@ public class LoadBalancedOkHttpClient {
         return t instanceof ConnectException ||
                 t instanceof SocketTimeoutException ||
                 t instanceof UnknownHostException;
+    }
+
+    protected boolean isSucceed(Response response) {
+        return response.isSuccessful();
     }
 
     public static class Settings {
