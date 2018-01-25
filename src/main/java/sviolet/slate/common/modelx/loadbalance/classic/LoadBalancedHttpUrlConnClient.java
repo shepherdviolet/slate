@@ -220,7 +220,9 @@ public class LoadBalancedHttpUrlConnClient {
     //Request /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * 同步POST请求
+     * 同步POST请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常
+     *
      * @param urlSuffix url后缀
      * @param body 报文体
      * @return 二进制数据(可能为null)
@@ -229,7 +231,24 @@ public class LoadBalancedHttpUrlConnClient {
      * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
      * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
+    @Deprecated
     public byte[] syncPostForBytes(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+        return syncPostForBytesResult(urlSuffix, body).getData();
+    }
+
+    /**
+     * 同步POST请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常
+     *
+     * @param urlSuffix url后缀
+     * @param body 报文体
+     * @return BytesResult
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
+     */
+    public BytesResult syncPostForBytesResult(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         HttpURLConnection httpURLConnection = null;
         InputStream inputStream = null;
         try {
@@ -241,7 +260,12 @@ public class LoadBalancedHttpUrlConnClient {
             while ((length = inputStream.read(buff)) >= 0) {
                 outputStream.write(buff, 0, length);
             }
-            return outputStream.toByteArray();
+            BytesResult bytesResult = new BytesResult();
+            bytesResult.responseCode = httpURLConnection.getResponseCode();
+            bytesResult.responseMessage = httpURLConnection.getResponseMessage();
+            bytesResult.contentLength = httpURLConnection.getContentLength();
+            bytesResult.data = outputStream.toByteArray();
+            return bytesResult;
         } finally {
             if (inputStream != null){
                 try {
@@ -259,10 +283,12 @@ public class LoadBalancedHttpUrlConnClient {
     }
 
     /**
-     * 同步POST请求
+     * 同步POST请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常
+     *
      * @param urlSuffix url后缀
      * @param body 报文体
-     * @return InputStream(可能为null), 注意:使用完必须关闭流!!!
+     * @return HttpURLConnection, 注意:使用完必须关闭!!!
      * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
      * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
      * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
@@ -351,7 +377,9 @@ public class LoadBalancedHttpUrlConnClient {
     }
 
     /**
-     * 同步GET请求
+     * 同步GET请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常
+     *
      * @param urlSuffix url后缀
      * @param params 请求参数
      * @return 二进制数据(可能为null)
@@ -360,7 +388,24 @@ public class LoadBalancedHttpUrlConnClient {
      * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
      * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
+    @Deprecated
     public byte[] syncGetForBytes(String urlSuffix, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+        return syncGetForBytesResult(urlSuffix, params).getData();
+    }
+
+    /**
+     * 同步GET请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常
+     *
+     * @param urlSuffix url后缀
+     * @param params 请求参数
+     * @return BytesResult
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
+     */
+    public BytesResult syncGetForBytesResult(String urlSuffix, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         HttpURLConnection httpURLConnection = null;
         InputStream inputStream = null;
         try {
@@ -372,7 +417,12 @@ public class LoadBalancedHttpUrlConnClient {
             while ((length = inputStream.read(buff)) >= 0) {
                 outputStream.write(buff, 0, length);
             }
-            return outputStream.toByteArray();
+            BytesResult bytesResult = new BytesResult();
+            bytesResult.responseCode = httpURLConnection.getResponseCode();
+            bytesResult.responseMessage = httpURLConnection.getResponseMessage();
+            bytesResult.contentLength = httpURLConnection.getContentLength();
+            bytesResult.data = outputStream.toByteArray();
+            return bytesResult;
         } finally {
             if (inputStream != null){
                 try {
@@ -390,10 +440,12 @@ public class LoadBalancedHttpUrlConnClient {
     }
 
     /**
-     * 同步GET请求
+     * 同步GET请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常
+     *
      * @param urlSuffix url后缀
      * @param params 请求参数
-     * @return InputStream(可能为null), 注意:使用完必须关闭流!!!
+     * @return HttpURLConnection, 注意:使用完必须关闭!!!
      * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
      * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
      * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
@@ -515,6 +567,50 @@ public class LoadBalancedHttpUrlConnClient {
         private int readTimeout = 60000;
         private long maxReadLength = 10L * 1024L * 1024L;
         private Proxy proxy;
+
+    }
+
+    /**
+     * 响应结果(byte[])
+     */
+    public static class BytesResult {
+
+        private int responseCode;
+        private String responseMessage;
+        private long contentLength;
+        private byte[] data;
+
+        /**
+         * HTTP响应码
+         * @return HTTP响应码
+         */
+        public int getResponseCode() {
+            return responseCode;
+        }
+
+        /**
+         * HTTP响应信息
+         * @return HTTP响应信息
+         */
+        public String getResponseMessage() {
+            return responseMessage;
+        }
+
+        /**
+         * 返回数据长度
+         * @return 返回数据长度
+         */
+        public long getContentLength() {
+            return contentLength;
+        }
+
+        /**
+         * 返回数据
+         * @return 返回数据
+         */
+        public byte[] getData() {
+            return data;
+        }
 
     }
 
