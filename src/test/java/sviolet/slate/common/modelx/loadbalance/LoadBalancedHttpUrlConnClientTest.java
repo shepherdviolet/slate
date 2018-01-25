@@ -68,6 +68,8 @@ public class LoadBalancedHttpUrlConnClientTest {
             logger.debug("response:" + (response != null ? new String(response, "UTF-8") : "null"));
         } catch (NoHostException e) {
             logger.error("error: no host");
+        } catch (RequestBuildException e) {
+            logger.error("error: build request" + e.getMessage());
         } catch (IOException e) {
             logger.error("error: io " + e.getMessage());
             e.printStackTrace();
@@ -102,6 +104,8 @@ public class LoadBalancedHttpUrlConnClientTest {
             logger.debug("response:" + (response != null ? new String(response, "UTF-8") : "null"));
         } catch (NoHostException e) {
             logger.error("error: no host");
+        } catch (RequestBuildException e) {
+            logger.error("error: build request" + e.getMessage());
         } catch (IOException e) {
             logger.error("error: io " + e.getMessage());
         } catch (HttpRejectException e) {
