@@ -218,6 +218,14 @@ public class LoadBalancedOkHttpClient {
     }
 
     /**
+     * 设置最大读取数据长度(默认:10M)
+     * @param maxReadLength 设置最大读取数据长度, 单位bytes
+     */
+    public void setMaxReadLength(long maxReadLength){
+        settings.maxReadLength = maxReadLength;
+    }
+
+    /**
      * CookieJar
      * @param cookieJar CookieJar
      */
@@ -297,6 +305,10 @@ public class LoadBalancedOkHttpClient {
             if (responseBody == null) {
                 return null;
             }
+            //限定读取长度
+            if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength){
+                throw new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength);
+            }
             //返回二进制数据
             return responseBody.bytes();
         } finally {
@@ -322,6 +334,10 @@ public class LoadBalancedOkHttpClient {
         if (responseBody == null) {
             return null;
         }
+        //限定读取长度
+        if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength){
+            throw new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength);
+        }
         //返回二进制数据
         return responseBody.byteStream();
     }
@@ -343,6 +359,10 @@ public class LoadBalancedOkHttpClient {
             //返回空
             if (responseBody == null) {
                 return null;
+            }
+            //限定读取长度
+            if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength){
+                throw new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength);
             }
             //返回二进制数据
             return responseBody.bytes();
@@ -368,6 +388,10 @@ public class LoadBalancedOkHttpClient {
         //返回空
         if (responseBody == null) {
             return null;
+        }
+        //限定读取长度
+        if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength){
+            throw new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength);
         }
         //返回二进制数据
         return responseBody.byteStream();
@@ -584,6 +608,7 @@ public class LoadBalancedOkHttpClient {
         private long connectTimeout = 5000L;
         private long writeTimeout = 60000L;
         private long readTimeout = 60000L;
+        private long maxReadLength = 10L * 1024L * 1024L;
         private CookieJar cookieJar;
         private Proxy proxy;
         private Dns dns;

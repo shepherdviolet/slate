@@ -184,6 +184,14 @@ public class LoadBalancedHttpUrlConnClient {
     }
 
     /**
+     * 设置最大读取数据长度(默认:10M)
+     * @param maxReadLength 设置最大读取数据长度, 单位bytes
+     */
+    public void setMaxReadLength(long maxReadLength){
+        settings.maxReadLength = maxReadLength;
+    }
+
+    /**
      * Proxy
      * @param proxy 例如127.0.0.1:8080
      * @throws IllegalArgumentException if the proxy string is invalid
@@ -312,6 +320,10 @@ public class LoadBalancedHttpUrlConnClient {
             String message = urlConnection.getResponseMessage();
             if (isSucceed(code)){
                 throw new HttpRejectException(code, message);
+            }
+            //限定读取长度
+            if (settings.maxReadLength > 0 && urlConnection.getContentLengthLong() > settings.maxReadLength){
+                throw new IOException("Response contentLength is out of limit, contentLength:" + urlConnection.getContentLengthLong() + ", limit:" + settings.maxReadLength);
             }
             return urlConnection;
         } catch (Throwable t) {
@@ -449,6 +461,10 @@ public class LoadBalancedHttpUrlConnClient {
             if (isSucceed(code)){
                 throw new HttpRejectException(code, message);
             }
+            //限定读取长度
+            if (settings.maxReadLength > 0 && urlConnection.getContentLengthLong() > settings.maxReadLength){
+                throw new IOException("Response contentLength is out of limit, contentLength:" + urlConnection.getContentLengthLong() + ", limit:" + settings.maxReadLength);
+            }
             return urlConnection;
         } catch (Throwable t) {
             if (needBlock(t, settings)) {
@@ -497,6 +513,7 @@ public class LoadBalancedHttpUrlConnClient {
 
         private int connectTimeout = 5000;
         private int readTimeout = 60000;
+        private long maxReadLength = 10L * 1024L * 1024L;
         private Proxy proxy;
 
     }
