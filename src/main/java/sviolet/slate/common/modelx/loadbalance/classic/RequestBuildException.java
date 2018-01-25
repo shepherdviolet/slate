@@ -20,7 +20,7 @@
 package sviolet.slate.common.modelx.loadbalance.classic;
 
 /**
- * 构建Request对象时报错
+ * 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
  *
  * @author S.Violet
  */

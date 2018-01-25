@@ -20,7 +20,7 @@
 package sviolet.slate.common.modelx.loadbalance.classic;
 
 /**
- * Http请求拒绝异常
+ * Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
  *
  * @author S.Violet
  */
@@ -35,10 +35,18 @@ public class HttpRejectException extends Exception {
         this.message = message;
     }
 
+    /**
+     * HTTP响应码
+     * @return HTTP响应码
+     */
     public int getResponseCode() {
         return code;
     }
 
+    /**
+     * HTTP响应信息
+     * @return HTTP响应信息
+     */
     public String getResponseMessage(){
         return message;
     }

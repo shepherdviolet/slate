@@ -284,10 +284,10 @@ public class LoadBalancedOkHttpClient {
      * @param urlSuffix url后缀
      * @param body 报文体
      * @return 二进制数据(可能为null)
-     * @throws NoHostException 当前没有可发送的后端
-     * @throws RequestBuildException 构建Request对象时报错
-     * @throws IOException 网络通讯异常
-     * @throws HttpRejectException Http请求拒绝异常
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
     public byte[] syncPostForBytes(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         ResponseBody responseBody = null;
@@ -311,10 +311,10 @@ public class LoadBalancedOkHttpClient {
      * @param urlSuffix url后缀
      * @param body 报文体
      * @return InputStream(可能为null), 注意:使用完必须关闭流!!!
-     * @throws NoHostException 当前没有可发送的后端
-     * @throws RequestBuildException 构建Request对象时报错
-     * @throws IOException 网络通讯异常
-     * @throws HttpRejectException Http请求拒绝异常
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
     public InputStream syncPostForInputStream(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         ResponseBody responseBody = syncPost(urlSuffix, body);
@@ -331,10 +331,10 @@ public class LoadBalancedOkHttpClient {
      * @param urlSuffix url后缀
      * @param params 请求参数
      * @return 二进制数据(可能为null)
-     * @throws NoHostException 当前没有可发送的后端
-     * @throws RequestBuildException 构建Request对象时报错
-     * @throws IOException 网络通讯异常
-     * @throws HttpRejectException Http请求拒绝异常
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
     public byte[] syncGetForBytes(String urlSuffix, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         ResponseBody responseBody = null;
@@ -358,10 +358,10 @@ public class LoadBalancedOkHttpClient {
      * @param urlSuffix url后缀
      * @param params 请求参数
      * @return InputStream(可能为null), 注意:使用完必须关闭流!!!
-     * @throws NoHostException 当前没有可发送的后端
-     * @throws RequestBuildException 构建Request对象时报错
-     * @throws IOException 网络通讯异常
-     * @throws HttpRejectException Http请求拒绝异常
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
     public InputStream syncGetForInputStream(String urlSuffix, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         ResponseBody responseBody = syncGet(urlSuffix, params);
@@ -435,7 +435,7 @@ public class LoadBalancedOkHttpClient {
         return host;
     }
 
-    private ResponseBody syncCall(LoadBalancedHostManager.Host host, Request request) throws IOException, HttpRejectException {
+    private ResponseBody syncCall(LoadBalancedHostManager.Host host, Request request) throws RequestBuildException, IOException, HttpRejectException {
         try {
             //同步请求
             Response response = getOkHttpClient().newCall(request).execute();
@@ -453,7 +453,12 @@ public class LoadBalancedOkHttpClient {
                     logger.info("Block " + host.getUrl() + " " + settings.passiveBlockDuration);
                 }
             }
-            throw t;
+            if (t instanceof  IOException ||
+                    t instanceof HttpRejectException) {
+                throw t;
+            } else {
+                throw new RequestBuildException("Error while request build ?", t);
+            }
         }
     }
 
