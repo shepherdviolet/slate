@@ -216,11 +216,12 @@ public class LoadBalancedHttpUrlConnClient {
      * @param urlSuffix url后缀
      * @param body 报文体
      * @return 二进制数据(可能为null)
-     * @throws NoHostException 当前没有可发送的后端
-     * @throws IOException 网络通讯异常
-     * @throws HttpRejectException Http请求拒绝异常
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
-    public byte[] syncPostForBytes(String urlSuffix, byte[] body) throws NoHostException, IOException, HttpRejectException {
+    public byte[] syncPostForBytes(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         HttpURLConnection httpURLConnection = null;
         InputStream inputStream = null;
         try {
@@ -254,18 +255,24 @@ public class LoadBalancedHttpUrlConnClient {
      * @param urlSuffix url后缀
      * @param body 报文体
      * @return InputStream(可能为null), 注意:使用完必须关闭流!!!
-     * @throws NoHostException 当前没有可发送的后端
-     * @throws IOException 网络通讯异常
-     * @throws HttpRejectException Http请求拒绝异常
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
-    public HttpURLConnection syncPost(String urlSuffix, byte[] body) throws NoHostException, IOException, HttpRejectException {
+    public HttpURLConnection syncPost(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         LoadBalancedHostManager.Host host = fetchHost();
 
         if (settings.verboseLog) {
             logger.debug("POST url:" + host.getUrl() + ", suffix:" + urlSuffix + ", body:" + ByteUtils.bytesToHex(body));
         }
 
-        URL url = new URL(host.getUrl() + urlSuffix);
+        URL url;
+        try {
+            url = new URL(host.getUrl() + urlSuffix);
+        } catch (Throwable t) {
+            throw new RequestBuildException("Error while parsing url, url:" + host.getUrl() + ", suffix:" + urlSuffix + ", body:" + ByteUtils.bytesToHex(body), t);
+        }
 
         if (logger.isDebugEnabled()) {
             logger.debug("POST real url:" + url.toString());
@@ -315,7 +322,12 @@ public class LoadBalancedHttpUrlConnClient {
                     logger.info("Block " + host.getUrl() + " " + settings.passiveBlockDuration);
                 }
             }
-            throw t;
+            if (t instanceof  IOException ||
+                    t instanceof HttpRejectException) {
+                throw t;
+            } else {
+                throw new RequestBuildException("Error while request build ?", t);
+            }
         } finally {
             if (outputStream != null){
                 try {
@@ -331,11 +343,12 @@ public class LoadBalancedHttpUrlConnClient {
      * @param urlSuffix url后缀
      * @param params 请求参数
      * @return 二进制数据(可能为null)
-     * @throws NoHostException 当前没有可发送的后端
-     * @throws IOException 网络通讯异常
-     * @throws HttpRejectException Http请求拒绝异常
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
-    public byte[] syncGetForBytes(String urlSuffix, Map<String, Object> params) throws NoHostException, IOException, HttpRejectException {
+    public byte[] syncGetForBytes(String urlSuffix, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         HttpURLConnection httpURLConnection = null;
         InputStream inputStream = null;
         try {
@@ -369,11 +382,12 @@ public class LoadBalancedHttpUrlConnClient {
      * @param urlSuffix url后缀
      * @param params 请求参数
      * @return InputStream(可能为null), 注意:使用完必须关闭流!!!
-     * @throws NoHostException 当前没有可发送的后端
-     * @throws IOException 网络通讯异常
-     * @throws HttpRejectException Http请求拒绝异常
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
-    public HttpURLConnection syncGet(String urlSuffix, Map<String, Object> params) throws NoHostException, IOException, HttpRejectException {
+    public HttpURLConnection syncGet(String urlSuffix, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         LoadBalancedHostManager.Host host = fetchHost();
 
         if (settings.verboseLog) {
@@ -394,7 +408,12 @@ public class LoadBalancedHttpUrlConnClient {
             }
         }
 
-        URL url = new URL(host.getUrl() + urlSuffix + paramsBuilder.toString());
+        URL url;
+        try {
+            url = new URL(host.getUrl() + urlSuffix + paramsBuilder.toString());
+        } catch (Throwable t) {
+            throw new RequestBuildException("Error while parsing url, url:" + host.getUrl() + ", suffix:" + urlSuffix + ", params:" + params, t);
+        }
 
         if (logger.isDebugEnabled()) {
             logger.debug("GET real url:" + url.toString());
@@ -439,7 +458,12 @@ public class LoadBalancedHttpUrlConnClient {
                     logger.info("Block " + host.getUrl() + " " + settings.passiveBlockDuration);
                 }
             }
-            throw t;
+            if (t instanceof  IOException ||
+                    t instanceof HttpRejectException) {
+                throw t;
+            } else {
+                throw new RequestBuildException("Error while request build ?", t);
+            }
         }
     }
 
