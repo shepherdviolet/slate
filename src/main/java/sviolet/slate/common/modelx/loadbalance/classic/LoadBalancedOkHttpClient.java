@@ -397,7 +397,17 @@ public class LoadBalancedOkHttpClient {
         return responseBody.byteStream();
     }
 
-    private ResponseBody syncPost(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+    /**
+     * 同步POST请求
+     * @param urlSuffix url后缀
+     * @param body 报文体
+     * @return ResponseBody(可能为null), 注意:使用完必须关闭(ResponseBody.close())!!!
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
+     */
+    public ResponseBody syncPost(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
@@ -424,7 +434,17 @@ public class LoadBalancedOkHttpClient {
         return syncCall(host, request);
     }
 
-    private ResponseBody syncGet(String urlSuffix, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+    /**
+     * 同步GET请求
+     * @param urlSuffix url后缀
+     * @param params 请求参数
+     * @return ResponseBody(可能为null), 注意:使用完必须关闭(ResponseBody.close())!!!
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
+     */
+    public ResponseBody syncGet(String urlSuffix, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
