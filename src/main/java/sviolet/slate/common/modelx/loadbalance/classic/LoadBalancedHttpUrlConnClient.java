@@ -297,7 +297,7 @@ public class LoadBalancedHttpUrlConnClient {
     public HttpURLConnection syncPost(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         LoadBalancedHostManager.Host host = fetchHost();
 
-        if (settings.verboseLog) {
+        if (settings.verboseLog && logger.isDebugEnabled()) {
             logger.debug("POST url:" + host.getUrl() + ", suffix:" + urlSuffix + ", body:" + ByteUtils.bytesToHex(body));
         }
 
@@ -308,8 +308,8 @@ public class LoadBalancedHttpUrlConnClient {
             throw new RequestBuildException("Error while parsing url, url:" + host.getUrl() + ", suffix:" + urlSuffix + ", body:" + ByteUtils.bytesToHex(body), t);
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("POST real url:" + url.toString());
+        if (logger.isInfoEnabled()) {
+            logger.info("POST real url:" + url.toString());
         }
 
         HttpURLConnection urlConnection = null;
@@ -454,7 +454,7 @@ public class LoadBalancedHttpUrlConnClient {
     public HttpURLConnection syncGet(String urlSuffix, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         LoadBalancedHostManager.Host host = fetchHost();
 
-        if (settings.verboseLog) {
+        if (settings.verboseLog && logger.isDebugEnabled()) {
             logger.debug("GET url:" + host.getUrl() + ", suffix:" + urlSuffix + ", params:" + params);
         }
 
@@ -479,8 +479,8 @@ public class LoadBalancedHttpUrlConnClient {
             throw new RequestBuildException("Error while parsing url, url:" + host.getUrl() + ", suffix:" + urlSuffix + ", params:" + params, t);
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("GET real url:" + url.toString());
+        if (logger.isInfoEnabled()) {
+            logger.info("GET real url:" + url.toString());
         }
 
         HttpURLConnection urlConnection = null;

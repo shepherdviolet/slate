@@ -422,7 +422,7 @@ public class LoadBalancedOkHttpClient {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
-        if (settings.verboseLog) {
+        if (settings.verboseLog && logger.isDebugEnabled()) {
             logger.debug("POST url:" + host.getUrl() + ", suffix:" + urlSuffix + ", body:" + ByteUtils.bytesToHex(body));
         }
 
@@ -437,8 +437,8 @@ public class LoadBalancedOkHttpClient {
             throw new RequestBuildException("Null request built");
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("POST real url:" + request.url().toString());
+        if (logger.isInfoEnabled()) {
+            logger.info("POST real url:" + request.url().toString());
         }
 
         //请求
@@ -462,7 +462,7 @@ public class LoadBalancedOkHttpClient {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
-        if (settings.verboseLog) {
+        if (settings.verboseLog && logger.isDebugEnabled()) {
             logger.debug("GET url:" + host.getUrl() + ", suffix:" + urlSuffix + ", params:" + params);
         }
 
@@ -477,8 +477,8 @@ public class LoadBalancedOkHttpClient {
             throw new RequestBuildException("Null request built");
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("GET real url:" + request.url().toString());
+        if (logger.isInfoEnabled()) {
+            logger.info("GET real url:" + request.url().toString());
         }
 
         //请求
