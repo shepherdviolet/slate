@@ -294,7 +294,11 @@ public class LoadBalancedHostManager {
          * @param duration 阻断的时间ms
          */
         public void block(long duration){
-            blockingTime.set(System.currentTimeMillis() + duration);
+            long newTime = System.currentTimeMillis() + duration;
+            if (newTime < blockingTime.get()){
+                return;
+            }
+            blockingTime.set(newTime);
         }
 
         /**
