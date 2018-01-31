@@ -23,6 +23,10 @@ import sviolet.slate.common.modelx.loadbalance.inspector.TelnetLoadBalanceInspec
 
 /**
  * 主动探测器(TELNET)测试
+ *
+ * 测试要点:
+ * 1.需要后端
+ * 2.启停后端服务, 判断是否能正确探测到
  */
 public class InspectManagerTelnetCommonTest {
 

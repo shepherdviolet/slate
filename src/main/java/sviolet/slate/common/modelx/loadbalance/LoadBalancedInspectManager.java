@@ -197,7 +197,7 @@ public class LoadBalancedInspectManager implements Destroyable {
                     }
                     //打印当前远端状态
                     if (verboseLog && logger.isDebugEnabled()) {
-                        logger.debug(hostManager.printHostsStatus("Host status:"));
+                        logger.debug(hostManager.printHostsStatus("Host status (before inspect):"));
                     }
                     //探测所有远端
                     for (LoadBalancedHostManager.Host host : hostArray){

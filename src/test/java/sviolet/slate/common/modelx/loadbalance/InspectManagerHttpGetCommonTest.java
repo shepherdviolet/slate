@@ -23,6 +23,10 @@ import sviolet.slate.common.modelx.loadbalance.inspector.HttpGetLoadBalanceInspe
 
 /**
  * 主动探测器--HTTP GET方式测试案例
+ *
+ * 测试要点:
+ * 1.需要后端
+ * 2.启停后端服务, 判断是否能正确探测到
  */
 public class InspectManagerHttpGetCommonTest {
 
