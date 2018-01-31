@@ -19,6 +19,9 @@
 
 package sviolet.slate.common.modelx.loadbalance;
 
+import ch.qos.logback.classic.Level;
+import sviolet.slate.common.helperx.logback.LogbackHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -28,6 +31,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * LoadBalancedHostManager测试案例
  * 1.配置固定不变
  * 2.存在网路故障
+ *
+ * 测试要点:
+ * 1.无需后端
+ * 2.在配置变化完毕, 出现最终配置后(有四个), 观察实际阻断情况是否和这四个中的一个相符
  */
 public class HostManagerSettingTest {
 
@@ -35,6 +42,8 @@ public class HostManagerSettingTest {
     private static final Random random = new Random(System.currentTimeMillis());
 
     public static void main(String[] args) {
+
+        LogbackHelper.setLevel("sviolet.slate.common.modelx.loadbalance", Level.ERROR);
 
         final LoadBalancedHostManager manager = new LoadBalancedHostManager();
 
@@ -137,7 +146,12 @@ public class HostManagerSettingTest {
                         switcher = random.nextInt(0x1FFFFFFF);
                         setting(manager, switcher, false);
                     }
-                    System.out.println(Integer.toHexString(Integer.reverseBytes(switcher & 0x11111111)));
+                    String hexString = Integer.toHexString(switcher & 0x11111111);
+                    StringBuilder stringBuilder = new StringBuilder(hexString);
+                    while (stringBuilder.length() < 8){
+                        stringBuilder.insert(0, "0");
+                    }
+                    System.out.println("state (1 of 4):" + stringBuilder.reverse().toString());
                 }
             }).start();
         }
