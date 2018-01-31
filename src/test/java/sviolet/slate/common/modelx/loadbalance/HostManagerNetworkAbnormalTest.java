@@ -8,6 +8,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * LoadBalancedHostManager测试案例
  * 1.配置固定不变
  * 2.存在网路故障
+ *
+ * 测试要点:
+ * 1.无需后端
+ * 2.观察网络故障情况变化时, 故障后端是否被有效阻断
  */
 public class HostManagerNetworkAbnormalTest {
 

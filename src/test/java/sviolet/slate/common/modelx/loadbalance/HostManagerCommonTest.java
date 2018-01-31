@@ -10,6 +10,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * LoadBalancedHostManager测试案例
  * 1.配置固定不变
  * 2.无网络故障
+ *
+ * 测试要点:
+ * 1.无需后端
+ * 2.观察每个后端的计数是否相等(或基本相等)
  */
 public class HostManagerCommonTest {
 
