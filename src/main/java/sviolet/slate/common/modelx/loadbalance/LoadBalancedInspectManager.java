@@ -76,8 +76,8 @@ public class LoadBalancedInspectManager implements Destroyable {
     private long inspectTimeout = DEFAULT_INSPECT_INTERVAL / 4;
     private long blockDuration = DEFAULT_INSPECT_INTERVAL * 2;
 
-    private ExecutorService dispatchThreadPool = ThreadPoolExecutorUtils.newInstance(1, 1, 60, "LoadBalancedInspectManager-dispatch-%d");
-    private ExecutorService inspectThreadPool = ThreadPoolExecutorUtils.newInstance(0, Integer.MAX_VALUE, 60, "LoadBalancedInspectManager-inspect-%d");
+    private ExecutorService dispatchThreadPool = ThreadPoolExecutorUtils.createFixed(1, "LoadBalancedInspectManager-dispatch-%d");
+    private ExecutorService inspectThreadPool = ThreadPoolExecutorUtils.createCached(0, Integer.MAX_VALUE, 60, "LoadBalancedInspectManager-inspect-%d");
 
     public LoadBalancedInspectManager() {
         //默认telnet探测器

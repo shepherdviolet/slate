@@ -21,10 +21,11 @@ package sviolet.slate.common.modelx.loadbalance;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.thistle.model.thread.LazySingleThreadPool;
+import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
 import sviolet.thistle.util.judge.CheckUtils;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -99,7 +100,7 @@ public class LoadBalancedHostManager {
      * settings
      */
 
-    private LazySingleThreadPool settingThreadPool = new LazySingleThreadPool("LoadBalancedHostManager-Setting-%d");
+    private ExecutorService settingThreadPool = ThreadPoolExecutorUtils.createLazy(60L, "LoadBalancedHostManager-Setting-%d");
     private AtomicReference<List<String>> newSettings = new AtomicReference<>(null);
 
     private boolean initialized = false;
