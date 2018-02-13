@@ -38,6 +38,9 @@ dependencies {
         compile ('com.github.shepherdviolet:slate-common:9.0') {
             exclude group:'com.jcraft', module:'jsch'
             exclude group:'com.squareup.okhttp3'
+            exclude group:'org.jetbrains.kotlin', module:'kotlin-stdlib-jre7'
+            exclude group:'com.google.code.gson'
+            exclude group:'org.bouncycastle'
         }
     }
 ```
@@ -49,15 +52,23 @@ dependencies {
         <version>9.0</version>
         <exclusions>
              <exclusion>
-                 <groupId>javax.servlet</groupId>
-                 <artifactId>javax.servlet-api</artifactId>
-             </exclusion>
-             <exclusion>
                  <groupId>com.jcraft</groupId>
                  <artifactId>jsch</artifactId>
              </exclusion>
              <exclusion>
                  <groupId>com.squareup.okhttp3</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+             <exclusion>
+                 <groupId>org.jetbrains.kotlin</groupId>
+                 <artifactId>kotlin-stdlib-jre7</artifactId>
+             </exclusion>
+             <exclusion>
+                 <groupId>com.google.code.gson</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+             <exclusion>
+                 <groupId>org.bouncycastle</groupId>
                  <artifactId>*</artifactId>
              </exclusion>
         </exclusions>
