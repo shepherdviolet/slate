@@ -24,6 +24,11 @@ import sviolet.slate.common.helperx.logback.LogbackHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * ExpirableCache测试案例
+ *
+ * @author S.Violet
+ */
 public class ExpirableCacheTest {
 
     private static final MyExpirableCache cache = new MyExpirableCache();
@@ -61,11 +66,18 @@ public class ExpirableCacheTest {
             if (i >= values.length){
                 i = values.length - 1;
             }
+            /*
+             * 第一个参数是返回值
+             * 第二个参数是数据有效期, 即为2秒
+             */
             return new UpdateResult<>(values[i], 2000);
         }
 
         @Override
         protected long onError(String key, Throwable t) {
+            /*
+             * 处理onUpdate方法中抛出的异常, 返回值表示没有重试间隔
+             */
             return 0;
         }
 
