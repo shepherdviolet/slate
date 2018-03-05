@@ -112,7 +112,7 @@ public abstract class ExpirableCache <T> {
             }
 
             while (updateCount == elementWrapper.updateCounter.get() &&
-                    System.currentTimeMillis() > currentTime + doUpdateTimeout) {
+                    System.currentTimeMillis() < currentTime + doUpdateTimeout) {
                 synchronized (elementWrapper) {
                     try {
                         elementWrapper.wait(doCheckInterval);
