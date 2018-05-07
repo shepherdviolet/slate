@@ -300,9 +300,26 @@ public class LoadBalancedOkHttpClient {
      * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
     public byte[] syncPostForBytes(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+        return syncPostForBytes(urlSuffix, body, null);
+    }
+
+    /**
+     * 同步POST请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常
+     *
+     * @param urlSuffix url后缀
+     * @param body 报文体
+     * @param params URL请求参数
+     * @return 二进制数据(可能为null)
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
+     */
+    public byte[] syncPostForBytes(String urlSuffix, byte[] body, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         ResponseBody responseBody = null;
         try {
-            responseBody = syncPost(urlSuffix, body);
+            responseBody = syncPost(urlSuffix, body, params);
             //返回空
             if (responseBody == null) {
                 return null;
@@ -333,7 +350,24 @@ public class LoadBalancedOkHttpClient {
      * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
     public InputStream syncPostForInputStream(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
-        ResponseBody responseBody = syncPost(urlSuffix, body);
+        return syncPostForInputStream(urlSuffix, body, null);
+    }
+
+    /**
+     * 同步POST请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常
+     *
+     * @param urlSuffix url后缀
+     * @param body 报文体
+     * @param params URL请求参数
+     * @return InputStream(可能为null), 注意:使用完必须关闭流!!!
+     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
+     */
+    public InputStream syncPostForInputStream(String urlSuffix, byte[] body, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+        ResponseBody responseBody = syncPost(urlSuffix, body, params);
         //返回空
         if (responseBody == null) {
             return null;
@@ -411,14 +445,32 @@ public class LoadBalancedOkHttpClient {
      * 该方法不会根据maxReadLength限定最大读取长度
      *
      * @param urlSuffix url后缀
-     * @param body 报文体
+     * @param body      报文体
      * @return ResponseBody(可能为null), 注意:使用完必须关闭(ResponseBody.close())!!!
-     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws NoHostException       当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
      * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
-     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
-     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
+     * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
     public ResponseBody syncPost(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+        return syncPost(urlSuffix, body, null);
+    }
+
+    /**
+     * 同步POST请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常,
+     * 该方法不会根据maxReadLength限定最大读取长度
+     *
+     * @param urlSuffix url后缀
+     * @param body      报文体
+     * @param params    URL请求参数
+     * @return ResponseBody(可能为null), 注意:使用完必须关闭(ResponseBody.close())!!!
+     * @throws NoHostException       当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+     * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
+     * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
+     */
+    public ResponseBody syncPost(String urlSuffix, byte[] body, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
@@ -429,7 +481,7 @@ public class LoadBalancedOkHttpClient {
         //装配Request
         Request request;
         try {
-            request = buildPostRequest(host.getUrl(), urlSuffix, body, settings);
+            request = buildPostRequest(host.getUrl(), urlSuffix, body, params, settings);
         } catch (Throwable t) {
             throw new RequestBuildException("Error while building request", t);
         }
@@ -569,12 +621,30 @@ public class LoadBalancedOkHttpClient {
      * @param url 由LoadBalancedHostManager选择出的远端url(前缀)
      * @param urlSuffix URL后缀
      * @param body 报文体
+     * @param params URL请求参数
      * @return Request
      * @throws RequestBuildException 构建异常
      */
-    protected Request buildPostRequest(String url, String urlSuffix, byte[] body, Settings settings) throws RequestBuildException{
+    protected Request buildPostRequest(String url, String urlSuffix, byte[] body, Map<String, Object> params, Settings settings) throws RequestBuildException{
+        HttpUrl httpUrl = HttpUrl.parse(url + urlSuffix);
+        if (httpUrl == null){
+            throw new RequestBuildException("Invalid url:" + url + urlSuffix);
+        }
+
+        if (params != null){
+            HttpUrl.Builder httpUrlBuilder = httpUrl.newBuilder();
+            for (Map.Entry<String, Object> param : params.entrySet()) {
+                try {
+                    httpUrlBuilder.addEncodedQueryParameter(param.getKey(), URLEncoder.encode(param.getValue() != null ? param.getValue().toString() : "", settings.encode));
+                } catch (UnsupportedEncodingException e) {
+                    throw new RequestBuildException("Error while encode to url format", e);
+                }
+            }
+            httpUrl = httpUrlBuilder.build();
+        }
+
         Request.Builder builder = new Request.Builder()
-                .url(url + urlSuffix)
+                .url(httpUrl)
                 .post(RequestBody.create(MediaType.parse(settings.mediaType), body));
 
         Map<String, String> headers = settings.headers;
