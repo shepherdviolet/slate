@@ -54,10 +54,10 @@ import javax.servlet.ServletContextListener;
  *
  * <p>Spring Boot: </p>
  *
- * <pre>{@code
- *  @Configuration
+ * <pre>
+ *  <code>@Configuration</code>
  *  public class AppConf {
- *      @Bean
+ *      <code>@Bean</code>
  *      public ServletContextListener slateServletContextListener() {
  *          return new SlateServletContextListener();
  *      }

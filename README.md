@@ -41,6 +41,7 @@ dependencies {
             exclude group:'org.jetbrains.kotlin', module:'kotlin-stdlib-jre7'
             exclude group:'com.google.code.gson'
             exclude group:'org.bouncycastle'
+            exclude group:'redis.clients'
         }
     }
 ```
@@ -69,6 +70,10 @@ dependencies {
              </exclusion>
              <exclusion>
                  <groupId>org.bouncycastle</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+             <exclusion>
+                 <groupId>redis.clients</groupId>
                  <artifactId>*</artifactId>
              </exclusion>
         </exclusions>

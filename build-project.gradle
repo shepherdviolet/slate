@@ -39,6 +39,7 @@ dependencies {
     implementation 'javax.servlet:javax.servlet-api:4.0.0'
     implementation 'com.squareup.okhttp3:okhttp:3.9.0'
     implementation 'com.jcraft:jsch:0.1.54'
+    implementation 'redis.clients:jedis:2.9.0'
 
     //test
     testImplementation group: 'junit', name: 'junit', version: '4.12'
