@@ -17,7 +17,7 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.helperx.redis;
+package sviolet.slate.common.model.lock;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * <p>单节点Redis分布式重入锁</p>
+ * <p>单节点Redis分布式重入锁, 依赖redis.clients:jedis</p>
  *
  * <p>注意:<br>
  * 1.该锁适合单节点Redis, 集群Redis请使用RedLock.<br>

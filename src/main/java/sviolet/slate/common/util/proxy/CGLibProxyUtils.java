@@ -26,6 +26,9 @@ import java.lang.reflect.Method;
 
 /**
  * springframework CGLib 代理工具
+ * 依赖org.springframework:spring-core
+ *
+ * @author S.Violet
  */
 public class CGLibProxyUtils {
 
