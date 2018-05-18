@@ -100,7 +100,7 @@ public class LoadBalancedHostManager {
      * settings
      */
 
-    private ExecutorService settingThreadPool = ThreadPoolExecutorUtils.createLazy(60L, "LoadBalancedHostManager-Setting-%d");
+    private ExecutorService settingThreadPool = ThreadPoolExecutorUtils.createLazy(60L, "svs-lbhm-set-%d");
     private AtomicReference<List<String>> newSettings = new AtomicReference<>(null);
 
     private boolean initialized = false;
