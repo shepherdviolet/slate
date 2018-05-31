@@ -42,6 +42,7 @@ dependencies {
             exclude group:'com.google.code.gson'
             exclude group:'org.bouncycastle'
             exclude group:'redis.clients'
+            exclude group:'org.springframework'
         }
     }
 ```
@@ -74,6 +75,10 @@ dependencies {
              </exclusion>
              <exclusion>
                  <groupId>redis.clients</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+             <exclusion>
+                 <groupId>org.springframework</groupId>
                  <artifactId>*</artifactId>
              </exclusion>
         </exclusions>
