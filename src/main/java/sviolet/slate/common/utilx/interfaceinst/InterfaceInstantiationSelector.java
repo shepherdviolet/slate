@@ -20,11 +20,19 @@
 package sviolet.slate.common.utilx.interfaceinst;
 
 import org.springframework.context.annotation.ImportSelector;
+import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 
 public class InterfaceInstantiationSelector implements ImportSelector {
+
+    static AnnotationAttributes annotationAttributes;
+
     @Override
     public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+        /*
+         * 不知道为什么InterfaceInstantiationConfiguration实现了ImportAware还是获取不到AnnotationMetadata, 只能静态变量了
+         */
+        annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableInterfaceInstantiation.class.getName(), false));
         return new String[]{InterfaceInstantiationConfiguration.class.getName()};
     }
 }

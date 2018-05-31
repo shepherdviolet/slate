@@ -23,10 +23,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportAware;
 import org.springframework.context.annotation.Role;
-import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.core.type.AnnotationMetadata;
 
 /**
  * [JDK8 + Spring 5.0]
@@ -34,28 +31,29 @@ import org.springframework.core.type.AnnotationMetadata;
  * @author S.Violet
  */
 @Configuration
-@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-public class InterfaceInstantiationConfiguration implements ImportAware {
-
-    private AnnotationAttributes annotationAttributes;
-
-    @Bean(name = "slate.common.InterfaceInstantiationBeanDefinitionRegistry")
-    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    public BeanDefinitionRegistryPostProcessor interfaceInstantiationBeanDefinitionRegistry(){
-        return new InterfaceInstantiationBeanDefinitionRegistry(annotationAttributes);
-    }
+public class InterfaceInstantiationConfiguration {
 
     /**
-     * 获得EnableInterfaceInstantiation注解的参数
+     * 因为BeanDefinitionRegistryPostProcessor需要在早期实例化, 因此需要将方法标记为static,
+     * 可能也是因为这个原因, 所以AnnotationMetadata拿不到, 只能用静态变量
      */
-    @Override
-    public void setImportMetadata(AnnotationMetadata importMetadata) {
-        this.annotationAttributes = AnnotationAttributes.fromMap(
-                importMetadata.getAnnotationAttributes(EnableInterfaceInstantiation.class.getName(), false));
-        if (this.annotationAttributes == null) {
-            throw new IllegalArgumentException(
-                    "@EnableInterfaceInstantiation is not present on importing class " + importMetadata.getClassName());
-        }
+    @Bean(name = "slate.common.InterfaceInstantiationBeanDefinitionRegistry")
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+    public static BeanDefinitionRegistryPostProcessor interfaceInstantiationBeanDefinitionRegistry(){
+        return new InterfaceInstantiationBeanDefinitionRegistry(InterfaceInstantiationSelector.annotationAttributes);
     }
+
+//    /**
+//     * 不知道为什么InterfaceInstantiationConfiguration实现了ImportAware还是获取不到AnnotationMetadata, 只能静态变量了
+//     */
+//    @Override
+//    public void setImportMetadata(AnnotationMetadata importMetadata) {
+//        this.annotationAttributes = AnnotationAttributes.fromMap(
+//                importMetadata.getAnnotationAttributes(EnableInterfaceInstantiation.class.getName(), false));
+//        if (this.annotationAttributes == null) {
+//            throw new IllegalArgumentException(
+//                    "@EnableInterfaceInstantiation is not present on importing class " + importMetadata.getClassName());
+//        }
+//    }
 
 }
