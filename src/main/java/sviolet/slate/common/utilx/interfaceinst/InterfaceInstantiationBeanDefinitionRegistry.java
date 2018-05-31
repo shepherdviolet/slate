@@ -38,7 +38,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 /**
- * [JDK8 + Spring 5.0]
+ * <p>[JDK8 + Spring 5.0]</p>
+ * <p>核心逻辑</p>
  * @since 1.8
  * @author S.Violet
  */
@@ -57,7 +58,7 @@ class InterfaceInstantiationBeanDefinitionRegistry implements BeanDefinitionRegi
 
         logger.info("InterfaceInstantiation: start");
 
-        //接口类实例化工具
+        //接口类实例化器
         InterfaceInstantiator interfaceInstantiator;
         try {
             Class<? extends InterfaceInstantiator> interfaceInstantiatorClass = annotationAttributes.getClass("interfaceInstantiator");
@@ -76,11 +77,12 @@ class InterfaceInstantiationBeanDefinitionRegistry implements BeanDefinitionRegi
                 return beanDefinition.getMetadata().isInterface();
             }
         };
-        //过滤注解
+
+        //根据注解过滤
         TypeFilter includeFilter = new AnnotationTypeFilter(InterfaceInstance.class);
         beanScanner.addIncludeFilter(includeFilter);
 
-        //遍历包路径
+        //包路径
         String[] basePackages = annotationAttributes.getStringArray("basePackages");
 
         if (basePackages == null || basePackages.length <= 0) {
@@ -88,8 +90,10 @@ class InterfaceInstantiationBeanDefinitionRegistry implements BeanDefinitionRegi
             return;
         }
 
+        //遍历包路径
         for (String basePackage : basePackages) {
 
+            //搜索包路径下的接口类定义
             logger.info("InterfaceInstantiation: scan package:" + basePackage);
             Set<BeanDefinition> beanDefinitions = beanScanner.findCandidateComponents(basePackage);
 
@@ -97,6 +101,7 @@ class InterfaceInstantiationBeanDefinitionRegistry implements BeanDefinitionRegi
                 continue;
             }
 
+            //遍历接口类定义
             for (BeanDefinition beanDefinition : beanDefinitions) {
 
                 //类名
@@ -107,15 +112,16 @@ class InterfaceInstantiationBeanDefinitionRegistry implements BeanDefinitionRegi
                     //类
                     final Class clazz = Class.forName(className);
 
-                    //定义Bean
+                    //Bean定义
                     BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(clazz, new Supplier<Object>() {
                         @Override
                         public Object get() {
+                            //使用接口类实例化器实例化接口
                             return interfaceInstantiatorFinal.newInstance(clazz);
                         }
                     });
 
-                    //注册
+                    //注册Bean定义
                     registry.registerBeanDefinition(className, beanDefinitionBuilder.getBeanDefinition());
 
                     logger.info("InterfaceInstantiation: interface instantiated:" + className);
@@ -134,7 +140,7 @@ class InterfaceInstantiationBeanDefinitionRegistry implements BeanDefinitionRegi
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-
+        //do nothing
     }
 
 }

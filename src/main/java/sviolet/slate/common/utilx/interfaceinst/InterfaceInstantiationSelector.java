@@ -23,6 +23,12 @@ import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 
+/**
+ * <p>[JDK8 + Spring 5.0]</p>
+ * <p>ImportSelector</p>
+ * @since 1.8
+ * @author S.Violet
+ */
 public class InterfaceInstantiationSelector implements ImportSelector {
 
     static AnnotationAttributes annotationAttributes;
@@ -30,9 +36,10 @@ public class InterfaceInstantiationSelector implements ImportSelector {
     @Override
     public String[] selectImports(AnnotationMetadata importingClassMetadata) {
         /*
-         * 不知道为什么InterfaceInstantiationConfiguration实现了ImportAware还是获取不到AnnotationMetadata, 只能静态变量了
+         * 此处用静态变量持有注解参数, 原因见InterfaceInstantiationConfiguration
          */
         annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableInterfaceInstantiation.class.getName(), false));
+        //指定配置类
         return new String[]{InterfaceInstantiationConfiguration.class.getName()};
     }
 }

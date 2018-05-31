@@ -26,7 +26,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 
 /**
- * [JDK8 + Spring 5.0]
+ * <p>[JDK8 + Spring 5.0]</p>
+ * <p>配置类</p>
  * @since 1.8
  * @author S.Violet
  */
@@ -34,8 +35,10 @@ import org.springframework.context.annotation.Role;
 public class InterfaceInstantiationConfiguration {
 
     /**
-     * 因为BeanDefinitionRegistryPostProcessor需要在早期实例化, 因此需要将方法标记为static,
-     * 可能也是因为这个原因, 所以AnnotationMetadata拿不到, 只能用静态变量
+     * 不实现ImportAware#setImportMetadata方法获取EnableInterfaceInstantiation注解参数的原因:
+     * 因为BeanDefinitionRegistryPostProcessor需要在spring启动初期实例化(配置了ROLE_INFRASTRUCTURE), 因此该方法必须为静态(static),
+     * 无法通过ImportAware注入注解参数. 如果该方法不为静态(static), 会导致该类过早实例化(即使这样也无法通过ImportAware注入注解参数).
+     * 因此, 只能在InterfaceInstantiationSelector中获取并持有注解参数(静态持有).
      */
     @Bean(name = "slate.common.InterfaceInstantiationBeanDefinitionRegistry")
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
@@ -44,7 +47,10 @@ public class InterfaceInstantiationConfiguration {
     }
 
 //    /**
-//     * 不知道为什么InterfaceInstantiationConfiguration实现了ImportAware还是获取不到AnnotationMetadata, 只能静态变量了
+//     * 不实现ImportAware#setImportMetadata方法获取EnableInterfaceInstantiation注解参数的原因:
+//     * 因为BeanDefinitionRegistryPostProcessor需要在spring启动初期实例化(配置了ROLE_INFRASTRUCTURE), 因此该方法必须为静态(static),
+//     * 无法通过ImportAware注入注解参数. 如果该方法不为静态(static), 会导致该类过早实例化(即使这样也无法通过ImportAware注入注解参数).
+//     * 因此, 只能在InterfaceInstantiationSelector中获取并持有注解参数(静态持有).
 //     */
 //    @Override
 //    public void setImportMetadata(AnnotationMetadata importMetadata) {
