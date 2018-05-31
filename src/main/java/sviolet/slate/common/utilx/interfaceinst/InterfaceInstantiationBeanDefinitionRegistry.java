@@ -90,7 +90,7 @@ class InterfaceInstantiationBeanDefinitionRegistry implements BeanDefinitionRegi
 
         for (String basePackage : basePackages) {
 
-            logger.debug("InterfaceInstantiation: scan package:" + basePackage);
+            logger.info("InterfaceInstantiation: scan package:" + basePackage);
             Set<BeanDefinition> beanDefinitions = beanScanner.findCandidateComponents(basePackage);
 
             if (beanDefinitions == null || beanDefinitions.size() <= 0) {
@@ -118,7 +118,7 @@ class InterfaceInstantiationBeanDefinitionRegistry implements BeanDefinitionRegi
                     //注册
                     registry.registerBeanDefinition(className, beanDefinitionBuilder.getBeanDefinition());
 
-                    logger.debug("InterfaceInstantiation: interface instantiated:" + className);
+                    logger.info("InterfaceInstantiation: interface instantiated:" + className);
 
                 } catch (ClassNotFoundException e) {
                     throw new FatalBeanException("InterfaceInstantiation: interface class not found:" + className, e);
