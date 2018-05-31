@@ -21,7 +21,13 @@ package sviolet.slate.common.utilx.interfaceinst;
 
 import sviolet.slate.common.util.proxy.CGLibProxyUtils;
 
-public class DefaultInterfaceInstantiator implements InterfaceInstantiator {
+/**
+ * <p>[JDK8 + Spring 5.0]</p>
+ * <p>接口实例化的默认实现, CGLib</p>
+ * @since 1.8
+ * @author S.Violet
+ */
+class DefaultInterfaceInstantiator implements InterfaceInstantiator {
     @Override
     public Object newInstance(Class<?> clazz) {
         return CGLibProxyUtils.newEmptyInstance(clazz);
