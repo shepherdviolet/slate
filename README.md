@@ -87,7 +87,7 @@ dependencies {
 ```gradle
   <web-app ......>
       <listener>
-          <listener-class>sviolet.slate.common.helperx.servlet.SlateServletContextListener</listener-class>
+          <listener-class>sviolet.slate.common.util.common.SlateServletContextListener</listener-class>
       </listener>
       <listener>
           ......
