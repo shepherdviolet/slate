@@ -48,4 +48,9 @@ public class InterfaceInstantiationFactoryBean4<T> implements FactoryBean<T> {
         return clazz;
     }
 
+    @Override
+    public boolean isSingleton() {
+        return true;
+    }
+
 }
