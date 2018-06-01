@@ -26,37 +26,38 @@ import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 
 import java.util.Set;
-import java.util.function.Supplier;
 
 /**
- * <p>[JDK8 + Spring 5.0]</p>
- * <p>核心逻辑</p>
- * @since 1.8
+ * <p>[JDK8- Spring 5-]</p>
+ *
+ * <p>核心逻辑, 适配低版本</p>
+ *
  * @author S.Violet
  */
-class InterfaceInstantiationBeanDefinitionRegistry implements BeanDefinitionRegistryPostProcessor {
+class InterfaceInstantiationBeanDefinitionRegistry4 implements BeanDefinitionRegistryPostProcessor {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private AnnotationAttributes annotationAttributes;
 
-    InterfaceInstantiationBeanDefinitionRegistry(AnnotationAttributes annotationAttributes) {
+    InterfaceInstantiationBeanDefinitionRegistry4(AnnotationAttributes annotationAttributes) {
         this.annotationAttributes = annotationAttributes;
     }
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
-        logger.info("InterfaceInstantiation: start");
+        logger.info("InterfaceInstantiation: start (spring 5- or jdk 8-)");
 
         //接口类实例化器
         InterfaceInstantiator interfaceInstantiator;
@@ -112,17 +113,16 @@ class InterfaceInstantiationBeanDefinitionRegistry implements BeanDefinitionRegi
                     //类
                     final Class clazz = Class.forName(className);
 
+                    //FactoryBean的构造参数
+                    ConstructorArgumentValues constructorArgumentValues = new ConstructorArgumentValues();
+                    constructorArgumentValues.addIndexedArgumentValue(0, clazz);
+                    constructorArgumentValues.addIndexedArgumentValue(1, interfaceInstantiator);
+
                     //Bean定义
-                    BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(clazz, new Supplier<Object>() {
-                        @Override
-                        public Object get() {
-                            //使用接口类实例化器实例化接口
-                            return interfaceInstantiatorFinal.newInstance(clazz);
-                        }
-                    });
+                    RootBeanDefinition rootBeanDefinition = new RootBeanDefinition(InterfaceInstantiationFactoryBean4.class, constructorArgumentValues, null);
 
                     //注册Bean定义
-                    registry.registerBeanDefinition(className, beanDefinitionBuilder.getBeanDefinition());
+                    registry.registerBeanDefinition(className, rootBeanDefinition);
 
                     logger.info("InterfaceInstantiation: interface instantiated:" + className);
 
@@ -134,7 +134,7 @@ class InterfaceInstantiationBeanDefinitionRegistry implements BeanDefinitionRegi
 
         }
 
-        logger.info("InterfaceInstantiation finish");
+        logger.info("InterfaceInstantiation: finish");
 
     }
 

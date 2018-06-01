@@ -19,15 +19,33 @@
 
 package sviolet.slate.common.utilx.interfaceinst;
 
-import sviolet.slate.common.util.proxy.CGLibProxyUtils;
+import org.springframework.beans.factory.FactoryBean;
 
 /**
- * <p>接口实例化的默认实现, CGLib</p>
+ * <p>[JDK8- Spring 5-]</p>
+ *
+ * <p>FactoryBean, 适配低版本</p>
+ *
  * @author S.Violet
  */
-class DefaultInterfaceInstantiator implements InterfaceInstantiator {
-    @Override
-    public Object newInstance(Class<?> clazz) {
-        return CGLibProxyUtils.newEmptyInstance(clazz);
+public class InterfaceInstantiationFactoryBean4<T> implements FactoryBean<T> {
+
+    private Class<?> clazz;
+    private InterfaceInstantiator interfaceInstantiator;
+
+    public InterfaceInstantiationFactoryBean4(Class<?> clazz, InterfaceInstantiator interfaceInstantiator) {
+        this.clazz = clazz;
+        this.interfaceInstantiator = interfaceInstantiator;
     }
+
+    @Override
+    public T getObject() throws Exception {
+        return (T) interfaceInstantiator.newInstance(clazz);
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+        return clazz;
+    }
+
 }

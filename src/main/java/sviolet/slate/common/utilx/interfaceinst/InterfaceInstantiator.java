@@ -20,9 +20,7 @@
 package sviolet.slate.common.utilx.interfaceinst;
 
 /**
- * <p>[JDK8 + Spring 5.0]</p>
  * <p>接口实例化器</p>
- * @since 1.8
  * @author S.Violet
  */
 public interface InterfaceInstantiator {

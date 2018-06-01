@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Import;
 import java.lang.annotation.*;
 
 /**
- * <p>[JDK8 + Spring 5.0]</p>
  * <p>接口自动实例化工具</p>
  *
  * <p>
@@ -63,7 +62,6 @@ import java.lang.annotation.*;
  *      }
  * </pre>
  *
- * @since 1.8
  * @author S.Violet
  */
 @Target(ElementType.TYPE)

@@ -25,9 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>[JDK8 + Spring 5.0]</p>
  * <p>声明该接口需要被实例化</p>
- * @since 1.8
  * @author S.Violet
  */
 @Target(ElementType.TYPE)

@@ -24,9 +24,7 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 
 /**
- * <p>[JDK8 + Spring 5.0]</p>
  * <p>ImportSelector</p>
- * @since 1.8
  * @author S.Violet
  */
 public class InterfaceInstantiationSelector implements ImportSelector {

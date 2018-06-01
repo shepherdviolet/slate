@@ -26,13 +26,33 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 
 /**
- * <p>[JDK8 + Spring 5.0]</p>
  * <p>配置类</p>
- * @since 1.8
  * @author S.Violet
  */
 @Configuration
 public class InterfaceInstantiationConfiguration {
+
+    private static boolean isJdk8 = true;
+    private static boolean isSpring5 = true;
+
+    static {
+        Class<?> supplierClass = null;
+        try {
+            supplierClass = Class.forName("java.util.function.Supplier");
+        } catch (Exception e) {
+            isJdk8 = false;
+        }
+        if (isJdk8) {
+            try {
+                Class<?> clazz = Class.forName("org.springframework.beans.factory.support.BeanDefinitionBuilder");
+                clazz.getDeclaredMethod("genericBeanDefinition", Class.class, supplierClass);
+            } catch (Exception e) {
+                isSpring5 = false;
+            }
+        } else {
+            isSpring5 = false;
+        }
+    }
 
     /**
      * 不实现ImportAware#setImportMetadata方法获取EnableInterfaceInstantiation注解参数的原因:
@@ -43,7 +63,10 @@ public class InterfaceInstantiationConfiguration {
     @Bean(name = "slate.common.InterfaceInstantiationBeanDefinitionRegistry")
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     public static BeanDefinitionRegistryPostProcessor interfaceInstantiationBeanDefinitionRegistry(){
-        return new InterfaceInstantiationBeanDefinitionRegistry(InterfaceInstantiationSelector.annotationAttributes);
+        if (isJdk8 && isSpring5) {
+            return new InterfaceInstantiationBeanDefinitionRegistry5(InterfaceInstantiationSelector.annotationAttributes);
+        }
+        return new InterfaceInstantiationBeanDefinitionRegistry4(InterfaceInstantiationSelector.annotationAttributes);
     }
 
 //    /**
