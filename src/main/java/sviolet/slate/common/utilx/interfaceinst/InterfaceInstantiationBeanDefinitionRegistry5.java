@@ -126,7 +126,7 @@ class InterfaceInstantiationBeanDefinitionRegistry5 implements BeanDefinitionReg
                     //注册Bean定义
                     registry.registerBeanDefinition(className, beanDefinitionBuilder.getBeanDefinition());
 
-                    logger.info("InterfaceInstantiation: interface instantiated:" + className);
+                    logger.info("InterfaceInstantiation: >>>" + className);
 
                 } catch (ClassNotFoundException e) {
                     throw new FatalBeanException("InterfaceInstantiation: interface class not found:" + className, e);
