@@ -53,6 +53,8 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  *      LoadBalancedOkHttpClient client = new LoadBalancedOkHttpClient();
  *      client.setHostManager(hostManager);
+ *      client.setMaxThreads(200);
+ *      client.setMaxThreadsPerHost(200);
  *      client.setPassiveBlockDuration(3000L);
  *      client.setConnectTimeout(3000L);
  *      client.setWriteTimeout(10000L);
@@ -76,6 +78,8 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  *  <bean id="loadBalancedOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.LoadBalancedOkHttpClient">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
+ *      <property name="maxThreads" ref="200"/>
+ *      <property name="maxThreadsPerHost" ref="200"/>
  *      <property name="passiveBlockDuration" value="3000"/>
  *      <property name="connectTimeout" value="3000"/>
  *      <property name="writeTimeout" value="10000"/>
@@ -100,6 +104,8 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  *  <bean id="loadBalancedOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.LoadBalancedOkHttpClient">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
+ *      <property name="maxThreads" ref="200"/>
+ *      <property name="maxThreadsPerHost" ref="200"/>
  *      <property name="passiveBlockDuration" value="3000"/>
  *      <property name="connectTimeout" value="3000"/>
  *      <property name="writeTimeout" value="10000"/>
@@ -173,6 +179,22 @@ public class LoadBalancedOkHttpClient {
      */
     public void setVerboseLog(boolean verboseLog) {
         settings.verboseLog = verboseLog;
+    }
+
+    /**
+     * 最大请求线程数(仅异步请求时有效)
+     * @param maxThreads 最大请求线程数
+     */
+    public void setMaxThreads(int maxThreads) {
+        settings.maxThreads = maxThreads;
+    }
+
+    /**
+     * 对应每个后端的最大请求线程数(仅异步请求时有效)
+     * @param maxThreadsPerHost 对应每个后端的最大请求线程数
+     */
+    public void setMaxThreadsPerHost(int maxThreadsPerHost) {
+        settings.maxThreadsPerHost = maxThreadsPerHost;
     }
 
     /**
@@ -285,7 +307,7 @@ public class LoadBalancedOkHttpClient {
         }
     }
 
-    //Request /////////////////////////////////////////////////////////////////////////////////////////////////////
+    //sync /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * 同步POST请求,
@@ -332,7 +354,10 @@ public class LoadBalancedOkHttpClient {
             return responseBody.bytes();
         } finally {
             if (responseBody != null){
-                responseBody.close();
+                try {
+                    responseBody.close();
+                } catch (Throwable ignore) {
+                }
             }
         }
     }
@@ -408,7 +433,10 @@ public class LoadBalancedOkHttpClient {
             return responseBody.bytes();
         } finally {
             if (responseBody != null){
-                responseBody.close();
+                try {
+                    responseBody.close();
+                } catch (Throwable ignore) {
+                }
             }
         }
     }
@@ -537,6 +565,147 @@ public class LoadBalancedOkHttpClient {
         return syncCall(host, request);
     }
 
+    // async ////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * 异步POST请求,
+     * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常
+     *
+     * @param urlSuffix url后缀
+     * @param body      报文体
+     * @param params    URL请求参数
+     * @param callback  回调函数
+     */
+    public void asyncPostForBytes(String urlSuffix, byte[] body, Map<String, Object> params, BytesCallback callback) {
+        callback.setSettings(settings);
+        asyncPost(urlSuffix, body, params, callback);
+    }
+
+    /**
+     * 异步POST请求,
+     * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常
+     *
+     * @param urlSuffix url后缀
+     * @param body      报文体
+     * @param params    URL请求参数
+     * @param callback  回调函数
+     */
+    public void asyncPostForInputStream(String urlSuffix, byte[] body, Map<String, Object> params, InputStreamCallback callback) {
+        callback.setSettings(settings);
+        asyncPost(urlSuffix, body, params, callback);
+    }
+
+    /**
+     * 异步POST请求,
+     * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常,
+     * 该方法不会根据maxReadLength限定最大读取长度
+     *
+     * @param urlSuffix url后缀
+     * @param body      报文体
+     * @param params    URL请求参数
+     * @param callback  回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponseBodyCallback}
+     */
+    public void asyncPost(String urlSuffix, byte[] body, Map<String, Object> params, ResponseBodyCallback callback) {
+        try {
+            //获取远端
+            LoadBalancedHostManager.Host host = fetchHost();
+
+            if (settings.verboseLog && logger.isDebugEnabled()) {
+                logger.debug("POST url:" + host.getUrl() + ", suffix:" + urlSuffix + ", body:" + ByteUtils.bytesToHex(body));
+            }
+
+            //装配Request
+            Request request;
+            try {
+                request = buildPostRequest(host.getUrl(), urlSuffix, body, params, settings);
+            } catch (Throwable t) {
+                throw new RequestBuildException("Error while building request", t);
+            }
+            if (request == null) {
+                throw new RequestBuildException("Null request built");
+            }
+
+            if (logger.isInfoEnabled()) {
+                logger.info("POST real url:" + request.url().toString());
+            }
+
+            //请求
+            asyncCall(host, request, callback);
+        } catch (NoHostException | RequestBuildException e) {
+            callback.onErrorBeforeSend(e);
+        }
+    }
+
+    /**
+     * 异步GET请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常,
+     * 该方法不会根据maxReadLength限定最大读取长度
+     *
+     * @param urlSuffix url后缀
+     * @param params 请求参数
+     * @param callback  回调函数
+     */
+    public void asyncGetForBytes(String urlSuffix, Map<String, Object> params, BytesCallback callback) {
+        callback.setSettings(settings);
+        asyncGet(urlSuffix, params, callback);
+    }
+
+    /**
+     * 异步GET请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常,
+     * 该方法不会根据maxReadLength限定最大读取长度
+     *
+     * @param urlSuffix url后缀
+     * @param params 请求参数
+     * @param callback  回调函数
+     */
+    public void asyncGetForInputStream(String urlSuffix, Map<String, Object> params, InputStreamCallback callback) {
+        callback.setSettings(settings);
+        asyncGet(urlSuffix, params, callback);
+    }
+
+    /**
+     * 异步GET请求,
+     * 如果响应码不为2XX, 会抛出HttpRejectException异常,
+     * 该方法不会根据maxReadLength限定最大读取长度
+     *
+     * @param urlSuffix url后缀
+     * @param params 请求参数
+     * @param callback  回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponseBodyCallback}
+     */
+    public void asyncGet(String urlSuffix, Map<String, Object> params, ResponseBodyCallback callback) {
+        try {
+            //获取远端
+            LoadBalancedHostManager.Host host = fetchHost();
+
+            if (settings.verboseLog && logger.isDebugEnabled()) {
+                logger.debug("GET url:" + host.getUrl() + ", suffix:" + urlSuffix + ", params:" + params);
+            }
+
+            //装配Request
+            Request request;
+            try {
+                request = buildGetRequest(host.getUrl(), urlSuffix, params, settings);
+            } catch (Throwable t) {
+                throw new RequestBuildException("Error while building request", t);
+            }
+            if (request == null) {
+                throw new RequestBuildException("Null request built");
+            }
+
+            if (logger.isInfoEnabled()) {
+                logger.info("GET real url:" + request.url().toString());
+            }
+
+            //请求
+            asyncCall(host, request, callback);
+        } catch (NoHostException | RequestBuildException e) {
+            callback.onErrorBeforeSend(e);
+        }
+    }
+
+    //private //////////////////////////////////////////////////////////////////////////////////////////////////////
+
     private LoadBalancedHostManager.Host fetchHost() throws NoHostException {
         LoadBalancedHostManager.Host host = hostManager.nextHost();
         if (host == null){
@@ -572,6 +741,42 @@ public class LoadBalancedOkHttpClient {
         }
     }
 
+    private void asyncCall(final LoadBalancedHostManager.Host host, Request request, final ResponseBodyCallback callback)  {
+        //异步请求
+        try {
+            getOkHttpClient().newCall(request).enqueue(new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    //Http拒绝
+                    if (!isSucceed(response)) {
+                        Exception exception = new HttpRejectException(response.code(), response.message());
+                        tryBlock(exception);
+                        callback.onErrorAfterSend(exception);
+                        return;
+                    }
+                    //报文体
+                    callback.onSucceed(response.body());
+                }
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    tryBlock(e);
+                    callback.onErrorAfterSend(e);
+                }
+                private void tryBlock(Exception e){
+                    if (needBlock(e, settings)) {
+                        //网络故障阻断后端
+                        host.block(settings.passiveBlockDuration);
+                        if (logger.isInfoEnabled()) {
+                            logger.info("Block " + host.getUrl() + " " + settings.passiveBlockDuration);
+                        }
+                    }
+                }
+            });
+        } catch (Exception t) {
+            callback.onErrorBeforeSend(new RequestBuildException("Error while request build ?", t));
+        }
+    }
+
     private OkHttpClient getOkHttpClient(){
         OkHttpClient client = okHttpClient;
         if (client == null || refreshSettings) {
@@ -598,10 +803,15 @@ public class LoadBalancedOkHttpClient {
      */
     protected OkHttpClient createOkHttpClient(Settings settings){
 
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.setMaxRequests(settings.maxThreads);
+        dispatcher.setMaxRequestsPerHost(settings.maxThreadsPerHost);
+
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .connectTimeout(settings.connectTimeout, TimeUnit.MILLISECONDS)
                 .writeTimeout(settings.writeTimeout, TimeUnit.MILLISECONDS)
-                .readTimeout(settings.readTimeout, TimeUnit.MILLISECONDS);
+                .readTimeout(settings.readTimeout, TimeUnit.MILLISECONDS)
+                .dispatcher(dispatcher);
 
         if (settings.cookieJar != null) {
             builder.cookieJar(settings.cookieJar);
@@ -713,6 +923,8 @@ public class LoadBalancedOkHttpClient {
         private Map<String, String> headers;
         private boolean verboseLog = false;
 
+        private int maxThreads = 64;
+        private int maxThreadsPerHost = 64;
         private long connectTimeout = 5000L;
         private long writeTimeout = 60000L;
         private long readTimeout = 60000L;
@@ -720,6 +932,119 @@ public class LoadBalancedOkHttpClient {
         private CookieJar cookieJar;
         private Proxy proxy;
         private Dns dns;
+
+    }
+
+    /**
+     * 请求回调
+     */
+    public interface ResponseBodyCallback {
+
+        /**
+         * 请求成功
+         * 注意:请关闭ResponseBody(调用close())
+         * @param responseBody 响应报文体, 注意:请关闭ResponseBody(调用close())
+         */
+        void onSucceed(ResponseBody responseBody);
+
+        /**
+         * 请求前发生异常
+         * @param e {@link RequestBuildException}:请求前发生异常, {@link NoHostException}:未配置后端地址或所有后端地址均不可用
+         */
+        void onErrorBeforeSend(Exception e);
+
+        /**
+         * 请求后发生异常
+         * @param e {@link HttpRejectException}:后端Http拒绝(返回码不为200), {@link IOException}:通讯异常
+         */
+        void onErrorAfterSend(Exception e);
+
+    }
+
+    /**
+     * 请求回调(获得byte[]响应体)
+     */
+    public abstract class BytesCallback implements ResponseBodyCallback {
+
+        private Settings settings;
+
+        /**
+         * 请求成功
+         * @param body 响应报文体, 可能为null
+         */
+        public abstract void onSucceed(byte[] body);
+
+        @Override
+        public void onSucceed(ResponseBody responseBody) {
+            byte[] bytes = null;
+            try {
+                if (responseBody != null) {
+                    //限定读取长度
+                    if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength) {
+                        throw new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength);
+                    }
+                    //返回二进制数据
+                    bytes = responseBody.bytes();
+                }
+            } catch (IOException e) {
+                onErrorAfterSend(e);
+                return;
+            } finally {
+                if (responseBody != null){
+                    try {
+                        responseBody.close();
+                    } catch (Throwable ignore) {
+                    }
+                }
+            }
+            onSucceed(bytes);
+        }
+
+        private void setSettings(Settings settings) {
+            this.settings = settings;
+        }
+
+    }
+
+    /**
+     * 请求回调(获得InputStream响应体)
+     */
+    public abstract class InputStreamCallback implements ResponseBodyCallback {
+
+        private Settings settings;
+
+        /**
+         * 请求成功
+         * @param inputStream 报文体输入流, 可能为null, 该输入流会被自动关闭
+         */
+        public abstract void onSucceed(InputStream inputStream);
+
+        @Override
+        public void onSucceed(ResponseBody responseBody) {
+            //返回空
+            if (responseBody == null) {
+                onSucceed((InputStream) null);
+                return;
+            }
+            try {
+                //限定读取长度
+                if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength) {
+                    onErrorAfterSend(new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength));
+                    return;
+                }
+                //返回二进制数据
+                onSucceed(responseBody.byteStream());
+            } finally {
+                try {
+                    responseBody.close();
+                } catch (Throwable ignore) {
+                }
+            }
+        }
+
+        private void setSettings(Settings settings) {
+            this.settings = settings;
+        }
 
     }
 
