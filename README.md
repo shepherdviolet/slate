@@ -90,15 +90,15 @@ dependencies {
 * Spring MVC: Register in web.xml
 
 ```gradle
-  <web-app ......>
-      <listener>
-          <listener-class>sviolet.slate.common.util.common.SlateServletContextListener</listener-class>
-      </listener>
-      <listener>
-          ......
-      </listener>
-      ......
-  </web-app>
+    <web-app ......>
+        <listener>
+            <listener-class>sviolet.slate.common.util.common.SlateServletContextListener</listener-class>
+        </listener>
+        <listener>
+            ......
+        </listener>
+        ......
+    </web-app>
 ```
 
 * Spring Boot: Register in class

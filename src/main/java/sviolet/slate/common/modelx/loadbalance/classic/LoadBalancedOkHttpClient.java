@@ -925,9 +925,9 @@ public class LoadBalancedOkHttpClient {
 
         private int maxThreads = 64;
         private int maxThreadsPerHost = 64;
-        private long connectTimeout = 5000L;
-        private long writeTimeout = 60000L;
-        private long readTimeout = 60000L;
+        private long connectTimeout = 3000L;
+        private long writeTimeout = 1000L;
+        private long readTimeout = 1000L;
         private long maxReadLength = 10L * 1024L * 1024L;
         private CookieJar cookieJar;
         private Proxy proxy;

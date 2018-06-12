@@ -46,7 +46,7 @@ import java.util.concurrent.ExecutorService;
  *      //设置要探测的远端管理器(必须)
  *      inspectManager.setHostManager(hostManager);
  *      //探测间隔(阻断时长为该值的两倍, 探测超时为该值的1/4)
- *      inspectManager.setInspectInterval(10000L);
+ *      inspectManager.setInspectInterval(5000L);
  *      //设置探测器
  *      inspectManager.setInspector(new TelnetLoadBalanceInspector());
  *      //允许输出调试日志
@@ -62,7 +62,7 @@ import java.util.concurrent.ExecutorService;
  */
 public class LoadBalancedInspectManager implements Destroyable {
 
-    private static final long DEFAULT_INSPECT_INTERVAL = 10000L;
+    private static final long DEFAULT_INSPECT_INTERVAL = 5000L;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
