@@ -942,8 +942,8 @@ public class LoadBalancedOkHttpClient {
 
         /**
          * 请求成功
-         * 注意:请关闭ResponseBody(调用close())
-         * @param responseBody 响应报文体, 注意:请关闭ResponseBody(调用close())
+         * 注意:处理完毕后必须关闭ResponseBody(调用close())!!!
+         * @param responseBody 响应报文体, 注意:处理完毕后必须关闭ResponseBody(调用close())!!!
          */
         void onSucceed(ResponseBody responseBody);
 

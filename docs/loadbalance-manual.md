@@ -81,7 +81,8 @@ dependencies {
 
 # 配置
 
-* Spring(XML)
+### Spring(XML)
+* `LoadBalancedInspectManager需要配置destroy-method="close"`
 
 ```gradle
 
@@ -113,7 +114,8 @@ dependencies {
     
 ```
 
-* Spring(注解)
+### Spring(注解)
+* `LoadBalancedInspectManager需要配置@Bean(destroyMethod = "close")`
 
 ```gradle
 
@@ -125,8 +127,8 @@ dependencies {
     public LoadBalancedHostManager loadBalancedHostManager() {
         LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
         hostManager.setHostArray(new String[]{
-            "http://127.0.0.1:8080",
-            "http://127.0.0.1:8081"
+            "http://127.0.0.1:8081",
+            "http://127.0.0.1:8082"
         });
         return hostManager;
     }
@@ -134,8 +136,9 @@ dependencies {
     /**
      * 主动探测管理器
      * 定时探测后端状态(默认Telnet方式)
+     * 注意, 必须配置destroyMethod = "close"
      */
-    @Bean
+    @Bean(destroyMethod = "close")
     public LoadBalancedInspectManager loadBalancedInspectManager(LoadBalancedHostManager loadBalancedHostManager) {
         LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager();
         inspectManager.setHostManager(loadBalancedHostManager);
@@ -161,6 +164,143 @@ dependencies {
         return client;
     }
     
+```
+
+# 调用示例
+
+* 一般情况下, 需要根据实际情况, 对LoadBalancedOkHttpClient做再封装, 实现报文转换, 异常统一处理等
+* `使用syncGetForInputStream()/syncGet()/syncPostForInputStream()/syncPost()时, 处理完毕后务必关闭InputStream或ResponseBody!!!`
+* `使用asyncGetForInputStream()/asyncGet()/asyncPostForInputStream()/asyncPost()时, 回调方法onSucceed()处理完毕后, 务必关闭InputStream或ResponseBody!!!`
+
+```gradle
+
+    @Autowired
+    private LoadBalancedOkHttpClient client;
+    
+    public void post1(){
+        try {
+            /*
+             * 同步POST请求, 响应报文体为byte[]类型
+             *
+             * 实际请求地址 = host + urlSuffix
+             * 例如:
+             * hosts为http://127.0.0.1:8081,http://127.0.0.1:8082
+             * urlSuffix为/post/json
+             * 则实际请求地址为http://127.0.0.1:8081/post/json或http://127.0.0.1:8082/post/json
+             *
+             * 下面的示例为:
+             * 向http://127.0.0.1:8081/post/json?traceId=1234567890或http://127.0.0.1:8082/post/json?traceId=1234567890
+             * 发送POST请求, 报文体为"hello"
+             */
+            //URL参数
+            Map<String, Object> urlParams = new HashMap<>(1);
+            urlParams.put("traceId", "1234567890");
+            //发送请求
+            byte[] response = client.syncPostForBytes("/post/json", "hello".getBytes("utf-8"), urlParams);
+            //响应报文可能为空
+            logger.debug("response:" + (response != null ? new String(response, "UTF-8") : "null"));
+        } catch (NoHostException e) {
+            //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+        } catch (RequestBuildException e) {
+            //在网络请求未发送前抛出的异常
+        } catch (IOException e) {
+            //网络异常
+        } catch (HttpRejectException e) {
+            //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+            //获得拒绝码 e.getResponseCode()
+            //获得拒绝信息 e.getResponseMessage()
+        }
+    }
+    
+    public void post2(){
+        InputStream inputStream = null;
+        try {
+            /*
+             * 同步请求, 响应报文体为InputStream类型
+             *
+             * 实际请求地址 = host + urlSuffix
+             * 例如:
+             * hosts为http://127.0.0.1:8081,http://127.0.0.1:8082
+             * urlSuffix为/post/json
+             * 则实际请求地址为http://127.0.0.1:8081/post/json或http://127.0.0.1:8082/post/json
+             *
+             * 下面的示例为:
+             * 向http://127.0.0.1:8081/post/json?traceId=1234567890或http://127.0.0.1:8082/post/json?traceId=1234567890
+             * 发送POST请求, 报文体为"hello"
+             */
+            //URL参数
+            Map<String, Object> urlParams = new HashMap<>(1);
+            urlParams.put("traceId", "1234567890");
+            //发送请求
+            inputStream = client.syncPostForInputStream("/post/json", "hello".getBytes("utf-8"), urlParams);
+            
+            //TODO 处理输入流
+            
+        } catch (NoHostException e) {
+            //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+        } catch (RequestBuildException e) {
+            //在网络请求未发送前抛出的异常
+        } catch (IOException e) {
+            //网络异常
+        } catch (HttpRejectException e) {
+            //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+            //获得拒绝码 e.getResponseCode()
+            //获得拒绝信息 e.getResponseMessage()
+        } finally {
+            //关闭流!
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (Exception ignore){
+                }
+            }
+        }
+    }
+    
+    public void post3(){
+        ResponseBody responseBody = null;
+        try {
+            /*
+             * 同步请求, 响应报文体为ResponseBody类型
+             *
+             * 实际请求地址 = host + urlSuffix
+             * 例如:
+             * hosts为http://127.0.0.1:8081,http://127.0.0.1:8082
+             * urlSuffix为/post/json
+             * 则实际请求地址为http://127.0.0.1:8081/post/json或http://127.0.0.1:8082/post/json
+             *
+             * 下面的示例为:
+             * 向http://127.0.0.1:8081/post/json?traceId=1234567890或http://127.0.0.1:8082/post/json?traceId=1234567890
+             * 发送POST请求, 报文体为"hello"
+             */
+            //URL参数
+            Map<String, Object> urlParams = new HashMap<>(1);
+            urlParams.put("traceId", "1234567890");
+            //发送请求
+            responseBody = client.syncPost("/post/json", "hello".getBytes("utf-8"), urlParams);
+        
+            //TODO 处理responseBody
+        
+        } catch (NoHostException e) {
+            //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+        } catch (RequestBuildException e) {
+            //在网络请求未发送前抛出的异常
+        } catch (IOException e) {
+            //网络异常
+        } catch (HttpRejectException e) {
+            //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+            //获得拒绝码 e.getResponseCode()
+            //获得拒绝信息 e.getResponseMessage()
+        } finally {
+            if (responseBody != null) {
+                try {
+                    responseBody.close();
+                } catch (Exception ignore){
+                }
+            }
+        }
+    }
+
 ```
 
 # 配置参数详解
@@ -281,5 +421,3 @@ dependencies {
 
 * DNS配置
 * 默认:无
-
-
