@@ -1,5 +1,5 @@
-# slate-common 9.5
-* JavaEE common library for private use
+# slate-common 9.6
+* JavaEE common library
 * https://github.com/shepherdviolet/slate-common
 
 ### Import dependencies from maven repository
@@ -14,7 +14,7 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 dependencies {
-    compile 'com.github.shepherdviolet:slate-common:9.5'
+    compile 'com.github.shepherdviolet:slate-common:9.6'
 }
 
 ```
@@ -23,7 +23,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.5</version>
+        <version>9.6</version>
     </dependency>
 ```
 
@@ -35,7 +35,7 @@ dependencies {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        compile ('com.github.shepherdviolet:slate-common:9.5') {
+        compile ('com.github.shepherdviolet:slate-common:9.6') {
             exclude group:'com.jcraft', module:'jsch'
             exclude group:'com.squareup.okhttp3'
             exclude group:'org.jetbrains.kotlin', module:'kotlin-stdlib-jre7'
@@ -51,7 +51,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.5</version>
+        <version>9.6</version>
         <exclusions>
              <exclusion>
                  <groupId>com.jcraft</groupId>
