@@ -35,6 +35,8 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -48,93 +50,113 @@ class InterfaceInstantiationBeanDefinitionRegistry4 implements BeanDefinitionReg
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private AnnotationAttributes annotationAttributes;
+    private List<AnnotationAttributes> annotationAttributesList;
 
-    InterfaceInstantiationBeanDefinitionRegistry4(AnnotationAttributes annotationAttributes) {
-        this.annotationAttributes = annotationAttributes;
+    InterfaceInstantiationBeanDefinitionRegistry4(List<AnnotationAttributes> annotationAttributesList) {
+        this.annotationAttributesList = annotationAttributesList;
     }
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
+        logger.info("InterfaceInstantiation: -------------------------------------------------");
         logger.info("InterfaceInstantiation: start (spring 5- or jdk 8-)");
 
-        //接口类实例化器
-        InterfaceInstantiator interfaceInstantiator;
-        try {
-            Class<? extends InterfaceInstantiator> interfaceInstantiatorClass = annotationAttributes.getClass("interfaceInstantiator");
-            interfaceInstantiator = interfaceInstantiatorClass.newInstance();
-            logger.info("InterfaceInstantiation: interfaceInstantiator:" + interfaceInstantiatorClass.getName());
-        } catch (Exception e) {
-            throw new FatalBeanException("InterfaceInstantiation: interfaceInstantiator create failed", e);
-        }
-        final InterfaceInstantiator interfaceInstantiatorFinal = interfaceInstantiator;
+        Set<String> processedClasses = new HashSet<>(128);
 
-        //接口搜索器
-        ClassPathScanningCandidateComponentProvider beanScanner = new ClassPathScanningCandidateComponentProvider(false) {
-            @Override
-            protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
-                // access interface
-                return beanDefinition.getMetadata().isInterface();
+        for (AnnotationAttributes annotationAttributes : annotationAttributesList) {
+
+            logger.info("InterfaceInstantiation: -------------------------------------------------");
+
+            //接口类实例化器
+            InterfaceInstantiator interfaceInstantiator;
+            try {
+                Class<? extends InterfaceInstantiator> interfaceInstantiatorClass = annotationAttributes.getClass("interfaceInstantiator");
+                interfaceInstantiator = interfaceInstantiatorClass.newInstance();
+                logger.info("InterfaceInstantiation: interfaceInstantiator:" + interfaceInstantiatorClass.getName());
+            } catch (Exception e) {
+                throw new FatalBeanException("InterfaceInstantiation: interfaceInstantiator create failed", e);
             }
-        };
+            final InterfaceInstantiator interfaceInstantiatorFinal = interfaceInstantiator;
 
-        //根据注解过滤
-        TypeFilter includeFilter = new AnnotationTypeFilter(InterfaceInstance.class);
-        beanScanner.addIncludeFilter(includeFilter);
+            //接口搜索器
+            ClassPathScanningCandidateComponentProvider beanScanner = new ClassPathScanningCandidateComponentProvider(false) {
+                @Override
+                protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
+                    // access interface
+                    return beanDefinition.getMetadata().isInterface();
+                }
+            };
 
-        //包路径
-        String[] basePackages = annotationAttributes.getStringArray("basePackages");
+            //根据注解过滤
+            TypeFilter includeFilter = new AnnotationTypeFilter(InterfaceInstance.class);
+            beanScanner.addIncludeFilter(includeFilter);
 
-        if (basePackages == null || basePackages.length <= 0) {
-            logger.info("InterfaceInstantiation: skip, no basePackages");
-            return;
-        }
+            //包路径
+            String[] basePackages = annotationAttributes.getStringArray("basePackages");
 
-        //遍历包路径
-        for (String basePackage : basePackages) {
-
-            //搜索包路径下的接口类定义
-            logger.info("InterfaceInstantiation: scan package:" + basePackage);
-            Set<BeanDefinition> beanDefinitions = beanScanner.findCandidateComponents(basePackage);
-
-            if (beanDefinitions == null || beanDefinitions.size() <= 0) {
-                continue;
+            if (basePackages == null || basePackages.length <= 0) {
+                logger.info("InterfaceInstantiation: skip, no basePackages");
+                return;
             }
 
-            //遍历接口类定义
-            for (BeanDefinition beanDefinition : beanDefinitions) {
+            //遍历包路径
+            for (String basePackage : basePackages) {
 
-                //类名
-                String className = beanDefinition.getBeanClassName();
+                //搜索包路径下的接口类定义
+                logger.info("InterfaceInstantiation: scan package:" + basePackage);
+                Set<BeanDefinition> beanDefinitions = beanScanner.findCandidateComponents(basePackage);
 
-                try {
+                if (beanDefinitions == null || beanDefinitions.size() <= 0) {
+                    continue;
+                }
 
-                    //类
-                    final Class clazz = Class.forName(className);
+                //遍历接口类定义
+                for (BeanDefinition beanDefinition : beanDefinitions) {
 
-                    //FactoryBean的构造参数
-                    ConstructorArgumentValues constructorArgumentValues = new ConstructorArgumentValues();
-                    constructorArgumentValues.addIndexedArgumentValue(0, clazz);
-                    constructorArgumentValues.addIndexedArgumentValue(1, interfaceInstantiator);
+                    //类名
+                    String className = beanDefinition.getBeanClassName();
 
-                    //Bean定义
-                    RootBeanDefinition rootBeanDefinition = new RootBeanDefinition(InterfaceInstantiationFactoryBean4.class, constructorArgumentValues, null);
+                    //跳过已实例化的接口
+                    if (processedClasses.contains(className)) {
+                        logger.warn("InterfaceInstantiation: duplicate class(skipped):" + className);
+                        continue;
+                    }
 
-                    //注册Bean定义
-                    registry.registerBeanDefinition(className, rootBeanDefinition);
+                    try {
 
-                    logger.info("InterfaceInstantiation: >>>" + className);
+                        //类
+                        final Class clazz = Class.forName(className);
 
-                } catch (ClassNotFoundException e) {
-                    throw new FatalBeanException("InterfaceInstantiation: interface class not found:" + className, e);
+                        //FactoryBean的构造参数
+                        ConstructorArgumentValues constructorArgumentValues = new ConstructorArgumentValues();
+                        constructorArgumentValues.addIndexedArgumentValue(0, clazz);
+                        constructorArgumentValues.addIndexedArgumentValue(1, interfaceInstantiator);
+
+                        //Bean定义
+                        RootBeanDefinition rootBeanDefinition = new RootBeanDefinition(InterfaceInstantiationFactoryBean4.class, constructorArgumentValues, null);
+
+                        //注册Bean定义
+                        registry.registerBeanDefinition(className, rootBeanDefinition);
+
+                        //记录类名
+                        processedClasses.add(className);
+
+                        logger.info("InterfaceInstantiation: created:" + className);
+
+                    } catch (ClassNotFoundException e) {
+                        throw new FatalBeanException("InterfaceInstantiation: interface class not found:" + className, e);
+                    }
+
                 }
 
             }
 
         }
 
+        logger.info("InterfaceInstantiation: -------------------------------------------------");
         logger.info("InterfaceInstantiation: finish");
+        logger.info("InterfaceInstantiation: -------------------------------------------------");
 
     }
 

@@ -64,9 +64,9 @@ public class InterfaceInstantiationConfiguration {
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     public static BeanDefinitionRegistryPostProcessor interfaceInstantiationBeanDefinitionRegistry(){
         if (isJdk8 && isSpring5) {
-            return new InterfaceInstantiationBeanDefinitionRegistry5(InterfaceInstantiationSelector.annotationAttributes);
+            return new InterfaceInstantiationBeanDefinitionRegistry5(InterfaceInstantiationSelector.annotationAttributesList);
         }
-        return new InterfaceInstantiationBeanDefinitionRegistry4(InterfaceInstantiationSelector.annotationAttributes);
+        return new InterfaceInstantiationBeanDefinitionRegistry4(InterfaceInstantiationSelector.annotationAttributesList);
     }
 
 //    /**

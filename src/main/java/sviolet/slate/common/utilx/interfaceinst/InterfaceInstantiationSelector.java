@@ -23,20 +23,26 @@ import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>ImportSelector</p>
  * @author S.Violet
  */
 public class InterfaceInstantiationSelector implements ImportSelector {
 
-    static AnnotationAttributes annotationAttributes;
+    static List<AnnotationAttributes> annotationAttributesList = new ArrayList<>(1);
 
     @Override
     public String[] selectImports(AnnotationMetadata importingClassMetadata) {
         /*
          * 此处用静态变量持有注解参数, 原因见InterfaceInstantiationConfiguration
          */
-        annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableInterfaceInstantiation.class.getName(), false));
+        AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableInterfaceInstantiation.class.getName(), false));
+        if (annotationAttributes != null) {
+            annotationAttributesList.add(annotationAttributes);
+        }
         //指定配置类
         return new String[]{InterfaceInstantiationConfiguration.class.getName()};
     }
