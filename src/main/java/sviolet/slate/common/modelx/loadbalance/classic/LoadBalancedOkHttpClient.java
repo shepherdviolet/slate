@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager;
 import sviolet.thistle.util.conversion.ByteUtils;
+import sviolet.thistle.util.judge.CheckUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -118,6 +119,12 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class LoadBalancedOkHttpClient {
 
+    public static final int VERBOSE_LOG_CONFIG_ALL = 0x11111111;
+    public static final int VERBOSE_LOG_CONFIG_REQUEST_INPUTS = 0x00000001;
+    public static final int VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY= 0x00000010;
+    public static final int VERBOSE_LOG_CONFIG_RAW_URL= 0x00000100;
+    public static final int VERBOSE_LOG_CONFIG_RESPONSE_CODE = 0x00001000;
+
     private static final long PASSIVE_BLOCK_DURATION = 3000L;
     private static final String MEDIA_TYPE = "application/json;charset=utf-8";
     private static final String ENCODE = "utf-8";
@@ -179,6 +186,21 @@ public class LoadBalancedOkHttpClient {
      */
     public void setVerboseLog(boolean verboseLog) {
         settings.verboseLog = verboseLog;
+    }
+
+    /**
+     * 打印更多的调试日志, 详细配置, 默认全打印, 当verboseLog=true时该参数生效<br>
+     *
+     * VERBOSE_LOG_CONFIG_ALL:{@value VERBOSE_LOG_CONFIG_ALL}<br>
+     * VERBOSE_LOG_CONFIG_REQUEST_INPUTS:{@value VERBOSE_LOG_CONFIG_REQUEST_INPUTS}<br>
+     * VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY:{@value VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY}<br>
+     * VERBOSE_LOG_CONFIG_RAW_URL:{@value VERBOSE_LOG_CONFIG_RAW_URL}<br>
+     * VERBOSE_LOG_CONFIG_RESPONSE_CODE:{@value VERBOSE_LOG_CONFIG_RESPONSE_CODE}<br>
+     *
+     * @param verboseLogConfig 详细配置
+     */
+    public void setVerboseLogConfig(int verboseLogConfig) {
+        settings.verboseLogConfig = verboseLogConfig;
     }
 
     /**
@@ -502,9 +524,8 @@ public class LoadBalancedOkHttpClient {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
-        if (settings.verboseLog && logger.isDebugEnabled()) {
-            logger.debug("POST url:" + host.getUrl() + ", suffix:" + urlSuffix + ", body:" + ByteUtils.bytesToHex(body));
-        }
+        printPostRequestLog(urlSuffix, body, params, host);
+        printUrlLog(urlSuffix, params, host);
 
         //装配Request
         Request request;
@@ -542,9 +563,8 @@ public class LoadBalancedOkHttpClient {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
-        if (settings.verboseLog && logger.isDebugEnabled()) {
-            logger.debug("GET url:" + host.getUrl() + ", suffix:" + urlSuffix + ", params:" + params);
-        }
+        printGetRequestLog(urlSuffix, params, host);
+        printUrlLog(urlSuffix, params, host);
 
         //装配Request
         Request request;
@@ -610,9 +630,8 @@ public class LoadBalancedOkHttpClient {
             //获取远端
             LoadBalancedHostManager.Host host = fetchHost();
 
-            if (settings.verboseLog && logger.isDebugEnabled()) {
-                logger.debug("POST url:" + host.getUrl() + ", suffix:" + urlSuffix + ", body:" + ByteUtils.bytesToHex(body));
-            }
+            printPostRequestLog(urlSuffix, body, params, host);
+            printUrlLog(urlSuffix, params, host);
 
             //装配Request
             Request request;
@@ -678,9 +697,8 @@ public class LoadBalancedOkHttpClient {
             //获取远端
             LoadBalancedHostManager.Host host = fetchHost();
 
-            if (settings.verboseLog && logger.isDebugEnabled()) {
-                logger.debug("GET url:" + host.getUrl() + ", suffix:" + urlSuffix + ", params:" + params);
-            }
+            printGetRequestLog(urlSuffix, params, host);
+            printUrlLog(urlSuffix, params, host);
 
             //装配Request
             Request request;
@@ -718,6 +736,7 @@ public class LoadBalancedOkHttpClient {
         try {
             //同步请求
             Response response = getOkHttpClient().newCall(request).execute();
+            printResponseCodeLog(response);
             //Http拒绝
             if (!isSucceed(response)) {
                 throw new HttpRejectException(response.code(), response.message());
@@ -747,6 +766,7 @@ public class LoadBalancedOkHttpClient {
             getOkHttpClient().newCall(request).enqueue(new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
+                    printResponseCodeLog(response);
                     //Http拒绝
                     if (!isSucceed(response)) {
                         Exception exception = new HttpRejectException(response.code(), response.message());
@@ -793,6 +813,51 @@ public class LoadBalancedOkHttpClient {
             }
         }
         return client;
+    }
+
+    private void printPostRequestLog(String urlSuffix, byte[] body, Map<String, Object> params, LoadBalancedHostManager.Host host) {
+        if (settings.verboseLog && logger.isDebugEnabled()) {
+            if (CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
+                logger.debug("POST url:" + host.getUrl() + ", suffix:" + urlSuffix + "urlParams:" + params + ", body:" + ByteUtils.bytesToHex(body));
+            }
+            if (CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)) {
+                try {
+                    logger.debug("POST string body:" + new String(body, settings.encode));
+                } catch (Exception e) {
+                    logger.warn("Error while printing string body", e);
+                }
+            }
+        }
+    }
+
+    private void printGetRequestLog(String urlSuffix, Map<String, Object> params, LoadBalancedHostManager.Host host) {
+        if (settings.verboseLog && logger.isDebugEnabled() && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
+            logger.debug("GET url:" + host.getUrl() + ", suffix:" + urlSuffix + ", urlParams:" + params);
+        }
+    }
+
+    private void printUrlLog(String urlSuffix, Map<String, Object> params, LoadBalancedHostManager.Host host) {
+        if (settings.verboseLog && logger.isDebugEnabled()
+                && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RAW_URL)
+                && params != null && params.size() > 0) {
+            StringBuilder stringBuilder = new StringBuilder("POST raw url:" + host.getUrl() + urlSuffix + "?");
+            int i = 0;
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                if (i++ > 0) {
+                    stringBuilder.append("&");
+                }
+                stringBuilder.append(entry.getKey());
+                stringBuilder.append("=");
+                stringBuilder.append(entry.getValue());
+            }
+            logger.debug(stringBuilder.toString());
+        }
+    }
+
+    private void printResponseCodeLog(Response response) {
+        if (settings.verboseLog && logger.isDebugEnabled() && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RESPONSE_CODE)) {
+            logger.debug("Response code:" + response.code() + ", message:" + response.message());
+        }
     }
 
     //Override //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -922,6 +987,7 @@ public class LoadBalancedOkHttpClient {
         private String encode = ENCODE;
         private Map<String, String> headers;
         private boolean verboseLog = false;
+        private int verboseLogConfig = VERBOSE_LOG_CONFIG_ALL;
 
         private int maxThreads = 64;
         private int maxThreadsPerHost = 64;
