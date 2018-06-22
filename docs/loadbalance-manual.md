@@ -13,7 +13,7 @@
 
 //依赖
 dependencies {
-    compile 'com.github.shepherdviolet:slate-common:9.5'
+    compile 'com.github.shepherdviolet:slate-common:9.7'
 }
 ```
 
@@ -21,7 +21,7 @@ dependencies {
 
 ```gradle
 dependencies {
-    compile ('com.github.shepherdviolet:slate-common:9.5') {
+    compile ('com.github.shepherdviolet:slate-common:9.7') {
         transitive = false
     }
     compile ('com.github.shepherdviolet:thistle:9.7') {
@@ -38,7 +38,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.5</version>
+        <version>9.7</version>
     </dependency>
 ```
 
@@ -48,7 +48,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.5</version>
+        <version>9.7</version>
         <exclusions>
              <exclusion>
                  <groupId>*</groupId>
@@ -110,6 +110,8 @@ dependencies {
         <property name="connectTimeout" value="3000"/>
         <property name="writeTimeout" value="10000"/>
         <property name="readTimeout" value="10000"/>
+        <property name="verboseLog" value="true"/>
+        <property name="verboseLogConfig" value="272"/>
     </bean>
     
 ```
@@ -161,6 +163,8 @@ dependencies {
         client.setConnectTimeout(3000L);
         client.setWriteTimeout(10000L);
         client.setReadTimeout(10000L);
+        client.setVerboseLog(true);
+        client.setVerboseLogConfig(LoadBalancedOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|LoadBalancedOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY);
         return client;
     }
     
@@ -406,6 +410,21 @@ dependencies {
 
 * 开启更多的日志输出
 * 默认:false
+
+##### verboseLogConfig (可选)
+
+* 细粒度调整日志输出
+* 在verboseLog=true时有效
+* 默认:全输出
+
+```gradle
+1   (0x00000001) -> 打印: URL后缀 / URL参数(Map) / 请求报文体(Hex)
+16  (0x00000010) -> 打印: 请求报文体(String)
+256 (0x00000100) -> 打印: 未编码的完整URL(包括参数), http://host:port/app?key1=value1格式
+4096(0x00001000) -> 打印: 响应码 / 响应信息
+
+例如需要打印未编码的完整URL和请求报文体(String), 设置值为:256 + 16 = 272
+```
 
 ##### cookieJar (可选)
 
