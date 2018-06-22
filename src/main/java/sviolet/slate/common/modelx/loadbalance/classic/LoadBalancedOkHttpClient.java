@@ -539,7 +539,7 @@ public class LoadBalancedOkHttpClient {
         }
 
         if (logger.isInfoEnabled()) {
-            logger.info("POST real url:" + request.url().toString());
+            logger.info("POST: real-url:" + request.url().toString());
         }
 
         //请求
@@ -578,7 +578,7 @@ public class LoadBalancedOkHttpClient {
         }
 
         if (logger.isInfoEnabled()) {
-            logger.info("GET real url:" + request.url().toString());
+            logger.info("GET: real-url:" + request.url().toString());
         }
 
         //请求
@@ -645,7 +645,7 @@ public class LoadBalancedOkHttpClient {
             }
 
             if (logger.isInfoEnabled()) {
-                logger.info("POST real url:" + request.url().toString());
+                logger.info("POST: real-url:" + request.url().toString());
             }
 
             //请求
@@ -712,7 +712,7 @@ public class LoadBalancedOkHttpClient {
             }
 
             if (logger.isInfoEnabled()) {
-                logger.info("GET real url:" + request.url().toString());
+                logger.info("GET: real-url:" + request.url().toString());
             }
 
             //请求
@@ -748,7 +748,7 @@ public class LoadBalancedOkHttpClient {
                 //网络故障阻断后端
                 host.block(settings.passiveBlockDuration);
                 if (logger.isInfoEnabled()){
-                    logger.info("Block " + host.getUrl() + " " + settings.passiveBlockDuration);
+                    logger.info("Block: " + host.getUrl() + " " + settings.passiveBlockDuration);
                 }
             }
             if (t instanceof  IOException ||
@@ -787,7 +787,7 @@ public class LoadBalancedOkHttpClient {
                         //网络故障阻断后端
                         host.block(settings.passiveBlockDuration);
                         if (logger.isInfoEnabled()) {
-                            logger.info("Block " + host.getUrl() + " " + settings.passiveBlockDuration);
+                            logger.info("Block: " + host.getUrl() + " " + settings.passiveBlockDuration);
                         }
                     }
                 }
@@ -818,11 +818,11 @@ public class LoadBalancedOkHttpClient {
     private void printPostRequestLog(String urlSuffix, byte[] body, Map<String, Object> params, LoadBalancedHostManager.Host host) {
         if (settings.verboseLog && logger.isDebugEnabled()) {
             if (CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
-                logger.debug("POST url:" + host.getUrl() + ", suffix:" + urlSuffix + "urlParams:" + params + ", body:" + ByteUtils.bytesToHex(body));
+                logger.debug("POST: url:" + host.getUrl() + ", suffix:" + urlSuffix + "urlParams:" + params + ", body:" + ByteUtils.bytesToHex(body));
             }
             if (CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)) {
                 try {
-                    logger.debug("POST string body:" + new String(body, settings.encode));
+                    logger.debug("POST: string-body:" + new String(body, settings.encode));
                 } catch (Exception e) {
                     logger.warn("Error while printing string body", e);
                 }
@@ -832,7 +832,7 @@ public class LoadBalancedOkHttpClient {
 
     private void printGetRequestLog(String urlSuffix, Map<String, Object> params, LoadBalancedHostManager.Host host) {
         if (settings.verboseLog && logger.isDebugEnabled() && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
-            logger.debug("GET url:" + host.getUrl() + ", suffix:" + urlSuffix + ", urlParams:" + params);
+            logger.debug("GET: url:" + host.getUrl() + ", suffix:" + urlSuffix + ", urlParams:" + params);
         }
     }
 
@@ -840,7 +840,7 @@ public class LoadBalancedOkHttpClient {
         if (settings.verboseLog && logger.isDebugEnabled()
                 && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RAW_URL)
                 && params != null && params.size() > 0) {
-            StringBuilder stringBuilder = new StringBuilder("POST raw url:" + host.getUrl() + urlSuffix + "?");
+            StringBuilder stringBuilder = new StringBuilder("Raw url:" + host.getUrl() + urlSuffix + "?");
             int i = 0;
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 if (i++ > 0) {
@@ -856,7 +856,7 @@ public class LoadBalancedOkHttpClient {
 
     private void printResponseCodeLog(Response response) {
         if (settings.verboseLog && logger.isDebugEnabled() && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RESPONSE_CODE)) {
-            logger.debug("Response code:" + response.code() + ", message:" + response.message());
+            logger.debug("Response: code:" + response.code() + ", message:" + response.message());
         }
     }
 
