@@ -840,7 +840,7 @@ public class LoadBalancedOkHttpClient {
         if (settings.verboseLog && logger.isDebugEnabled()
                 && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RAW_URL)
                 && params != null && params.size() > 0) {
-            StringBuilder stringBuilder = new StringBuilder("Raw url:" + host.getUrl() + urlSuffix + "?");
+            StringBuilder stringBuilder = new StringBuilder("raw-url:" + host.getUrl() + urlSuffix + "?");
             int i = 0;
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 if (i++ > 0) {
