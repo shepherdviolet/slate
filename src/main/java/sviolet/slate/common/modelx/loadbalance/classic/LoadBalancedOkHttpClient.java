@@ -119,7 +119,13 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class LoadBalancedOkHttpClient {
 
-    public static final int VERBOSE_LOG_CONFIG_ALL = 0x11111111;
+    public static final int LOG_CONFIG_ALL = 0xFFFFFFFF;
+    public static final int LOG_CONFIG_NONE = 0x00000000;
+    public static final int LOG_CONFIG_REAL_URL = 0x00000001;
+    public static final int LOG_CONFIG_BLOCK = 0x00000010;
+
+    public static final int VERBOSE_LOG_CONFIG_ALL = 0xFFFFFFFF;
+    public static final int VERBOSE_LOG_CONFIG_NONE = 0x00000000;
     public static final int VERBOSE_LOG_CONFIG_REQUEST_INPUTS = 0x00000001;
     public static final int VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY= 0x00000010;
     public static final int VERBOSE_LOG_CONFIG_RAW_URL= 0x00000100;
@@ -181,7 +187,7 @@ public class LoadBalancedOkHttpClient {
     }
 
     /**
-     * 打印更多的调试日志, 默认关闭
+     * 打印更多的日志, 默认关闭
      * @param verboseLog true:打印更多的调试日志, 默认关闭
      */
     public void setVerboseLog(boolean verboseLog) {
@@ -189,7 +195,7 @@ public class LoadBalancedOkHttpClient {
     }
 
     /**
-     * 打印更多的调试日志, 详细配置, 默认全打印, 当verboseLog=true时该参数生效<br>
+     * 打印更多的日志, 细粒度配置, 默认全打印, 当verboseLog=true时该参数生效<br>
      *
      * VERBOSE_LOG_CONFIG_ALL:{@value VERBOSE_LOG_CONFIG_ALL}<br>
      * VERBOSE_LOG_CONFIG_REQUEST_INPUTS:{@value VERBOSE_LOG_CONFIG_REQUEST_INPUTS}<br>
@@ -201,6 +207,19 @@ public class LoadBalancedOkHttpClient {
      */
     public void setVerboseLogConfig(int verboseLogConfig) {
         settings.verboseLogConfig = verboseLogConfig;
+    }
+
+    /**
+     * 日志打印细粒度配置, 默认全打印<br>
+     *
+     * LOG_CONFIG_ALL:{@value LOG_CONFIG_ALL}<br>
+     * LOG_CONFIG_REAL_URL:{@value LOG_CONFIG_REAL_URL}<br>
+     * LOG_CONFIG_BLOCK:{@value LOG_CONFIG_BLOCK}<br>
+     *
+     * @param logConfig 详细配置
+     */
+    public void setLogConfig(int logConfig) {
+        settings.logConfig = logConfig;
     }
 
     /**
@@ -538,7 +557,7 @@ public class LoadBalancedOkHttpClient {
             throw new RequestBuildException("Null request built");
         }
 
-        if (logger.isInfoEnabled()) {
+        if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
             logger.info("POST: real-url:" + request.url().toString());
         }
 
@@ -577,7 +596,7 @@ public class LoadBalancedOkHttpClient {
             throw new RequestBuildException("Null request built");
         }
 
-        if (logger.isInfoEnabled()) {
+        if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
             logger.info("GET: real-url:" + request.url().toString());
         }
 
@@ -644,7 +663,7 @@ public class LoadBalancedOkHttpClient {
                 throw new RequestBuildException("Null request built");
             }
 
-            if (logger.isInfoEnabled()) {
+            if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
                 logger.info("POST: real-url:" + request.url().toString());
             }
 
@@ -711,7 +730,7 @@ public class LoadBalancedOkHttpClient {
                 throw new RequestBuildException("Null request built");
             }
 
-            if (logger.isInfoEnabled()) {
+            if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
                 logger.info("GET: real-url:" + request.url().toString());
             }
 
@@ -747,7 +766,7 @@ public class LoadBalancedOkHttpClient {
             if (needBlock(t, settings)) {
                 //网络故障阻断后端
                 host.block(settings.passiveBlockDuration);
-                if (logger.isInfoEnabled()){
+                if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_BLOCK)){
                     logger.info("Block: " + host.getUrl() + " " + settings.passiveBlockDuration);
                 }
             }
@@ -786,7 +805,7 @@ public class LoadBalancedOkHttpClient {
                     if (needBlock(e, settings)) {
                         //网络故障阻断后端
                         host.block(settings.passiveBlockDuration);
-                        if (logger.isInfoEnabled()) {
+                        if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_BLOCK)) {
                             logger.info("Block: " + host.getUrl() + " " + settings.passiveBlockDuration);
                         }
                     }
@@ -988,6 +1007,7 @@ public class LoadBalancedOkHttpClient {
         private Map<String, String> headers;
         private boolean verboseLog = false;
         private int verboseLogConfig = VERBOSE_LOG_CONFIG_ALL;
+        private int logConfig = LOG_CONFIG_ALL;
 
         private int maxThreads = 64;
         private int maxThreadsPerHost = 64;
