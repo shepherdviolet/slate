@@ -41,26 +41,25 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * <pre>{@code
  *
- *      LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
- *      hostManager.setHostArray(new String[]{
- *          "http://127.0.0.1:8080",
- *          "http://127.0.0.1:8081"
- *      });
+ *      LoadBalancedHostManager hostManager = new LoadBalancedHostManager()
+ *              .setHostArray(new String[]{
+ *                  "http://127.0.0.1:8080",
+ *                  "http://127.0.0.1:8081"
+ *              });
  *
- *      LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager();
- *      inspectManager.setHostManager(hostManager);
- *      inspectManager.setInspectInterval(5000L);
- *      inspectManager.setInspector(new TelnetLoadBalanceInspector());
+ *      LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager()
+ *              .setHostManager(hostManager)
+ *              .setInspectInterval(5000L)
+ *              .setInspector(new TelnetLoadBalanceInspector());
  *
- *      LoadBalancedOkHttpClient client = new LoadBalancedOkHttpClient();
- *      client.setHostManager(hostManager);
- *      client.setMaxThreads(200);
- *      client.setMaxThreadsPerHost(200);
- *      client.setPassiveBlockDuration(3000L);
- *      client.setConnectTimeout(3000L);
- *      client.setWriteTimeout(10000L);
- *      client.setReadTimeout(10000L);
- *      //client.setProxy("127.0.0.1:17711");
+ *      LoadBalancedOkHttpClient client = new LoadBalancedOkHttpClient()
+ *              .setHostManager(hostManager)
+ *              .setMaxThreads(200)
+ *              .setMaxThreadsPerHost(200)
+ *              .setPassiveBlockDuration(3000L)
+ *              .setConnectTimeout(3000L)
+ *              .setWriteTimeout(10000L)
+ *              .setReadTimeout(10000L);
  *
  * }</pre>
  *

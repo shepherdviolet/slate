@@ -42,15 +42,15 @@ import java.util.concurrent.ExecutorService;
  *
  * <pre>{@code
  *      //实例化
- *      LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager();
- *      //设置要探测的远端管理器(必须)
- *      inspectManager.setHostManager(hostManager);
- *      //探测间隔(阻断时长为该值的两倍, 探测超时为该值的1/4)
- *      inspectManager.setInspectInterval(5000L);
- *      //设置探测器
- *      inspectManager.setInspector(new TelnetLoadBalanceInspector());
- *      //允许输出调试日志
- *      inspectManager.setVerboseLog(true);
+ *      LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager()
+ *              //设置要探测的远端管理器(必须)
+ *              .setHostManager(hostManager)
+ *              //探测间隔(阻断时长为该值的两倍, 探测超时为该值的1/4)
+ *              .setInspectInterval(5000L)
+ *              //设置探测器
+ *              .setInspector(new TelnetLoadBalanceInspector())
+ *              //允许输出调试日志
+ *              .setVerboseLog(true);
  * }</pre>
  *
  * <pre>{@code
