@@ -186,6 +186,9 @@ dependencies {
       byte[] response = client.post("/post/json")
               .urlParam("traceId", "000000001")
               .body("hello world".getBytes())
+              //.httpHeader("Accept", "application/json;charset=utf-8")
+              //.mediaType("application/json;charset=utf-8")
+              //.encode("utf-8")
               .sendForBytes();
   } catch (NoHostException e) {
       //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
@@ -206,6 +209,9 @@ dependencies {
  ```gradle
  try (InputStream inputStream = client.post("/post/json")
          .body("hello world".getBytes())
+         //.httpHeader("Accept", "application/json;charset=utf-8")
+         //.mediaType("application/json;charset=utf-8")
+         //.encode("utf-8")
          .sendForInputStream()) {
 
      inputStream......
@@ -229,6 +235,9 @@ dependencies {
  ```gradle
  try (ResponseBody responseBody = client.post("/post/json")
          .body("hello world".getBytes())
+         //.httpHeader("Accept", "application/json;charset=utf-8")
+         //.mediaType("application/json;charset=utf-8")
+         //.encode("utf-8")
          .send()) {
 
      String response = responseBody.string();
@@ -253,6 +262,9 @@ dependencies {
  client.post("/post/json")
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
+         //.httpHeader("Accept", "application/json;charset=utf-8")
+         //.mediaType("application/json;charset=utf-8")
+         //.encode("utf-8")
          .enqueue(new MultiHostOkHttpClient.BytesCallback() {
              public void onSucceed(byte[] body) {
                  ......
@@ -280,6 +292,9 @@ dependencies {
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
          //.autoClose(false)//默认为true
+         //.httpHeader("Accept", "application/json;charset=utf-8")
+         //.mediaType("application/json;charset=utf-8")
+         //.encode("utf-8")
          .enqueue(new MultiHostOkHttpClient.InputStreamCallback() {
              public void onSucceed(InputStream inputStream) throws Exception {
                  ......
@@ -307,6 +322,183 @@ dependencies {
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
          //.autoClose(false)//默认为true
+         //.httpHeader("Accept", "application/json;charset=utf-8")
+         //.mediaType("application/json;charset=utf-8")
+         //.encode("utf-8")
+         .enqueue(new MultiHostOkHttpClient.ResponseBodyCallback() {
+             public void onSucceed(ResponseBody responseBody) throws Exception {
+                 ......
+             }
+             protected void onErrorBeforeSend(Exception e) {
+                 //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+                 //RequestBuildException: 在网络请求未发送前抛出的异常
+             }
+             protected void onErrorAfterSend(Exception e) {
+                 //IOException: 网络异常
+                 //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+                 //获得拒绝码 e.getResponseCode()
+                 //获得拒绝信息 e.getResponseMessage()
+                 //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+             }
+         });
+```
+
+### GET
+
+* 注入客户端
+
+```gradle
+    @Autowired
+    private MultiHostOkHttpClient client;
+```
+* 同步GET:返回byte[]类型的响应
+ 
+ ```gradle
+  try {
+      byte[] response = client.get("/get/json")
+              .urlParam("name", "000000001")
+              .urlParam("key", "000000001")
+              //.httpHeader("Accept", "application/json;charset=utf-8")
+              //.mediaType("application/json;charset=utf-8")
+              //.encode("utf-8")
+              .sendForBytes();
+  } catch (NoHostException e) {
+      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+  } catch (RequestBuildException e) {
+      //在网络请求未发送前抛出的异常
+  } catch (IOException e) {
+      //网络异常
+  } catch (HttpRejectException e) {
+      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+      //获得拒绝码 e.getResponseCode()
+      //获得拒绝信息 e.getResponseMessage()
+  }
+ ```
+
+* 同步GET:返回InputStream类型的响应
+* 注意:InputStream需要手动关闭(close)
+
+ ```gradle
+ try (InputStream inputStream = client.get("/get/json")
+         .urlParam("name", "000000001")
+         .urlParam("key", "000000001")
+         //.httpHeader("Accept", "application/json;charset=utf-8")
+         //.mediaType("application/json;charset=utf-8")
+         //.encode("utf-8")
+         .sendForInputStream()) {
+
+     inputStream......
+
+ } catch (NoHostException e) {
+     //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+ } catch (RequestBuildException e) {
+     //在网络请求未发送前抛出的异常
+ } catch (IOException e) {
+     //网络异常
+ } catch (HttpRejectException e) {
+     //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     //获得拒绝码 e.getResponseCode()
+     //获得拒绝信息 e.getResponseMessage()
+ }
+```
+
+* 同步GET:返回ResponseBody类型的响应
+* 注意:ResponseBody需要手动关闭(close)
+
+ ```gradle
+ try (ResponseBody responseBody = client.get("/get/json")
+         .urlParam("name", "000000001")
+         .urlParam("key", "000000001")
+         //.httpHeader("Accept", "application/json;charset=utf-8")
+         //.mediaType("application/json;charset=utf-8")
+         //.encode("utf-8")
+         .send()) {
+
+     String response = responseBody.string();
+
+ } catch (NoHostException e) {
+     //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+ } catch (RequestBuildException e) {
+     //在网络请求未发送前抛出的异常
+ } catch (IOException e) {
+     //网络异常
+ } catch (HttpRejectException e) {
+     //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     //获得拒绝码 e.getResponseCode()
+     //获得拒绝信息 e.getResponseMessage()
+ }
+```
+
+* 异步GET:返回byte[]类型的响应
+
+ ```gradle
+ //返回byte[]类型的响应
+ client.get("/get/json")
+         .urlParam("name", "000000001")
+         .urlParam("key", "000000001")
+         //.httpHeader("Accept", "application/json;charset=utf-8")
+         //.mediaType("application/json;charset=utf-8")
+         //.encode("utf-8")
+         .enqueue(new MultiHostOkHttpClient.BytesCallback() {
+             public void onSucceed(byte[] body) {
+                 ......
+             }
+             protected void onErrorBeforeSend(Exception e) {
+                 //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+                 //RequestBuildException: 在网络请求未发送前抛出的异常
+             }
+             protected void onErrorAfterSend(Exception e) {
+                 //IOException: 网络异常
+                 //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+                 //获得拒绝码 e.getResponseCode()
+                 //获得拒绝信息 e.getResponseMessage()
+                 //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+             }
+         });
+```
+
+* 异步GET:返回InputStream类型的响应
+* 当autoClose=true时, onSucceed方法回调结束后, 输入流会被自动关闭, 无需手动调用close方法
+* 当autoClose=false时, onSucceed方法回调结束后, 输入流不会自动关闭, 需要手动调用InputStream.close()关闭, 注意!!!
+
+ ```gradle
+ client.get("/get/json")
+         .urlParam("name", "000000001")
+         .urlParam("key", "000000001")
+         //.autoClose(false)//默认为true
+         //.httpHeader("Accept", "application/json;charset=utf-8")
+         //.mediaType("application/json;charset=utf-8")
+         //.encode("utf-8")
+         .enqueue(new MultiHostOkHttpClient.InputStreamCallback() {
+             public void onSucceed(InputStream inputStream) throws Exception {
+                 ......
+             }
+             protected void onErrorBeforeSend(Exception e) {
+                 //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+                 //RequestBuildException: 在网络请求未发送前抛出的异常
+             }
+             protected void onErrorAfterSend(Exception e) {
+                 //IOException: 网络异常
+                 //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+                 //获得拒绝码 e.getResponseCode()
+                 //获得拒绝信息 e.getResponseMessage()
+                 //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+             }
+         });
+ ```
+
+* 异步GET:返回ResponseBody类型的响应
+* 当autoClose=true时, onSucceed方法回调结束后, ResponseBody会被自动关闭, 无需手动调用close方法
+* 当autoClose=false时, onSucceed方法回调结束后, ResponseBody不会自动关闭, 需要手动调用ResponseBody.close()关闭, 注意!!!
+
+ ```gradle
+ client.get("/get/json")
+         .urlParam("name", "000000001")
+         .urlParam("key", "000000001")
+         //.autoClose(false)//默认为true
+         //.httpHeader("Accept", "application/json;charset=utf-8")
+         //.mediaType("application/json;charset=utf-8")
+         //.encode("utf-8")
          .enqueue(new MultiHostOkHttpClient.ResponseBodyCallback() {
              public void onSucceed(ResponseBody responseBody) throws Exception {
                  ......

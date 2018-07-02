@@ -528,7 +528,7 @@ public class MultiHostOkHttpClient {
          *
          * @param passiveBlockDuration 阻断时长ms
          */
-        public Request setPassiveBlockDuration(long passiveBlockDuration) {
+        public Request passiveBlockDuration(long passiveBlockDuration) {
             this.passiveBlockDuration = passiveBlockDuration;
             return this;
         }
@@ -536,7 +536,7 @@ public class MultiHostOkHttpClient {
         /**
          * <p>[配置]报文体MediaType, 客户端配置和此处配置的均生效(此处配置优先)</p>
          */
-        public Request setMediaType(String mediaType) {
+        public Request mediaType(String mediaType) {
             this.mediaType = mediaType;
             return this;
         }
@@ -544,7 +544,7 @@ public class MultiHostOkHttpClient {
         /**
          * <p>[配置]字符编码, 客户端配置和此处配置的均生效(此处配置优先)</p>
          */
-        public Request setEncode(String encode) {
+        public Request encode(String encode) {
             this.encode = encode;
             return this;
         }
