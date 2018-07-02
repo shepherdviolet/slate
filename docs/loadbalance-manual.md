@@ -238,18 +238,18 @@ dependencies {
  }
 ```
 
-* 同步POST:返回ResponseBody类型的响应
-* 注意:ResponseBody需要手动关闭(close)
+* 同步POST:返回ResponsePackage类型的响应
+* 注意:ResponsePackage需要手动关闭(close)
 
  ```text
- try (ResponseBody responseBody = client.post("/post/json")
+ try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.post("/post/json")
          .body("hello world".getBytes())
          //.httpHeader("Accept", "application/json;charset=utf-8")
          //.mediaType("application/json;charset=utf-8")
          //.encode("utf-8")
          .send()) {
 
-     String response = responseBody.string();
+     String response = responsePackage.body().string();
 
  } catch (NoHostException e) {
      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
@@ -322,9 +322,9 @@ dependencies {
          });
  ```
 
-* 异步POST:返回ResponseBody类型的响应
-* 当autoClose=true时, onSucceed方法回调结束后, ResponseBody会被自动关闭, 无需手动调用close方法
-* 当autoClose=false时, onSucceed方法回调结束后, ResponseBody不会自动关闭, 需要手动调用ResponseBody.close()关闭, 注意!!!
+* 异步POST:返回ResponsePackage类型的响应
+* 当autoClose=true时, onSucceed方法回调结束后, ResponsePackage会被自动关闭, 无需手动调用close方法
+* 当autoClose=false时, onSucceed方法回调结束后, ResponsePackage不会自动关闭, 需要手动调用ResponsePackage.close()关闭, 注意!!!
 
  ```text
  client.post("/post/json")
@@ -334,8 +334,8 @@ dependencies {
          //.httpHeader("Accept", "application/json;charset=utf-8")
          //.mediaType("application/json;charset=utf-8")
          //.encode("utf-8")
-         .enqueue(new MultiHostOkHttpClient.ResponseBodyCallback() {
-             public void onSucceed(ResponseBody responseBody) throws Exception {
+         .enqueue(new MultiHostOkHttpClient.ResponsePackageCallback() {
+             public void onSucceed(MultiHostOkHttpClient.ResponsePackage responsePackage) throws Exception {
                  ......
              }
              protected void onErrorBeforeSend(Exception e) {
@@ -405,11 +405,11 @@ dependencies {
  }
 ```
 
-* 同步GET:返回ResponseBody类型的响应
-* 注意:ResponseBody需要手动关闭(close)
+* 同步GET:返回ResponsePackage类型的响应
+* 注意:ResponsePackage需要手动关闭(close)
 
  ```text
- try (ResponseBody responseBody = client.get("/get/json")
+ try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.get("/get/json")
          .urlParam("name", "000000001")
          .urlParam("key", "000000001")
          //.httpHeader("Accept", "application/json;charset=utf-8")
@@ -417,7 +417,7 @@ dependencies {
          //.encode("utf-8")
          .send()) {
 
-     String response = responseBody.string();
+     String response = responsePackage.body().string();
 
  } catch (NoHostException e) {
      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
@@ -490,9 +490,9 @@ dependencies {
          });
  ```
 
-* 异步GET:返回ResponseBody类型的响应
-* 当autoClose=true时, onSucceed方法回调结束后, ResponseBody会被自动关闭, 无需手动调用close方法
-* 当autoClose=false时, onSucceed方法回调结束后, ResponseBody不会自动关闭, 需要手动调用ResponseBody.close()关闭, 注意!!!
+* 异步GET:返回ResponsePackage类型的响应
+* 当autoClose=true时, onSucceed方法回调结束后, ResponsePackage会被自动关闭, 无需手动调用close方法
+* 当autoClose=false时, onSucceed方法回调结束后, ResponsePackage不会自动关闭, 需要手动调用ResponsePackage.close()关闭, 注意!!!
 
  ```text
  client.get("/get/json")
@@ -502,8 +502,8 @@ dependencies {
          //.httpHeader("Accept", "application/json;charset=utf-8")
          //.mediaType("application/json;charset=utf-8")
          //.encode("utf-8")
-         .enqueue(new MultiHostOkHttpClient.ResponseBodyCallback() {
-             public void onSucceed(ResponseBody responseBody) throws Exception {
+         .enqueue(new MultiHostOkHttpClient.ResponsePackageCallback() {
+             public void onSucceed(MultiHostOkHttpClient.ResponsePackage responsePackage) throws Exception {
                  ......
              }
              protected void onErrorBeforeSend(Exception e) {

@@ -19,7 +19,6 @@
 
 package sviolet.slate.common.modelx.loadbalance;
 
-import okhttp3.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.slate.common.modelx.loadbalance.classic.HttpRejectException;
@@ -80,9 +79,9 @@ public class MultiHostOkHttpClientTest {
             System.out.println(stringBuilder.toString());
         }
 
-        try (ResponseBody responseBody = client.get("/")
+        try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.get("/")
                 .send()) {
-            System.out.println(responseBody.string());
+            System.out.println(responsePackage.body().string());
         }
 
         response = client.post("/post/json")
@@ -105,11 +104,11 @@ public class MultiHostOkHttpClientTest {
             System.out.println(stringBuilder.toString());
         }
 
-        try (ResponseBody responseBody = client.post("/post/json")
+        try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.post("/post/json")
                 .urlParam("traceId", "000000001")
                 .body("hello json 3".getBytes())
                 .send()) {
-            System.out.println(responseBody.string());
+            System.out.println(responsePackage.body().string());
         }
 
         // async
@@ -159,10 +158,10 @@ public class MultiHostOkHttpClientTest {
         client.get("/get/json")
                 .urlParam("name", "wang wang")
                 .urlParam("key", "987")
-                .enqueue(new MultiHostOkHttpClient.ResponseBodyCallback() {
+                .enqueue(new MultiHostOkHttpClient.ResponsePackageCallback() {
                     @Override
-                    public void onSucceed(ResponseBody responseBody) throws Exception {
-                        System.out.println(responseBody.string());
+                    public void onSucceed(MultiHostOkHttpClient.ResponsePackage responsePackage) throws Exception {
+                        System.out.println(responsePackage.body().string());
                     }
                     @Override
                     protected void onErrorBeforeSend(Exception e) {
@@ -219,10 +218,10 @@ public class MultiHostOkHttpClientTest {
         client.post("/post/json")
                 .urlParam("traceId", "000000001")
                 .body("hello json 6".getBytes())
-                .enqueue(new MultiHostOkHttpClient.ResponseBodyCallback() {
+                .enqueue(new MultiHostOkHttpClient.ResponsePackageCallback() {
                     @Override
-                    public void onSucceed(ResponseBody responseBody) throws Exception {
-                        System.out.println(responseBody.string());
+                    public void onSucceed(MultiHostOkHttpClient.ResponsePackage responsePackage) throws Exception {
+                        System.out.println(responsePackage.body().string());
                     }
                     @Override
                     protected void onErrorBeforeSend(Exception e) {

@@ -557,9 +557,9 @@ public class MultiHostOkHttpClient {
          * <p>注意:同步请求返回的ResponseBode/InputStream是必须手动关闭的!!!</p>
          *
          * <p>
-         * 当autoClose=true时, onSucceed方法回调结束后, ResponseBody/InputStream会被自动关闭, 无需手动调用close方法. 适用于
+         * 当autoClose=true时, onSucceed方法回调结束后, ResponsePackage/InputStream会被自动关闭, 无需手动调用close方法. 适用于
          * 响应数据在回调方法中处理完的场合.<br>
-         * 当autoClose=false时, onSucceed方法回调结束后, ResponseBody/InputStream不会自动关闭, 需要手动调用ResponseBody.close()关闭,
+         * 当autoClose=false时, onSucceed方法回调结束后, ResponsePackage/InputStream不会自动关闭, 需要手动调用ResponsePackage.close()关闭,
          * 注意!!! 适用于响应数据需要交由其他的线程处理, 或暂时持有的场合使用.
          * </p>
          */
@@ -623,10 +623,10 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [请求发送]同步请求并获取okhttp ResponseBody返回,
+         * [请求发送]同步请求并获取ResponsePackage返回,
          * 如果响应码不为2XX, 会抛出HttpRejectException异常,
          * 该方法不会根据maxReadLength限定最大读取长度
-         * @return 响应, 可能为null, ResponseBody用完后必须手动关闭!!!
+         * @return 响应, 可能为null, ResponsePackage用完后必须手动关闭!!!
          * @throws NoHostException       当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
          * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
          * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
