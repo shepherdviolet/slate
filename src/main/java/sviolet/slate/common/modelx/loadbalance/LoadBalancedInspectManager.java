@@ -92,32 +92,35 @@ public class LoadBalancedInspectManager implements Destroyable {
      * 设置远端管理器(必须)
      * @param hostManager 远端管理器
      */
-    public void setHostManager(LoadBalancedHostManager hostManager) {
+    public LoadBalancedInspectManager setHostManager(LoadBalancedHostManager hostManager) {
         this.hostManager = hostManager;
+        return this;
     }
 
     /**
      * 设置网络状态探测器, 如果不设置默认为telnet探测器
      * @param inspector 探测器
      */
-    public void setInspector(LoadBalanceInspector inspector){
+    public LoadBalancedInspectManager setInspector(LoadBalanceInspector inspector){
         this.inspectors = new ArrayList<>(1);
         this.inspectors.add(inspector);
+        return this;
     }
 
     /**
      * 设置网络状态探测器, 如果不设置默认为telnet探测器
      * @param inspectors 探测器
      */
-    public void setInspectors(List<LoadBalanceInspector> inspectors) {
+    public LoadBalancedInspectManager setInspectors(List<LoadBalanceInspector> inspectors) {
         this.inspectors = inspectors;
+        return this;
     }
 
     /**
      * 设置探测间隔
      * @param inspectInterval 检测间隔ms, > 0 , 建议 > 5000
      */
-    public void setInspectInterval(long inspectInterval) {
+    public LoadBalancedInspectManager setInspectInterval(long inspectInterval) {
         if (inspectInterval <= 0){
             throw new IllegalArgumentException("inspectInterval must > 0 (usually > 5000)");
         }
@@ -127,13 +130,15 @@ public class LoadBalancedInspectManager implements Destroyable {
         this.inspectTimeout = inspectInterval / 4;
         //故障时远端被阻断的时间
         this.blockDuration = inspectInterval * 2;
+        return this;
     }
 
     /**
      * @param verboseLog true:打印更多的调试日志, 默认关闭
      */
-    public void setVerboseLog(boolean verboseLog) {
+    public LoadBalancedInspectManager setVerboseLog(boolean verboseLog) {
         this.verboseLog = verboseLog;
+        return this;
     }
 
     /**

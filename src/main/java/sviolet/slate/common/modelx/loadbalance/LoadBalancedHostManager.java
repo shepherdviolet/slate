@@ -112,12 +112,13 @@ public class LoadBalancedHostManager {
      *
      * @param hosts 远端列表, 格式:"http://127.0.0.1:8081/,http://127.0.0.1:8082/"
      */
-    public void setHosts(String hosts){
+    public LoadBalancedHostManager setHosts(String hosts){
         if (CheckUtils.isEmptyOrBlank(hosts)){
             setHostList(new ArrayList<String>(0));
-            return;
+            return this;
         }
         setHostArray(hosts.split(","));
+        return this;
     }
 
     /**
@@ -126,12 +127,13 @@ public class LoadBalancedHostManager {
      *
      * @param hosts 远端列表
      */
-    public void setHostArray(String[] hosts) {
+    public LoadBalancedHostManager setHostArray(String[] hosts) {
         if (hosts == null || hosts.length <= 0){
             setHostList(new ArrayList<String>(0));
         } else {
             setHostList(Arrays.asList(hosts));
         }
+        return this;
     }
 
     /**
@@ -140,7 +142,7 @@ public class LoadBalancedHostManager {
      *
      * @param hosts 远端列表
      */
-    public void setHostList(List<String> hosts){
+    public LoadBalancedHostManager setHostList(List<String> hosts){
         if (hosts == null){
             hosts = new ArrayList<>(0);
         }
@@ -159,7 +161,7 @@ public class LoadBalancedHostManager {
                 if (!initialized){
                     settingInstall(hosts);
                     initialized = true;
-                    return;
+                    return this;
                 }
             } finally {
                 initLock.unlock();
@@ -168,14 +170,16 @@ public class LoadBalancedHostManager {
 
         newSettings.set(hosts);
         settingThreadPool.execute(settingInstallTask);
+        return this;
     }
 
     /**
      * 如果设置为false(默认), 当所有远端都被阻断时, nextHost方法返回一个后端.
      * 如果设置为true, 当所有远端都被阻断时, nextHost方法返回null.
      */
-    public void setReturnNullIfAllBlocked(boolean returnNullIfAllBlocked) {
+    public LoadBalancedHostManager setReturnNullIfAllBlocked(boolean returnNullIfAllBlocked) {
         this.returnNullIfAllBlocked = returnNullIfAllBlocked;
+        return this;
     }
 
     /**
