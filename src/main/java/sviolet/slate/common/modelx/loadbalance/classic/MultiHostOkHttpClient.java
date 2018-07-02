@@ -32,7 +32,9 @@ import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.*;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -878,7 +880,8 @@ public class MultiHostOkHttpClient {
     protected boolean needBlock(Throwable t, Settings settings) {
         return t instanceof ConnectException ||
                 t instanceof SocketTimeoutException ||
-                t instanceof UnknownHostException;
+                t instanceof UnknownHostException ||
+                (t instanceof HttpRejectException && settings.httpCodeNeedBlock.contains(((HttpRejectException) t).getResponseCode()));
     }
 
     protected boolean isSucceed(Response response) {
@@ -911,6 +914,8 @@ public class MultiHostOkHttpClient {
         private CookieJar cookieJar;
         private Proxy proxy;
         private Dns dns;
+
+        private Set<Integer> httpCodeNeedBlock = new HashSet<>(8);
 
         private Settings(){
         }
@@ -1259,6 +1264,23 @@ public class MultiHostOkHttpClient {
             refreshSettings = true;
         } finally {
             settingsLock.unlock();
+        }
+        return this;
+    }
+
+    /**
+     * 当HTTP返回码为指定返回码时, 阻断后端
+     * @param codes 指定需要阻断的返回码, 例如:403,404
+     */
+    public MultiHostOkHttpClient setHttpCodeNeedBlock(String codes) {
+        try {
+            String[] codeArray = codes.split(",");
+            settings.httpCodeNeedBlock.clear();
+            for (String code : codeArray) {
+                settings.httpCodeNeedBlock.add(Integer.parseInt(code));
+            }
+        } catch (Throwable t) {
+            throw new RuntimeException("Invalid httpCodeNeedBlock " + codes, t);
         }
         return this;
     }
