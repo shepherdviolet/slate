@@ -144,7 +144,9 @@ public class LoadBalancedOkHttpClient {
     private boolean refreshSettings = false;
     private ReentrantLock settingsLock = new ReentrantLock();
 
-    //Settings ///////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Settings ///////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * 设置远端管理器(必须)
@@ -348,7 +350,9 @@ public class LoadBalancedOkHttpClient {
         }
     }
 
-    //sync /////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Sync ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * 同步POST请求,
@@ -604,7 +608,9 @@ public class LoadBalancedOkHttpClient {
         return syncCall(host, request);
     }
 
-    // async ////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Async //////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * 异步POST请求,
@@ -616,7 +622,6 @@ public class LoadBalancedOkHttpClient {
      * @param callback  回调函数
      */
     public void asyncPostForBytes(String urlSuffix, byte[] body, Map<String, Object> params, BytesCallback callback) {
-        callback.setSettings(settings);
         asyncPost(urlSuffix, body, params, callback);
     }
 
@@ -630,7 +635,6 @@ public class LoadBalancedOkHttpClient {
      * @param callback  回调函数
      */
     public void asyncPostForInputStream(String urlSuffix, byte[] body, Map<String, Object> params, InputStreamCallback callback) {
-        callback.setSettings(settings);
         asyncPost(urlSuffix, body, params, callback);
     }
 
@@ -645,6 +649,9 @@ public class LoadBalancedOkHttpClient {
      * @param callback  回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponseBodyCallback}
      */
     public void asyncPost(String urlSuffix, byte[] body, Map<String, Object> params, ResponseBodyCallback callback) {
+
+        callback.setSettings(settings);
+
         try {
             //获取远端
             LoadBalancedHostManager.Host host = fetchHost();
@@ -684,7 +691,6 @@ public class LoadBalancedOkHttpClient {
      * @param callback  回调函数
      */
     public void asyncGetForBytes(String urlSuffix, Map<String, Object> params, BytesCallback callback) {
-        callback.setSettings(settings);
         asyncGet(urlSuffix, params, callback);
     }
 
@@ -698,7 +704,6 @@ public class LoadBalancedOkHttpClient {
      * @param callback  回调函数
      */
     public void asyncGetForInputStream(String urlSuffix, Map<String, Object> params, InputStreamCallback callback) {
-        callback.setSettings(settings);
         asyncGet(urlSuffix, params, callback);
     }
 
@@ -712,6 +717,9 @@ public class LoadBalancedOkHttpClient {
      * @param callback  回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponseBodyCallback}
      */
     public void asyncGet(String urlSuffix, Map<String, Object> params, ResponseBodyCallback callback) {
+
+        callback.setSettings(settings);
+
         try {
             //获取远端
             LoadBalancedHostManager.Host host = fetchHost();
@@ -741,7 +749,9 @@ public class LoadBalancedOkHttpClient {
         }
     }
 
-    //private //////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Private //////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private LoadBalancedHostManager.Host fetchHost() throws NoHostException {
         LoadBalancedHostManager.Host host = hostManager.nextHost();
@@ -879,7 +889,9 @@ public class LoadBalancedOkHttpClient {
         }
     }
 
-    //Override //////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Override //////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * 初始化OkHttpClient实例(复写本方法实现自定义的逻辑)
@@ -999,6 +1011,13 @@ public class LoadBalancedOkHttpClient {
         return response.isSuccessful();
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Configurations //////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * 配置
+     */
     public static class Settings {
 
         private long passiveBlockDuration = PASSIVE_BLOCK_DURATION;
@@ -1019,38 +1038,49 @@ public class LoadBalancedOkHttpClient {
         private Proxy proxy;
         private Dns dns;
 
+        private Settings(){
+        }
+
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Callbacks //////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * 请求回调
      */
-    public interface ResponseBodyCallback {
+    public abstract class ResponseBodyCallback {
 
         /**
          * 请求成功
          * 注意:处理完毕后必须关闭ResponseBody(调用close())!!!
          * @param responseBody 响应报文体, 注意:处理完毕后必须关闭ResponseBody(调用close())!!!
          */
-        void onSucceed(ResponseBody responseBody);
+        protected abstract void onSucceed(ResponseBody responseBody);
 
         /**
          * 请求前发生异常
          * @param e {@link RequestBuildException}:请求前发生异常, {@link NoHostException}:未配置后端地址或所有后端地址均不可用
          */
-        void onErrorBeforeSend(Exception e);
+        protected abstract void onErrorBeforeSend(Exception e);
 
         /**
          * 请求后发生异常
          * @param e {@link HttpRejectException}:后端Http拒绝(返回码不为200), {@link IOException}:通讯异常
          */
-        void onErrorAfterSend(Exception e);
+        protected abstract void onErrorAfterSend(Exception e);
+
+        void setSettings(Settings settings) {
+            //do nothing
+        }
 
     }
 
     /**
      * 请求回调(获得byte[]响应体)
      */
-    public abstract class BytesCallback implements ResponseBodyCallback {
+    public abstract class BytesCallback extends ResponseBodyCallback {
 
         private Settings settings;
 
@@ -1061,7 +1091,7 @@ public class LoadBalancedOkHttpClient {
         public abstract void onSucceed(byte[] body);
 
         @Override
-        public void onSucceed(ResponseBody responseBody) {
+        public final void onSucceed(ResponseBody responseBody) {
             byte[] bytes = null;
             try {
                 if (responseBody != null) {
@@ -1086,7 +1116,8 @@ public class LoadBalancedOkHttpClient {
             onSucceed(bytes);
         }
 
-        private void setSettings(Settings settings) {
+        @Override
+        final void setSettings(Settings settings) {
             this.settings = settings;
         }
 
@@ -1095,7 +1126,7 @@ public class LoadBalancedOkHttpClient {
     /**
      * 请求回调(获得InputStream响应体)
      */
-    public abstract class InputStreamCallback implements ResponseBodyCallback {
+    public abstract class InputStreamCallback extends ResponseBodyCallback {
 
         private Settings settings;
 
@@ -1106,7 +1137,7 @@ public class LoadBalancedOkHttpClient {
         public abstract void onSucceed(InputStream inputStream);
 
         @Override
-        public void onSucceed(ResponseBody responseBody) {
+        public final void onSucceed(ResponseBody responseBody) {
             //返回空
             if (responseBody == null) {
                 onSucceed((InputStream) null);
@@ -1128,7 +1159,8 @@ public class LoadBalancedOkHttpClient {
             }
         }
 
-        private void setSettings(Settings settings) {
+        @Override
+        final void setSettings(Settings settings) {
             this.settings = settings;
         }
 
