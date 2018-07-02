@@ -593,7 +593,8 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * <p>[配置]数据转换器, 用于将beanBody设置的JavaBean转换为byte[], 和将返回报文byte[]转换为JavaBean</p>
+         * <p>[配置]数据转换器, 用于将beanBody设置的JavaBean转换为byte[], 和将返回报文byte[]转换为JavaBean <br>
+         * 客户端配置和此处配置的均生效(此处配置优先)</p>
          */
         public Request dataConverter(DataConverter dataConverter) {
             this.dataConverter = dataConverter;
@@ -617,9 +618,8 @@ public class MultiHostOkHttpClient {
             return this;
         }
 
-
         /**
-         * <p>[请求发送]同步请求并获取byte[]返回,
+         * <p>[请求发送]同步请求并获取Bean返回,
          * 如果响应码不为2XX, 会抛出HttpRejectException异常.<br>
          * 注意: 必须配置DataConverter, 否则会报错</p>
          *
@@ -630,16 +630,11 @@ public class MultiHostOkHttpClient {
          * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
          */
         public <T> T sendForBean(Class<T> type) throws NoHostException, RequestBuildException, HttpRejectException, IOException {
-            DataConverter dataConverter = this.dataConverter;
-            if (dataConverter == null) {
-                throw new RequestConvertException("No DataConverter set, you must set dataConverter before sendForBean()");
+            MultiHostOkHttpClient client = getClient();
+            if (client == null) {
+                throw new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)");
             }
-            byte[] responseData = sendForBytes();
-            try {
-                return dataConverter.convert(responseData, type);
-            } catch (Exception e) {
-                throw new ResponseConvertException("Error while convert byte[] to bean", e);
-            }
+            return client.responseToBean(client.requestSend(this), type, this);
         }
 
         /**
@@ -653,20 +648,11 @@ public class MultiHostOkHttpClient {
          * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
          */
         public byte[] sendForBytes() throws NoHostException, RequestBuildException, HttpRejectException, IOException {
-            if (isSend) {
-                throw new IllegalStateException("MultiHostOkHttpClient.Request can only send once!");
-            }
-            isSend = true;
-
             MultiHostOkHttpClient client = getClient();
             if (client == null) {
                 throw new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)");
             }
-            if (isPost) {
-                return client.responseToBytes(client.syncPost(this));
-            } else {
-                return client.responseToBytes(client.syncGet(this));
-            }
+            return client.responseToBytes(client.requestSend(this));
         }
 
         /**
@@ -680,20 +666,11 @@ public class MultiHostOkHttpClient {
          * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
          */
         public InputStream sendForInputStream() throws NoHostException, RequestBuildException, HttpRejectException, IOException {
-            if (isSend) {
-                throw new IllegalStateException("MultiHostOkHttpClient.Request can only send once!");
-            }
-            isSend = true;
-
             MultiHostOkHttpClient client = getClient();
             if (client == null) {
                 throw new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)");
             }
-            if (isPost) {
-                return client.responseToInputStream(client.syncPost(this));
-            } else {
-                return client.responseToInputStream(client.syncGet(this));
-            }
+            return client.responseToInputStream(client.requestSend(this));
         }
 
         /**
@@ -707,20 +684,11 @@ public class MultiHostOkHttpClient {
          * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
          */
         public ResponsePackage send() throws NoHostException, RequestBuildException, IOException, HttpRejectException {
-            if (isSend) {
-                throw new IllegalStateException("MultiHostOkHttpClient.Request can only send once!");
-            }
-            isSend = true;
-
             MultiHostOkHttpClient client = getClient();
             if (client == null) {
                 throw new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)");
             }
-            if (isPost) {
-                return client.syncPost(this);
-            } else {
-                return client.syncGet(this);
-            }
+            return client.requestSend(this);
         }
 
         /**
@@ -758,21 +726,12 @@ public class MultiHostOkHttpClient {
          * @param callback 回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponsePackageCallback}
          */
         public void enqueue(ResponsePackageCallback callback) {
-            if (isSend) {
-                throw new IllegalStateException("MultiHostOkHttpClient.Request can only send once!");
-            }
-            isSend = true;
-
             MultiHostOkHttpClient client = getClient();
             if (client == null) {
                 callback.onErrorBeforeSend(new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)"));
                 return;
             }
-            if (isPost) {
-                client.asyncPost(this, callback);
-            } else {
-                client.asyncGet(this, callback);
-            }
+            client.requestEnqueue(this, callback);
         }
 
         private MultiHostOkHttpClient getClient(){
@@ -797,9 +756,53 @@ public class MultiHostOkHttpClient {
 
     }
 
+    private ResponsePackage requestSend(Request request) throws NoHostException, RequestBuildException, HttpRejectException, IOException {
+        if (request.isSend) {
+            throw new IllegalStateException("MultiHostOkHttpClient.Request can only send once!");
+        }
+        request.isSend = true;
+
+        if (request.isPost) {
+            return syncPost(request);
+        } else {
+            return syncGet(request);
+        }
+    }
+
+    private void requestEnqueue(Request request, ResponsePackageCallback callback) {
+        if (request.isSend) {
+            throw new IllegalStateException("MultiHostOkHttpClient.Request can only send once!");
+        }
+        request.isSend = true;
+
+        if (request.isPost) {
+            asyncPost(request, callback);
+        } else {
+            asyncGet(request, callback);
+        }
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Sync ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private <T> T responseToBean(ResponsePackage responsePackage, Class<T> type, Request request) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+        DataConverter dataConverter = request.dataConverter != null ? request.dataConverter : settings.dataConverter;
+        if (dataConverter == null) {
+            //强制关闭
+            try {
+                responsePackage.close();
+            } catch (Throwable ignore) {
+            }
+            throw new RequestConvertException("No DataConverter set, you must set dataConverter before sendForBean()");
+        }
+        byte[] responseData = responseToBytes(responsePackage);
+        try {
+            return dataConverter.convert(responseData, type);
+        } catch (Exception e) {
+            throw new ResponseConvertException("Error while convert byte[] to bean", e);
+        }
+    }
 
     private byte[] responseToBytes(ResponsePackage responsePackage) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //返回空
@@ -1217,7 +1220,7 @@ public class MultiHostOkHttpClient {
             requestBody = formBuilder.build();
         } else if (request.beanBody != null) {
             //bean
-            DataConverter dataConverter = request.dataConverter;
+            DataConverter dataConverter = request.dataConverter != null ? request.dataConverter : settings.dataConverter;
             if (dataConverter == null) {
                 throw new RequestConvertException("No DataConverter set, you must set dataConverter before send/enqueue a beanBody");
             }
@@ -1349,6 +1352,7 @@ public class MultiHostOkHttpClient {
         private Proxy proxy;
         private Dns dns;
         private SSLSocketFactory sslSocketFactory;
+        private DataConverter dataConverter;
 
         private Set<Integer> httpCodeNeedBlock = new HashSet<>(8);
 
@@ -1572,6 +1576,7 @@ public class MultiHostOkHttpClient {
     public static abstract class BeanCallback <T> extends BytesCallback {
 
         private Request request;
+        private Settings settings;
 
         /**
          * <p>请求成功</p>
@@ -1584,7 +1589,7 @@ public class MultiHostOkHttpClient {
 
         @Override
         public final void onSucceed(byte[] body) throws Exception {
-            DataConverter dataConverter = request.dataConverter;
+            DataConverter dataConverter = request.dataConverter != null ? request.dataConverter : settings.dataConverter;
             if (dataConverter == null) {
                 throw new ResponseConvertException("No DataConverter set, you must set dataConverter before enqueue a beanBody");
             }
@@ -1597,6 +1602,7 @@ public class MultiHostOkHttpClient {
         void setContext(Settings settings, Request request) {
             super.setContext(settings, request);
             this.request = request;
+            this.settings = settings;
         }
 
     }
@@ -1857,6 +1863,14 @@ public class MultiHostOkHttpClient {
         } catch (Throwable t) {
             throw new RuntimeException("Invalid httpCodeNeedBlock " + codes, t);
         }
+        return this;
+    }
+
+    /**
+     * <p>[配置]数据转换器, 用于将beanBody设置的JavaBean转换为byte[], 和将返回报文byte[]转换为JavaBean</p>
+     */
+    public MultiHostOkHttpClient setDataConverter(DataConverter dataConverter) {
+        settings.dataConverter = dataConverter;
         return this;
     }
 

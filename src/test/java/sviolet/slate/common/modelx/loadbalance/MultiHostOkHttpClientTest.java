@@ -21,14 +21,13 @@ package sviolet.slate.common.modelx.loadbalance;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.slate.common.modelx.loadbalance.classic.HttpRejectException;
-import sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient;
-import sviolet.slate.common.modelx.loadbalance.classic.NoHostException;
-import sviolet.slate.common.modelx.loadbalance.classic.RequestBuildException;
+import sviolet.slate.common.modelx.loadbalance.classic.*;
 import sviolet.slate.common.modelx.loadbalance.inspector.TelnetLoadBalanceInspector;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 支持均衡负载的OkHttpClient测试案例
@@ -57,6 +56,7 @@ public class MultiHostOkHttpClientTest {
                 .setConnectTimeout(3000L)
                 .setWriteTimeout(10000L)
                 .setReadTimeout(10000L)
+                .setDataConverter(new GsonDataConverter())
                 .setVerboseLog(true);
 
         // sync
@@ -110,6 +110,72 @@ public class MultiHostOkHttpClientTest {
                 .send()) {
             System.out.println(responsePackage.body().string());
         }
+
+        // form
+
+        Map<String, Object> form = new HashMap<>(8);
+        form.put("name", "旺旺");
+        form.put("key", "741");
+
+        Map<String, Object> responseMap = client.post("/post/json")
+                .formBody(form)
+                .sendForBean(Map.class);
+
+        System.out.println(responseMap);
+
+        form = new HashMap<>(8);
+        form.put("name", "sheng ma");
+        form.put("key", "852");
+
+        client.post("/post/json")
+                .formBody(form)
+                .enqueue(new MultiHostOkHttpClient.BeanCallback<Map>() {
+                    @Override
+                    public void onSucceed(Map bean) throws Exception {
+                        System.out.println(bean);
+                    }
+                    @Override
+                    protected void onErrorBeforeSend(Exception e) {
+                        e.printStackTrace();
+                    }
+                    @Override
+                    protected void onErrorAfterSend(Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
+        // bean
+
+        form = new HashMap<>(8);
+        form.put("name", "miaomiao");
+        form.put("key", "963");
+
+        responseMap = client.post("/post/json")
+                .beanBody(form)
+                .sendForBean(Map.class);
+
+        System.out.println(responseMap);
+
+        form = new HashMap<>(8);
+        form.put("name", "+++---");
+        form.put("key", "951");
+
+        client.post("/post/json")
+                .beanBody(form)
+                .enqueue(new MultiHostOkHttpClient.BeanCallback<Map>() {
+                    @Override
+                    public void onSucceed(Map bean) throws Exception {
+                        System.out.println(bean);
+                    }
+                    @Override
+                    protected void onErrorBeforeSend(Exception e) {
+                        e.printStackTrace();
+                    }
+                    @Override
+                    protected void onErrorAfterSend(Exception e) {
+                        e.printStackTrace();
+                    }
+                });
 
         // async
 
