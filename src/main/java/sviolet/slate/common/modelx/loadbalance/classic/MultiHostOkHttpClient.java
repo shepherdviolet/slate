@@ -56,7 +56,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *              .setInspectInterval(5000L)
  *              .setInspector(new TelnetLoadBalanceInspector());
  *
- *      LoadBalancedOkHttpClient client = new LoadBalancedOkHttpClient()
+ *      MultiHostOkHttpClient client = new MultiHostOkHttpClient()
  *              .setHostManager(hostManager)
  *              .setMaxThreads(200)
  *              .setMaxThreadsPerHost(200)
@@ -80,7 +80,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *      <property name="inspectInterval" value="10000"/>
  *  </bean>
  *
- *  <bean id="loadBalancedOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.LoadBalancedOkHttpClient">
+ *  <bean id="loadBalancedOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
  *      <property name="maxThreads" ref="200"/>
  *      <property name="maxThreadsPerHost" ref="200"/>
@@ -106,7 +106,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *      <property name="inspectInterval" value="10000"/>
  *  </bean>
  *
- *  <bean id="loadBalancedOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.LoadBalancedOkHttpClient">
+ *  <bean id="loadBalancedOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
  *      <property name="maxThreads" ref="200"/>
  *      <property name="maxThreadsPerHost" ref="200"/>
@@ -152,16 +152,298 @@ public class MultiHostOkHttpClient {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * 创建POST请求
-     * @param urlSuffix url后缀, 例如/user/add.json
+     * <p>创建POST请求</p>
+     *
+     * <p>同步请求:</p>
+     *
+     * <pre>
+     *
+     *  //返回byte[]类型的响应
+     *  try {
+     *      byte[] response = client.post("/post/json")
+     *              .urlParam("traceId", "000000001")
+     *              .body("hello world".getBytes())
+     *              .sendForBytes();
+     *  } catch (NoHostException e) {
+     *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+     *  } catch (RequestBuildException e) {
+     *      //在网络请求未发送前抛出的异常
+     *  } catch (IOException e) {
+     *      //网络异常
+     *  } catch (HttpRejectException e) {
+     *      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     *      //获得拒绝码 e.getResponseCode()
+     *      //获得拒绝信息 e.getResponseMessage()
+     *  }
+     *
+     *  //返回InputStream类型的响应
+     *  //注意:InputStream需要手动关闭(close)
+     *  try (InputStream inputStream = client.post("/post/json")
+     *          .body("hello world".getBytes())
+     *          .sendForInputStream()) {
+     *
+     *      inputStream......
+     *
+     *  } catch (NoHostException e) {
+     *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+     *  } catch (RequestBuildException e) {
+     *      //在网络请求未发送前抛出的异常
+     *  } catch (IOException e) {
+     *      //网络异常
+     *  } catch (HttpRejectException e) {
+     *      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     *      //获得拒绝码 e.getResponseCode()
+     *      //获得拒绝信息 e.getResponseMessage()
+     *  }
+     *
+     *  //返回ResponseBody类型的响应
+     *  //注意:ResponseBody需要手动关闭(close)
+     *  try (ResponseBody responseBody = client.post("/post/json")
+     *          .body("hello world".getBytes())
+     *          .send()) {
+     *
+     *      String response = responseBody.string();
+     *
+     *  } catch (NoHostException e) {
+     *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+     *  } catch (RequestBuildException e) {
+     *      //在网络请求未发送前抛出的异常
+     *  } catch (IOException e) {
+     *      //网络异常
+     *  } catch (HttpRejectException e) {
+     *      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     *      //获得拒绝码 e.getResponseCode()
+     *      //获得拒绝信息 e.getResponseMessage()
+     *  }
+     *
+     * </pre>
+     *
+     * <p>异步请求:</p>
+     *
+     * <pre>
+     *
+     *  //返回byte[]类型的响应
+     *  client.post("/post/json")
+     *          .urlParam("traceId", "000000001")
+     *          .body("hello world".getBytes())
+     *          .enqueue(new MultiHostOkHttpClient.BytesCallback() {
+     *              public void onSucceed(byte[] body) {
+     *                  ......
+     *              }
+     *              protected void onErrorBeforeSend(Exception e) {
+     *                  //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+     *                  //RequestBuildException: 在网络请求未发送前抛出的异常
+     *              }
+     *              protected void onErrorAfterSend(Exception e) {
+     *                  //IOException: 网络异常
+     *                  //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     *                  //获得拒绝码 e.getResponseCode()
+     *                  //获得拒绝信息 e.getResponseMessage()
+     *                  //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+     *              }
+     *          });
+     *
+     *  //返回InputStream类型的响应
+     *  //当autoClose=true时, onSucceed方法回调结束后, 输入流会被自动关闭, 无需手动调用close方法
+     *  //当autoClose=false时, onSucceed方法回调结束后, 输入流不会自动关闭, 需要手动调用InputStream.close()关闭, 注意!!!
+     *  client.post("/post/json")
+     *          .urlParam("traceId", "000000001")
+     *          .body("hello world".getBytes())
+     *          //.autoClose(false)//默认为true
+     *          .enqueue(new MultiHostOkHttpClient.InputStreamCallback() {
+     *              public void onSucceed(InputStream inputStream) throws Exception {
+     *                  ......
+     *              }
+     *              protected void onErrorBeforeSend(Exception e) {
+     *                  //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+     *                  //RequestBuildException: 在网络请求未发送前抛出的异常
+     *              }
+     *              protected void onErrorAfterSend(Exception e) {
+     *                  //IOException: 网络异常
+     *                  //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     *                  //获得拒绝码 e.getResponseCode()
+     *                  //获得拒绝信息 e.getResponseMessage()
+     *                  //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+     *              }
+     *          });
+     *
+     *  //返回ResponseBody类型的响应
+     *  //当autoClose=true时, onSucceed方法回调结束后, ResponseBody会被自动关闭, 无需手动调用close方法
+     *  //当autoClose=false时, onSucceed方法回调结束后, ResponseBody不会自动关闭, 需要手动调用ResponseBody.close()关闭, 注意!!!
+     *  client.post("/post/json")
+     *          .urlParam("traceId", "000000001")
+     *          .body("hello world".getBytes())
+     *          //.autoClose(false)//默认为true
+     *          .enqueue(new MultiHostOkHttpClient.ResponseBodyCallback() {
+     *              public void onSucceed(ResponseBody responseBody) throws Exception {
+     *                  ......
+     *              }
+     *              protected void onErrorBeforeSend(Exception e) {
+     *                  //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+     *                  //RequestBuildException: 在网络请求未发送前抛出的异常
+     *              }
+     *              protected void onErrorAfterSend(Exception e) {
+     *                  //IOException: 网络异常
+     *                  //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     *                  //获得拒绝码 e.getResponseCode()
+     *                  //获得拒绝信息 e.getResponseMessage()
+     *                  //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+     *              }
+     *          });
+     *
+     * </pre>
+     *
+     * @param urlSuffix 请求的url后缀, 例如/user/add.json
      */
     public Request post(String urlSuffix) {
         return new Request(this, urlSuffix, true);
     }
 
     /**
-     * 创建GET请求
-     * @param urlSuffix url后缀, 例如/user/add.json
+     * <p>创建GET请求</p>
+     *
+     * <p>同步请求:</p>
+     *
+     * <pre>
+     *
+     *  //返回byte[]类型的响应
+     *  try {
+     *      byte[] response = client.get("/get/json")
+     *              .urlParam("name", "000000001")
+     *              .urlParam("key", "000000001")
+     *              .sendForBytes();
+     *  } catch (NoHostException e) {
+     *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+     *  } catch (RequestBuildException e) {
+     *      //在网络请求未发送前抛出的异常
+     *  } catch (IOException e) {
+     *      //网络异常
+     *  } catch (HttpRejectException e) {
+     *      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     *      //获得拒绝码 e.getResponseCode()
+     *      //获得拒绝信息 e.getResponseMessage()
+     *  }
+     *
+     *  //返回InputStream类型的响应
+     *  //注意:InputStream需要手动关闭(close)
+     *  try (InputStream inputStream = client.get("/get/json")
+     *          .urlParam("name", "000000001")
+     *          .urlParam("key", "000000001")
+     *          .sendForInputStream()) {
+     *
+     *      inputStream......
+     *
+     *  } catch (NoHostException e) {
+     *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+     *  } catch (RequestBuildException e) {
+     *      //在网络请求未发送前抛出的异常
+     *  } catch (IOException e) {
+     *      //网络异常
+     *  } catch (HttpRejectException e) {
+     *      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     *      //获得拒绝码 e.getResponseCode()
+     *      //获得拒绝信息 e.getResponseMessage()
+     *  }
+     *
+     *  //返回ResponseBody类型的响应
+     *  //注意:ResponseBody需要手动关闭(close)
+     *  try (ResponseBody responseBody = client.get("/get/json")
+     *          .urlParam("name", "000000001")
+     *          .urlParam("key", "000000001")
+     *          .send()) {
+     *
+     *      String response = responseBody.string();
+     *
+     *  } catch (NoHostException e) {
+     *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+     *  } catch (RequestBuildException e) {
+     *      //在网络请求未发送前抛出的异常
+     *  } catch (IOException e) {
+     *      //网络异常
+     *  } catch (HttpRejectException e) {
+     *      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     *      //获得拒绝码 e.getResponseCode()
+     *      //获得拒绝信息 e.getResponseMessage()
+     *  }
+     *
+     * </pre>
+     *
+     * <p>异步请求:</p>
+     *
+     * <pre>
+     *
+     *  //返回byte[]类型的响应
+     *  client.get("/get/json")
+     *          .urlParam("name", "000000001")
+     *          .urlParam("key", "000000001")
+     *          .enqueue(new MultiHostOkHttpClient.BytesCallback() {
+     *              public void onSucceed(byte[] body) {
+     *                  ......
+     *              }
+     *              protected void onErrorBeforeSend(Exception e) {
+     *                  //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+     *                  //RequestBuildException: 在网络请求未发送前抛出的异常
+     *              }
+     *              protected void onErrorAfterSend(Exception e) {
+     *                  //IOException: 网络异常
+     *                  //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     *                  //获得拒绝码 e.getResponseCode()
+     *                  //获得拒绝信息 e.getResponseMessage()
+     *                  //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+     *              }
+     *          });
+     *
+     *  //返回InputStream类型的响应
+     *  //当autoClose=true时, onSucceed方法回调结束后, 输入流会被自动关闭, 无需手动调用close方法
+     *  //当autoClose=false时, onSucceed方法回调结束后, 输入流不会自动关闭, 需要手动调用InputStream.close()关闭, 注意!!!
+     *  client.get("/get/json")
+     *          .urlParam("name", "000000001")
+     *          .urlParam("key", "000000001")
+     *          //.autoClose(false)//默认为true
+     *          .enqueue(new MultiHostOkHttpClient.InputStreamCallback() {
+     *              public void onSucceed(InputStream inputStream) throws Exception {
+     *                  ......
+     *              }
+     *              protected void onErrorBeforeSend(Exception e) {
+     *                  //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+     *                  //RequestBuildException: 在网络请求未发送前抛出的异常
+     *              }
+     *              protected void onErrorAfterSend(Exception e) {
+     *                  //IOException: 网络异常
+     *                  //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     *                  //获得拒绝码 e.getResponseCode()
+     *                  //获得拒绝信息 e.getResponseMessage()
+     *                  //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+     *              }
+     *          });
+     *
+     *  //返回ResponseBody类型的响应
+     *  //当autoClose=true时, onSucceed方法回调结束后, ResponseBody会被自动关闭, 无需手动调用close方法
+     *  //当autoClose=false时, onSucceed方法回调结束后, ResponseBody不会自动关闭, 需要手动调用ResponseBody.close()关闭, 注意!!!
+     *  client.get("/get/json")
+     *          .urlParam("name", "000000001")
+     *          .urlParam("key", "000000001")
+     *          //.autoClose(false)//默认为true
+     *          .enqueue(new MultiHostOkHttpClient.ResponseBodyCallback() {
+     *              public void onSucceed(ResponseBody responseBody) throws Exception {
+     *                  ......
+     *              }
+     *              protected void onErrorBeforeSend(Exception e) {
+     *                  //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+     *                  //RequestBuildException: 在网络请求未发送前抛出的异常
+     *              }
+     *              protected void onErrorAfterSend(Exception e) {
+     *                  //IOException: 网络异常
+     *                  //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     *                  //获得拒绝码 e.getResponseCode()
+     *                  //获得拒绝信息 e.getResponseMessage()
+     *                  //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+     *              }
+     *          });
+     *
+     * </pre>
+     *
+     * @param urlSuffix 请求的url后缀, 例如/user/add.json
      */
     public Request get(String urlSuffix) {
         return new Request(this, urlSuffix, false);
