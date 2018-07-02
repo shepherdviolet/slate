@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 S.Violet
+ * Copyright (C) 2015-2018 S.Violet
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,9 @@ import sviolet.thistle.util.judge.CheckUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.net.*;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -115,10 +117,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * }</pre>
  *
  * @author S.Violet
- * @deprecated Use {@link MultiHostOkHttpClient} instead
  */
-@Deprecated
-public class LoadBalancedOkHttpClient {
+public class MultiHostOkHttpClient {
 
     public static final int LOG_CONFIG_ALL = 0xFFFFFFFF;
     public static final int LOG_CONFIG_NONE = 0x00000000;
@@ -136,7 +136,7 @@ public class LoadBalancedOkHttpClient {
     private static final String MEDIA_TYPE = "application/json;charset=utf-8";
     private static final String ENCODE = "utf-8";
 
-    private Logger logger = LoggerFactory.getLogger(getClass());
+    private static Logger logger = LoggerFactory.getLogger(MultiHostOkHttpClient.class);
 
     private OkHttpClient okHttpClient;
     private LoadBalancedHostManager hostManager;
@@ -146,46 +146,280 @@ public class LoadBalancedOkHttpClient {
     private ReentrantLock settingsLock = new ReentrantLock();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 请求 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * 创建新请求
+     * @param urlSuffix url后缀, 例如/user/add.json
+     */
+    public Request request(String urlSuffix) {
+        return new Request(this, urlSuffix);
+    }
+
+    /**
+     * 请求
+     */
+    public static class Request {
+
+        private WeakReference<MultiHostOkHttpClient> clientReference;
+        private boolean isSend = false;
+
+        private String urlSuffix;
+        private boolean isPost = false;
+        private Map<String, String> headers;
+        private Map<String, Object> urlParams;
+        private byte[] body;
+
+        private long passiveBlockDuration = -1;
+        private String mediaType;
+        private String encode;
+
+        private Request(MultiHostOkHttpClient client, String urlSuffix) {
+            this.clientReference = new WeakReference<>(client);
+            this.urlSuffix = urlSuffix;
+        }
+
+        /**
+         * [配置]post请求(默认get)
+         */
+        public Request post(){
+            this.isPost = true;
+            return this;
+        }
+
+        /**
+         * [配置]get请求(默认get)
+         */
+        public Request get(){
+            this.isPost = false;
+            return this;
+        }
+
+        /**
+         * [配置]URL参数
+         */
+        public Request urlParams(Map<String, Object> urlParams) {
+            this.urlParams = urlParams;
+            return this;
+        }
+
+        /**
+         * [配置]添加URL参数
+         */
+        public Request urlParam(String key, Object value) {
+            if (this.urlParams == null) {
+                this.urlParams = new HashMap<>(8);
+            }
+            this.urlParams.put(key, value);
+            return this;
+        }
+
+        /**
+         * [配置]添加URL参数
+         */
+        public Request body(byte[] body) {
+            this.body = body;
+            return this;
+        }
+
+        /**
+         * [配置]HTTP请求头参数, 客户端配置和此处配置的均生效(此处配置优先)
+         */
+        public Request httpHeaders(Map<String, String> httpHeaders) {
+            this.headers = httpHeaders;
+            return this;
+        }
+
+        /**
+         * [配置]添加HTTP请求头参数, 客户端配置和此处配置的均生效(此处配置优先)
+         */
+        public Request httpHeader(String key, String value) {
+            if (this.headers == null) {
+                this.headers = new HashMap<>(8);
+            }
+            this.headers.put(key, value);
+            return this;
+        }
+
+        /**
+         * [配置]设置被动检测到网络故障时阻断后端的时间, 客户端配置和此处配置的均生效(此处配置优先)
+         * @param passiveBlockDuration 阻断时长ms
+         */
+        public Request setPassiveBlockDuration(long passiveBlockDuration) {
+            this.passiveBlockDuration = passiveBlockDuration;
+            return this;
+        }
+
+        /**
+         * [配置]报文体MediaType, 客户端配置和此处配置的均生效(此处配置优先)
+         */
+        public Request setMediaType(String mediaType) {
+            this.mediaType = mediaType;
+            return this;
+        }
+
+        /**
+         * [配置]字符编码, 客户端配置和此处配置的均生效(此处配置优先)
+         */
+        public Request setEncode(String encode) {
+            this.encode = encode;
+            return this;
+        }
+
+        /**
+         * [请求发送]同步请求并获取byte[]返回
+         * 如果响应码不为2XX, 会抛出HttpRejectException异常
+         * @return 响应报文体, 可能为null
+         * @throws NoHostException       当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+         * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+         * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
+         * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
+         */
+        public byte[] sendForBytes() throws NoHostException, RequestBuildException, HttpRejectException, IOException {
+            if (isSend) {
+                throw new IllegalStateException("MultiHostOkHttpClient.Request can only send once!");
+            }
+            isSend = true;
+
+            MultiHostOkHttpClient client = getClient();
+            if (client == null) {
+                throw new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)");
+            }
+            if (isPost) {
+                return client.responseBodyToBytes(client.syncPost(this));
+            } else {
+                return client.responseBodyToBytes(client.syncGet(this));
+            }
+        }
+
+        /**
+         * [请求发送]同步请求并获取InputStream返回
+         * 如果响应码不为2XX, 会抛出HttpRejectException异常
+         * @return 响应报文体的输入流, 可能为null
+         * @throws NoHostException       当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+         * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+         * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
+         * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
+         */
+        public InputStream sendForInputStream() throws NoHostException, RequestBuildException, HttpRejectException, IOException {
+            if (isSend) {
+                throw new IllegalStateException("MultiHostOkHttpClient.Request can only send once!");
+            }
+            isSend = true;
+
+            MultiHostOkHttpClient client = getClient();
+            if (client == null) {
+                throw new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)");
+            }
+            if (isPost) {
+                return client.responseBodyToInputStream(client.syncPost(this));
+            } else {
+                return client.responseBodyToInputStream(client.syncGet(this));
+            }
+        }
+
+        /**
+         * [请求发送]同步请求并获取okhttp ResponseBody返回,
+         * 如果响应码不为2XX, 会抛出HttpRejectException异常
+         * 该方法不会根据maxReadLength限定最大读取长度
+         * @return 响应报文体, 可能为null
+         * @throws NoHostException       当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+         * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+         * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
+         * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
+         */
+        public ResponseBody send() throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+            if (isSend) {
+                throw new IllegalStateException("MultiHostOkHttpClient.Request can only send once!");
+            }
+            isSend = true;
+
+            MultiHostOkHttpClient client = getClient();
+            if (client == null) {
+                throw new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)");
+            }
+            if (isPost) {
+                return client.syncPost(this);
+            } else {
+                return client.syncGet(this);
+            }
+        }
+
+        /**
+         * [请求发送]异步请求
+         * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常,
+         * @param callback 回调函数{@link BytesCallback}
+         */
+        public void enqueue(BytesCallback callback) {
+            enqueue((ResponseBodyCallback)callback);
+        }
+
+        /**
+         * [请求发送]异步请求
+         * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常,
+         * @param callback 回调函数{@link InputStreamCallback}
+         */
+        public void enqueue(InputStreamCallback callback) {
+            enqueue((ResponseBodyCallback)callback);
+        }
+
+        /**
+         * [请求发送]异步请求
+         * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常,
+         * 该方法不会根据maxReadLength限定最大读取长度
+         * @param callback 回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponseBodyCallback}
+         */
+        public void enqueue(ResponseBodyCallback callback) {
+            if (isSend) {
+                throw new IllegalStateException("MultiHostOkHttpClient.Request can only send once!");
+            }
+            isSend = true;
+
+            MultiHostOkHttpClient client = getClient();
+            if (client == null) {
+                callback.onErrorBeforeSend(new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)"));
+                return;
+            }
+            if (isPost) {
+                client.asyncPost(this, callback);
+            } else {
+                client.asyncGet(this, callback);
+            }
+        }
+
+        private MultiHostOkHttpClient getClient(){
+            MultiHostOkHttpClient client = clientReference.get();
+            if (client == null) {
+                logger.error("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc), data:" + this);
+            }
+            return client;
+        }
+
+        @Override
+        public String toString() {
+            return "Request{" +
+                    "clientReference=" + clientReference +
+                    ", urlSuffix='" + urlSuffix + '\'' +
+                    ", isPost=" + isPost +
+                    ", headers=" + headers +
+                    ", urlParams=" + urlParams +
+                    ", body(hex)=" + ByteUtils.bytesToHex(body) +
+                    '}';
+        }
+
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Sync ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * 同步POST请求,
-     * 如果响应码不为2XX, 会抛出HttpRejectException异常
-     *
-     * @param urlSuffix url后缀
-     * @param body 报文体
-     * @return 二进制数据(可能为null)
-     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
-     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
-     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
-     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
-     */
-    public byte[] syncPostForBytes(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
-        return syncPostForBytes(urlSuffix, body, null);
-    }
-
-    /**
-     * 同步POST请求,
-     * 如果响应码不为2XX, 会抛出HttpRejectException异常
-     *
-     * @param urlSuffix url后缀
-     * @param body 报文体
-     * @param params URL请求参数
-     * @return 二进制数据(可能为null)
-     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
-     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
-     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
-     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
-     */
-    public byte[] syncPostForBytes(String urlSuffix, byte[] body, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
-        ResponseBody responseBody = null;
+    private byte[] responseBodyToBytes(ResponseBody responseBody) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+        //返回空
+        if (responseBody == null) {
+            return null;
+        }
         try {
-            responseBody = syncPost(urlSuffix, body, params);
-            //返回空
-            if (responseBody == null) {
-                return null;
-            }
             //限定读取长度
             if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength){
                 throw new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength);
@@ -193,52 +427,24 @@ public class LoadBalancedOkHttpClient {
             //返回二进制数据
             return responseBody.bytes();
         } finally {
-            if (responseBody != null){
-                try {
-                    responseBody.close();
-                } catch (Throwable ignore) {
-                }
+            try {
+                responseBody.close();
+            } catch (Throwable ignore) {
             }
         }
     }
 
-    /**
-     * 同步POST请求,
-     * 如果响应码不为2XX, 会抛出HttpRejectException异常
-     *
-     * @param urlSuffix url后缀
-     * @param body 报文体
-     * @return InputStream(可能为null), 注意:使用完必须关闭流!!!
-     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
-     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
-     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
-     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
-     */
-    public InputStream syncPostForInputStream(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
-        return syncPostForInputStream(urlSuffix, body, null);
-    }
-
-    /**
-     * 同步POST请求,
-     * 如果响应码不为2XX, 会抛出HttpRejectException异常
-     *
-     * @param urlSuffix url后缀
-     * @param body 报文体
-     * @param params URL请求参数
-     * @return InputStream(可能为null), 注意:使用完必须关闭流!!!
-     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
-     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
-     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
-     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
-     */
-    public InputStream syncPostForInputStream(String urlSuffix, byte[] body, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
-        ResponseBody responseBody = syncPost(urlSuffix, body, params);
+    private InputStream responseBodyToInputStream(ResponseBody responseBody) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //返回空
         if (responseBody == null) {
             return null;
         }
         //限定读取长度
         if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength){
+            try {
+                responseBody.close();
+            } catch (Throwable ignore) {
+            }
             throw new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength);
         }
         //返回二进制数据
@@ -246,320 +452,77 @@ public class LoadBalancedOkHttpClient {
     }
 
     /**
-     * 同步GET请求,
-     * 如果响应码不为2XX, 会抛出HttpRejectException异常
-     *
-     * @param urlSuffix url后缀
-     * @param params 请求参数
-     * @return 二进制数据(可能为null)
-     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
-     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
-     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
-     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
-     */
-    public byte[] syncGetForBytes(String urlSuffix, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
-        ResponseBody responseBody = null;
-        try {
-            responseBody = syncGet(urlSuffix, params);
-            //返回空
-            if (responseBody == null) {
-                return null;
-            }
-            //限定读取长度
-            if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength){
-                throw new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength);
-            }
-            //返回二进制数据
-            return responseBody.bytes();
-        } finally {
-            if (responseBody != null){
-                try {
-                    responseBody.close();
-                } catch (Throwable ignore) {
-                }
-            }
-        }
-    }
-
-    /**
-     * 同步GET请求,
-     * 如果响应码不为2XX, 会抛出HttpRejectException异常
-     *
-     * @param urlSuffix url后缀
-     * @param params 请求参数
-     * @return InputStream(可能为null), 注意:使用完必须关闭流!!!
-     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
-     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
-     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
-     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
-     */
-    public InputStream syncGetForInputStream(String urlSuffix, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
-        ResponseBody responseBody = syncGet(urlSuffix, params);
-        //返回空
-        if (responseBody == null) {
-            return null;
-        }
-        //限定读取长度
-        if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength){
-            throw new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength);
-        }
-        //返回二进制数据
-        return responseBody.byteStream();
-    }
-
-    /**
-     * 同步POST请求,
-     * 如果响应码不为2XX, 会抛出HttpRejectException异常,
-     * 该方法不会根据maxReadLength限定最大读取长度
-     *
-     * @param urlSuffix url后缀
-     * @param body      报文体
+     * @param request 请求参数
      * @return ResponseBody(可能为null), 注意:使用完必须关闭(ResponseBody.close())!!!
      * @throws NoHostException       当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
      * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
      * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
      * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
-    public ResponseBody syncPost(String urlSuffix, byte[] body) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
-        return syncPost(urlSuffix, body, null);
-    }
-
-    /**
-     * 同步POST请求,
-     * 如果响应码不为2XX, 会抛出HttpRejectException异常,
-     * 该方法不会根据maxReadLength限定最大读取长度
-     *
-     * @param urlSuffix url后缀
-     * @param body      报文体
-     * @param params    URL请求参数
-     * @return ResponseBody(可能为null), 注意:使用完必须关闭(ResponseBody.close())!!!
-     * @throws NoHostException       当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
-     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
-     * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
-     * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
-     */
-    public ResponseBody syncPost(String urlSuffix, byte[] body, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+    private ResponseBody syncPost(Request request) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
-        printPostRequestLog(urlSuffix, body, params, host);
-        printUrlLog(urlSuffix, params, host);
+        printPostRequestLog(request.urlSuffix, request.body, request.urlParams, host);
+        printUrlLog(request.urlSuffix, request.urlParams, host);
 
         //装配Request
-        Request request;
+        okhttp3.Request okRequest;
         try {
-            request = buildPostRequest(host.getUrl(), urlSuffix, body, params, settings);
+            okRequest = buildPostRequest(host.getUrl(), request, settings);
         } catch (Throwable t) {
             throw new RequestBuildException("Error while building request", t);
         }
-        if (request == null) {
+        if (okRequest == null) {
             throw new RequestBuildException("Null request built");
         }
 
         if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
-            logger.info("POST: real-url:" + request.url().toString());
+            logger.info("POST: real-url:" + okRequest.url().toString());
         }
 
         //请求
-        return syncCall(host, request);
+        return syncCall(host, okRequest, request);
     }
 
     /**
-     * 同步GET请求,
-     * 如果响应码不为2XX, 会抛出HttpRejectException异常,
-     * 该方法不会根据maxReadLength限定最大读取长度
-     *
-     * @param urlSuffix url后缀
-     * @param params 请求参数
+     * @param request 请求参数
      * @return ResponseBody(可能为null), 注意:使用完必须关闭(ResponseBody.close())!!!
      * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
      * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
      * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
      * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
      */
-    public ResponseBody syncGet(String urlSuffix, Map<String, Object> params) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+    private ResponseBody syncGet(Request request) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
-        printGetRequestLog(urlSuffix, params, host);
-        printUrlLog(urlSuffix, params, host);
+        printGetRequestLog(request.urlSuffix, request.urlParams, host);
+        printUrlLog(request.urlSuffix, request.urlParams, host);
 
         //装配Request
-        Request request;
+        okhttp3.Request okRequest;
         try {
-            request = buildGetRequest(host.getUrl(), urlSuffix, params, settings);
+            okRequest = buildGetRequest(host.getUrl(), request, settings);
         } catch (Throwable t) {
             throw new RequestBuildException("Error while building request", t);
         }
-        if (request == null) {
+        if (okRequest == null) {
             throw new RequestBuildException("Null request built");
         }
 
         if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
-            logger.info("GET: real-url:" + request.url().toString());
+            logger.info("GET: real-url:" + okRequest.url().toString());
         }
 
         //请求
-        return syncCall(host, request);
+        return syncCall(host, okRequest, request);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Async //////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * 异步POST请求,
-     * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常
-     *
-     * @param urlSuffix url后缀
-     * @param body      报文体
-     * @param params    URL请求参数
-     * @param callback  回调函数
-     */
-    public void asyncPostForBytes(String urlSuffix, byte[] body, Map<String, Object> params, BytesCallback callback) {
-        asyncPost(urlSuffix, body, params, callback);
-    }
-
-    /**
-     * 异步POST请求,
-     * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常
-     *
-     * @param urlSuffix url后缀
-     * @param body      报文体
-     * @param params    URL请求参数
-     * @param callback  回调函数
-     */
-    public void asyncPostForInputStream(String urlSuffix, byte[] body, Map<String, Object> params, InputStreamCallback callback) {
-        asyncPost(urlSuffix, body, params, callback);
-    }
-
-    /**
-     * 异步POST请求,
-     * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常,
-     * 该方法不会根据maxReadLength限定最大读取长度
-     *
-     * @param urlSuffix url后缀
-     * @param body      报文体
-     * @param params    URL请求参数
-     * @param callback  回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponseBodyCallback}
-     */
-    public void asyncPost(String urlSuffix, byte[] body, Map<String, Object> params, ResponseBodyCallback callback) {
-
-        callback.setSettings(settings);
-
-        try {
-            //获取远端
-            LoadBalancedHostManager.Host host = fetchHost();
-
-            printPostRequestLog(urlSuffix, body, params, host);
-            printUrlLog(urlSuffix, params, host);
-
-            //装配Request
-            Request request;
-            try {
-                request = buildPostRequest(host.getUrl(), urlSuffix, body, params, settings);
-            } catch (Throwable t) {
-                throw new RequestBuildException("Error while building request", t);
-            }
-            if (request == null) {
-                throw new RequestBuildException("Null request built");
-            }
-
-            if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
-                logger.info("POST: real-url:" + request.url().toString());
-            }
-
-            //请求
-            asyncCall(host, request, callback);
-        } catch (NoHostException | RequestBuildException e) {
-            callback.onErrorBeforeSend(e);
-        }
-    }
-
-    /**
-     * 异步GET请求,
-     * 如果响应码不为2XX, 会抛出HttpRejectException异常,
-     * 该方法不会根据maxReadLength限定最大读取长度
-     *
-     * @param urlSuffix url后缀
-     * @param params 请求参数
-     * @param callback  回调函数
-     */
-    public void asyncGetForBytes(String urlSuffix, Map<String, Object> params, BytesCallback callback) {
-        asyncGet(urlSuffix, params, callback);
-    }
-
-    /**
-     * 异步GET请求,
-     * 如果响应码不为2XX, 会抛出HttpRejectException异常,
-     * 该方法不会根据maxReadLength限定最大读取长度
-     *
-     * @param urlSuffix url后缀
-     * @param params 请求参数
-     * @param callback  回调函数
-     */
-    public void asyncGetForInputStream(String urlSuffix, Map<String, Object> params, InputStreamCallback callback) {
-        asyncGet(urlSuffix, params, callback);
-    }
-
-    /**
-     * 异步GET请求,
-     * 如果响应码不为2XX, 会抛出HttpRejectException异常,
-     * 该方法不会根据maxReadLength限定最大读取长度
-     *
-     * @param urlSuffix url后缀
-     * @param params 请求参数
-     * @param callback  回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponseBodyCallback}
-     */
-    public void asyncGet(String urlSuffix, Map<String, Object> params, ResponseBodyCallback callback) {
-
-        callback.setSettings(settings);
-
-        try {
-            //获取远端
-            LoadBalancedHostManager.Host host = fetchHost();
-
-            printGetRequestLog(urlSuffix, params, host);
-            printUrlLog(urlSuffix, params, host);
-
-            //装配Request
-            Request request;
-            try {
-                request = buildGetRequest(host.getUrl(), urlSuffix, params, settings);
-            } catch (Throwable t) {
-                throw new RequestBuildException("Error while building request", t);
-            }
-            if (request == null) {
-                throw new RequestBuildException("Null request built");
-            }
-
-            if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
-                logger.info("GET: real-url:" + request.url().toString());
-            }
-
-            //请求
-            asyncCall(host, request, callback);
-        } catch (NoHostException | RequestBuildException e) {
-            callback.onErrorBeforeSend(e);
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // 私有逻辑 //////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private LoadBalancedHostManager.Host fetchHost() throws NoHostException {
-        LoadBalancedHostManager.Host host = hostManager.nextHost();
-        if (host == null){
-            throw new NoHostException("No host");
-        }
-        return host;
-    }
-
-    private ResponseBody syncCall(LoadBalancedHostManager.Host host, Request request) throws RequestBuildException, IOException, HttpRejectException {
+    private ResponseBody syncCall(LoadBalancedHostManager.Host host, okhttp3.Request okRequest, Request request) throws RequestBuildException, IOException, HttpRejectException {
         try {
             //同步请求
-            Response response = getOkHttpClient().newCall(request).execute();
+            Response response = getOkHttpClient().newCall(okRequest).execute();
             printResponseCodeLog(response);
             //Http拒绝
             if (!isSucceed(response)) {
@@ -570,9 +533,10 @@ public class LoadBalancedOkHttpClient {
         } catch (Throwable t) {
             if (needBlock(t, settings)) {
                 //网络故障阻断后端
-                host.block(settings.passiveBlockDuration);
+                long passiveBlockDuration = request.passiveBlockDuration >= 0 ? request.passiveBlockDuration : settings.passiveBlockDuration;
+                host.block(passiveBlockDuration);
                 if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_BLOCK)){
-                    logger.info("Block: " + host.getUrl() + " " + settings.passiveBlockDuration);
+                    logger.info("Block: " + host.getUrl() + " " + passiveBlockDuration);
                 }
             }
             if (t instanceof  IOException ||
@@ -584,10 +548,88 @@ public class LoadBalancedOkHttpClient {
         }
     }
 
-    private void asyncCall(final LoadBalancedHostManager.Host host, Request request, final ResponseBodyCallback callback)  {
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Async //////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @param request 请求参数
+     * @param callback  回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponseBodyCallback}
+     */
+    private void asyncPost(Request request, ResponseBodyCallback callback) {
+
+        callback.setSettings(settings);
+
+        try {
+            //获取远端
+            LoadBalancedHostManager.Host host = fetchHost();
+
+            printPostRequestLog(request.urlSuffix, request.body, request.urlParams, host);
+            printUrlLog(request.urlSuffix, request.urlParams, host);
+
+            //装配Request
+            okhttp3.Request okRequest;
+            try {
+                okRequest = buildPostRequest(host.getUrl(), request, settings);
+            } catch (Throwable t) {
+                throw new RequestBuildException("Error while building request", t);
+            }
+            if (okRequest == null) {
+                throw new RequestBuildException("Null request built");
+            }
+
+            if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
+                logger.info("POST: real-url:" + okRequest.url().toString());
+            }
+
+            //请求
+            asyncCall(host, okRequest, request, callback);
+        } catch (NoHostException | RequestBuildException e) {
+            callback.onErrorBeforeSend(e);
+        }
+    }
+
+    /**
+     * @param request 请求参数
+     * @param callback  回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponseBodyCallback}
+     */
+    private void asyncGet(Request request, ResponseBodyCallback callback) {
+
+        callback.setSettings(settings);
+
+        try {
+            //获取远端
+            LoadBalancedHostManager.Host host = fetchHost();
+
+            printGetRequestLog(request.urlSuffix, request.urlParams, host);
+            printUrlLog(request.urlSuffix, request.urlParams, host);
+
+            //装配Request
+            okhttp3.Request okRequest;
+            try {
+                okRequest = buildGetRequest(host.getUrl(), request, settings);
+            } catch (Throwable t) {
+                throw new RequestBuildException("Error while building request", t);
+            }
+            if (okRequest == null) {
+                throw new RequestBuildException("Null request built");
+            }
+
+            if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
+                logger.info("GET: real-url:" + okRequest.url().toString());
+            }
+
+            //请求
+            asyncCall(host, okRequest, request, callback);
+        } catch (NoHostException | RequestBuildException e) {
+            callback.onErrorBeforeSend(e);
+        }
+    }
+
+    private void asyncCall(final LoadBalancedHostManager.Host host, okhttp3.Request okRequest, final Request request, final ResponseBodyCallback callback)  {
         //异步请求
         try {
-            getOkHttpClient().newCall(request).enqueue(new Callback() {
+            getOkHttpClient().newCall(okRequest).enqueue(new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     printResponseCodeLog(response);
@@ -609,9 +651,10 @@ public class LoadBalancedOkHttpClient {
                 private void tryBlock(Exception e){
                     if (needBlock(e, settings)) {
                         //网络故障阻断后端
-                        host.block(settings.passiveBlockDuration);
+                        long passiveBlockDuration = request.passiveBlockDuration >= 0 ? request.passiveBlockDuration : settings.passiveBlockDuration;
+                        host.block(passiveBlockDuration);
                         if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_BLOCK)) {
-                            logger.info("Block: " + host.getUrl() + " " + settings.passiveBlockDuration);
+                            logger.info("Block: " + host.getUrl() + " " + passiveBlockDuration);
                         }
                     }
                 }
@@ -619,6 +662,18 @@ public class LoadBalancedOkHttpClient {
         } catch (Exception t) {
             callback.onErrorBeforeSend(new RequestBuildException("Error while request build ?", t));
         }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 私有逻辑 //////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private LoadBalancedHostManager.Host fetchHost() throws NoHostException {
+        LoadBalancedHostManager.Host host = hostManager.nextHost();
+        if (host == null){
+            throw new NoHostException("No host");
+        }
+        return host;
     }
 
     private OkHttpClient getOkHttpClient(){
@@ -720,23 +775,27 @@ public class LoadBalancedOkHttpClient {
     /**
      * 根据URL和报文体组POST请求(复写本方法实现自定义的逻辑)
      * @param url 由LoadBalancedHostManager选择出的远端url(前缀)
-     * @param urlSuffix URL后缀
-     * @param body 报文体
-     * @param params URL请求参数
+     * @param request 请求参数
+     * @param settings 客户端配置
      * @return Request
      * @throws RequestBuildException 构建异常
      */
-    protected Request buildPostRequest(String url, String urlSuffix, byte[] body, Map<String, Object> params, Settings settings) throws RequestBuildException{
-        HttpUrl httpUrl = HttpUrl.parse(url + urlSuffix);
+    protected okhttp3.Request buildPostRequest(String url, Request request, Settings settings) throws RequestBuildException{
+        if (request.urlSuffix == null) {
+            request.urlSuffix = "";
+        }
+        HttpUrl httpUrl = HttpUrl.parse(url + request.urlSuffix);
         if (httpUrl == null){
-            throw new RequestBuildException("Invalid url:" + url + urlSuffix);
+            throw new RequestBuildException("Invalid url:" + url + request.urlSuffix);
         }
 
-        if (params != null){
+        if (request.urlParams != null){
             HttpUrl.Builder httpUrlBuilder = httpUrl.newBuilder();
-            for (Map.Entry<String, Object> param : params.entrySet()) {
+            String encode = request.encode != null ? request.encode : settings.encode;
+            for (Map.Entry<String, Object> param : request.urlParams.entrySet()) {
                 try {
-                    httpUrlBuilder.addEncodedQueryParameter(param.getKey(), URLEncoder.encode(param.getValue() != null ? param.getValue().toString() : "", settings.encode));
+                    httpUrlBuilder.addEncodedQueryParameter(param.getKey(),
+                            URLEncoder.encode(param.getValue() != null ? param.getValue().toString() : "", encode));
                 } catch (UnsupportedEncodingException e) {
                     throw new RequestBuildException("Error while encode to url format", e);
                 }
@@ -744,9 +803,10 @@ public class LoadBalancedOkHttpClient {
             httpUrl = httpUrlBuilder.build();
         }
 
-        Request.Builder builder = new Request.Builder()
+        okhttp3.Request.Builder builder = new okhttp3.Request.Builder()
                 .url(httpUrl)
-                .post(RequestBody.create(MediaType.parse(settings.mediaType), body));
+                .post(RequestBody.create(MediaType.parse(request.mediaType != null ? request.mediaType : settings.mediaType),
+                        request.body));
 
         Map<String, String> headers = settings.headers;
         if (headers != null){
@@ -754,28 +814,40 @@ public class LoadBalancedOkHttpClient {
                 builder.addHeader(entry.getKey(), entry.getValue());
             }
         }
+
+        if (request.headers != null){
+            for (Map.Entry<String, String> entry : request.headers.entrySet()){
+                builder.addHeader(entry.getKey(), entry.getValue());
+            }
+        }
+
         return builder.build();
     }
 
     /**
      * 根据URL和报文体组GET请求(复写本方法实现自定义的逻辑)
      * @param url 由LoadBalancedHostManager选择出的远端url(前缀)
-     * @param urlSuffix URL后缀
-     * @param params 请求参数
+     * @param request 请求参数
+     * @param settings 客户端配置
      * @return Request
      * @throws RequestBuildException 构建异常
      */
-    protected Request buildGetRequest(String url, String urlSuffix, Map<String, Object> params, Settings settings) throws RequestBuildException{
-        HttpUrl httpUrl = HttpUrl.parse(url + urlSuffix);
+    protected okhttp3.Request buildGetRequest(String url, Request request, Settings settings) throws RequestBuildException{
+        if (request.urlSuffix == null) {
+            request.urlSuffix = "";
+        }
+        HttpUrl httpUrl = HttpUrl.parse(url + request.urlSuffix);
         if (httpUrl == null){
-            throw new RequestBuildException("Invalid url:" + url + urlSuffix);
+            throw new RequestBuildException("Invalid url:" + url + request.urlSuffix);
         }
 
-        if (params != null){
+        if (request.urlParams != null){
             HttpUrl.Builder httpUrlBuilder = httpUrl.newBuilder();
-            for (Map.Entry<String, Object> param : params.entrySet()) {
+            String encode = request.encode != null ? request.encode : settings.encode;
+            for (Map.Entry<String, Object> param : request.urlParams.entrySet()) {
                 try {
-                    httpUrlBuilder.addEncodedQueryParameter(param.getKey(), URLEncoder.encode(param.getValue() != null ? param.getValue().toString() : "", settings.encode));
+                    httpUrlBuilder.addEncodedQueryParameter(param.getKey(),
+                            URLEncoder.encode(param.getValue() != null ? param.getValue().toString() : "", encode));
                 } catch (UnsupportedEncodingException e) {
                     throw new RequestBuildException("Error while encode to url format", e);
                 }
@@ -783,7 +855,7 @@ public class LoadBalancedOkHttpClient {
             httpUrl = httpUrlBuilder.build();
         }
 
-        Request.Builder builder = new Request.Builder()
+        okhttp3.Request.Builder builder = new okhttp3.Request.Builder()
                 .url(httpUrl)
                 .get();
 
@@ -793,6 +865,13 @@ public class LoadBalancedOkHttpClient {
                 builder.addHeader(entry.getKey(), entry.getValue());
             }
         }
+
+        if (request.headers != null){
+            for (Map.Entry<String, String> entry : request.headers.entrySet()){
+                builder.addHeader(entry.getKey(), entry.getValue());
+            }
+        }
+
         return builder.build();
     }
 
@@ -969,7 +1048,7 @@ public class LoadBalancedOkHttpClient {
      * 设置远端管理器(必须)
      * @param hostManager 远端管理器
      */
-    public LoadBalancedOkHttpClient setHostManager(LoadBalancedHostManager hostManager) {
+    public MultiHostOkHttpClient setHostManager(LoadBalancedHostManager hostManager) {
         this.hostManager = hostManager;
         return this;
     }
@@ -978,7 +1057,7 @@ public class LoadBalancedOkHttpClient {
      * 设置被动检测到网络故障时阻断后端的时间
      * @param passiveBlockDuration 阻断时长ms
      */
-    public LoadBalancedOkHttpClient setPassiveBlockDuration(long passiveBlockDuration) {
+    public MultiHostOkHttpClient setPassiveBlockDuration(long passiveBlockDuration) {
         settings.passiveBlockDuration = passiveBlockDuration;
         return this;
     }
@@ -987,7 +1066,7 @@ public class LoadBalancedOkHttpClient {
      * 设置MediaType
      * @param mediaType 设置MediaType
      */
-    public LoadBalancedOkHttpClient setMediaType(String mediaType) {
+    public MultiHostOkHttpClient setMediaType(String mediaType) {
         settings.mediaType = mediaType;
         return this;
     }
@@ -996,7 +1075,7 @@ public class LoadBalancedOkHttpClient {
      * 设置编码
      * @param encode 编码
      */
-    public LoadBalancedOkHttpClient setEncode(String encode) {
+    public MultiHostOkHttpClient setEncode(String encode) {
         settings.encode = encode;
         return this;
     }
@@ -1005,7 +1084,7 @@ public class LoadBalancedOkHttpClient {
      * 设置HTTP请求头参数
      * @param headers 请求头参数
      */
-    public LoadBalancedOkHttpClient setHeaders(Map<String, String> headers) {
+    public MultiHostOkHttpClient setHeaders(Map<String, String> headers) {
         settings.headers = headers;
         return this;
     }
@@ -1014,7 +1093,7 @@ public class LoadBalancedOkHttpClient {
      * 打印更多的日志, 默认关闭
      * @param verboseLog true:打印更多的调试日志, 默认关闭
      */
-    public LoadBalancedOkHttpClient setVerboseLog(boolean verboseLog) {
+    public MultiHostOkHttpClient setVerboseLog(boolean verboseLog) {
         settings.verboseLog = verboseLog;
         return this;
     }
@@ -1030,7 +1109,7 @@ public class LoadBalancedOkHttpClient {
      *
      * @param verboseLogConfig 详细配置
      */
-    public LoadBalancedOkHttpClient setVerboseLogConfig(int verboseLogConfig) {
+    public MultiHostOkHttpClient setVerboseLogConfig(int verboseLogConfig) {
         settings.verboseLogConfig = verboseLogConfig;
         return this;
     }
@@ -1044,7 +1123,7 @@ public class LoadBalancedOkHttpClient {
      *
      * @param logConfig 详细配置
      */
-    public LoadBalancedOkHttpClient setLogConfig(int logConfig) {
+    public MultiHostOkHttpClient setLogConfig(int logConfig) {
         settings.logConfig = logConfig;
         return this;
     }
@@ -1053,7 +1132,7 @@ public class LoadBalancedOkHttpClient {
      * 最大请求线程数(仅异步请求时有效)
      * @param maxThreads 最大请求线程数
      */
-    public LoadBalancedOkHttpClient setMaxThreads(int maxThreads) {
+    public MultiHostOkHttpClient setMaxThreads(int maxThreads) {
         settings.maxThreads = maxThreads;
         return this;
     }
@@ -1062,7 +1141,7 @@ public class LoadBalancedOkHttpClient {
      * 对应每个后端的最大请求线程数(仅异步请求时有效)
      * @param maxThreadsPerHost 对应每个后端的最大请求线程数
      */
-    public LoadBalancedOkHttpClient setMaxThreadsPerHost(int maxThreadsPerHost) {
+    public MultiHostOkHttpClient setMaxThreadsPerHost(int maxThreadsPerHost) {
         settings.maxThreadsPerHost = maxThreadsPerHost;
         return this;
     }
@@ -1071,7 +1150,7 @@ public class LoadBalancedOkHttpClient {
      * 设置连接超时ms
      * @param connectTimeout 连接超时ms
      */
-    public LoadBalancedOkHttpClient setConnectTimeout(long connectTimeout) {
+    public MultiHostOkHttpClient setConnectTimeout(long connectTimeout) {
         try {
             settingsLock.lock();
             settings.connectTimeout = connectTimeout;
@@ -1086,7 +1165,7 @@ public class LoadBalancedOkHttpClient {
      * 设置写数据超时ms
      * @param writeTimeout 写数据超时ms
      */
-    public LoadBalancedOkHttpClient setWriteTimeout(long writeTimeout) {
+    public MultiHostOkHttpClient setWriteTimeout(long writeTimeout) {
         try {
             settingsLock.lock();
             settings.writeTimeout = writeTimeout;
@@ -1101,7 +1180,7 @@ public class LoadBalancedOkHttpClient {
      * 设置读数据超时ms
      * @param readTimeout 读数据超时ms
      */
-    public LoadBalancedOkHttpClient setReadTimeout(long readTimeout) {
+    public MultiHostOkHttpClient setReadTimeout(long readTimeout) {
         try {
             settingsLock.lock();
             settings.readTimeout = readTimeout;
@@ -1116,7 +1195,7 @@ public class LoadBalancedOkHttpClient {
      * 设置最大读取数据长度(默认:10M)
      * @param maxReadLength 设置最大读取数据长度, 单位bytes
      */
-    public LoadBalancedOkHttpClient setMaxReadLength(long maxReadLength){
+    public MultiHostOkHttpClient setMaxReadLength(long maxReadLength){
         settings.maxReadLength = maxReadLength;
         return this;
     }
@@ -1125,7 +1204,7 @@ public class LoadBalancedOkHttpClient {
      * CookieJar
      * @param cookieJar CookieJar
      */
-    public LoadBalancedOkHttpClient setCookieJar(CookieJar cookieJar) {
+    public MultiHostOkHttpClient setCookieJar(CookieJar cookieJar) {
         try {
             settingsLock.lock();
             settings.cookieJar = cookieJar;
@@ -1143,7 +1222,7 @@ public class LoadBalancedOkHttpClient {
      * @throws NumberFormatException  if the string does not contain a parsable integer.
      * @throws SecurityException if a security manager is present and permission to resolve the host name is denied.
      */
-    public LoadBalancedOkHttpClient setProxy(String proxy) {
+    public MultiHostOkHttpClient setProxy(String proxy) {
         Proxy proxyObj = null;
         if (proxy == null){
             throw new IllegalArgumentException("Invalid proxy string \"" + proxy + "\", correct \"X.X.X.X:XXX\", example \"127.0.0.1:8080\"");
@@ -1173,7 +1252,7 @@ public class LoadBalancedOkHttpClient {
      * Dns
      * @param dns Dns
      */
-    public LoadBalancedOkHttpClient setDns(Dns dns) {
+    public MultiHostOkHttpClient setDns(Dns dns) {
         try {
             settingsLock.lock();
             settings.dns = dns;

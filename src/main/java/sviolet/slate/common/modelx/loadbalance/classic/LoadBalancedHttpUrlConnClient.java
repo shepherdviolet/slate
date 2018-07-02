@@ -100,7 +100,9 @@ import java.util.Map;
  *  }</pre>
  *
  * @author S.Violet
+ * @deprecated Use {@link MultiHostOkHttpClient} instead
  */
+@Deprecated
 public class LoadBalancedHttpUrlConnClient {
 
     private static final String CONTENT_TYPE = "Content-type";
