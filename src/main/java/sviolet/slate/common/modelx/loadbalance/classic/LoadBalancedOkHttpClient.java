@@ -152,48 +152,54 @@ public class LoadBalancedOkHttpClient {
      * 设置远端管理器(必须)
      * @param hostManager 远端管理器
      */
-    public void setHostManager(LoadBalancedHostManager hostManager) {
+    public LoadBalancedOkHttpClient setHostManager(LoadBalancedHostManager hostManager) {
         this.hostManager = hostManager;
+        return this;
     }
 
     /**
      * 设置被动检测到网络故障时阻断后端的时间
      * @param passiveBlockDuration 阻断时长ms
      */
-    public void setPassiveBlockDuration(long passiveBlockDuration) {
+    public LoadBalancedOkHttpClient setPassiveBlockDuration(long passiveBlockDuration) {
         settings.passiveBlockDuration = passiveBlockDuration;
+        return this;
     }
 
     /**
      * 设置MediaType
      * @param mediaType 设置MediaType
      */
-    public void setMediaType(String mediaType) {
+    public LoadBalancedOkHttpClient setMediaType(String mediaType) {
         settings.mediaType = mediaType;
+        return this;
     }
 
     /**
      * 设置编码
      * @param encode 编码
      */
-    public void setEncode(String encode) {
+    public LoadBalancedOkHttpClient setEncode(String encode) {
         settings.encode = encode;
+        return this;
     }
 
     /**
      * 设置HTTP请求头参数
      * @param headers 请求头参数
      */
-    public void setHeaders(Map<String, String> headers) {
+    public LoadBalancedOkHttpClient setHeaders(Map<String, String> headers) {
         settings.headers = headers;
+        return this;
     }
 
     /**
      * 打印更多的日志, 默认关闭
      * @param verboseLog true:打印更多的调试日志, 默认关闭
      */
-    public void setVerboseLog(boolean verboseLog) {
+    public LoadBalancedOkHttpClient setVerboseLog(boolean verboseLog) {
         settings.verboseLog = verboseLog;
+        return this;
     }
 
     /**
@@ -207,8 +213,9 @@ public class LoadBalancedOkHttpClient {
      *
      * @param verboseLogConfig 详细配置
      */
-    public void setVerboseLogConfig(int verboseLogConfig) {
+    public LoadBalancedOkHttpClient setVerboseLogConfig(int verboseLogConfig) {
         settings.verboseLogConfig = verboseLogConfig;
+        return this;
     }
 
     /**
@@ -220,31 +227,34 @@ public class LoadBalancedOkHttpClient {
      *
      * @param logConfig 详细配置
      */
-    public void setLogConfig(int logConfig) {
+    public LoadBalancedOkHttpClient setLogConfig(int logConfig) {
         settings.logConfig = logConfig;
+        return this;
     }
 
     /**
      * 最大请求线程数(仅异步请求时有效)
      * @param maxThreads 最大请求线程数
      */
-    public void setMaxThreads(int maxThreads) {
+    public LoadBalancedOkHttpClient setMaxThreads(int maxThreads) {
         settings.maxThreads = maxThreads;
+        return this;
     }
 
     /**
      * 对应每个后端的最大请求线程数(仅异步请求时有效)
      * @param maxThreadsPerHost 对应每个后端的最大请求线程数
      */
-    public void setMaxThreadsPerHost(int maxThreadsPerHost) {
+    public LoadBalancedOkHttpClient setMaxThreadsPerHost(int maxThreadsPerHost) {
         settings.maxThreadsPerHost = maxThreadsPerHost;
+        return this;
     }
 
     /**
      * 设置连接超时ms
      * @param connectTimeout 连接超时ms
      */
-    public void setConnectTimeout(long connectTimeout) {
+    public LoadBalancedOkHttpClient setConnectTimeout(long connectTimeout) {
         try {
             settingsLock.lock();
             settings.connectTimeout = connectTimeout;
@@ -252,13 +262,14 @@ public class LoadBalancedOkHttpClient {
         } finally {
             settingsLock.unlock();
         }
+        return this;
     }
 
     /**
      * 设置写数据超时ms
      * @param writeTimeout 写数据超时ms
      */
-    public void setWriteTimeout(long writeTimeout) {
+    public LoadBalancedOkHttpClient setWriteTimeout(long writeTimeout) {
         try {
             settingsLock.lock();
             settings.writeTimeout = writeTimeout;
@@ -266,13 +277,14 @@ public class LoadBalancedOkHttpClient {
         } finally {
             settingsLock.unlock();
         }
+        return this;
     }
 
     /**
      * 设置读数据超时ms
      * @param readTimeout 读数据超时ms
      */
-    public void setReadTimeout(long readTimeout) {
+    public LoadBalancedOkHttpClient setReadTimeout(long readTimeout) {
         try {
             settingsLock.lock();
             settings.readTimeout = readTimeout;
@@ -280,21 +292,23 @@ public class LoadBalancedOkHttpClient {
         } finally {
             settingsLock.unlock();
         }
+        return this;
     }
 
     /**
      * 设置最大读取数据长度(默认:10M)
      * @param maxReadLength 设置最大读取数据长度, 单位bytes
      */
-    public void setMaxReadLength(long maxReadLength){
+    public LoadBalancedOkHttpClient setMaxReadLength(long maxReadLength){
         settings.maxReadLength = maxReadLength;
+        return this;
     }
 
     /**
      * CookieJar
      * @param cookieJar CookieJar
      */
-    public void setCookieJar(CookieJar cookieJar) {
+    public LoadBalancedOkHttpClient setCookieJar(CookieJar cookieJar) {
         try {
             settingsLock.lock();
             settings.cookieJar = cookieJar;
@@ -302,6 +316,7 @@ public class LoadBalancedOkHttpClient {
         } finally {
             settingsLock.unlock();
         }
+        return this;
     }
 
     /**
@@ -311,7 +326,7 @@ public class LoadBalancedOkHttpClient {
      * @throws NumberFormatException  if the string does not contain a parsable integer.
      * @throws SecurityException if a security manager is present and permission to resolve the host name is denied.
      */
-    public void setProxy(String proxy) {
+    public LoadBalancedOkHttpClient setProxy(String proxy) {
         Proxy proxyObj = null;
         if (proxy == null){
             throw new IllegalArgumentException("Invalid proxy string \"" + proxy + "\", correct \"X.X.X.X:XXX\", example \"127.0.0.1:8080\"");
@@ -334,13 +349,14 @@ public class LoadBalancedOkHttpClient {
         } finally {
             settingsLock.unlock();
         }
+        return this;
     }
 
     /**
      * Dns
      * @param dns Dns
      */
-    public void setDns(Dns dns) {
+    public LoadBalancedOkHttpClient setDns(Dns dns) {
         try {
             settingsLock.lock();
             settings.dns = dns;
@@ -348,6 +364,7 @@ public class LoadBalancedOkHttpClient {
         } finally {
             settingsLock.unlock();
         }
+        return this;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
