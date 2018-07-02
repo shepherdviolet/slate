@@ -26,6 +26,8 @@ import sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager;
 import sviolet.thistle.util.conversion.ByteUtils;
 import sviolet.thistle.util.judge.CheckUtils;
 
+import javax.net.ssl.SSLSocketFactory;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -587,9 +589,9 @@ public class MultiHostOkHttpClient {
                 throw new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)");
             }
             if (isPost) {
-                return client.responseBodyToBytes(client.syncPost(this));
+                return client.responseToBytes(client.syncPost(this));
             } else {
-                return client.responseBodyToBytes(client.syncGet(this));
+                return client.responseToBytes(client.syncGet(this));
             }
         }
 
@@ -614,9 +616,9 @@ public class MultiHostOkHttpClient {
                 throw new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)");
             }
             if (isPost) {
-                return client.responseBodyToInputStream(client.syncPost(this));
+                return client.responseToInputStream(client.syncPost(this));
             } else {
-                return client.responseBodyToInputStream(client.syncGet(this));
+                return client.responseToInputStream(client.syncGet(this));
             }
         }
 
@@ -630,7 +632,7 @@ public class MultiHostOkHttpClient {
          * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
          * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
          */
-        public ResponseBody send() throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+        public ResponsePackage send() throws NoHostException, RequestBuildException, IOException, HttpRejectException {
             if (isSend) {
                 throw new IllegalStateException("MultiHostOkHttpClient.Request can only send once!");
             }
@@ -715,45 +717,45 @@ public class MultiHostOkHttpClient {
     // Sync ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private byte[] responseBodyToBytes(ResponseBody responseBody) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+    private byte[] responseToBytes(ResponsePackage responsePackage) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //返回空
-        if (responseBody == null) {
+        if (responsePackage == null || responsePackage.body() == null) {
             return null;
         }
         try {
             //限定读取长度
-            if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength){
-                throw new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength);
+            if (settings.maxReadLength > 0 && responsePackage.body().contentLength() > settings.maxReadLength){
+                throw new IOException("Response contentLength is out of limit, contentLength:" + responsePackage.body().contentLength() + ", limit:" + settings.maxReadLength);
             }
             //返回二进制数据
-            return responseBody.bytes();
+            return responsePackage.body().bytes();
         } finally {
             //返回byte[]类型时自动关闭
             try {
-                responseBody.close();
+                responsePackage.close();
             } catch (Throwable ignore) {
             }
         }
     }
 
-    private InputStream responseBodyToInputStream(ResponseBody responseBody) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+    private InputStream responseToInputStream(ResponsePackage responsePackage) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //返回空
-        if (responseBody == null) {
+        if (responsePackage == null || responsePackage.body() == null) {
             return null;
         }
         //限定读取长度
-        if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength){
+        if (settings.maxReadLength > 0 && responsePackage.body().contentLength() > settings.maxReadLength){
             try {
-                responseBody.close();
+                responsePackage.body().close();
             } catch (Throwable ignore) {
             }
-            throw new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength);
+            throw new IOException("Response contentLength is out of limit, contentLength:" + responsePackage.body().contentLength() + ", limit:" + settings.maxReadLength);
         }
         //返回二进制数据
-        return responseBody.byteStream();
+        return responsePackage.body().byteStream();
     }
 
-    private ResponseBody syncPost(Request request) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+    private ResponsePackage syncPost(Request request) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
@@ -779,7 +781,7 @@ public class MultiHostOkHttpClient {
         return syncCall(host, okRequest, request);
     }
 
-    private ResponseBody syncGet(Request request) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
+    private ResponsePackage syncGet(Request request) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
@@ -805,7 +807,7 @@ public class MultiHostOkHttpClient {
         return syncCall(host, okRequest, request);
     }
 
-    private ResponseBody syncCall(LoadBalancedHostManager.Host host, okhttp3.Request okRequest, Request request) throws RequestBuildException, IOException, HttpRejectException {
+    private ResponsePackage syncCall(LoadBalancedHostManager.Host host, okhttp3.Request okRequest, Request request) throws RequestBuildException, IOException, HttpRejectException {
         try {
             //同步请求
             Response response = getOkHttpClient().newCall(okRequest).execute();
@@ -815,7 +817,7 @@ public class MultiHostOkHttpClient {
                 throw new HttpRejectException(response.code(), response.message());
             }
             //报文体
-            return response.body();
+            return ResponsePackage.newInstance(response);
         } catch (Throwable t) {
             if (needBlock(t, settings)) {
                 //网络故障阻断后端
@@ -920,7 +922,7 @@ public class MultiHostOkHttpClient {
                     }
                     //报文体
                     try {
-                        callback.onSucceed(response.body());
+                        callback.onSucceed(ResponsePackage.newInstance(response));
                         //自动关闭
                         if (request.autoClose) {
                             try {
@@ -1062,6 +1064,9 @@ public class MultiHostOkHttpClient {
         }
         if (settings.dns != null) {
             builder.dns(settings.dns);
+        }
+        if (settings.sslSocketFactory != null) {
+            builder.sslSocketFactory(settings.sslSocketFactory);
         }
 
         return builder.build();
@@ -1213,6 +1218,7 @@ public class MultiHostOkHttpClient {
         private CookieJar cookieJar;
         private Proxy proxy;
         private Dns dns;
+        private SSLSocketFactory sslSocketFactory;
 
         private Set<Integer> httpCodeNeedBlock = new HashSet<>(8);
 
@@ -1222,7 +1228,67 @@ public class MultiHostOkHttpClient {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // 异步方式的Cllback /////////////////////////////////////////////////////////////////////////////////////////////
+    // 响应实例 //////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * 响应包
+     */
+    public static class ResponsePackage implements Closeable {
+
+        private int code;
+        private String message;
+        private boolean isRedirect;
+        private ResponseBody body;
+        private Headers headers;
+
+        private static ResponsePackage newInstance(Response response) {
+            if (response == null || response.body() == null) {
+                return null;
+            }
+            return new ResponsePackage(response);
+        }
+
+        private ResponsePackage(Response response) {
+            code = response.code();
+            message = response.message();
+            isRedirect = response.isRedirect();
+            body = response.body();
+            headers = response.headers();
+        }
+
+        public int code() {
+            return code;
+        }
+
+        public String message() {
+            return message;
+        }
+
+        public boolean isRedirect() {
+            return isRedirect;
+        }
+
+        public ResponseBody body() {
+            return body;
+        }
+
+        public Headers headers() {
+            return headers;
+        }
+
+        @Override
+        public void close(){
+            try {
+                body.close();
+            } catch (Exception ignore) {
+            }
+        }
+
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 异步方式的Callback /////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -1242,9 +1308,9 @@ public class MultiHostOkHttpClient {
          * 注意!!! 适用于响应数据需要交由其他的线程处理, 或暂时持有的场合使用.
          * </p>
          *
-         * @param responseBody 响应
+         * @param responsePackage 响应包, 可能为null
          */
-        protected abstract void onSucceed(ResponseBody responseBody) throws Exception;
+        protected abstract void onSucceed(ResponsePackage responsePackage) throws Exception;
 
         /**
          * 请求前发生异常
@@ -1281,30 +1347,30 @@ public class MultiHostOkHttpClient {
         /**
          * <p>请求成功</p>
          *
-         * @param body 响应
+         * @param body 响应, 可能为null
          */
         public abstract void onSucceed(byte[] body) throws Exception;
 
         @Override
-        public final void onSucceed(ResponseBody responseBody) throws Exception {
+        public final void onSucceed(ResponsePackage responsePackage) throws Exception {
             byte[] bytes = null;
             try {
-                if (responseBody != null) {
+                if (responsePackage != null && responsePackage.body() != null) {
                     //限定读取长度
-                    if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength) {
-                        throw new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength);
+                    if (settings.maxReadLength > 0 && responsePackage.body().contentLength() > settings.maxReadLength) {
+                        throw new IOException("Response contentLength is out of limit, contentLength:" + responsePackage.body().contentLength() + ", limit:" + settings.maxReadLength);
                     }
                     //返回二进制数据
-                    bytes = responseBody.bytes();
+                    bytes = responsePackage.body().bytes();
                 }
             } catch (IOException e) {
                 onErrorAfterSend(e);
                 return;
             } finally {
                 //byte[]类型返回时, 强制关闭(无论autoClose是什么配置)
-                if (responseBody != null){
+                if (responsePackage != null){
                     try {
-                        responseBody.close();
+                        responsePackage.close();
                     } catch (Throwable ignore) {
                     }
                 }
@@ -1338,29 +1404,29 @@ public class MultiHostOkHttpClient {
          * 注意!!! 适用于响应数据需要交由其他的线程处理, 或暂时持有的场合使用.
          * </p>
          *
-         * @param inputStream 响应
+         * @param inputStream 响应, 可能为null
          */
         public abstract void onSucceed(InputStream inputStream) throws Exception;
 
         @Override
-        public final void onSucceed(ResponseBody responseBody) throws Exception {
+        public final void onSucceed(ResponsePackage responsePackage) throws Exception {
             //返回空
-            if (responseBody == null) {
+            if (responsePackage == null || responsePackage.body() == null) {
                 onSucceed((InputStream) null);
                 return;
             }
             //限定读取长度
-            if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength) {
+            if (settings.maxReadLength > 0 && responsePackage.body().contentLength() > settings.maxReadLength) {
                 //长度超过限制时, 强制关闭(无论autoClose是什么配置)
                 try {
-                    responseBody.close();
+                    responsePackage.close();
                 } catch (Throwable ignore) {
                 }
-                onErrorAfterSend(new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength));
+                onErrorAfterSend(new IOException("Response contentLength is out of limit, contentLength:" + responsePackage.body().contentLength() + ", limit:" + settings.maxReadLength));
                 return;
             }
             //返回二进制数据
-            onSucceed(responseBody.byteStream());
+            onSucceed(responsePackage.body().byteStream());
         }
 
         @Override
@@ -1590,6 +1656,21 @@ public class MultiHostOkHttpClient {
         try {
             settingsLock.lock();
             settings.dns = dns;
+            refreshSettings = true;
+        } finally {
+            settingsLock.unlock();
+        }
+        return this;
+    }
+
+    /**
+     * SSLSocketFactory
+     * @param sslSocketFactory SSLSocketFactory
+     */
+    public MultiHostOkHttpClient setSSLSocketFactory(SSLSocketFactory sslSocketFactory) {
+        try {
+            settingsLock.lock();
+            settings.sslSocketFactory = sslSocketFactory;
             refreshSettings = true;
         } finally {
             settingsLock.unlock();
