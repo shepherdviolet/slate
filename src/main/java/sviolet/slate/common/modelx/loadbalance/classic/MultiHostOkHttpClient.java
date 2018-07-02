@@ -833,8 +833,8 @@ public class MultiHostOkHttpClient {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
-        printPostRequestLog(request.urlSuffix, request.body, request.urlParams, host);
-        printUrlLog(request.urlSuffix, request.urlParams, host);
+        printPostRequestLog(request, host);
+        printUrlLog(request, host);
 
         //装配Request
         okhttp3.Request okRequest;
@@ -859,8 +859,8 @@ public class MultiHostOkHttpClient {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
-        printGetRequestLog(request.urlSuffix, request.urlParams, host);
-        printUrlLog(request.urlSuffix, request.urlParams, host);
+        printGetRequestLog(request, host);
+        printUrlLog(request, host);
 
         //装配Request
         okhttp3.Request okRequest;
@@ -922,8 +922,8 @@ public class MultiHostOkHttpClient {
             //获取远端
             LoadBalancedHostManager.Host host = fetchHost();
 
-            printPostRequestLog(request.urlSuffix, request.body, request.urlParams, host);
-            printUrlLog(request.urlSuffix, request.urlParams, host);
+            printPostRequestLog(request, host);
+            printUrlLog(request, host);
 
             //装配Request
             okhttp3.Request okRequest;
@@ -955,8 +955,8 @@ public class MultiHostOkHttpClient {
             //获取远端
             LoadBalancedHostManager.Host host = fetchHost();
 
-            printGetRequestLog(request.urlSuffix, request.urlParams, host);
-            printUrlLog(request.urlSuffix, request.urlParams, host);
+            printGetRequestLog(request, host);
+            printUrlLog(request, host);
 
             //装配Request
             okhttp3.Request okRequest;
@@ -1065,14 +1065,25 @@ public class MultiHostOkHttpClient {
         return client;
     }
 
-    private void printPostRequestLog(String urlSuffix, byte[] body, Map<String, Object> params, LoadBalancedHostManager.Host host) {
+    private void printPostRequestLog(Request request, LoadBalancedHostManager.Host host) {
         if (settings.verboseLog && logger.isDebugEnabled()) {
             if (CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
-                logger.debug("POST: url:" + host.getUrl() + ", suffix:" + urlSuffix + "urlParams:" + params + ", body:" + ByteUtils.bytesToHex(body));
+                String bodyLog;
+                if (request.body != null) {
+                    bodyLog = ", body:" + ByteUtils.bytesToHex(request.body);
+                } else if (request.formBody != null) {
+                    bodyLog = ", formBody:" + request.formBody;
+                } else if (request.beanBody != null) {
+                    bodyLog = ", beanBody:" + request.beanBody;
+                } else {
+                    bodyLog = ", body: null";
+                }
+                logger.debug("POST: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + "urlParams:" + request.urlParams + bodyLog);
             }
-            if (CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)) {
+            if (CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY) &&
+                    request.body != null) {
                 try {
-                    logger.debug("POST: string-body:" + new String(body, settings.encode));
+                    logger.debug("POST: string-body:" + new String(request.body, settings.encode));
                 } catch (Exception e) {
                     logger.warn("Error while printing string body", e);
                 }
@@ -1080,19 +1091,19 @@ public class MultiHostOkHttpClient {
         }
     }
 
-    private void printGetRequestLog(String urlSuffix, Map<String, Object> params, LoadBalancedHostManager.Host host) {
+    private void printGetRequestLog(Request request, LoadBalancedHostManager.Host host) {
         if (settings.verboseLog && logger.isDebugEnabled() && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
-            logger.debug("GET: url:" + host.getUrl() + ", suffix:" + urlSuffix + ", urlParams:" + params);
+            logger.debug("GET: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams);
         }
     }
 
-    private void printUrlLog(String urlSuffix, Map<String, Object> params, LoadBalancedHostManager.Host host) {
+    private void printUrlLog(Request request, LoadBalancedHostManager.Host host) {
         if (settings.verboseLog && logger.isDebugEnabled()
                 && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RAW_URL)
-                && params != null && params.size() > 0) {
-            StringBuilder stringBuilder = new StringBuilder("raw-url:" + host.getUrl() + urlSuffix + "?");
+                && request.urlParams != null && request.urlParams.size() > 0) {
+            StringBuilder stringBuilder = new StringBuilder("raw-url:" + host.getUrl() + request.urlSuffix + "?");
             int i = 0;
-            for (Map.Entry<String, Object> entry : params.entrySet()) {
+            for (Map.Entry<String, Object> entry : request.urlParams.entrySet()) {
                 if (i++ > 0) {
                     stringBuilder.append("&");
                 }
