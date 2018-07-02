@@ -626,9 +626,19 @@ public class MultiHostOkHttpClient {
                         return;
                     }
                     //报文体
-                    callback.onSucceed(response.body());
-                    //自动关闭
-                    if (request.autoClose) {
+                    try {
+                        callback.onSucceed(response.body());
+                        //自动关闭
+                        if (request.autoClose) {
+                            try {
+                                response.close();
+                            } catch (Exception ignore) {
+                            }
+                        }
+                    } catch (Exception e) {
+                        //处理onSucceed
+                        callback.errorOnSucceedProcessing(e);
+                        //强制关闭
                         try {
                             response.close();
                         } catch (Exception ignore) {
@@ -932,7 +942,7 @@ public class MultiHostOkHttpClient {
          * 注意:处理完毕后必须关闭ResponseBody(调用close())!!!
          * @param responseBody 响应报文体, 注意:处理完毕后必须关闭ResponseBody(调用close())!!!
          */
-        protected abstract void onSucceed(ResponseBody responseBody);
+        protected abstract void onSucceed(ResponseBody responseBody) throws Exception;
 
         /**
          * 请求前发生异常
@@ -945,6 +955,13 @@ public class MultiHostOkHttpClient {
          * @param e {@link HttpRejectException}:后端Http拒绝(返回码不为200), {@link IOException}:通讯异常
          */
         protected abstract void onErrorAfterSend(Exception e);
+
+        /**
+         * 执行回调方法onSucceed时如果抛出异常, 会回调该方法处理异常, 默认转交onErrorAfterSend方法处理
+         */
+        protected void errorOnSucceedProcessing(Exception e){
+            onErrorAfterSend(e);
+        }
 
         void setSettings(Settings settings) {
             //do nothing
