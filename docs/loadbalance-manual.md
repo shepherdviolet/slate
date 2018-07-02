@@ -13,7 +13,7 @@
 
 //依赖
 dependencies {
-    compile 'com.github.shepherdviolet:slate-common:9.7'
+    compile 'com.github.shepherdviolet:slate-common:9.8'
 }
 ```
 
@@ -21,7 +21,7 @@ dependencies {
 
 ```gradle
 dependencies {
-    compile ('com.github.shepherdviolet:slate-common:9.7') {
+    compile ('com.github.shepherdviolet:slate-common:9.8') {
         transitive = false
     }
     compile ('com.github.shepherdviolet:thistle:9.7') {
@@ -38,7 +38,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.7</version>
+        <version>9.8</version>
     </dependency>
 ```
 
@@ -48,7 +48,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.7</version>
+        <version>9.8</version>
         <exclusions>
              <exclusion>
                  <groupId>*</groupId>
@@ -102,7 +102,7 @@ dependencies {
     
     <!-- HTTP请求客户端 -->
     <!-- 调用该实例发送请求 -->
-    <bean id="loadBalancedOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.LoadBalancedOkHttpClient">
+    <bean id="multiHostOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
         <property name="hostManager" ref="loadBalancedHostManager"/>
         <property name="maxThreads" ref="200"/>
         <property name="maxThreadsPerHost" ref="200"/>
@@ -152,8 +152,8 @@ dependencies {
      * 调用该实例发送请求
      */ 
     @Bean
-    public LoadBalancedOkHttpClient loadBalancedOkHttpClient(LoadBalancedHostManager loadBalancedHostManager) {
-        return new LoadBalancedOkHttpClient()
+    public MultiHostOkHttpClient loadBalancedOkHttpClient(LoadBalancedHostManager loadBalancedHostManager) {
+        return new MultiHostOkHttpClient()
                 .setHostManager(loadBalancedHostManager)
                 .setMaxThreads(200)
                 .setMaxThreadsPerHost(200)
@@ -162,146 +162,167 @@ dependencies {
                 .setWriteTimeout(10000L)
                 .setReadTimeout(10000L)
                 .setVerboseLog(true)
-                .setVerboseLogConfig(LoadBalancedOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|LoadBalancedOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY);
+                .setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY);
     }
     
 ```
 
-# 调用示例
+# 调用
 
-* 一般情况下, 需要根据实际情况, 对LoadBalancedOkHttpClient做再封装, 实现报文转换, 异常统一处理等
-* `使用syncGetForInputStream()/syncGet()/syncPostForInputStream()/syncPost()时, 处理完毕后务必关闭InputStream或ResponseBody!!!`
-* `使用asyncGetForInputStream()/asyncGet()/asyncPostForInputStream()/asyncPost()时, 回调方法onSucceed()处理完毕后, 务必关闭InputStream或ResponseBody!!!`
+* 一般情况下, 需要根据实际情况, 对MultiHostOkHttpClient做再封装, 实现报文转换, 异常统一处理等
+
+### POST
+
+* 注入客户端
 
 ```gradle
-
     @Autowired
-    private LoadBalancedOkHttpClient client;
-    
-    public void post1(){
-        try {
-            /*
-             * 同步POST请求, 响应报文体为byte[]类型
-             *
-             * 实际请求地址 = host + urlSuffix
-             * 例如:
-             * hosts为http://127.0.0.1:8081,http://127.0.0.1:8082
-             * urlSuffix为/post/json
-             * 则实际请求地址为http://127.0.0.1:8081/post/json或http://127.0.0.1:8082/post/json
-             *
-             * 下面的示例为:
-             * 向http://127.0.0.1:8081/post/json?traceId=1234567890或http://127.0.0.1:8082/post/json?traceId=1234567890
-             * 发送POST请求, 报文体为"hello"
-             */
-            //URL参数
-            Map<String, Object> urlParams = new HashMap<>(1);
-            urlParams.put("traceId", "1234567890");
-            //发送请求
-            byte[] response = client.syncPostForBytes("/post/json", "hello".getBytes("utf-8"), urlParams);
-            //响应报文可能为空
-            logger.debug("response:" + (response != null ? new String(response, "UTF-8") : "null"));
-        } catch (NoHostException e) {
-            //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-        } catch (RequestBuildException e) {
-            //在网络请求未发送前抛出的异常
-        } catch (IOException e) {
-            //网络异常
-        } catch (HttpRejectException e) {
-            //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-            //获得拒绝码 e.getResponseCode()
-            //获得拒绝信息 e.getResponseMessage()
-        }
-    }
-    
-    public void post2(){
-        InputStream inputStream = null;
-        try {
-            /*
-             * 同步请求, 响应报文体为InputStream类型
-             *
-             * 实际请求地址 = host + urlSuffix
-             * 例如:
-             * hosts为http://127.0.0.1:8081,http://127.0.0.1:8082
-             * urlSuffix为/post/json
-             * 则实际请求地址为http://127.0.0.1:8081/post/json或http://127.0.0.1:8082/post/json
-             *
-             * 下面的示例为:
-             * 向http://127.0.0.1:8081/post/json?traceId=1234567890或http://127.0.0.1:8082/post/json?traceId=1234567890
-             * 发送POST请求, 报文体为"hello"
-             */
-            //URL参数
-            Map<String, Object> urlParams = new HashMap<>(1);
-            urlParams.put("traceId", "1234567890");
-            //发送请求
-            inputStream = client.syncPostForInputStream("/post/json", "hello".getBytes("utf-8"), urlParams);
-            
-            //TODO 处理输入流
-            
-        } catch (NoHostException e) {
-            //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-        } catch (RequestBuildException e) {
-            //在网络请求未发送前抛出的异常
-        } catch (IOException e) {
-            //网络异常
-        } catch (HttpRejectException e) {
-            //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-            //获得拒绝码 e.getResponseCode()
-            //获得拒绝信息 e.getResponseMessage()
-        } finally {
-            //关闭流!
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (Exception ignore){
-                }
-            }
-        }
-    }
-    
-    public void post3(){
-        ResponseBody responseBody = null;
-        try {
-            /*
-             * 同步请求, 响应报文体为ResponseBody类型
-             *
-             * 实际请求地址 = host + urlSuffix
-             * 例如:
-             * hosts为http://127.0.0.1:8081,http://127.0.0.1:8082
-             * urlSuffix为/post/json
-             * 则实际请求地址为http://127.0.0.1:8081/post/json或http://127.0.0.1:8082/post/json
-             *
-             * 下面的示例为:
-             * 向http://127.0.0.1:8081/post/json?traceId=1234567890或http://127.0.0.1:8082/post/json?traceId=1234567890
-             * 发送POST请求, 报文体为"hello"
-             */
-            //URL参数
-            Map<String, Object> urlParams = new HashMap<>(1);
-            urlParams.put("traceId", "1234567890");
-            //发送请求
-            responseBody = client.syncPost("/post/json", "hello".getBytes("utf-8"), urlParams);
-        
-            //TODO 处理responseBody
-        
-        } catch (NoHostException e) {
-            //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-        } catch (RequestBuildException e) {
-            //在网络请求未发送前抛出的异常
-        } catch (IOException e) {
-            //网络异常
-        } catch (HttpRejectException e) {
-            //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-            //获得拒绝码 e.getResponseCode()
-            //获得拒绝信息 e.getResponseMessage()
-        } finally {
-            if (responseBody != null) {
-                try {
-                    responseBody.close();
-                } catch (Exception ignore){
-                }
-            }
-        }
-    }
+    private MultiHostOkHttpClient client;
+```
+* 同步POST:返回byte[]类型的响应
+ 
+ ```gradle
+  try {
+      byte[] response = client.post("/post/json")
+              .urlParam("traceId", "000000001")
+              .body("hello world".getBytes())
+              .sendForBytes();
+  } catch (NoHostException e) {
+      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+  } catch (RequestBuildException e) {
+      //在网络请求未发送前抛出的异常
+  } catch (IOException e) {
+      //网络异常
+  } catch (HttpRejectException e) {
+      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+      //获得拒绝码 e.getResponseCode()
+      //获得拒绝信息 e.getResponseMessage()
+  }
+ ```
 
+* 同步POST:返回InputStream类型的响应
+* 注意:InputStream需要手动关闭(close)
+
+ ```gradle
+ try (InputStream inputStream = client.post("/post/json")
+         .body("hello world".getBytes())
+         .sendForInputStream()) {
+
+     inputStream......
+
+ } catch (NoHostException e) {
+     //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+ } catch (RequestBuildException e) {
+     //在网络请求未发送前抛出的异常
+ } catch (IOException e) {
+     //网络异常
+ } catch (HttpRejectException e) {
+     //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     //获得拒绝码 e.getResponseCode()
+     //获得拒绝信息 e.getResponseMessage()
+ }
+```
+
+* 同步POST:返回ResponseBody类型的响应
+* 注意:ResponseBody需要手动关闭(close)
+
+ ```gradle
+ try (ResponseBody responseBody = client.post("/post/json")
+         .body("hello world".getBytes())
+         .send()) {
+
+     String response = responseBody.string();
+
+ } catch (NoHostException e) {
+     //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+ } catch (RequestBuildException e) {
+     //在网络请求未发送前抛出的异常
+ } catch (IOException e) {
+     //网络异常
+ } catch (HttpRejectException e) {
+     //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     //获得拒绝码 e.getResponseCode()
+     //获得拒绝信息 e.getResponseMessage()
+ }
+```
+
+* 异步POST:返回byte[]类型的响应
+
+ ```gradle
+ //返回byte[]类型的响应
+ client.post("/post/json")
+         .urlParam("traceId", "000000001")
+         .body("hello world".getBytes())
+         .enqueue(new MultiHostOkHttpClient.BytesCallback() {
+             public void onSucceed(byte[] body) {
+                 ......
+             }
+             protected void onErrorBeforeSend(Exception e) {
+                 //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+                 //RequestBuildException: 在网络请求未发送前抛出的异常
+             }
+             protected void onErrorAfterSend(Exception e) {
+                 //IOException: 网络异常
+                 //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+                 //获得拒绝码 e.getResponseCode()
+                 //获得拒绝信息 e.getResponseMessage()
+                 //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+             }
+         });
+```
+
+* 异步POST:返回InputStream类型的响应
+* 当autoClose=true时, onSucceed方法回调结束后, 输入流会被自动关闭, 无需手动调用close方法
+* 当autoClose=false时, onSucceed方法回调结束后, 输入流不会自动关闭, 需要手动调用InputStream.close()关闭, 注意!!!
+
+ ```gradle
+ client.post("/post/json")
+         .urlParam("traceId", "000000001")
+         .body("hello world".getBytes())
+         //.autoClose(false)//默认为true
+         .enqueue(new MultiHostOkHttpClient.InputStreamCallback() {
+             public void onSucceed(InputStream inputStream) throws Exception {
+                 ......
+             }
+             protected void onErrorBeforeSend(Exception e) {
+                 //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+                 //RequestBuildException: 在网络请求未发送前抛出的异常
+             }
+             protected void onErrorAfterSend(Exception e) {
+                 //IOException: 网络异常
+                 //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+                 //获得拒绝码 e.getResponseCode()
+                 //获得拒绝信息 e.getResponseMessage()
+                 //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+             }
+         });
+ ```
+
+* 异步POST:返回ResponseBody类型的响应
+* 当autoClose=true时, onSucceed方法回调结束后, ResponseBody会被自动关闭, 无需手动调用close方法
+* 当autoClose=false时, onSucceed方法回调结束后, ResponseBody不会自动关闭, 需要手动调用ResponseBody.close()关闭, 注意!!!
+
+ ```gradle
+ client.post("/post/json")
+         .urlParam("traceId", "000000001")
+         .body("hello world".getBytes())
+         //.autoClose(false)//默认为true
+         .enqueue(new MultiHostOkHttpClient.ResponseBodyCallback() {
+             public void onSucceed(ResponseBody responseBody) throws Exception {
+                 ......
+             }
+             protected void onErrorBeforeSend(Exception e) {
+                 //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+                 //RequestBuildException: 在网络请求未发送前抛出的异常
+             }
+             protected void onErrorAfterSend(Exception e) {
+                 //IOException: 网络异常
+                 //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+                 //获得拒绝码 e.getResponseCode()
+                 //获得拒绝信息 e.getResponseMessage()
+                 //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+             }
+         });
 ```
 
 # 配置参数详解
@@ -343,7 +364,7 @@ dependencies {
 * 开启更多的日志输出
 * 默认:false
 
-### LoadBalancedOkHttpClient配置
+### MultiHostOkHttpClient配置
 
 ##### hostManager
 
