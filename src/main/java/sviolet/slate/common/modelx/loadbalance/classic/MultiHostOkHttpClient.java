@@ -152,11 +152,19 @@ public class MultiHostOkHttpClient {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * 创建新请求
+     * 创建POST请求
      * @param urlSuffix url后缀, 例如/user/add.json
      */
-    public Request request(String urlSuffix) {
-        return new Request(this, urlSuffix);
+    public Request post(String urlSuffix) {
+        return new Request(this, urlSuffix, true);
+    }
+
+    /**
+     * 创建GET请求
+     * @param urlSuffix url后缀, 例如/user/add.json
+     */
+    public Request get(String urlSuffix) {
+        return new Request(this, urlSuffix, false);
     }
 
     /**
@@ -177,25 +185,10 @@ public class MultiHostOkHttpClient {
         private String mediaType;
         private String encode;
 
-        private Request(MultiHostOkHttpClient client, String urlSuffix) {
+        private Request(MultiHostOkHttpClient client, String urlSuffix, boolean isPost) {
             this.clientReference = new WeakReference<>(client);
             this.urlSuffix = urlSuffix;
-        }
-
-        /**
-         * [配置]post请求(默认get)
-         */
-        public Request post(){
-            this.isPost = true;
-            return this;
-        }
-
-        /**
-         * [配置]get请求(默认get)
-         */
-        public Request get(){
-            this.isPost = false;
-            return this;
+            this.isPost = isPost;
         }
 
         /**
