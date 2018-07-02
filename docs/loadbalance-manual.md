@@ -127,12 +127,11 @@ dependencies {
      */
     @Bean
     public LoadBalancedHostManager loadBalancedHostManager() {
-        LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
-        hostManager.setHostArray(new String[]{
-            "http://127.0.0.1:8081",
-            "http://127.0.0.1:8082"
-        });
-        return hostManager;
+        return new LoadBalancedHostManager()
+                .setHostArray(new String[]{
+                    "http://127.0.0.1:8081",
+                    "http://127.0.0.1:8082"
+                });
     }
     
     /**
@@ -142,11 +141,10 @@ dependencies {
      */
     @Bean(destroyMethod = "close")
     public LoadBalancedInspectManager loadBalancedInspectManager(LoadBalancedHostManager loadBalancedHostManager) {
-        LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager();
-        inspectManager.setHostManager(loadBalancedHostManager);
-        inspectManager.setInspectInterval(5000L);
-        //inspectManager.setInspector(new TelnetLoadBalanceInspector());
-        return inspectManager;
+        return new LoadBalancedInspectManager()
+                //.setInspector(new TelnetLoadBalanceInspector())  
+                .setHostManager(loadBalancedHostManager)
+                .setInspectInterval(5000L);        
     }
     
     /**
@@ -155,17 +153,16 @@ dependencies {
      */ 
     @Bean
     public LoadBalancedOkHttpClient loadBalancedOkHttpClient(LoadBalancedHostManager loadBalancedHostManager) {
-        LoadBalancedOkHttpClient client = new LoadBalancedOkHttpClient();
-        client.setHostManager(loadBalancedHostManager);
-        client.setMaxThreads(200);
-        client.setMaxThreadsPerHost(200);
-        client.setPassiveBlockDuration(3000L);
-        client.setConnectTimeout(3000L);
-        client.setWriteTimeout(10000L);
-        client.setReadTimeout(10000L);
-        client.setVerboseLog(true);
-        client.setVerboseLogConfig(LoadBalancedOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|LoadBalancedOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY);
-        return client;
+        return new LoadBalancedOkHttpClient()
+                .setHostManager(loadBalancedHostManager)
+                .setMaxThreads(200)
+                .setMaxThreadsPerHost(200)
+                .setPassiveBlockDuration(3000L)
+                .setConnectTimeout(3000L)
+                .setWriteTimeout(10000L)
+                .setReadTimeout(10000L)
+                .setVerboseLog(true)
+                .setVerboseLogConfig(LoadBalancedOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|LoadBalancedOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY);
     }
     
 ```
