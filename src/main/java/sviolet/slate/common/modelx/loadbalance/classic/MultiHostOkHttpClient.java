@@ -1078,7 +1078,7 @@ public class MultiHostOkHttpClient {
                 } else {
                     bodyLog = ", body: null";
                 }
-                logger.debug("POST: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + "urlParams:" + request.urlParams + bodyLog);
+                logger.debug("POST: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams + bodyLog);
             }
             if (CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY) &&
                     request.body != null) {
