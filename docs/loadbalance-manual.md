@@ -9,7 +9,7 @@
 
 * gradle
 
-```gradle
+```text
 
 //依赖
 dependencies {
@@ -19,7 +19,7 @@ dependencies {
 
 * gradle(最少依赖)
 
-```gradle
+```text
 dependencies {
     compile ('com.github.shepherdviolet:slate-common:9.8') {
         transitive = false
@@ -84,7 +84,7 @@ dependencies {
 ### Spring(XML)
 * `LoadBalancedInspectManager需要配置destroy-method="close"`
 
-```gradle
+```text
 
     <!-- 后端管理器 -->
     <!-- 配置管理后端地址和状态 -->
@@ -119,7 +119,7 @@ dependencies {
 ### Spring(注解)
 * `LoadBalancedInspectManager需要配置@Bean(destroyMethod = "close")`
 
-```gradle
+```text
 
     /**
      * 后端管理器
@@ -152,7 +152,7 @@ dependencies {
      * 调用该实例发送请求
      */ 
     @Bean
-    public MultiHostOkHttpClient loadBalancedOkHttpClient(LoadBalancedHostManager loadBalancedHostManager) {
+    public MultiHostOkHttpClient multiHostOkHttpClient(LoadBalancedHostManager loadBalancedHostManager) {
         return new MultiHostOkHttpClient()
                 .setHostManager(loadBalancedHostManager)
                 .setMaxThreads(200)
@@ -169,19 +169,28 @@ dependencies {
 
 # 调用
 
-* 一般情况下, 需要根据实际情况, 对MultiHostOkHttpClient做再封装, 实现报文转换, 异常统一处理等
+* 关于URL地址
 
-### POST
+> 以本文档中的代码为例 <br>
+> http://127.0.0.1:8081 和 http://127.0.0.1:8082 是两台应用服务器, 我们要向他们请求数据, 请求的URL后缀为 /user/update.json <br>
+> 配置LoadBalancedHostManager的hosts参数为 http://127.0.0.1:8081,http://127.0.0.1:8082 <br>
+> 调用客户端发送请求 multiHostOkHttpClient.get("/user/update.json").send() <br>
+> 程序会自动选择一个应用服务器, 然后将应用服务器的地址与URL后缀拼接 <br>
+> 最终的请求地址为 http://127.0.0.1:8081/user/update.json 或 http://127.0.0.1:8082/user/update.json <br>
 
 * 注入客户端
+* 一般情况下, 需要根据实际情况, 对MultiHostOkHttpClient做再封装, 实现报文转换, 异常统一处理等
 
-```gradle
+```text
     @Autowired
     private MultiHostOkHttpClient client;
 ```
+
+### POST
+
 * 同步POST:返回byte[]类型的响应
  
- ```gradle
+ ```text
   try {
       byte[] response = client.post("/post/json")
               .urlParam("traceId", "000000001")
@@ -206,7 +215,7 @@ dependencies {
 * 同步POST:返回InputStream类型的响应
 * 注意:InputStream需要手动关闭(close)
 
- ```gradle
+ ```text
  try (InputStream inputStream = client.post("/post/json")
          .body("hello world".getBytes())
          //.httpHeader("Accept", "application/json;charset=utf-8")
@@ -232,7 +241,7 @@ dependencies {
 * 同步POST:返回ResponseBody类型的响应
 * 注意:ResponseBody需要手动关闭(close)
 
- ```gradle
+ ```text
  try (ResponseBody responseBody = client.post("/post/json")
          .body("hello world".getBytes())
          //.httpHeader("Accept", "application/json;charset=utf-8")
@@ -257,7 +266,7 @@ dependencies {
 
 * 异步POST:返回byte[]类型的响应
 
- ```gradle
+ ```text
  //返回byte[]类型的响应
  client.post("/post/json")
          .urlParam("traceId", "000000001")
@@ -287,7 +296,7 @@ dependencies {
 * 当autoClose=true时, onSucceed方法回调结束后, 输入流会被自动关闭, 无需手动调用close方法
 * 当autoClose=false时, onSucceed方法回调结束后, 输入流不会自动关闭, 需要手动调用InputStream.close()关闭, 注意!!!
 
- ```gradle
+ ```text
  client.post("/post/json")
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
@@ -317,7 +326,7 @@ dependencies {
 * 当autoClose=true时, onSucceed方法回调结束后, ResponseBody会被自动关闭, 无需手动调用close方法
 * 当autoClose=false时, onSucceed方法回调结束后, ResponseBody不会自动关闭, 需要手动调用ResponseBody.close()关闭, 注意!!!
 
- ```gradle
+ ```text
  client.post("/post/json")
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
@@ -345,15 +354,9 @@ dependencies {
 
 ### GET
 
-* 注入客户端
-
-```gradle
-    @Autowired
-    private MultiHostOkHttpClient client;
-```
 * 同步GET:返回byte[]类型的响应
  
- ```gradle
+ ```text
   try {
       byte[] response = client.get("/get/json")
               .urlParam("name", "000000001")
@@ -378,7 +381,7 @@ dependencies {
 * 同步GET:返回InputStream类型的响应
 * 注意:InputStream需要手动关闭(close)
 
- ```gradle
+ ```text
  try (InputStream inputStream = client.get("/get/json")
          .urlParam("name", "000000001")
          .urlParam("key", "000000001")
@@ -405,7 +408,7 @@ dependencies {
 * 同步GET:返回ResponseBody类型的响应
 * 注意:ResponseBody需要手动关闭(close)
 
- ```gradle
+ ```text
  try (ResponseBody responseBody = client.get("/get/json")
          .urlParam("name", "000000001")
          .urlParam("key", "000000001")
@@ -431,7 +434,7 @@ dependencies {
 
 * 异步GET:返回byte[]类型的响应
 
- ```gradle
+ ```text
  //返回byte[]类型的响应
  client.get("/get/json")
          .urlParam("name", "000000001")
@@ -461,7 +464,7 @@ dependencies {
 * 当autoClose=true时, onSucceed方法回调结束后, 输入流会被自动关闭, 无需手动调用close方法
 * 当autoClose=false时, onSucceed方法回调结束后, 输入流不会自动关闭, 需要手动调用InputStream.close()关闭, 注意!!!
 
- ```gradle
+ ```text
  client.get("/get/json")
          .urlParam("name", "000000001")
          .urlParam("key", "000000001")
@@ -491,7 +494,7 @@ dependencies {
 * 当autoClose=true时, onSucceed方法回调结束后, ResponseBody会被自动关闭, 无需手动调用close方法
 * 当autoClose=false时, onSucceed方法回调结束后, ResponseBody不会自动关闭, 需要手动调用ResponseBody.close()关闭, 注意!!!
 
- ```gradle
+ ```text
  client.get("/get/json")
          .urlParam("name", "000000001")
          .urlParam("key", "000000001")
@@ -627,7 +630,7 @@ dependencies {
 * 在verboseLog=true时有效
 * 默认:全输出
 
-```gradle
+```text
 1   (0x00000001) -> 打印: URL后缀 / URL参数(Map) / 请求报文体(Hex)
 16  (0x00000010) -> 打印: 请求报文体(String)
 256 (0x00000100) -> 打印: 未编码的完整URL(包括参数), http://host:port/app?key1=value1格式
