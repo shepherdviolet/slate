@@ -36,7 +36,7 @@ import java.util.Map;
  *
  * <p>Java:</p>
  *
- * <pre>{@code
+ * <pre>
  *  LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
  *  hostManager.setHostArray(new String[]{
  *      "http://127.0.0.1:8080",
@@ -54,11 +54,11 @@ import java.util.Map;
  *  client.setPassiveBlockDuration(3000L);
  *  client.setConnectTimeout(3000);
  *  client.setReadTimeout(10000);
- * }</pre>
+ * </pre>
  *
  * <p>Spring MVC: 注册了SlateServletContextListener的场合</p>
  *
- *  * <pre>{@code
+ *  <pre>
  *
  *  <bean id="loadBalancedHostManager" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager">
  *      <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
@@ -76,9 +76,11 @@ import java.util.Map;
  *      <property name="readTimeout" value="10000"/>
  *  </bean>
  *
+ *  </pre>
+ *
  * <p>Spring MVC: 没注册SlateServletContextListener的场合, 需要设置destroy-method="close"</p>
  *
- * <pre>{@code
+ * <pre>
  *
  *  <bean id="loadBalancedHostManager" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager">
  *      <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
@@ -97,7 +99,7 @@ import java.util.Map;
  *      <property name="readTimeout" value="10000"/>
  *  </bean>
  *
- *  }</pre>
+ *  </pre>
  *
  * @author S.Violet
  * @deprecated Use {@link MultiHostOkHttpClient} instead
