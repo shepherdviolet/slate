@@ -980,10 +980,10 @@ public class MultiHostOkHttpClient {
          * 请求成功
          * @param body 响应报文体, 可能为null
          */
-        public abstract void onSucceed(byte[] body);
+        public abstract void onSucceed(byte[] body) throws Exception;
 
         @Override
-        public final void onSucceed(ResponseBody responseBody) {
+        public final void onSucceed(ResponseBody responseBody) throws Exception {
             byte[] bytes = null;
             try {
                 if (responseBody != null) {
@@ -1027,10 +1027,10 @@ public class MultiHostOkHttpClient {
          * 请求成功
          * @param inputStream 报文体输入流, 可能为null, 该输入流会被自动关闭
          */
-        public abstract void onSucceed(InputStream inputStream);
+        public abstract void onSucceed(InputStream inputStream) throws Exception;
 
         @Override
-        public final void onSucceed(ResponseBody responseBody) {
+        public final void onSucceed(ResponseBody responseBody) throws Exception {
             //返回空
             if (responseBody == null) {
                 onSucceed((InputStream) null);
