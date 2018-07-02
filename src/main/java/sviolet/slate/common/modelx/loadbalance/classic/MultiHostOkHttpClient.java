@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.ParameterizedType;
 import java.net.*;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -154,7 +155,7 @@ public class MultiHostOkHttpClient {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * <p>创建POST请求</p>
+     * <p>创建POST请求, 请求创建过程非线程安全, 请勿多线程操作同一个请求</p>
      *
      * <p>同步请求:</p>
      *
@@ -302,7 +303,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
-     * <p>创建GET请求</p>
+     * <p>创建GET请求, 请求创建过程非线程安全, 请勿多线程操作同一个请求</p>
      *
      * <p>同步请求:</p>
      *
@@ -452,23 +453,31 @@ public class MultiHostOkHttpClient {
     }
 
     /**
-     * 请求
+     * 请求(该对象非线程安全, 请勿多线程操作同一个对象)
      */
     public static class Request {
 
+        //status
         private WeakReference<MultiHostOkHttpClient> clientReference;
         private boolean isSend = false;
 
+        //basic
         private String urlSuffix;
         private boolean isPost = false;
         private Map<String, String> headers;
         private Map<String, Object> urlParams;
-        private byte[] body;
 
+        //body
+        private byte[] body;
+        private Map<String, Object> formBody;
+        private Object beanBody;
+
+        //senior
         private boolean autoClose = true;
         private long passiveBlockDuration = -1;
         private String mediaType;
         private String encode;
+        private DataConverter dataConverter;
 
         private Request(MultiHostOkHttpClient client, String urlSuffix, boolean isPost) {
             this.clientReference = new WeakReference<>(client);
@@ -496,10 +505,42 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * <p>[配置]POST请求专用: 报文体数据</p>
+         * <p>[配置]POST请求专用: 请求报文体, byte[]类型</p>
          */
         public Request body(byte[] body) {
+            if (!isPost) {
+                throw new IllegalArgumentException("You can not set body in GET request");
+            }
             this.body = body;
+            this.formBody = null;
+            this.beanBody = null;
+            return this;
+        }
+
+        /**
+         * <p>[配置]POST请求专用: 请求报文体, 表单</p>
+         */
+        public Request formBody(Map<String, Object> formBody) {
+            if (!isPost) {
+                throw new IllegalArgumentException("You can not set body in GET request");
+            }
+            this.body = null;
+            this.formBody = formBody;
+            this.beanBody = null;
+            return this;
+        }
+
+        /**
+         * <p>[配置]POST请求专用: 请求报文体, JavaBean <br>
+         * 注意: 必须配置DataConverter, 否则发送时会报错</p>
+         */
+        public Request beanBody(Object beanBody) {
+            if (!isPost) {
+                throw new IllegalArgumentException("You can not set body in GET request");
+            }
+            this.body = null;
+            this.formBody = null;
+            this.beanBody = beanBody;
             return this;
         }
 
@@ -552,6 +593,14 @@ public class MultiHostOkHttpClient {
         }
 
         /**
+         * <p>[配置]数据转换器, 用于将beanBody设置的JavaBean转换为byte[], 和将返回报文byte[]转换为JavaBean</p>
+         */
+        public Request dataConverter(DataConverter dataConverter) {
+            this.dataConverter = dataConverter;
+            return this;
+        }
+
+        /**
          * <p>[配置]异步请求专用: 配置响应实例(或输入流)是否在回调方法onSucceed结束后自动关闭, 默认true</p>
          *
          * <p>注意:同步请求返回的ResponseBode/InputStream是必须手动关闭的!!!</p>
@@ -566,6 +615,31 @@ public class MultiHostOkHttpClient {
         public Request autoClose(boolean autoClose){
             this.autoClose = autoClose;
             return this;
+        }
+
+
+        /**
+         * <p>[请求发送]同步请求并获取byte[]返回,
+         * 如果响应码不为2XX, 会抛出HttpRejectException异常.<br>
+         * 注意: 必须配置DataConverter, 否则会报错</p>
+         *
+         * @return 响应, 可能为null
+         * @throws NoHostException       当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
+         * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+         * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
+         * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
+         */
+        public <T> T sendForBean(Class<T> type) throws NoHostException, RequestBuildException, HttpRejectException, IOException {
+            DataConverter dataConverter = this.dataConverter;
+            if (dataConverter == null) {
+                throw new RequestConvertException("No DataConverter set, you must set dataConverter before sendForBean()");
+            }
+            byte[] responseData = sendForBytes();
+            try {
+                return dataConverter.convert(responseData, type);
+            } catch (Exception e) {
+                throw new ResponseConvertException("Error while convert byte[] to bean", e);
+            }
         }
 
         /**
@@ -842,7 +916,7 @@ public class MultiHostOkHttpClient {
 
     private void asyncPost(Request request, ResponsePackageCallback callback) {
 
-        callback.setSettings(settings);
+        callback.setContext(settings, request);
 
         try {
             //获取远端
@@ -875,7 +949,7 @@ public class MultiHostOkHttpClient {
 
     private void asyncGet(Request request, ResponsePackageCallback callback) {
 
-        callback.setSettings(settings);
+        callback.setContext(settings, request);
 
         try {
             //获取远端
@@ -1089,24 +1163,58 @@ public class MultiHostOkHttpClient {
             throw new RequestBuildException("Invalid url:" + url + request.urlSuffix);
         }
 
+        String encode = request.encode != null ? request.encode : settings.encode;
+
         if (request.urlParams != null){
             HttpUrl.Builder httpUrlBuilder = httpUrl.newBuilder();
-            String encode = request.encode != null ? request.encode : settings.encode;
             for (Map.Entry<String, Object> param : request.urlParams.entrySet()) {
                 try {
                     httpUrlBuilder.addEncodedQueryParameter(param.getKey(),
                             URLEncoder.encode(param.getValue() != null ? param.getValue().toString() : "", encode));
                 } catch (UnsupportedEncodingException e) {
-                    throw new RequestBuildException("Error while encode to url format", e);
+                    throw new RequestBuildException("Error while encode urlParams to url format", e);
                 }
             }
             httpUrl = httpUrlBuilder.build();
         }
 
+        RequestBody requestBody;
+        if (request.body != null) {
+            //bytes
+            requestBody = RequestBody.create(MediaType.parse(request.mediaType != null ? request.mediaType : settings.mediaType), request.body);
+        } else if (request.formBody != null) {
+            //form
+            FormBody.Builder formBuilder = new FormBody.Builder();
+            for (Map.Entry<String, Object> param : request.formBody.entrySet()) {
+                try {
+                    formBuilder.addEncoded(param.getKey(),
+                            URLEncoder.encode(param.getValue() != null ? param.getValue().toString() : "", encode));
+                } catch (UnsupportedEncodingException e) {
+                    throw new RequestBuildException("Error while encode formBody to url format", e);
+                }
+            }
+            requestBody = formBuilder.build();
+        } else if (request.beanBody != null) {
+            //bean
+            DataConverter dataConverter = request.dataConverter;
+            if (dataConverter == null) {
+                throw new RequestConvertException("No DataConverter set, you must set dataConverter before send/enqueue a beanBody");
+            }
+            byte[] requestBodyBytes;
+            try {
+                requestBodyBytes = dataConverter.convert(request.beanBody);
+            } catch (Exception e) {
+                throw new RequestConvertException("Error while convert bean to byte[]", e);
+            }
+            requestBody = RequestBody.create(MediaType.parse(request.mediaType != null ? request.mediaType : settings.mediaType), requestBodyBytes);
+        } else {
+            //null
+            requestBody = RequestBody.create(MediaType.parse(request.mediaType != null ? request.mediaType : settings.mediaType), new byte[0]);
+        }
+
         okhttp3.Request.Builder builder = new okhttp3.Request.Builder()
                 .url(httpUrl)
-                .post(RequestBody.create(MediaType.parse(request.mediaType != null ? request.mediaType : settings.mediaType),
-                        request.body));
+                .post(requestBody);
 
         Map<String, String> headers = settings.headers;
         if (headers != null){
@@ -1141,9 +1249,10 @@ public class MultiHostOkHttpClient {
             throw new RequestBuildException("Invalid url:" + url + request.urlSuffix);
         }
 
+        String encode = request.encode != null ? request.encode : settings.encode;
+
         if (request.urlParams != null){
             HttpUrl.Builder httpUrlBuilder = httpUrl.newBuilder();
-            String encode = request.encode != null ? request.encode : settings.encode;
             for (Map.Entry<String, Object> param : request.urlParams.entrySet()) {
                 try {
                     httpUrlBuilder.addEncodedQueryParameter(param.getKey(),
@@ -1331,7 +1440,7 @@ public class MultiHostOkHttpClient {
             onErrorAfterSend(e);
         }
 
-        void setSettings(Settings settings) {
+        void setContext(Settings settings, Request request) {
             //do nothing
         }
 
@@ -1379,7 +1488,7 @@ public class MultiHostOkHttpClient {
         }
 
         @Override
-        final void setSettings(Settings settings) {
+        void setContext(Settings settings, Request request) {
             this.settings = settings;
         }
 
@@ -1430,8 +1539,43 @@ public class MultiHostOkHttpClient {
         }
 
         @Override
-        final void setSettings(Settings settings) {
+        void setContext(Settings settings, Request request) {
             this.settings = settings;
+        }
+
+    }
+
+    /**
+     * 请求回调(获得JavaBean响应体)
+     */
+    public static abstract class BeanCallback <T> extends BytesCallback {
+
+        private Request request;
+
+        /**
+         * <p>请求成功</p>
+         *
+         * <p>JavaBean的类型有BeanCallback的泛型决定</p>
+         *
+         * @param bean 响应, 可能为null
+         */
+        public abstract void onSucceed(T bean) throws Exception;
+
+        @Override
+        public final void onSucceed(byte[] body) throws Exception {
+            DataConverter dataConverter = request.dataConverter;
+            if (dataConverter == null) {
+                throw new ResponseConvertException("No DataConverter set, you must set dataConverter before enqueue a beanBody");
+            }
+            ParameterizedType parameterizedType = (ParameterizedType) this.getClass().getGenericSuperclass();
+            Class<T> type = (Class<T>) parameterizedType.getActualTypeArguments()[0];
+            onSucceed(dataConverter.convert(body, type));
+        }
+
+        @Override
+        void setContext(Settings settings, Request request) {
+            super.setContext(settings, request);
+            this.request = request;
         }
 
     }
