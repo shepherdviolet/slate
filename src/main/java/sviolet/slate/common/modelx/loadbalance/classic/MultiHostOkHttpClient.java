@@ -181,6 +181,7 @@ public class MultiHostOkHttpClient {
         private Map<String, Object> urlParams;
         private byte[] body;
 
+        private boolean autoClose = true;
         private long passiveBlockDuration = -1;
         private String mediaType;
         private String encode;
@@ -259,6 +260,18 @@ public class MultiHostOkHttpClient {
          */
         public Request setEncode(String encode) {
             this.encode = encode;
+            return this;
+        }
+
+        /**
+         * [配置]异步请求时有效(同步请求仍需手动关闭), 在回调方法onSucceed结束后自动关闭响应实例(输入流),
+         * 配置了该选项后, 无需再调用ResponseBody.close()或InputStream.close()方法关闭.
+         *
+         * true:启用自动关闭(默认)
+         * false:禁用自动关闭
+         */
+        public Request autoClose(boolean autoClose){
+            this.autoClose = autoClose;
             return this;
         }
 
@@ -422,6 +435,7 @@ public class MultiHostOkHttpClient {
             //返回二进制数据
             return responseBody.bytes();
         } finally {
+            //返回byte[]类型时自动关闭
             try {
                 responseBody.close();
             } catch (Throwable ignore) {
@@ -446,14 +460,6 @@ public class MultiHostOkHttpClient {
         return responseBody.byteStream();
     }
 
-    /**
-     * @param request 请求参数
-     * @return ResponseBody(可能为null), 注意:使用完必须关闭(ResponseBody.close())!!!
-     * @throws NoHostException       当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
-     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
-     * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
-     * @throws HttpRejectException   Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
-     */
     private ResponseBody syncPost(Request request) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
@@ -480,14 +486,6 @@ public class MultiHostOkHttpClient {
         return syncCall(host, okRequest, request);
     }
 
-    /**
-     * @param request 请求参数
-     * @return ResponseBody(可能为null), 注意:使用完必须关闭(ResponseBody.close())!!!
-     * @throws NoHostException 当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
-     * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
-     * @throws IOException 网络通讯异常(通常是网络请求发送中的异常)
-     * @throws HttpRejectException Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
-     */
     private ResponseBody syncGet(Request request) throws NoHostException, RequestBuildException, IOException, HttpRejectException {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
@@ -547,10 +545,6 @@ public class MultiHostOkHttpClient {
     // Async //////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * @param request 请求参数
-     * @param callback  回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponseBodyCallback}
-     */
     private void asyncPost(Request request, ResponseBodyCallback callback) {
 
         callback.setSettings(settings);
@@ -584,10 +578,6 @@ public class MultiHostOkHttpClient {
         }
     }
 
-    /**
-     * @param request 请求参数
-     * @param callback  回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponseBodyCallback}
-     */
     private void asyncGet(Request request, ResponseBodyCallback callback) {
 
         callback.setSettings(settings);
@@ -637,6 +627,13 @@ public class MultiHostOkHttpClient {
                     }
                     //报文体
                     callback.onSucceed(response.body());
+                    //自动关闭
+                    if (request.autoClose) {
+                        try {
+                            response.close();
+                        } catch (Exception ignore) {
+                        }
+                    }
                 }
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -870,6 +867,9 @@ public class MultiHostOkHttpClient {
         return builder.build();
     }
 
+    /**
+     * 判断该异常是否需要阻断后端, 返回true阻断
+     */
     protected boolean needBlock(Throwable t, Settings settings) {
         return t instanceof ConnectException ||
                 t instanceof SocketTimeoutException ||
@@ -877,6 +877,9 @@ public class MultiHostOkHttpClient {
                 (t instanceof HttpRejectException && settings.httpCodeNeedBlock.contains(((HttpRejectException) t).getResponseCode()));
     }
 
+    /**
+     * 判断HTTP请求是否成功, 返回true成功
+     */
     protected boolean isSucceed(Response response) {
         return response.isSuccessful();
     }
@@ -922,7 +925,7 @@ public class MultiHostOkHttpClient {
     /**
      * 请求回调
      */
-    public abstract class ResponseBodyCallback {
+    public static abstract class ResponseBodyCallback {
 
         /**
          * 请求成功
@@ -952,7 +955,7 @@ public class MultiHostOkHttpClient {
     /**
      * 请求回调(获得byte[]响应体)
      */
-    public abstract class BytesCallback extends ResponseBodyCallback {
+    public static abstract class BytesCallback extends ResponseBodyCallback {
 
         private Settings settings;
 
@@ -978,6 +981,7 @@ public class MultiHostOkHttpClient {
                 onErrorAfterSend(e);
                 return;
             } finally {
+                //byte[]类型返回时, 强制关闭(无论autoClose是什么配置)
                 if (responseBody != null){
                     try {
                         responseBody.close();
@@ -998,7 +1002,7 @@ public class MultiHostOkHttpClient {
     /**
      * 请求回调(获得InputStream响应体)
      */
-    public abstract class InputStreamCallback extends ResponseBodyCallback {
+    public static abstract class InputStreamCallback extends ResponseBodyCallback {
 
         private Settings settings;
 
@@ -1015,20 +1019,18 @@ public class MultiHostOkHttpClient {
                 onSucceed((InputStream) null);
                 return;
             }
-            try {
-                //限定读取长度
-                if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength) {
-                    onErrorAfterSend(new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength));
-                    return;
-                }
-                //返回二进制数据
-                onSucceed(responseBody.byteStream());
-            } finally {
+            //限定读取长度
+            if (settings.maxReadLength > 0 && responseBody.contentLength() > settings.maxReadLength) {
+                //长度超过限制时, 强制关闭(无论autoClose是什么配置)
                 try {
                     responseBody.close();
                 } catch (Throwable ignore) {
                 }
+                onErrorAfterSend(new IOException("Response contentLength is out of limit, contentLength:" + responseBody.contentLength() + ", limit:" + settings.maxReadLength));
+                return;
             }
+            //返回二进制数据
+            onSucceed(responseBody.byteStream());
         }
 
         @Override
