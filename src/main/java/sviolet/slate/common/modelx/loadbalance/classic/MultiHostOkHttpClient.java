@@ -198,13 +198,13 @@ public class MultiHostOkHttpClient {
      *      //获得拒绝信息 e.getResponseMessage()
      *  }
      *
-     *  //返回ResponseBody类型的响应
-     *  //注意:ResponseBody需要手动关闭(close)
-     *  try (ResponseBody responseBody = client.post("/post/json")
+     *  //返回ResponsePackage类型的响应
+     *  //注意:ResponsePackage需要手动关闭(close)
+     *  try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.post("/post/json")
      *          .body("hello world".getBytes())
      *          .send()) {
      *
-     *      String response = responseBody.string();
+     *      String response = responsePackage.body().string();
      *
      *  } catch (NoHostException e) {
      *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
@@ -269,15 +269,15 @@ public class MultiHostOkHttpClient {
      *              }
      *          });
      *
-     *  //返回ResponseBody类型的响应
-     *  //当autoClose=true时, onSucceed方法回调结束后, ResponseBody会被自动关闭, 无需手动调用close方法
-     *  //当autoClose=false时, onSucceed方法回调结束后, ResponseBody不会自动关闭, 需要手动调用ResponseBody.close()关闭, 注意!!!
+     *  //返回ResponsePackage类型的响应
+     *  //当autoClose=true时, onSucceed方法回调结束后, ResponsePackage会被自动关闭, 无需手动调用close方法
+     *  //当autoClose=false时, onSucceed方法回调结束后, ResponsePackage不会自动关闭, 需要手动调用ResponsePackage.close()关闭, 注意!!!
      *  client.post("/post/json")
      *          .urlParam("traceId", "000000001")
      *          .body("hello world".getBytes())
      *          //.autoClose(false)//默认为true
-     *          .enqueue(new MultiHostOkHttpClient.ResponseBodyCallback() {
-     *              public void onSucceed(ResponseBody responseBody) throws Exception {
+     *          .enqueue(new MultiHostOkHttpClient.ResponsePackageCallback() {
+     *              public void onSucceed(MultiHostOkHttpClient.ResponsePackage responsePackage) throws Exception {
      *                  ......
      *              }
      *              protected void onErrorBeforeSend(Exception e) {
@@ -347,14 +347,14 @@ public class MultiHostOkHttpClient {
      *      //获得拒绝信息 e.getResponseMessage()
      *  }
      *
-     *  //返回ResponseBody类型的响应
-     *  //注意:ResponseBody需要手动关闭(close)
-     *  try (ResponseBody responseBody = client.get("/get/json")
+     *  //返回ResponsePackage类型的响应
+     *  //注意:ResponsePackage需要手动关闭(close)
+     *  try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.get("/get/json")
      *          .urlParam("name", "000000001")
      *          .urlParam("key", "000000001")
      *          .send()) {
      *
-     *      String response = responseBody.string();
+     *      String response = responsePackage.body().string();
      *
      *  } catch (NoHostException e) {
      *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
@@ -419,15 +419,15 @@ public class MultiHostOkHttpClient {
      *              }
      *          });
      *
-     *  //返回ResponseBody类型的响应
-     *  //当autoClose=true时, onSucceed方法回调结束后, ResponseBody会被自动关闭, 无需手动调用close方法
-     *  //当autoClose=false时, onSucceed方法回调结束后, ResponseBody不会自动关闭, 需要手动调用ResponseBody.close()关闭, 注意!!!
+     *  //返回ResponsePackage类型的响应
+     *  //当autoClose=true时, onSucceed方法回调结束后, ResponsePackage会被自动关闭, 无需手动调用close方法
+     *  //当autoClose=false时, onSucceed方法回调结束后, ResponsePackage不会自动关闭, 需要手动调用ResponsePackage.close()关闭, 注意!!!
      *  client.get("/get/json")
      *          .urlParam("name", "000000001")
      *          .urlParam("key", "000000001")
      *          //.autoClose(false)//默认为true
-     *          .enqueue(new MultiHostOkHttpClient.ResponseBodyCallback() {
-     *              public void onSucceed(ResponseBody responseBody) throws Exception {
+     *          .enqueue(new MultiHostOkHttpClient.ResponsePackageCallback() {
+     *              public void onSucceed(MultiHostOkHttpClient.ResponsePackage responsePackage) throws Exception {
      *                  ......
      *              }
      *              protected void onErrorBeforeSend(Exception e) {
@@ -655,7 +655,7 @@ public class MultiHostOkHttpClient {
          * @param callback 回调函数{@link BytesCallback}
          */
         public void enqueue(BytesCallback callback) {
-            enqueue((ResponseBodyCallback)callback);
+            enqueue((ResponsePackageCallback)callback);
         }
 
         /**
@@ -664,16 +664,16 @@ public class MultiHostOkHttpClient {
          * @param callback 回调函数{@link InputStreamCallback}
          */
         public void enqueue(InputStreamCallback callback) {
-            enqueue((ResponseBodyCallback)callback);
+            enqueue((ResponsePackageCallback)callback);
         }
 
         /**
          * [请求发送]异步请求,
          * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常,
          * 该方法不会根据maxReadLength限定最大读取长度
-         * @param callback 回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponseBodyCallback}
+         * @param callback 回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponsePackageCallback}
          */
-        public void enqueue(ResponseBodyCallback callback) {
+        public void enqueue(ResponsePackageCallback callback) {
             if (isSend) {
                 throw new IllegalStateException("MultiHostOkHttpClient.Request can only send once!");
             }
@@ -840,7 +840,7 @@ public class MultiHostOkHttpClient {
     // Async //////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void asyncPost(Request request, ResponseBodyCallback callback) {
+    private void asyncPost(Request request, ResponsePackageCallback callback) {
 
         callback.setSettings(settings);
 
@@ -873,7 +873,7 @@ public class MultiHostOkHttpClient {
         }
     }
 
-    private void asyncGet(Request request, ResponseBodyCallback callback) {
+    private void asyncGet(Request request, ResponsePackageCallback callback) {
 
         callback.setSettings(settings);
 
@@ -906,7 +906,7 @@ public class MultiHostOkHttpClient {
         }
     }
 
-    private void asyncCall(final LoadBalancedHostManager.Host host, okhttp3.Request okRequest, final Request request, final ResponseBodyCallback callback)  {
+    private void asyncCall(final LoadBalancedHostManager.Host host, okhttp3.Request okRequest, final Request request, final ResponsePackageCallback callback)  {
         //异步请求
         try {
             getOkHttpClient().newCall(okRequest).enqueue(new Callback() {
@@ -1294,17 +1294,17 @@ public class MultiHostOkHttpClient {
     /**
      * 请求回调(通用)
      */
-    public static abstract class ResponseBodyCallback {
+    public static abstract class ResponsePackageCallback {
 
         /**
          * <p>请求成功</p>
          *
-         * <p>注意: ResponseBody实例是需要关闭的(close), 但我们提供autoClose配置, 详见{@link MultiHostOkHttpClient.Request#autoClose(boolean)}</p>
+         * <p>注意: ResponsePackage实例是需要关闭的(close), 但我们提供autoClose配置, 详见{@link MultiHostOkHttpClient.Request#autoClose(boolean)}</p>
          *
          * <p>
-         * 当autoClose=true时, onSucceed方法回调结束后, ResponseBody/InputStream会被自动关闭, 无需手动调用close方法. 适用于
+         * 当autoClose=true时, onSucceed方法回调结束后, ResponsePackage/InputStream会被自动关闭, 无需手动调用close方法. 适用于
          * 响应数据在回调方法中处理完的场合.<br>
-         * 当autoClose=false时, onSucceed方法回调结束后, ResponseBody/InputStream不会自动关闭, 需要手动调用ResponseBody.close()关闭,
+         * 当autoClose=false时, onSucceed方法回调结束后, ResponsePackage/InputStream不会自动关闭, 需要手动调用ResponsePackage.close()关闭,
          * 注意!!! 适用于响应数据需要交由其他的线程处理, 或暂时持有的场合使用.
          * </p>
          *
@@ -1340,7 +1340,7 @@ public class MultiHostOkHttpClient {
     /**
      * 请求回调(获得byte[]响应体)
      */
-    public static abstract class BytesCallback extends ResponseBodyCallback {
+    public static abstract class BytesCallback extends ResponsePackageCallback {
 
         private Settings settings;
 
@@ -1388,7 +1388,7 @@ public class MultiHostOkHttpClient {
     /**
      * 请求回调(获得InputStream响应体)
      */
-    public static abstract class InputStreamCallback extends ResponseBodyCallback {
+    public static abstract class InputStreamCallback extends ResponsePackageCallback {
 
         private Settings settings;
 
@@ -1398,9 +1398,9 @@ public class MultiHostOkHttpClient {
          * <p>注意: InputStream实例是需要关闭的(close), 但我们提供autoClose配置, 详见{@link MultiHostOkHttpClient.Request#autoClose(boolean)}</p>
          *
          * <p>
-         * 当autoClose=true时, onSucceed方法回调结束后, ResponseBody/InputStream会被自动关闭, 无需手动调用close方法. 适用于
+         * 当autoClose=true时, onSucceed方法回调结束后, ResponsePackage/InputStream会被自动关闭, 无需手动调用close方法. 适用于
          * 响应数据在回调方法中处理完的场合.<br>
-         * 当autoClose=false时, onSucceed方法回调结束后, ResponseBody/InputStream不会自动关闭, 需要手动调用ResponseBody.close()关闭,
+         * 当autoClose=false时, onSucceed方法回调结束后, ResponsePackage/InputStream不会自动关闭, 需要手动调用ResponsePackage.close()关闭,
          * 注意!!! 适用于响应数据需要交由其他的线程处理, 或暂时持有的场合使用.
          * </p>
          *
