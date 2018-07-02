@@ -20,6 +20,9 @@
 package sviolet.slate.common.modelx.loadbalance.classic;
 
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sviolet.thistle.util.conversion.ByteUtils;
 
 /**
  * GSON数据转换器
@@ -27,6 +30,8 @@ import com.google.gson.Gson;
  * @author S.Violet
  */
 public class GsonDataConverter implements DataConverter {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private Gson gson = new Gson();
 
@@ -37,7 +42,12 @@ public class GsonDataConverter implements DataConverter {
         if (bean == null) {
             return new byte[0];
         }
-        return gson.toJson(bean).getBytes(encode);
+        try {
+            return gson.toJson(bean).getBytes(encode);
+        } catch (Exception e) {
+            logger.error("Convert Error, type:" + bean.getClass() + ", bean:" + bean);
+            throw e;
+        }
     }
 
     @Override
@@ -45,7 +55,13 @@ public class GsonDataConverter implements DataConverter {
         if (data == null || data.length <= 0) {
             return null;
         }
-        return gson.fromJson(new String(data, encode), type);
+        try {
+            return gson.fromJson(new String(data, encode), type);
+        } catch (Exception e) {
+            logger.error("Convert Error, type:" + type + ", hex:" + ByteUtils.bytesToHex(data));
+            logger.error("Convert Error, string:" + new String(data, encode));
+            throw e;
+        }
     }
 
     public String getEncode() {

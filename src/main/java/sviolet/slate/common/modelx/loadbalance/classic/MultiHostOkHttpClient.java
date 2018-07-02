@@ -725,6 +725,16 @@ public class MultiHostOkHttpClient {
 
         /**
          * [请求发送]异步请求,
+         * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常 <br>
+         * 注意: 必须配置DataConverter, 否则发送时会报错</p>
+         * @param callback 回调函数{@link BeanCallback}
+         */
+        public void enqueue(BeanCallback<?> callback) {
+            enqueue((ResponsePackageCallback)callback);
+        }
+
+        /**
+         * [请求发送]异步请求,
          * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常,
          * @param callback 回调函数{@link BytesCallback}
          */
