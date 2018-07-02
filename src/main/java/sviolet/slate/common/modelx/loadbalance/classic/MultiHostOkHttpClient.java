@@ -475,7 +475,7 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [配置]URL参数
+         * <p>[配置]URL参数, 即HTTP请求中URL后面跟随的?key=value&key=value</p>
          */
         public Request urlParams(Map<String, Object> urlParams) {
             this.urlParams = urlParams;
@@ -483,7 +483,7 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [配置]添加URL参数
+         * <p>[配置]添加一个URL参数, 即HTTP请求中URL后面跟随的?key=value&key=value</p>
          */
         public Request urlParam(String key, Object value) {
             if (this.urlParams == null) {
@@ -494,7 +494,7 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [配置]添加URL参数
+         * <p>[配置]POST请求专用: 报文体数据</p>
          */
         public Request body(byte[] body) {
             this.body = body;
@@ -502,7 +502,7 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [配置]HTTP请求头参数, 客户端配置和此处配置的均生效(此处配置优先)
+         * <p>[配置]HTTP请求头参数, 客户端配置和此处配置的均生效(此处配置优先)</p>
          */
         public Request httpHeaders(Map<String, String> httpHeaders) {
             this.headers = httpHeaders;
@@ -510,7 +510,7 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [配置]添加HTTP请求头参数, 客户端配置和此处配置的均生效(此处配置优先)
+         * <p>[配置]添加一个HTTP请求头参数, 客户端配置和此处配置的均生效(此处配置优先)</p>
          */
         public Request httpHeader(String key, String value) {
             if (this.headers == null) {
@@ -521,7 +521,11 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [配置]设置被动检测到网络故障时阻断后端的时间, 客户端配置和此处配置的均生效(此处配置优先)
+         * <p>[配置]设置被动检测到网络故障时阻断后端的时间, 客户端配置和此处配置的均生效(此处配置优先)</p>
+         *
+         * <p>当请求服务端时, 发生特定的异常或返回特定的响应码(MultiHostOkHttpClient.needBlock方法决定), 客户端会将该
+         * 后端服务器的IP/PORT标记为暂不可用状态, 而阻断时长是不可用的时长</p>
+         *
          * @param passiveBlockDuration 阻断时长ms
          */
         public Request setPassiveBlockDuration(long passiveBlockDuration) {
@@ -530,7 +534,7 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [配置]报文体MediaType, 客户端配置和此处配置的均生效(此处配置优先)
+         * <p>[配置]报文体MediaType, 客户端配置和此处配置的均生效(此处配置优先)</p>
          */
         public Request setMediaType(String mediaType) {
             this.mediaType = mediaType;
@@ -538,7 +542,7 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [配置]字符编码, 客户端配置和此处配置的均生效(此处配置优先)
+         * <p>[配置]字符编码, 客户端配置和此处配置的均生效(此处配置优先)</p>
          */
         public Request setEncode(String encode) {
             this.encode = encode;
@@ -546,11 +550,16 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [配置]异步请求时有效(同步请求仍需手动关闭), 在回调方法onSucceed结束后自动关闭响应实例(输入流),
-         * 配置了该选项后, 无需再调用ResponseBody.close()或InputStream.close()方法关闭.
+         * <p>[配置]异步请求专用: 配置响应实例(或输入流)是否在回调方法onSucceed结束后自动关闭, 默认true</p>
          *
-         * true:启用自动关闭(默认)
-         * false:禁用自动关闭
+         * <p>注意:同步请求返回的ResponseBode/InputStream是必须手动关闭的!!!</p>
+         *
+         * <p>
+         * 当autoClose=true时, onSucceed方法回调结束后, ResponseBody/InputStream会被自动关闭, 无需手动调用close方法. 适用于
+         * 响应数据在回调方法中处理完的场合.<br>
+         * 当autoClose=false时, onSucceed方法回调结束后, ResponseBody/InputStream不会自动关闭, 需要手动调用ResponseBody.close()关闭,
+         * 注意!!! 适用于响应数据需要交由其他的线程处理, 或暂时持有的场合使用.
+         * </p>
          */
         public Request autoClose(boolean autoClose){
             this.autoClose = autoClose;
@@ -558,9 +567,10 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [请求发送]同步请求并获取byte[]返回
+         * [请求发送]同步请求并获取byte[]返回,
          * 如果响应码不为2XX, 会抛出HttpRejectException异常
-         * @return 响应报文体, 可能为null
+         *
+         * @return 响应, 可能为null
          * @throws NoHostException       当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
          * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
          * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
@@ -584,9 +594,10 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [请求发送]同步请求并获取InputStream返回
+         * [请求发送]同步请求并获取InputStream返回,
          * 如果响应码不为2XX, 会抛出HttpRejectException异常
-         * @return 响应报文体的输入流, 可能为null
+         *
+         * @return 响应, 可能为null, InputStream用完后必须手动关闭!!!
          * @throws NoHostException       当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
          * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
          * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
@@ -611,9 +622,9 @@ public class MultiHostOkHttpClient {
 
         /**
          * [请求发送]同步请求并获取okhttp ResponseBody返回,
-         * 如果响应码不为2XX, 会抛出HttpRejectException异常
+         * 如果响应码不为2XX, 会抛出HttpRejectException异常,
          * 该方法不会根据maxReadLength限定最大读取长度
-         * @return 响应报文体, 可能为null
+         * @return 响应, 可能为null, ResponseBody用完后必须手动关闭!!!
          * @throws NoHostException       当前没有可发送的后端(网络请求发送前的异常, 准备阶段异常)
          * @throws RequestBuildException 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
          * @throws IOException           网络通讯异常(通常是网络请求发送中的异常)
@@ -637,7 +648,7 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [请求发送]异步请求
+         * [请求发送]异步请求,
          * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常,
          * @param callback 回调函数{@link BytesCallback}
          */
@@ -646,7 +657,7 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [请求发送]异步请求
+         * [请求发送]异步请求,
          * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常,
          * @param callback 回调函数{@link InputStreamCallback}
          */
@@ -655,7 +666,7 @@ public class MultiHostOkHttpClient {
         }
 
         /**
-         * [请求发送]异步请求
+         * [请求发送]异步请求,
          * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常,
          * 该方法不会根据maxReadLength限定最大读取长度
          * @param callback 回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponseBodyCallback}
@@ -1215,14 +1226,23 @@ public class MultiHostOkHttpClient {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * 请求回调
+     * 请求回调(通用)
      */
     public static abstract class ResponseBodyCallback {
 
         /**
-         * 请求成功
-         * 注意:处理完毕后必须关闭ResponseBody(调用close())!!!
-         * @param responseBody 响应报文体, 注意:处理完毕后必须关闭ResponseBody(调用close())!!!
+         * <p>请求成功</p>
+         *
+         * <p>注意: ResponseBody实例是需要关闭的(close), 但我们提供autoClose配置, 详见{@link MultiHostOkHttpClient.Request#autoClose(boolean)}</p>
+         *
+         * <p>
+         * 当autoClose=true时, onSucceed方法回调结束后, ResponseBody/InputStream会被自动关闭, 无需手动调用close方法. 适用于
+         * 响应数据在回调方法中处理完的场合.<br>
+         * 当autoClose=false时, onSucceed方法回调结束后, ResponseBody/InputStream不会自动关闭, 需要手动调用ResponseBody.close()关闭,
+         * 注意!!! 适用于响应数据需要交由其他的线程处理, 或暂时持有的场合使用.
+         * </p>
+         *
+         * @param responseBody 响应
          */
         protected abstract void onSucceed(ResponseBody responseBody) throws Exception;
 
@@ -1239,7 +1259,7 @@ public class MultiHostOkHttpClient {
         protected abstract void onErrorAfterSend(Exception e);
 
         /**
-         * 执行回调方法onSucceed时如果抛出异常, 会回调该方法处理异常, 默认转交onErrorAfterSend方法处理
+         * 回调方法onSucceed执行时如果抛出异常, 会回调该方法处理异常, 默认转交onErrorAfterSend方法处理
          */
         protected void errorOnSucceedProcessing(Exception e){
             onErrorAfterSend(e);
@@ -1259,8 +1279,9 @@ public class MultiHostOkHttpClient {
         private Settings settings;
 
         /**
-         * 请求成功
-         * @param body 响应报文体, 可能为null
+         * <p>请求成功</p>
+         *
+         * @param body 响应
          */
         public abstract void onSucceed(byte[] body) throws Exception;
 
@@ -1306,8 +1327,18 @@ public class MultiHostOkHttpClient {
         private Settings settings;
 
         /**
-         * 请求成功
-         * @param inputStream 报文体输入流, 可能为null, 该输入流会被自动关闭
+         * <p>请求成功</p>
+         *
+         * <p>注意: InputStream实例是需要关闭的(close), 但我们提供autoClose配置, 详见{@link MultiHostOkHttpClient.Request#autoClose(boolean)}</p>
+         *
+         * <p>
+         * 当autoClose=true时, onSucceed方法回调结束后, ResponseBody/InputStream会被自动关闭, 无需手动调用close方法. 适用于
+         * 响应数据在回调方法中处理完的场合.<br>
+         * 当autoClose=false时, onSucceed方法回调结束后, ResponseBody/InputStream不会自动关闭, 需要手动调用ResponseBody.close()关闭,
+         * 注意!!! 适用于响应数据需要交由其他的线程处理, 或暂时持有的场合使用.
+         * </p>
+         *
+         * @param inputStream 响应
          */
         public abstract void onSucceed(InputStream inputStream) throws Exception;
 
@@ -1353,7 +1384,11 @@ public class MultiHostOkHttpClient {
     }
 
     /**
-     * 设置被动检测到网络故障时阻断后端的时间
+     * <p>[配置]设置被动检测到网络故障时阻断后端的时间</p>
+     *
+     * <p>当请求服务端时, 发生特定的异常或返回特定的响应码(MultiHostOkHttpClient.needBlock方法决定), 客户端会将该
+     * 后端服务器的IP/PORT标记为暂不可用状态, 而阻断时长是不可用的时长</p>
+     *
      * @param passiveBlockDuration 阻断时长ms
      */
     public MultiHostOkHttpClient setPassiveBlockDuration(long passiveBlockDuration) {
