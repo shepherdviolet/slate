@@ -13,7 +13,7 @@
 
 //依赖
 dependencies {
-    compile 'com.github.shepherdviolet:slate-common:9.8'
+    compile 'com.github.shepherdviolet:slate-common:9.9'
 }
 ```
 
@@ -21,7 +21,7 @@ dependencies {
 
 ```text
 dependencies {
-    compile ('com.github.shepherdviolet:slate-common:9.8') {
+    compile ('com.github.shepherdviolet:slate-common:9.9') {
         transitive = false
     }
     compile ('com.github.shepherdviolet:thistle:9.7') {
@@ -38,7 +38,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.8</version>
+        <version>9.9</version>
     </dependency>
 ```
 
@@ -48,7 +48,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.8</version>
+        <version>9.9</version>
         <exclusions>
              <exclusion>
                  <groupId>*</groupId>
