@@ -104,14 +104,15 @@ dependencies {
     <!-- 调用该实例发送请求 -->
     <bean id="multiHostOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
         <property name="hostManager" ref="loadBalancedHostManager"/>
-        <property name="maxThreads" ref="200"/>
-        <property name="maxThreadsPerHost" ref="200"/>
+        <property name="maxThreads" value="200"/>
+        <property name="maxThreadsPerHost" value="200"/>
         <property name="passiveBlockDuration" value="3000"/>
         <property name="connectTimeout" value="3000"/>
         <property name="writeTimeout" value="10000"/>
         <property name="readTimeout" value="10000"/>
         <property name="verboseLog" value="true"/>
         <property name="verboseLogConfig" value="272"/>
+        <!--<property name="dataConverter" ref="dataConverter"/> 默认提供GsonDataConverter-->
     </bean>
     
 ```
@@ -161,6 +162,7 @@ dependencies {
                 .setConnectTimeout(3000L)
                 .setWriteTimeout(10000L)
                 .setReadTimeout(10000L)
+                //.setDataConverter(new GsonDataConverter())
                 .setVerboseLog(true)
                 .setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY);
     }
@@ -178,12 +180,13 @@ dependencies {
     <bean id="simpleOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.SimpleOkHttpClient">
         <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
         <property name="initiativeInspectInterval" value="10000"/>
-        <property name="maxThreads" ref="200"/>
-        <property name="maxThreadsPerHost" ref="200"/>
+        <property name="maxThreads" value="200"/>
+        <property name="maxThreadsPerHost" value="200"/>
         <property name="passiveBlockDuration" value="3000"/>
         <property name="connectTimeout" value="3000"/>
         <property name="writeTimeout" value="10000"/>
         <property name="readTimeout" value="10000"/>
+        <!--<property name="dataConverter" ref="dataConverter"/> 默认提供GsonDataConverter-->
     </bean>
 ```
 
@@ -196,7 +199,11 @@ dependencies {
             .setPassiveBlockDuration(3000L)
             .setConnectTimeout(3000L)
             .setWriteTimeout(10000L)
-            .setReadTimeout(10000L);
+            .setReadTimeout(10000L)
+            //.setDataConverter(new GsonDataConverter())
+            .setVerboseLog(true)
+            .setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY);
+
 ```
 
 # 调用
@@ -227,6 +234,8 @@ dependencies {
       byte[] response = client.post("/post/json")
               .urlParam("traceId", "000000001")
               .body("hello world".getBytes())
+              //.formBody(formBody)//表单提交
+              //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
               //.httpHeader("Accept", "application/json;charset=utf-8")
               //.mediaType("application/json;charset=utf-8")
               //.encode("utf-8")
@@ -250,6 +259,8 @@ dependencies {
  ```text
  try (InputStream inputStream = client.post("/post/json")
          .body("hello world".getBytes())
+         //.formBody(formBody)//表单提交
+         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
          //.httpHeader("Accept", "application/json;charset=utf-8")
          //.mediaType("application/json;charset=utf-8")
          //.encode("utf-8")
@@ -276,6 +287,8 @@ dependencies {
  ```text
  try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.post("/post/json")
          .body("hello world".getBytes())
+         //.formBody(formBody)//表单提交
+         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
          //.httpHeader("Accept", "application/json;charset=utf-8")
          //.mediaType("application/json;charset=utf-8")
          //.encode("utf-8")
@@ -303,6 +316,8 @@ dependencies {
  client.post("/post/json")
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
+         //.formBody(formBody)//表单提交
+         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
          //.httpHeader("Accept", "application/json;charset=utf-8")
          //.mediaType("application/json;charset=utf-8")
          //.encode("utf-8")
@@ -332,6 +347,8 @@ dependencies {
  client.post("/post/json")
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
+         //.formBody(formBody)//表单提交
+         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
          //.autoClose(false)//默认为true
          //.httpHeader("Accept", "application/json;charset=utf-8")
          //.mediaType("application/json;charset=utf-8")
@@ -362,6 +379,8 @@ dependencies {
  client.post("/post/json")
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
+         //.formBody(formBody)//表单提交
+         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
          //.autoClose(false)//默认为true
          //.httpHeader("Accept", "application/json;charset=utf-8")
          //.mediaType("application/json;charset=utf-8")

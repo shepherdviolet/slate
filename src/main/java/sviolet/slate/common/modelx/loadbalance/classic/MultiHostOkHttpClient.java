@@ -86,8 +86,8 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  *  <bean id="multiHostOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
- *      <property name="maxThreads" ref="200"/>
- *      <property name="maxThreadsPerHost" ref="200"/>
+ *      <property name="maxThreads" value="200"/>
+ *      <property name="maxThreadsPerHost" value="200"/>
  *      <property name="passiveBlockDuration" value="3000"/>
  *      <property name="connectTimeout" value="3000"/>
  *      <property name="writeTimeout" value="10000"/>
@@ -112,8 +112,8 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  *  <bean id="multiHostOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
- *      <property name="maxThreads" ref="200"/>
- *      <property name="maxThreadsPerHost" ref="200"/>
+ *      <property name="maxThreads" value="200"/>
+ *      <property name="maxThreadsPerHost" value="200"/>
  *      <property name="passiveBlockDuration" value="3000"/>
  *      <property name="connectTimeout" value="3000"/>
  *      <property name="writeTimeout" value="10000"/>
