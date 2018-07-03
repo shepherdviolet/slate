@@ -167,6 +167,25 @@ dependencies {
     
 ```
 
+### 简化版客户端配置(新增)
+* 在MultiHostOkHttpClient的基础上, 封装了LoadBalancedHostManager和LoadBalancedInspectManager, 简化了配置, 免去了配置三个Bean的麻烦
+* 配置被简化, 如需高度定制, 请使用LoadBalancedHostManager + LoadBalancedInspectManager + MultiHostOkHttpClient
+* 内置的LoadBalancedInspectManager采用TELNET方式探测后端(不可自定义探测方式)<br>
+* 屏蔽了setHostManager()方法, 调用会抛出异常<br>
+* 实现了DisposableBean, 在Spring容器中会自动销毁<br>
+
+```text
+    SimpleOkHttpClient client = new SimpleOkHttpClient()
+            .setHosts("http://127.0.0.1:8081,http://127.0.0.1:8082")
+            .setInitiativeInspectInterval(5000L)
+            .setMaxThreads(200)
+            .setMaxThreadsPerHost(200)
+            .setPassiveBlockDuration(3000L)
+            .setConnectTimeout(3000L)
+            .setWriteTimeout(10000L)
+            .setReadTimeout(10000L);
+```
+
 # 调用
 
 * 关于URL地址
