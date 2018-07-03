@@ -309,6 +309,30 @@ dependencies {
  }
 ```
 
+* 同步POST:请求报文体Map, 返回报文体Map
+* 注意:必须要配置dataConverter
+
+```text
+ try {
+        Map<String, Object> requestMap = new HashMap<>(2);
+        requestMap.put("name", "wang wang");
+        requestMap.put("key", "963");
+        Map<String, Object> responseMap = client.post("/post/json")
+                .beanBody(requestMap)
+                .sendForBean(Map.class);
+ } catch (NoHostException e) {
+     //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+ } catch (RequestBuildException e) {
+     //在网络请求未发送前抛出的异常
+ } catch (IOException e) {
+     //网络异常
+ } catch (HttpRejectException e) {
+     //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     //获得拒绝码 e.getResponseCode()
+     //获得拒绝信息 e.getResponseMessage()
+ }
+```
+
 * 异步POST:返回byte[]类型的响应
 
  ```text
@@ -403,6 +427,34 @@ dependencies {
          });
 ```
 
+* 异步POST:请求报文体Map, 返回报文体Map
+* 注意:必须要配置dataConverter
+
+```text
+Map<String, Object> requestMap = new HashMap<>(2);
+requestMap.put("name", "wang wang");
+requestMap.put("key", "963");
+client.post("/post/json")
+        .beanBody(requestMap)
+        .enqueue(new MultiHostOkHttpClient.BeanCallback<Map<String, Object>>() {
+            @Override
+            public void onSucceed(Map<String, Object> bean) throws Exception {
+                ......
+            }
+            protected void onErrorBeforeSend(Exception e) {
+                //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+                //RequestBuildException: 在网络请求未发送前抛出的异常
+            }
+            protected void onErrorAfterSend(Exception e) {
+                //IOException: 网络异常
+                //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+                //获得拒绝码 e.getResponseCode()
+                //获得拒绝信息 e.getResponseMessage()
+                //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+            }
+        });
+```
+
 ### GET
 
 * 同步GET:返回byte[]类型的响应
@@ -470,6 +522,28 @@ dependencies {
 
      String response = responsePackage.body().string();
 
+ } catch (NoHostException e) {
+     //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+ } catch (RequestBuildException e) {
+     //在网络请求未发送前抛出的异常
+ } catch (IOException e) {
+     //网络异常
+ } catch (HttpRejectException e) {
+     //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+     //获得拒绝码 e.getResponseCode()
+     //获得拒绝信息 e.getResponseMessage()
+ }
+```
+
+* 同步GET:返回报文体Map
+* 注意:必须要配置dataConverter
+
+```text
+ try {
+        Map<String, Object> responseMap = client.get("/get/json")
+                .urlParam("name", "000000001")
+                .urlParam("key", "000000001")
+                .sendForBean(Map.class);
  } catch (NoHostException e) {
      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
  } catch (RequestBuildException e) {
@@ -569,6 +643,32 @@ dependencies {
                  //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
              }
          });
+```
+
+* 异步GET:返回报文体Map
+* 注意:必须要配置dataConverter
+
+```text
+client.get("/get/json")
+        .urlParam("name", "000000001")
+        .urlParam("key", "000000001")
+        .enqueue(new MultiHostOkHttpClient.BeanCallback<Map<String, Object>>() {
+            @Override
+            public void onSucceed(Map<String, Object> bean) throws Exception {
+                ......
+            }
+            protected void onErrorBeforeSend(Exception e) {
+                //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+                //RequestBuildException: 在网络请求未发送前抛出的异常
+            }
+            protected void onErrorAfterSend(Exception e) {
+                //IOException: 网络异常
+                //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+                //获得拒绝码 e.getResponseCode()
+                //获得拒绝信息 e.getResponseMessage()
+                //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+            }
+        });
 ```
 
 # 配置参数详解

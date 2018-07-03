@@ -162,9 +162,9 @@ public class MultiHostOkHttpClientTest {
 
         client.post("/post/json")
                 .beanBody(form)
-                .enqueue(new MultiHostOkHttpClient.BeanCallback<Map>() {
+                .enqueue(new MultiHostOkHttpClient.BeanCallback<Map<String, Object>>() {
                     @Override
-                    public void onSucceed(Map bean) throws Exception {
+                    public void onSucceed(Map<String, Object> bean) throws Exception {
                         System.out.println(bean);
                     }
                     @Override
