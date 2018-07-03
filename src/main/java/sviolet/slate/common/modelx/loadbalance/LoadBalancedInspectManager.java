@@ -26,6 +26,7 @@ import sviolet.thistle.entity.Destroyable;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
 import sviolet.thistle.util.lifecycle.DestroyableManageUtils;
 
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -60,7 +61,7 @@ import java.util.concurrent.ExecutorService;
  *
  * @author S.Violet
  */
-public class LoadBalancedInspectManager implements Destroyable {
+public class LoadBalancedInspectManager implements Closeable, Destroyable {
 
     private static final long DEFAULT_INSPECT_INTERVAL = 5000L;
 
@@ -144,6 +145,7 @@ public class LoadBalancedInspectManager implements Destroyable {
     /**
      * 关闭探测器(关闭调度线程)
      */
+    @Override
     public void close(){
         onDestroy();
     }

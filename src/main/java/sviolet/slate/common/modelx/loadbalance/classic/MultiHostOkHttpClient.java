@@ -23,6 +23,7 @@ import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager;
+import sviolet.thistle.entity.Destroyable;
 import sviolet.thistle.util.conversion.ByteUtils;
 import sviolet.thistle.util.judge.CheckUtils;
 
@@ -1368,7 +1369,7 @@ public class MultiHostOkHttpClient {
     /**
      * 响应包
      */
-    public static class ResponsePackage implements Closeable {
+    public static class ResponsePackage implements Closeable, Destroyable {
 
         private int code;
         private String message;
@@ -1419,6 +1420,10 @@ public class MultiHostOkHttpClient {
             }
         }
 
+        @Override
+        public void onDestroy() {
+            close();
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
