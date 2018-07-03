@@ -108,7 +108,7 @@ public class LoadBalancedHostManager {
 
     /**
      * [线程安全的/异步的]
-     * 设置/刷新远端列表
+     * 设置/刷新远端列表, 该方法可以反复调用设置新的后端(但不是同步生效)
      *
      * @param hosts 远端列表, 格式:"http://127.0.0.1:8081/,http://127.0.0.1:8082/"
      */
@@ -123,7 +123,7 @@ public class LoadBalancedHostManager {
 
     /**
      * [线程安全的/异步的]
-     * 设置/刷新远端列表
+     * 设置/刷新远端列表, 该方法可以反复调用设置新的后端(但不是同步生效)
      *
      * @param hosts 远端列表
      */
@@ -138,7 +138,7 @@ public class LoadBalancedHostManager {
 
     /**
      * [线程安全的/异步的]
-     * 设置/刷新远端列表
+     * 设置/刷新远端列表, 该方法可以反复调用设置新的后端(但不是同步生效)
      *
      * @param hosts 远端列表
      */

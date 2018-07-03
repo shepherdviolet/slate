@@ -63,7 +63,7 @@ import java.util.concurrent.ExecutorService;
  */
 public class LoadBalancedInspectManager implements Closeable, Destroyable {
 
-    private static final long DEFAULT_INSPECT_INTERVAL = 5000L;
+    public static final long DEFAULT_INSPECT_INTERVAL = 5000L;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
