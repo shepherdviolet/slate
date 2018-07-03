@@ -84,7 +84,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *      <property name="inspectInterval" value="10000"/>
  *  </bean>
  *
- *  <bean id="loadBalancedOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
+ *  <bean id="multiHostOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
  *      <property name="maxThreads" ref="200"/>
  *      <property name="maxThreadsPerHost" ref="200"/>
@@ -110,7 +110,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *      <property name="inspectInterval" value="10000"/>
  *  </bean>
  *
- *  <bean id="loadBalancedOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
+ *  <bean id="multiHostOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
  *      <property name="maxThreads" ref="200"/>
  *      <property name="maxThreadsPerHost" ref="200"/>

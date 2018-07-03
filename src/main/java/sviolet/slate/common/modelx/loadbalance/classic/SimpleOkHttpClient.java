@@ -57,7 +57,7 @@ import java.io.Closeable;
  *
  * <pre>{@code
  *
- *  <bean id="loadBalancedOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
+ *  <bean id="simpleOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.SimpleOkHttpClient">
  *      <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
  *      <property name="initiativeInspectInterval" value="10000"/>
  *      <property name="maxThreads" ref="200"/>

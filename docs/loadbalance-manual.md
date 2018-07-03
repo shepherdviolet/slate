@@ -175,6 +175,19 @@ dependencies {
 * 实现了DisposableBean, 在Spring容器中会自动销毁<br>
 
 ```text
+    <bean id="simpleOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.SimpleOkHttpClient">
+        <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
+        <property name="initiativeInspectInterval" value="10000"/>
+        <property name="maxThreads" ref="200"/>
+        <property name="maxThreadsPerHost" ref="200"/>
+        <property name="passiveBlockDuration" value="3000"/>
+        <property name="connectTimeout" value="3000"/>
+        <property name="writeTimeout" value="10000"/>
+        <property name="readTimeout" value="10000"/>
+    </bean>
+```
+
+```text
     SimpleOkHttpClient client = new SimpleOkHttpClient()
             .setHosts("http://127.0.0.1:8081,http://127.0.0.1:8082")
             .setInitiativeInspectInterval(5000L)
