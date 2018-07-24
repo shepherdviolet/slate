@@ -23,6 +23,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager;
 import sviolet.slate.common.modelx.loadbalance.LoadBalancedInspectManager;
+import sviolet.slate.common.modelx.loadbalance.inspector.HttpGetLoadBalanceInspector;
 import sviolet.thistle.entity.Destroyable;
 
 import java.io.Closeable;
@@ -32,7 +33,7 @@ import java.io.Closeable;
  *
  * <p>在MultiHostOkHttpClient的基础上, 封装了LoadBalancedHostManager和LoadBalancedInspectManager, 简化了配置, 免去了配置三个Bean的麻烦 <br>
  * 1.配置被简化, 如需高度定制, 请使用LoadBalancedHostManager + LoadBalancedInspectManager + MultiHostOkHttpClient <br>
- * 2.内置的LoadBalancedInspectManager采用TELNET方式探测后端(不可自定义探测方式)<br>
+ * 2.内置的LoadBalancedInspectManager采用TELNET方式探测后端(不可自定义探测方式, 但可以配置为HttpGet探测方式)<br>
  * 3.屏蔽了setHostManager()方法, 调用会抛出异常<br>
  * 4.实现了DisposableBean, 在Spring容器中会自动销毁<br>
  * </p>
@@ -46,7 +47,7 @@ import java.io.Closeable;
  *              .setInitiativeInspectInterval(5000L)
  *              .setMaxThreads(200)
  *              .setMaxThreadsPerHost(200)
- *              .setPassiveBlockDuration(3000L)
+ *              .setPassiveBlockDuration(6000L)
  *              .setConnectTimeout(3000L)
  *              .setWriteTimeout(10000L)
  *              .setReadTimeout(10000L);
@@ -62,7 +63,7 @@ import java.io.Closeable;
  *      <property name="initiativeInspectInterval" value="10000"/>
  *      <property name="maxThreads" value="200"/>
  *      <property name="maxThreadsPerHost" value="200"/>
- *      <property name="passiveBlockDuration" value="3000"/>
+ *      <property name="passiveBlockDuration" value="6000"/>
  *      <property name="connectTimeout" value="3000"/>
  *      <property name="writeTimeout" value="10000"/>
  *      <property name="readTimeout" value="10000"/>
@@ -81,6 +82,8 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     private LoadBalancedInspectManager inspectManager;
 
     private long initiativeInspectInterval = LoadBalancedInspectManager.DEFAULT_INSPECT_INTERVAL;
+    private boolean httpGetInspectorEnabled = false;
+    private String httpGetInspectorUrlSuffix;
     private boolean verboseLog = false;
 
     public SimpleOkHttpClient() {
@@ -93,6 +96,10 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
                 .setHostManager(hostManager)
                 .setInspectInterval(initiativeInspectInterval)
                 .setVerboseLog(verboseLog);
+
+        if (httpGetInspectorEnabled) {
+            inspectManager.setInspector(new HttpGetLoadBalanceInspector(httpGetInspectorUrlSuffix, initiativeInspectInterval / 4));
+        }
     }
 
     @Override
@@ -116,7 +123,7 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     // Settings ///////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * [线程安全的/异步的]
+     * [线程安全/异步生效/可运行时修改]
      * 设置/刷新远端列表, 该方法可以反复调用设置新的后端(但不是同步生效)
      *
      * @param hosts 远端列表, 格式:"http://127.0.0.1:8081/,http://127.0.0.1:8082/"
@@ -127,11 +134,21 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     }
 
     /**
-     * 设置主动探测间隔 (主动探测器)
+     * 设置主动探测间隔 (主动探测器), 运行时修改该参数无效!
      * @param initiativeInspectInterval 检测间隔ms, > 0 , 建议 > 5000
      */
     public SimpleOkHttpClient setInitiativeInspectInterval(long initiativeInspectInterval) {
         this.initiativeInspectInterval = initiativeInspectInterval;
+        return this;
+    }
+
+    /**
+     * 将主动探测器从TELNET型修改为HTTP GET型, 运行时修改该参数无效!
+     * @param urlSuffix 探测页面URL(例如:http://127.0.0.1:8080/health, 则在此处设置/health)
+     */
+    public SimpleOkHttpClient setHttpGetInspector(String urlSuffix) {
+        this.httpGetInspectorUrlSuffix = urlSuffix;
+        this.httpGetInspectorEnabled = true;
         return this;
     }
 
@@ -145,7 +162,7 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     }
 
     /**
-     * 打印更多的日志, 默认关闭
+     * 打印更多的日志, 默认关闭, 运行时修改该参数无效!
      * @param verboseLog true:打印更多的调试日志, 默认关闭
      */
     @Override

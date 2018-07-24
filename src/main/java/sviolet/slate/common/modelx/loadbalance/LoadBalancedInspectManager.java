@@ -99,16 +99,19 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
     }
 
     /**
+     * [可运行时修改]
      * 设置网络状态探测器, 如果不设置默认为telnet探测器
      * @param inspector 探测器
      */
     public LoadBalancedInspectManager setInspector(LoadBalanceInspector inspector){
-        this.inspectors = new ArrayList<>(1);
-        this.inspectors.add(inspector);
+        List<LoadBalanceInspector> newInspectors = new ArrayList<>(1);
+        newInspectors.add(inspector);
+        this.inspectors = newInspectors;
         return this;
     }
 
     /**
+     * [可运行时修改]
      * 设置网络状态探测器, 如果不设置默认为telnet探测器
      * @param inspectors 探测器
      */
@@ -185,9 +188,11 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
                 }
                 LoadBalancedHostManager hostManager;
                 LoadBalancedHostManager.Host[] hostArray;
+                List<LoadBalanceInspector> inspectors;
                 while (!closed){
                     //持有当前的hostManager
                     hostManager = LoadBalancedInspectManager.this.hostManager;
+                    inspectors = LoadBalancedInspectManager.this.inspectors;
                     //检查是否配置
                     if (hostManager == null || inspectors == null){
                         if (logger.isWarnEnabled()) {

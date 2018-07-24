@@ -1881,17 +1881,18 @@ public class MultiHostOkHttpClient {
     }
 
     /**
-     * [可运行时修改(不建议频繁修改)]
+     * [可运行时修改]
      * 当HTTP返回码为指定返回码时, 阻断后端
      * @param codes 指定需要阻断的返回码, 例如:403,404
      */
     public MultiHostOkHttpClient setHttpCodeNeedBlock(String codes) {
         try {
             String[] codeArray = codes.split(",");
-            settings.httpCodeNeedBlock.clear();
+            Set<Integer> newSet = new HashSet<>(8);
             for (String code : codeArray) {
-                settings.httpCodeNeedBlock.add(Integer.parseInt(code));
+                newSet.add(Integer.parseInt(code));
             }
+            settings.httpCodeNeedBlock = newSet;
         } catch (Throwable t) {
             throw new RuntimeException("Invalid httpCodeNeedBlock " + codes, t);
         }
