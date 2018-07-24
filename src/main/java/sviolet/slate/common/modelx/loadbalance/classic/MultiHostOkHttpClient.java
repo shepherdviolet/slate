@@ -64,7 +64,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *              .setHostManager(hostManager)
  *              .setMaxThreads(200)
  *              .setMaxThreadsPerHost(200)
- *              .setPassiveBlockDuration(3000L)
+ *              .setPassiveBlockDuration(6000L)
  *              .setConnectTimeout(3000L)
  *              .setWriteTimeout(10000L)
  *              .setReadTimeout(10000L);
@@ -81,14 +81,14 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  *  <bean id="loadBalancedInspector" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedInspectManager">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
- *      <property name="inspectInterval" value="10000"/>
+ *      <property name="inspectInterval" value="5000"/>
  *  </bean>
  *
  *  <bean id="multiHostOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
  *      <property name="maxThreads" value="200"/>
  *      <property name="maxThreadsPerHost" value="200"/>
- *      <property name="passiveBlockDuration" value="3000"/>
+ *      <property name="passiveBlockDuration" value="6000"/>
  *      <property name="connectTimeout" value="3000"/>
  *      <property name="writeTimeout" value="10000"/>
  *      <property name="readTimeout" value="10000"/>
@@ -107,14 +107,14 @@ import java.util.concurrent.locks.ReentrantLock;
  *  <bean id="loadBalancedInspector" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedInspectManager"
  *      destroy-method="close">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
- *      <property name="inspectInterval" value="10000"/>
+ *      <property name="inspectInterval" value="5000"/>
  *  </bean>
  *
  *  <bean id="multiHostOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
  *      <property name="maxThreads" value="200"/>
  *      <property name="maxThreadsPerHost" value="200"/>
- *      <property name="passiveBlockDuration" value="3000"/>
+ *      <property name="passiveBlockDuration" value="6000"/>
  *      <property name="connectTimeout" value="3000"/>
  *      <property name="writeTimeout" value="10000"/>
  *      <property name="readTimeout" value="10000"/>
@@ -138,7 +138,7 @@ public class MultiHostOkHttpClient {
     public static final int VERBOSE_LOG_CONFIG_RAW_URL= 0x00000100;
     public static final int VERBOSE_LOG_CONFIG_RESPONSE_CODE = 0x00001000;
 
-    private static final long PASSIVE_BLOCK_DURATION = 3000L;
+    private static final long PASSIVE_BLOCK_DURATION = 6000L;
     private static final String MEDIA_TYPE = "application/json;charset=utf-8";
     private static final String ENCODE = "utf-8";
 
@@ -1626,10 +1626,11 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * <p>[配置]设置被动检测到网络故障时阻断后端的时间</p>
      *
      * <p>当请求服务端时, 发生特定的异常或返回特定的响应码(MultiHostOkHttpClient.needBlock方法决定), 客户端会将该
-     * 后端服务器的IP/PORT标记为暂不可用状态, 而阻断时长是不可用的时长</p>
+     * 后端服务器的IP/PORT标记为暂不可用状态, 阻断时长就是不可用的时长, 建议比主动探测器的探测间隔大.</p>
      *
      * @param passiveBlockDuration 阻断时长ms
      */
@@ -1639,6 +1640,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * 设置MediaType
      * @param mediaType 设置MediaType
      */
@@ -1648,6 +1650,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * 设置编码
      * @param encode 编码
      */
@@ -1657,6 +1660,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * 设置HTTP请求头参数
      * @param headers 请求头参数
      */
@@ -1705,24 +1709,39 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * 最大请求线程数(仅异步请求时有效)
      * @param maxThreads 最大请求线程数
      */
     public MultiHostOkHttpClient setMaxThreads(int maxThreads) {
-        settings.maxThreads = maxThreads;
+        try {
+            settingsLock.lock();
+            settings.maxThreads = maxThreads;
+            refreshSettings = true;
+        } finally {
+            settingsLock.unlock();
+        }
         return this;
     }
 
     /**
+     * [可运行时修改]
      * 对应每个后端的最大请求线程数(仅异步请求时有效)
      * @param maxThreadsPerHost 对应每个后端的最大请求线程数
      */
     public MultiHostOkHttpClient setMaxThreadsPerHost(int maxThreadsPerHost) {
-        settings.maxThreadsPerHost = maxThreadsPerHost;
+        try {
+            settingsLock.lock();
+            settings.maxThreadsPerHost = maxThreadsPerHost;
+            refreshSettings = true;
+        } finally {
+            settingsLock.unlock();
+        }
         return this;
     }
 
     /**
+     * [可运行时修改]
      * 设置连接超时ms
      * @param connectTimeout 连接超时ms
      */
@@ -1738,6 +1757,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * 设置写数据超时ms
      * @param writeTimeout 写数据超时ms
      */
@@ -1753,6 +1773,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * 设置读数据超时ms
      * @param readTimeout 读数据超时ms
      */
@@ -1768,6 +1789,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * 设置最大读取数据长度(默认:10M)
      * @param maxReadLength 设置最大读取数据长度, 单位bytes
      */
@@ -1777,6 +1799,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * CookieJar
      * @param cookieJar CookieJar
      */
@@ -1792,6 +1815,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * Proxy
      * @param proxy 例如127.0.0.1:8080
      * @throws IllegalArgumentException if the proxy string is invalid
@@ -1825,6 +1849,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * Dns
      * @param dns Dns
      */
@@ -1840,6 +1865,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * SSLSocketFactory
      * @param sslSocketFactory SSLSocketFactory
      */
@@ -1855,6 +1881,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改(不建议频繁修改)]
      * 当HTTP返回码为指定返回码时, 阻断后端
      * @param codes 指定需要阻断的返回码, 例如:403,404
      */
@@ -1872,6 +1899,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * <p>[配置]数据转换器, 用于将beanBody设置的JavaBean转换为byte[], 和将返回报文byte[]转换为JavaBean</p>
      */
     public MultiHostOkHttpClient setDataConverter(DataConverter dataConverter) {
