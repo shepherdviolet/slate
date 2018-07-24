@@ -95,6 +95,7 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector {
     }
 
     /**
+     * [可运行时修改(不建议频繁修改)]
      * 设置单次探测网络超时时间(必须), 建议为LoadBalancedInspectManager.setInspectInterval设置值的1/4
      */
     public void setTimeout(long timeout){
@@ -111,6 +112,7 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector {
     }
 
     /**
+     * [可运行时修改]
      * 设置探测页面的后缀URL
      * @param urlSuffix 探测页面后缀URL
      */
