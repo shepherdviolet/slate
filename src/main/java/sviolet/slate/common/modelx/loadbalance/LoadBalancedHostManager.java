@@ -107,7 +107,7 @@ public class LoadBalancedHostManager {
     private ReentrantLock initLock = new ReentrantLock();
 
     /**
-     * [线程安全的/异步的]
+     * [线程安全/异步生效/可运行时修改]
      * 设置/刷新远端列表, 该方法可以反复调用设置新的后端(但不是同步生效)
      *
      * @param hosts 远端列表, 格式:"http://127.0.0.1:8081/,http://127.0.0.1:8082/"
@@ -122,7 +122,7 @@ public class LoadBalancedHostManager {
     }
 
     /**
-     * [线程安全的/异步的]
+     * [线程安全/异步生效/可运行时修改]
      * 设置/刷新远端列表, 该方法可以反复调用设置新的后端(但不是同步生效)
      *
      * @param hosts 远端列表
@@ -137,7 +137,7 @@ public class LoadBalancedHostManager {
     }
 
     /**
-     * [线程安全的/异步的]
+     * [线程安全/异步生效/可运行时修改]
      * 设置/刷新远端列表, 该方法可以反复调用设置新的后端(但不是同步生效)
      *
      * @param hosts 远端列表
@@ -174,6 +174,7 @@ public class LoadBalancedHostManager {
     }
 
     /**
+     * [可运行时修改]
      * 如果设置为false(默认), 当所有远端都被阻断时, nextHost方法返回一个后端.
      * 如果设置为true, 当所有远端都被阻断时, nextHost方法返回null.
      */
