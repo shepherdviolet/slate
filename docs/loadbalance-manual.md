@@ -13,7 +13,7 @@
 
 //依赖
 dependencies {
-    compile 'com.github.shepherdviolet:slate-common:9.9'
+    compile 'com.github.shepherdviolet:slate-common:9.10'
 }
 ```
 
@@ -21,10 +21,10 @@ dependencies {
 
 ```text
 dependencies {
-    compile ('com.github.shepherdviolet:slate-common:9.9') {
+    compile ('com.github.shepherdviolet:slate-common:9.10') {
         transitive = false
     }
-    compile ('com.github.shepherdviolet:thistle:9.7') {
+    compile ('com.github.shepherdviolet:thistle:9.8') {
         transitive = false
     }
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
@@ -38,7 +38,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.9</version>
+        <version>9.10</version>
     </dependency>
 ```
 
@@ -48,7 +48,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.9</version>
+        <version>9.10</version>
         <exclusions>
              <exclusion>
                  <groupId>*</groupId>
@@ -59,7 +59,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>thistle</artifactId>
-        <version>9.7</version>
+        <version>9.8</version>
         <exclusions>
              <exclusion>
                  <groupId>*</groupId>
@@ -106,7 +106,7 @@ dependencies {
         <property name="hostManager" ref="loadBalancedHostManager"/>
         <property name="maxThreads" value="200"/>
         <property name="maxThreadsPerHost" value="200"/>
-        <property name="passiveBlockDuration" value="3000"/>
+        <property name="passiveBlockDuration" value="6000"/>
         <property name="connectTimeout" value="3000"/>
         <property name="writeTimeout" value="10000"/>
         <property name="readTimeout" value="10000"/>
@@ -158,7 +158,7 @@ dependencies {
                 .setHostManager(loadBalancedHostManager)
                 .setMaxThreads(200)
                 .setMaxThreadsPerHost(200)
-                .setPassiveBlockDuration(3000L)
+                .setPassiveBlockDuration(6000L)
                 .setConnectTimeout(3000L)
                 .setWriteTimeout(10000L)
                 .setReadTimeout(10000L)
@@ -182,11 +182,12 @@ dependencies {
         <property name="initiativeInspectInterval" value="10000"/>
         <property name="maxThreads" value="200"/>
         <property name="maxThreadsPerHost" value="200"/>
-        <property name="passiveBlockDuration" value="3000"/>
+        <property name="passiveBlockDuration" value="6000"/>
         <property name="connectTimeout" value="3000"/>
         <property name="writeTimeout" value="10000"/>
         <property name="readTimeout" value="10000"/>
         <!--<property name="dataConverter" ref="dataConverter"/> 默认提供GsonDataConverter-->
+        <!--<property name="httpGetInspector" ref="/health"/> 将主动探测方式从telnet改为http get方式-->
     </bean>
 ```
 
@@ -196,11 +197,12 @@ dependencies {
             .setInitiativeInspectInterval(5000L)
             .setMaxThreads(200)
             .setMaxThreadsPerHost(200)
-            .setPassiveBlockDuration(3000L)
+            .setPassiveBlockDuration(6000L)
             .setConnectTimeout(3000L)
             .setWriteTimeout(10000L)
             .setReadTimeout(10000L)
             //.setDataConverter(new GsonDataConverter())
+            //.setHttpGetInspector("/health")
             .setVerboseLog(true)
             .setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY);
 
@@ -754,7 +756,7 @@ client.get("/get/json")
 
 * 被动探测阻断时长, 单位ms
 * 当请求发生网络异常(连接失败/超时等), 程序会暂停向该后端发送请求, 暂停时间由该参数决定
-* 默认:3000ms
+* 默认:6000ms
 
 ##### mediaType (可选)
 
