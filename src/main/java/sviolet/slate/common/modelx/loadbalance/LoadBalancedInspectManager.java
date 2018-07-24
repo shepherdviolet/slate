@@ -118,6 +118,7 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
     }
 
     /**
+     * [可运行时修改]
      * 设置探测间隔
      * @param inspectInterval 检测间隔ms, > 0 , 建议 > 5000
      */
