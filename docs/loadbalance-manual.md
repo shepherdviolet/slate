@@ -179,7 +179,7 @@ dependencies {
 ```text
     <bean id="simpleOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.SimpleOkHttpClient">
         <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
-        <property name="initiativeInspectInterval" value="10000"/>
+        <property name="initiativeInspectInterval" value="5000"/>
         <property name="maxThreads" value="200"/>
         <property name="maxThreadsPerHost" value="200"/>
         <property name="passiveBlockDuration" value="6000"/>
