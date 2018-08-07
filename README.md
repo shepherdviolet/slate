@@ -7,11 +7,8 @@
 ```gradle
 
 repositories {
-    //local repository
-    //maven { url 'file:C:/m2repository/repository' }
-    //maven central or jitpack.io
+    //Slate in mavenCentral
     mavenCentral()
-    maven { url 'https://jitpack.io' }
 }
 dependencies {
     compile 'com.github.shepherdviolet:slate-common:9.11'
@@ -37,8 +34,8 @@ dependencies {
 
 ```gradle
     repositories {
+    	//Slate in mavenCentral
         mavenCentral()
-        maven { url 'https://jitpack.io' }
     }
     dependencies {
         compile ('com.github.shepherdviolet:slate-common:9.11') {
