@@ -214,14 +214,14 @@ public class LoadBalancedHostManager {
         StringBuilder stringBuilder = new StringBuilder(prefix != null ? prefix : "");
 
         if (hostArray.length <= 0){
-            stringBuilder.append("\n>>> [No host]");
+            stringBuilder.append(" [No host]");
             return stringBuilder.toString();
         }
 
         long currentTimeMillis = System.currentTimeMillis();
 
         for (Host host : hostArray){
-            stringBuilder.append("\n>>> [");
+            stringBuilder.append(" [");
             stringBuilder.append(host.getUrl());
             stringBuilder.append("] ");
             stringBuilder.append(!host.isBlocked(currentTimeMillis));

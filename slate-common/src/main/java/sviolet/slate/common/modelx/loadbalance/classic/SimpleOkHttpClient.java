@@ -134,6 +134,17 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     }
 
     /**
+     * [线程安全/异步生效/可运行时修改]
+     * 设置/刷新远端列表, 该方法可以反复调用设置新的后端(但不是同步生效)
+     *
+     * @param hosts 远端列表
+     */
+    public SimpleOkHttpClient setHostArray(String[] hosts) {
+        hostManager.setHostArray(hosts);
+        return this;
+    }
+
+    /**
      * 设置主动探测间隔 (主动探测器), 运行时修改该参数无效!
      * @param initiativeInspectInterval 检测间隔ms, > 0 , 建议 > 5000
      */
