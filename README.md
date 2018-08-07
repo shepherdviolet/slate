@@ -1,6 +1,6 @@
-# slate-common 9.10
+# slate 9.11
 * JavaEE common library
-* https://github.com/shepherdviolet/slate-common
+* https://github.com/shepherdviolet/slate
 
 ### Import dependencies from maven repository
 
@@ -14,7 +14,8 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 dependencies {
-    compile 'com.github.shepherdviolet:slate-common:9.10'
+    compile 'com.github.shepherdviolet:slate-common:9.11'
+    compile 'com.github.shepherdviolet:slate-springboot:9.11'
 }
 
 ```
@@ -23,7 +24,12 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.10</version>
+        <version>9.11</version>
+    </dependency>
+    <dependency>
+        <groupId>com.github.shepherdviolet</groupId>
+        <artifactId>slate-springboot</artifactId>
+        <version>9.11</version>
     </dependency>
 ```
 
@@ -35,7 +41,7 @@ dependencies {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        compile ('com.github.shepherdviolet:slate-common:9.10') {
+        compile ('com.github.shepherdviolet:slate-common:9.11') {
             exclude group:'com.jcraft', module:'jsch'
             exclude group:'com.squareup.okhttp3'
             exclude group:'org.jetbrains.kotlin', module:'kotlin-stdlib-jre7'
@@ -43,6 +49,9 @@ dependencies {
             exclude group:'org.bouncycastle'
             exclude group:'redis.clients'
             exclude group:'org.springframework'
+        }
+        compile ('com.github.shepherdviolet:slate-common:9.11') {
+            exclude group:'org.springframework.boot'
         }
     }
 ```
@@ -79,6 +88,17 @@ dependencies {
              </exclusion>
              <exclusion>
                  <groupId>org.springframework</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+        </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>com.github.shepherdviolet</groupId>
+        <artifactId>slate-common</artifactId>
+        <version>9.10</version>
+        <exclusions>
+             <exclusion>
+                 <groupId>org.springframework.boot</groupId>
                  <artifactId>*</artifactId>
              </exclusion>
         </exclusions>
