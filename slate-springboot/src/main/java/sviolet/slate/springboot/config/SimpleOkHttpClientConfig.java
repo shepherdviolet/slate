@@ -17,11 +17,11 @@ import sviolet.slate.common.modelx.loadbalance.classic.SimpleOkHttpClient;
  */
 @Configuration
 @EnableConfigurationProperties(SimpleOkHttpClientProperties.class)
-public class SimpleOkHttpClientConfiguration {
+public class SimpleOkHttpClientConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(SimpleOkHttpClientConfiguration.class);
+    private static final Logger logger = LoggerFactory.getLogger(SimpleOkHttpClientConfig.class);
 
-    @Bean
+    @Bean("slate.springboot.multiHostOkHttpClient")
     @ConditionalOnMissingBean
     public MultiHostOkHttpClient multiHostOkHttpClient(SimpleOkHttpClientProperties simpleOkHttpClientProperties){
         if (simpleOkHttpClientProperties.getHosts() == null) {

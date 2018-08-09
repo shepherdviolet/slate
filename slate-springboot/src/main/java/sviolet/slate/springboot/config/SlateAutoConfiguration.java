@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @Import({
-        SimpleOkHttpClientConfiguration.class,
-        ContextListenerConfiguration.class,
+        SimpleOkHttpClientConfig.class,
+        ContextListenerConfig.class,
 })
-public class SlateConfiguration {
+public class SlateAutoConfiguration {
 
 }
