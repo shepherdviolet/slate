@@ -31,6 +31,8 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 
@@ -93,6 +95,13 @@ class InterfaceInstantiationBeanDefinitionRegistry5 implements BeanDefinitionReg
             if (annotationAttributes.getBoolean("annotationRequired")) {
                 TypeFilter includeFilter = new AnnotationTypeFilter(InterfaceInstance.class);
                 beanScanner.addIncludeFilter(includeFilter);
+            } else {
+                beanScanner.addIncludeFilter(new TypeFilter() {
+                    @Override
+                    public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) {
+                        return true;
+                    }
+                });
             }
 
             //包路径
