@@ -89,8 +89,10 @@ class InterfaceInstantiationBeanDefinitionRegistry4 implements BeanDefinitionReg
             };
 
             //根据注解过滤
-            TypeFilter includeFilter = new AnnotationTypeFilter(InterfaceInstance.class);
-            beanScanner.addIncludeFilter(includeFilter);
+            if (annotationAttributes.getBoolean("annotationRequired")) {
+                TypeFilter includeFilter = new AnnotationTypeFilter(InterfaceInstance.class);
+                beanScanner.addIncludeFilter(includeFilter);
+            }
 
             //包路径
             String[] basePackages = annotationAttributes.getStringArray("basePackages");

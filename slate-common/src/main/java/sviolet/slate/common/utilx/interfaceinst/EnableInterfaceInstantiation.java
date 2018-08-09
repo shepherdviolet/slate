@@ -83,4 +83,12 @@ public @interface EnableInterfaceInstantiation {
      */
     Class<? extends InterfaceInstantiator> interfaceInstantiator() default DefaultInterfaceInstantiator.class;
 
+    /**
+     * 自定义参数:
+     * true: 指定包路径下的接口类, 只有申明了@InterfaceInstantiation注解的才进行实例化.
+     * false: 指定包路径下的接口类, 不使用@InterfaceInstantiation注解也进行实例化.
+     * 默认true
+     */
+    boolean annotationRequired() default true;
+
 }
