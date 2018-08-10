@@ -111,7 +111,8 @@ dependencies {
         <property name="writeTimeout" value="10000"/>
         <property name="readTimeout" value="10000"/>
         <property name="verboseLog" value="true"/>
-        <property name="verboseLogConfig" value="272"/>
+        <!--<property name="logConfig" value="0x00000010"/>-->
+        <!--<property name="verboseLogConfig" value="0x00000110"/>-->
         <!--<property name="dataConverter" ref="dataConverter"/> 默认提供GsonDataConverter-->
     </bean>
     
@@ -186,6 +187,9 @@ dependencies {
         <property name="connectTimeout" value="3000"/>
         <property name="writeTimeout" value="10000"/>
         <property name="readTimeout" value="10000"/>
+        <property name="verboseLog" value="true"/>
+        <!--<property name="logConfig" value="0x00000010"/>-->
+        <!--<property name="verboseLogConfig" value="0x00000110"/>-->
         <!--<property name="dataConverter" ref="dataConverter"/> 默认提供GsonDataConverter-->
         <!--<property name="httpGetInspector" ref="/health"/> 将主动探测方式从telnet改为http get方式-->
     </bean>
