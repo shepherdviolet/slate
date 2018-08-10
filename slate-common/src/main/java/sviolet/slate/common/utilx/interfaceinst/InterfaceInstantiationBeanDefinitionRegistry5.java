@@ -141,6 +141,7 @@ class InterfaceInstantiationBeanDefinitionRegistry5 implements BeanDefinitionReg
                         final Class clazz = Class.forName(className);
 
                         //Bean定义
+                        //JDK10编译时会报错, 把gradle中的sourceCompatibility和targetCompatibility改1.8以上即可
                         BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(clazz, new Supplier<Object>() {
                             @Override
                             public Object get() {
