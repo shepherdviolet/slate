@@ -479,6 +479,7 @@ public class MultiHostOkHttpClient {
         private String mediaType;
         private String encode;
         private DataConverter dataConverter;
+        private Stub stub = new Stub();
 
         private Request(MultiHostOkHttpClient client, String urlSuffix, boolean isPost) {
             this.clientReference = new WeakReference<>(client);
@@ -620,6 +621,30 @@ public class MultiHostOkHttpClient {
         }
 
         /**
+         * <p>[配置]该次请求的连接超时, 单位ms</p>
+         */
+        public Request connectTimeout(int connectTimeout) {
+            this.stub.connectTimeout = connectTimeout;
+            return this;
+        }
+
+        /**
+         * <p>[配置]该次请求的写数据超时, 单位ms</p>
+         */
+        public Request writeTimeout(int writeTimeout) {
+            this.stub.writeTimeout = writeTimeout;
+            return this;
+        }
+
+        /**
+         * <p>[配置]该次请求的读数据超时, 单位ms</p>
+         */
+        public Request readTimeout(int readTimeout) {
+            this.stub.readTimeout = readTimeout;
+            return this;
+        }
+
+        /**
          * <p>[请求发送]同步请求并获取Bean返回,
          * 如果响应码不为2XX, 会抛出HttpRejectException异常.<br>
          * 注意: 必须配置DataConverter, 否则会报错</p>
@@ -698,8 +723,9 @@ public class MultiHostOkHttpClient {
          * 注意: 必须配置DataConverter, 否则发送时会报错</p>
          * @param callback 回调函数{@link BeanCallback}
          */
-        public void enqueue(BeanCallback<?> callback) {
+        public Stub enqueue(BeanCallback<?> callback) {
             enqueue((ResponsePackageCallback)callback);
+            return stub;
         }
 
         /**
@@ -707,8 +733,9 @@ public class MultiHostOkHttpClient {
          * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常,
          * @param callback 回调函数{@link BytesCallback}
          */
-        public void enqueue(BytesCallback callback) {
+        public Stub enqueue(BytesCallback callback) {
             enqueue((ResponsePackageCallback)callback);
+            return stub;
         }
 
         /**
@@ -716,8 +743,9 @@ public class MultiHostOkHttpClient {
          * 如果响应码不为2XX, 会回调onErrorAfterSend()方法给出HttpRejectException异常,
          * @param callback 回调函数{@link InputStreamCallback}
          */
-        public void enqueue(InputStreamCallback callback) {
+        public Stub enqueue(InputStreamCallback callback) {
             enqueue((ResponsePackageCallback)callback);
+            return stub;
         }
 
         /**
@@ -726,13 +754,14 @@ public class MultiHostOkHttpClient {
          * 该方法不会根据maxReadLength限定最大读取长度
          * @param callback 回调函数{@link BytesCallback}/{@link InputStreamCallback}/{@link ResponsePackageCallback}
          */
-        public void enqueue(ResponsePackageCallback callback) {
+        public Stub enqueue(ResponsePackageCallback callback) {
             MultiHostOkHttpClient client = getClient();
             if (client == null) {
                 callback.onErrorBeforeSend(new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)"));
-                return;
+                return stub;
             }
             client.requestEnqueue(this, callback);
+            return stub;
         }
 
         private MultiHostOkHttpClient getClient(){
@@ -1155,6 +1184,26 @@ public class MultiHostOkHttpClient {
                 .readTimeout(settings.readTimeout, TimeUnit.MILLISECONDS)
                 .dispatcher(dispatcher);
 
+        builder.addInterceptor(new Interceptor(){
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                okhttp3.Request request = chain.request();
+                if (request.tag() instanceof Stub) {
+                    Stub stub = (Stub) request.tag();
+                    if (stub.connectTimeout > 0) {
+                        chain = chain.withConnectTimeout(stub.connectTimeout, TimeUnit.MILLISECONDS);
+                    }
+                    if (stub.writeTimeout > 0) {
+                        chain = chain.withWriteTimeout(stub.writeTimeout, TimeUnit.MILLISECONDS);
+                    }
+                    if (stub.readTimeout > 0) {
+                        chain = chain.withReadTimeout(stub.readTimeout, TimeUnit.MILLISECONDS);
+                    }
+                }
+                return chain.proceed(request);
+            }
+        });
+
         if (settings.cookieJar != null) {
             builder.cookieJar(settings.cookieJar);
         }
@@ -1239,7 +1288,8 @@ public class MultiHostOkHttpClient {
 
         okhttp3.Request.Builder builder = new okhttp3.Request.Builder()
                 .url(httpUrl)
-                .post(requestBody);
+                .post(requestBody)
+                .tag(request.stub);
 
         Map<String, String> headers = settings.headers;
         if (headers != null){
@@ -1291,7 +1341,8 @@ public class MultiHostOkHttpClient {
 
         okhttp3.Request.Builder builder = new okhttp3.Request.Builder()
                 .url(httpUrl)
-                .get();
+                .get()
+                .tag(request.stub);
 
         Map<String, String> headers = settings.headers;
         if (headers != null){
@@ -1609,6 +1660,17 @@ public class MultiHostOkHttpClient {
             this.request = request;
             this.settings = settings;
         }
+
+    }
+
+    /**
+     * 持有该对象可以发起请求取消操作(异步)
+     */
+    public static class Stub {
+
+        private int connectTimeout = -1;
+        private int writeTimeout = -1;
+        private int readTimeout = -1;
 
     }
 
