@@ -164,8 +164,9 @@ dependencies {
                 .setWriteTimeout(10000L)
                 .setReadTimeout(10000L)
                 //.setDataConverter(new GsonDataConverter())
-                .setVerboseLog(true)
-                .setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY);
+                //.setLogConfig(MultiHostOkHttpClient.LOG_CONFIG_BLOCK)
+                //.setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)
+                .setVerboseLog(true);
     }
     
 ```
@@ -207,8 +208,9 @@ dependencies {
             .setReadTimeout(10000L)
             //.setDataConverter(new GsonDataConverter())
             //.setHttpGetInspector("/health")
-            .setVerboseLog(true)
-            .setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY);
+            //.setLogConfig(MultiHostOkHttpClient.LOG_CONFIG_BLOCK)
+            //.setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)
+            .setVerboseLog(true);
 
 ```
 
