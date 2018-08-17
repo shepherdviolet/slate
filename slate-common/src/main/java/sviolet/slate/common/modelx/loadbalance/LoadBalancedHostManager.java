@@ -55,7 +55,7 @@ public class LoadBalancedHostManager {
     private AtomicInteger mainCounter = new AtomicInteger(0);
     private AtomicInteger refugeCounter = new AtomicInteger(0);
 
-    private AtomicReference<Host[]> hostArray = new AtomicReference<>(new Host[0]);
+    private volatile Host[] hostArray = new Host[0];
     private Map<String, Integer> hostIndexMap = new HashMap<>(0);
 
     private boolean returnNullIfAllBlocked = false;
@@ -66,7 +66,7 @@ public class LoadBalancedHostManager {
      */
     public Host nextHost(){
 
-        Host[] hostArray = this.hostArray.get();
+        Host[] hostArray = this.hostArray;
 
         if (hostArray.length <= 0){
             return null;
@@ -188,7 +188,7 @@ public class LoadBalancedHostManager {
      * @return value=true:可用, value=false:不可用
      */
     public Map<String, Boolean> getHostsStatus(){
-        Host[] hostArray = this.hostArray.get();
+        Host[] hostArray = this.hostArray;
 
         if (hostArray.length <= 0){
             return new HashMap<>(0);
@@ -209,7 +209,7 @@ public class LoadBalancedHostManager {
      * @return 远端列表和状态
      */
     public String printHostsStatus(String prefix){
-        Host[] hostArray = this.hostArray.get();
+        Host[] hostArray = this.hostArray;
 
         StringBuilder stringBuilder = new StringBuilder(prefix != null ? prefix : "");
 
@@ -230,7 +230,7 @@ public class LoadBalancedHostManager {
     }
 
     Host[] getHostArray(){
-        return this.hostArray.get();
+        return this.hostArray;
     }
 
     private Runnable settingInstallTask = new Runnable() {
@@ -244,7 +244,7 @@ public class LoadBalancedHostManager {
     };
 
     private void settingInstall(List<String> newSettings) {
-        Host[] hostArray = LoadBalancedHostManager.this.hostArray.get();
+        Host[] hostArray = LoadBalancedHostManager.this.hostArray;
 
         int newSize = newSettings.size();
         Host[] newHostArray = new Host[newSize];
@@ -270,7 +270,7 @@ public class LoadBalancedHostManager {
 
         }
 
-        LoadBalancedHostManager.this.hostArray.set(newHostArray);
+        LoadBalancedHostManager.this.hostArray = newHostArray;
         hostIndexMap = newHostIndexMap;
 
         if (logger.isInfoEnabled()) {

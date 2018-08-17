@@ -29,12 +29,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * LoadBalancedHostManager测试案例
- * 1.配置固定不变
- * 2.存在网路故障
+ * 1.配置变化
  *
  * 测试要点:
  * 1.无需后端
- * 2.在配置变化完毕, 出现最终配置后(有四个), 观察实际阻断情况是否和这四个中的一个相符
+ * 2.在配置变化完毕, 出现最终配置后(有四个), 观察实际发送情况是否和这四个中的一个相符
  */
 public class HostManagerSettingTest {
 
