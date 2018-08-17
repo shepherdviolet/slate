@@ -144,11 +144,11 @@ public class MultiHostOkHttpClient {
 
     private static Logger logger = LoggerFactory.getLogger(MultiHostOkHttpClient.class);
 
-    private OkHttpClient okHttpClient;
+    private volatile OkHttpClient okHttpClient;
     private LoadBalancedHostManager hostManager;
 
     private Settings settings = new Settings();
-    private boolean refreshSettings = false;
+    private volatile boolean refreshSettings = false;
     private ReentrantLock settingsLock = new ReentrantLock();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

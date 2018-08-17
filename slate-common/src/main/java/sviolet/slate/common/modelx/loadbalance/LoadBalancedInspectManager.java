@@ -70,7 +70,7 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
     private LoadBalancedHostManager hostManager;
     private List<LoadBalanceInspector> inspectors = new ArrayList<>(1);
 
-    private boolean closed = false;
+    private volatile boolean closed = false;
     private boolean verboseLog = false;
 
     private long inspectInterval = DEFAULT_INSPECT_INTERVAL;
