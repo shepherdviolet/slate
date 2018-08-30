@@ -126,17 +126,33 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class MultiHostOkHttpClient {
 
+    //普通日志:全开
     public static final int LOG_CONFIG_ALL = 0xFFFFFFFF;
+    //普通日志:全关
     public static final int LOG_CONFIG_NONE = 0x00000000;
+    //普通日志:实际请求的URL(不带参数)
     public static final int LOG_CONFIG_REAL_URL = 0x00000001;
+    //普通日志:阻断日志
     public static final int LOG_CONFIG_BLOCK = 0x00000010;
+    //普通日志:默认
+    public static final int LOG_CONFIG_DEFAULT = LOG_CONFIG_ALL;
 
+    //额外日志:全开
     public static final int VERBOSE_LOG_CONFIG_ALL = 0xFFFFFFFF;
+    //额外日志:全关
     public static final int VERBOSE_LOG_CONFIG_NONE = 0x00000000;
+    //额外日志:输入参数(默认关)
     public static final int VERBOSE_LOG_CONFIG_REQUEST_INPUTS = 0x00000001;
+    //额外日志:请求报文体(最高可读性)
     public static final int VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY= 0x00000010;
+    //额外信息:请求URL(带参数, 且参数未转码)
     public static final int VERBOSE_LOG_CONFIG_RAW_URL= 0x00000100;
+    //额外日志:响应码
     public static final int VERBOSE_LOG_CONFIG_RESPONSE_CODE = 0x00001000;
+    //额外日志:默认
+    public static final int VERBOSE_LOG_CONFIG_DEFAULT = VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY |
+                                                        VERBOSE_LOG_CONFIG_RAW_URL |
+                                                        VERBOSE_LOG_CONFIG_RESPONSE_CODE;
 
     private static final long PASSIVE_BLOCK_DURATION = 6000L;
     private static final String MEDIA_TYPE = "application/json;charset=utf-8";
@@ -876,7 +892,7 @@ public class MultiHostOkHttpClient {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
-        printPostRequestLog(request, host);
+        printPostInputsLog(request, host);
         printUrlLog(request, host);
 
         //装配Request
@@ -902,7 +918,7 @@ public class MultiHostOkHttpClient {
         //获取远端
         LoadBalancedHostManager.Host host = fetchHost();
 
-        printGetRequestLog(request, host);
+        printGetInputsLog(request, host);
         printUrlLog(request, host);
 
         //装配Request
@@ -965,7 +981,7 @@ public class MultiHostOkHttpClient {
             //获取远端
             LoadBalancedHostManager.Host host = fetchHost();
 
-            printPostRequestLog(request, host);
+            printPostInputsLog(request, host);
             printUrlLog(request, host);
 
             //装配Request
@@ -998,7 +1014,7 @@ public class MultiHostOkHttpClient {
             //获取远端
             LoadBalancedHostManager.Host host = fetchHost();
 
-            printGetRequestLog(request, host);
+            printGetInputsLog(request, host);
             printUrlLog(request, host);
 
             //装配Request
@@ -1108,33 +1124,51 @@ public class MultiHostOkHttpClient {
         return client;
     }
 
-    private void printPostRequestLog(Request request, LoadBalancedHostManager.Host host) {
-        if (settings.verboseLog && logger.isDebugEnabled()) {
-            if (CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
-                String bodyLog;
-                if (request.body != null) {
-                    bodyLog = ", body:" + ByteUtils.bytesToHex(request.body);
-                } else if (request.formBody != null) {
-                    bodyLog = ", formBody:" + request.formBody;
-                } else if (request.beanBody != null) {
-                    bodyLog = ", beanBody:" + request.beanBody;
-                } else {
-                    bodyLog = ", body: null";
-                }
-                logger.debug("POST: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams + bodyLog);
+    private void printPostInputsLog(Request request, LoadBalancedHostManager.Host host) {
+        if (settings.verboseLog && logger.isDebugEnabled()
+                && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
+
+            String bodyLog;
+            if (request.body != null) {
+                bodyLog = ", body(hex):" + ByteUtils.bytesToHex(request.body);
+            } else if (request.formBody != null) {
+                bodyLog = ", formBody:" + request.formBody;
+            } else if (request.beanBody != null) {
+                bodyLog = ", beanBody:" + request.beanBody;
+            } else {
+                bodyLog = ", body: null";
             }
-            if (CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY) &&
-                    request.body != null) {
+            logger.debug("POST: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams + bodyLog);
+
+        }
+    }
+
+    private void printPostStringBodyLog(Request request, byte[] parsedData) {
+        if (settings.verboseLog && logger.isDebugEnabled()
+                && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)) {
+
+            if (request.body != null) {
                 try {
                     logger.debug("POST: string-body:" + new String(request.body, settings.encode));
                 } catch (Exception e) {
                     logger.warn("Error while printing string body", e);
                 }
+            } else if (request.formBody != null) {
+                logger.debug("POST: string-body(form):" + request.formBody);
+            } else if (request.beanBody != null && parsedData != null) {
+                try {
+                    logger.debug("POST: string-body(bean):" + new String(parsedData, settings.encode));
+                } catch (Exception e) {
+                    logger.warn("Error while printing string body", e);
+                }
+            } else {
+                logger.debug("POST: string-body: null");
             }
+
         }
     }
 
-    private void printGetRequestLog(Request request, LoadBalancedHostManager.Host host) {
+    private void printGetInputsLog(Request request, LoadBalancedHostManager.Host host) {
         if (settings.verboseLog && logger.isDebugEnabled() && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
             logger.debug("GET: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams);
         }
@@ -1142,19 +1176,24 @@ public class MultiHostOkHttpClient {
 
     private void printUrlLog(Request request, LoadBalancedHostManager.Host host) {
         if (settings.verboseLog && logger.isDebugEnabled()
-                && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RAW_URL)
-                && request.urlParams != null && request.urlParams.size() > 0) {
-            StringBuilder stringBuilder = new StringBuilder("raw-url:" + host.getUrl() + request.urlSuffix + "?");
-            int i = 0;
-            for (Map.Entry<String, Object> entry : request.urlParams.entrySet()) {
-                if (i++ > 0) {
-                    stringBuilder.append("&");
+                && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RAW_URL)) {
+
+            StringBuilder stringBuilder = new StringBuilder("raw-url:" + host.getUrl() + request.urlSuffix);
+            if (request.urlParams != null && request.urlParams.size() > 0) {
+                stringBuilder.append("?");
+                int i = 0;
+                for (Map.Entry<String, Object> entry : request.urlParams.entrySet()) {
+                    if (i++ > 0) {
+                        stringBuilder.append("&");
+                    }
+                    stringBuilder.append(entry.getKey());
+                    stringBuilder.append("=");
+                    stringBuilder.append(entry.getValue());
                 }
-                stringBuilder.append(entry.getKey());
-                stringBuilder.append("=");
-                stringBuilder.append(entry.getValue());
+
             }
             logger.debug(stringBuilder.toString());
+
         }
     }
 
@@ -1255,9 +1294,11 @@ public class MultiHostOkHttpClient {
         RequestBody requestBody;
         if (request.body != null) {
             //bytes
+            printPostStringBodyLog(request, null);
             requestBody = RequestBody.create(MediaType.parse(request.mediaType != null ? request.mediaType : settings.mediaType), request.body);
         } else if (request.formBody != null) {
             //form
+            printPostStringBodyLog(request, null);
             FormBody.Builder formBuilder = new FormBody.Builder();
             for (Map.Entry<String, Object> param : request.formBody.entrySet()) {
                 try {
@@ -1280,6 +1321,7 @@ public class MultiHostOkHttpClient {
             } catch (Exception e) {
                 throw new RequestConvertException("Error while convert bean to byte[]", e);
             }
+            printPostStringBodyLog(request, requestBodyBytes);
             requestBody = RequestBody.create(MediaType.parse(request.mediaType != null ? request.mediaType : settings.mediaType), requestBodyBytes);
         } else {
             //null
@@ -1391,8 +1433,8 @@ public class MultiHostOkHttpClient {
         private String encode = ENCODE;
         private Map<String, String> headers;
         private boolean verboseLog = false;
-        private int verboseLogConfig = VERBOSE_LOG_CONFIG_ALL;
-        private int logConfig = LOG_CONFIG_ALL;
+        private int verboseLogConfig = VERBOSE_LOG_CONFIG_DEFAULT;
+        private int logConfig = LOG_CONFIG_DEFAULT;
 
         private int maxThreads = 64;
         private int maxThreadsPerHost = 64;
