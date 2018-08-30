@@ -57,18 +57,19 @@ public class MultiHostOkHttpClientTest {
                 .setWriteTimeout(10000L)
                 .setReadTimeout(10000L)
                 .setDataConverter(new GsonDataConverter())
+                .setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_ALL)
                 .setVerboseLog(true);
 
         // sync
 
-        byte[] response = client.get("/get/json")
+        byte[] response = client.get("/basic/get/json")
                 .urlParam("name", "wang wang")
                 .urlParam("key", "321")
                 .sendForBytes();
 
         System.out.println(new String(response));
 
-        try (InputStream inputStream = client.get("/get/wildcard")
+        try (InputStream inputStream = client.get("/basic/get/wildcard")
                 .sendForInputStream()) {
             int len;
             byte[] buff = new byte[1024];
@@ -84,14 +85,14 @@ public class MultiHostOkHttpClientTest {
             System.out.println(responsePackage.body().string());
         }
 
-        response = client.post("/post/json")
+        response = client.post("/basic/post/json")
                 .urlParam("traceId", "000000001")
                 .body("hello json 1".getBytes())
                 .sendForBytes();
 
         System.out.println(new String(response));
 
-        try (InputStream inputStream = client.post("/post/json")
+        try (InputStream inputStream = client.post("/basic/post/json")
                 .urlParam("traceId", "000000001")
                 .body("hello json 2".getBytes())
                 .sendForInputStream()) {
@@ -104,7 +105,7 @@ public class MultiHostOkHttpClientTest {
             System.out.println(stringBuilder.toString());
         }
 
-        try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.post("/post/json")
+        try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.post("/basic/post/json")
                 .urlParam("traceId", "000000001")
                 .body("hello json 3".getBytes())
                 .send()) {
@@ -117,7 +118,7 @@ public class MultiHostOkHttpClientTest {
         form.put("name", "旺旺");
         form.put("key", "741");
 
-        Map<String, Object> responseMap = client.post("/post/json")
+        Map<String, Object> responseMap = client.post("/basic/post/json")
                 .formBody(form)
                 .sendForBean(Map.class);
 
@@ -127,7 +128,7 @@ public class MultiHostOkHttpClientTest {
         form.put("name", "sheng ma");
         form.put("key", "852");
 
-        client.post("/post/json")
+        client.post("/basic/post/json")
                 .formBody(form)
                 .enqueue(new MultiHostOkHttpClient.BeanCallback<Map>() {
                     @Override
@@ -150,7 +151,7 @@ public class MultiHostOkHttpClientTest {
         form.put("name", "miaomiao");
         form.put("key", "963");
 
-        responseMap = client.post("/post/json")
+        responseMap = client.post("/basic/post/json")
                 .beanBody(form)
                 .sendForBean(Map.class);
 
@@ -160,11 +161,11 @@ public class MultiHostOkHttpClientTest {
         form.put("name", "+++---");
         form.put("key", "951");
 
-        client.post("/post/json")
+        client.post("/basic/post/json")
                 .beanBody(form)
-                .enqueue(new MultiHostOkHttpClient.BeanCallback<Map<String, Object>>() {
+                .enqueue(new MultiHostOkHttpClient.BeanCallback<Map>() {
                     @Override
-                    public void onSucceed(Map<String, Object> bean) throws Exception {
+                    public void onSucceed(Map bean) throws Exception {
                         System.out.println(bean);
                     }
                     @Override
@@ -179,7 +180,7 @@ public class MultiHostOkHttpClientTest {
 
         // async
 
-        client.get("/get/json")
+        client.get("/basic/get/json")
                 .urlParam("name", "wang wang")
                 .urlParam("key", "321")
                 .enqueue(new MultiHostOkHttpClient.BytesCallback() {
@@ -197,7 +198,7 @@ public class MultiHostOkHttpClientTest {
                     }
                 });
 
-        client.get("/get/json")
+        client.get("/basic/get/json")
                 .urlParam("name", "wang wang")
                 .urlParam("key", "654")
                 .enqueue(new MultiHostOkHttpClient.InputStreamCallback() {
@@ -221,7 +222,7 @@ public class MultiHostOkHttpClientTest {
                     }
                 });
 
-        client.get("/get/json")
+        client.get("/basic/get/json")
                 .urlParam("name", "wang wang")
                 .urlParam("key", "987")
                 .enqueue(new MultiHostOkHttpClient.ResponsePackageCallback() {
@@ -239,7 +240,7 @@ public class MultiHostOkHttpClientTest {
                     }
                 });
 
-        client.post("/post/json")
+        client.post("/basic/post/json")
                 .urlParam("traceId", "000000001")
                 .body("hello json 4".getBytes())
                 .enqueue(new MultiHostOkHttpClient.BytesCallback() {
@@ -257,7 +258,7 @@ public class MultiHostOkHttpClientTest {
                     }
                 });
 
-        client.post("/post/json")
+        client.post("/basic/post/json")
                 .urlParam("traceId", "000000001")
                 .body("hello json 5".getBytes())
                 .enqueue(new MultiHostOkHttpClient.InputStreamCallback() {
@@ -281,7 +282,7 @@ public class MultiHostOkHttpClientTest {
                     }
                 });
 
-        client.post("/post/json")
+        client.post("/basic/post/json")
                 .urlParam("traceId", "000000001")
                 .body("hello json 6".getBytes())
                 .enqueue(new MultiHostOkHttpClient.ResponsePackageCallback() {
