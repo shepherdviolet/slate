@@ -907,7 +907,7 @@ public class MultiHostOkHttpClient {
         }
 
         if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
-            logger.info("POST: real-url:" + okRequest.url().toString());
+            logger.info(settings.tag + "POST: real-url:" + okRequest.url().toString());
         }
 
         //请求
@@ -933,7 +933,7 @@ public class MultiHostOkHttpClient {
         }
 
         if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
-            logger.info("GET: real-url:" + okRequest.url().toString());
+            logger.info(settings.tag + "GET: real-url:" + okRequest.url().toString());
         }
 
         //请求
@@ -957,7 +957,7 @@ public class MultiHostOkHttpClient {
                 long passiveBlockDuration = request.passiveBlockDuration >= 0 ? request.passiveBlockDuration : settings.passiveBlockDuration;
                 host.block(passiveBlockDuration);
                 if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_BLOCK)){
-                    logger.info("Block: " + host.getUrl() + " " + passiveBlockDuration);
+                    logger.info(settings.tag + "Block: " + host.getUrl() + " " + passiveBlockDuration);
                 }
             }
             if (t instanceof  IOException ||
@@ -996,7 +996,7 @@ public class MultiHostOkHttpClient {
             }
 
             if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
-                logger.info("POST: real-url:" + okRequest.url().toString());
+                logger.info(settings.tag + "POST: real-url:" + okRequest.url().toString());
             }
 
             //请求
@@ -1029,7 +1029,7 @@ public class MultiHostOkHttpClient {
             }
 
             if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
-                logger.info("GET: real-url:" + okRequest.url().toString());
+                logger.info(settings.tag + "GET: real-url:" + okRequest.url().toString());
             }
 
             //请求
@@ -1084,7 +1084,7 @@ public class MultiHostOkHttpClient {
                         long passiveBlockDuration = request.passiveBlockDuration >= 0 ? request.passiveBlockDuration : settings.passiveBlockDuration;
                         host.block(passiveBlockDuration);
                         if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_BLOCK)) {
-                            logger.info("Block: " + host.getUrl() + " " + passiveBlockDuration);
+                            logger.info(settings.tag + "Block: " + host.getUrl() + " " + passiveBlockDuration);
                         }
                     }
                 }
@@ -1138,7 +1138,7 @@ public class MultiHostOkHttpClient {
             } else {
                 bodyLog = ", body: null";
             }
-            logger.debug("POST: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams + bodyLog);
+            logger.debug(settings.tag + "POST: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams + bodyLog);
 
         }
     }
@@ -1149,20 +1149,20 @@ public class MultiHostOkHttpClient {
 
             if (request.body != null) {
                 try {
-                    logger.debug("POST: string-body:" + new String(request.body, settings.encode));
+                    logger.debug(settings.tag + "POST: string-body:" + new String(request.body, settings.encode));
                 } catch (Exception e) {
-                    logger.warn("Error while printing string body", e);
+                    logger.warn(settings.tag + "Error while printing string body", e);
                 }
             } else if (request.formBody != null) {
-                logger.debug("POST: string-body(form):" + request.formBody);
+                logger.debug(settings.tag + "POST: string-body(form):" + request.formBody);
             } else if (request.beanBody != null && parsedData != null) {
                 try {
-                    logger.debug("POST: string-body(bean):" + new String(parsedData, settings.encode));
+                    logger.debug(settings.tag + "POST: string-body(bean):" + new String(parsedData, settings.encode));
                 } catch (Exception e) {
-                    logger.warn("Error while printing string body", e);
+                    logger.warn(settings.tag + "Error while printing string body", e);
                 }
             } else {
-                logger.debug("POST: string-body: null");
+                logger.debug(settings.tag + "POST: string-body: null");
             }
 
         }
@@ -1170,7 +1170,7 @@ public class MultiHostOkHttpClient {
 
     private void printGetInputsLog(Request request, LoadBalancedHostManager.Host host) {
         if (settings.verboseLog && logger.isDebugEnabled() && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
-            logger.debug("GET: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams);
+            logger.debug(settings.tag + "GET: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams);
         }
     }
 
@@ -1192,14 +1192,14 @@ public class MultiHostOkHttpClient {
                 }
 
             }
-            logger.debug(stringBuilder.toString());
+            logger.debug(settings.tag + stringBuilder.toString());
 
         }
     }
 
     private void printResponseCodeLog(Response response) {
         if (settings.verboseLog && logger.isDebugEnabled() && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RESPONSE_CODE)) {
-            logger.debug("Response: code:" + response.code() + ", message:" + response.message());
+            logger.debug(settings.tag + "Response: code:" + response.code() + ", message:" + response.message());
         }
     }
 
@@ -1447,6 +1447,7 @@ public class MultiHostOkHttpClient {
         private Dns dns;
         private SSLSocketFactory sslSocketFactory;
         private DataConverter dataConverter;
+        private String tag = "";
 
         private Set<Integer> httpCodeNeedBlock = new HashSet<>(8);
 
@@ -2009,6 +2010,15 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setDataConverter(DataConverter dataConverter) {
         settings.dataConverter = dataConverter;
+        return this;
+    }
+
+    /**
+     * 设置客户端的标识
+     * @param tag 标识
+     */
+    public MultiHostOkHttpClient setTag(String tag) {
+        settings.tag = tag != null ? tag + " " : "";
         return this;
     }
 

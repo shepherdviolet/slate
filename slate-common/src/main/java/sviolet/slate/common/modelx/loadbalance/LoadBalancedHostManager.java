@@ -51,6 +51,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class LoadBalancedHostManager {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
+    private String tag = "";
 
     private AtomicInteger mainCounter = new AtomicInteger(0);
     private AtomicInteger refugeCounter = new AtomicInteger(0);
@@ -184,6 +185,15 @@ public class LoadBalancedHostManager {
     }
 
     /**
+     * 设置客户端的标识
+     * @param tag 标识
+     */
+    public LoadBalancedHostManager setTag(String tag) {
+        this.tag = tag != null ? tag + " " : "";
+        return this;
+    }
+
+    /**
      * 获得当前远端列表和状态
      * @return value=true:可用, value=false:不可用
      */
@@ -274,7 +284,7 @@ public class LoadBalancedHostManager {
         hostIndexMap = newHostIndexMap;
 
         if (logger.isInfoEnabled()) {
-            logger.info(printHostsStatus("New hosts set:"));
+            logger.info(printHostsStatus(tag + "New hosts set:"));
         }
     }
 

@@ -66,6 +66,7 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
     public static final long DEFAULT_INSPECT_INTERVAL = 5000L;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
+    private String tag = "";
 
     private LoadBalancedHostManager hostManager;
     private List<LoadBalanceInspector> inspectors = new ArrayList<>(1);
@@ -147,6 +148,15 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
     }
 
     /**
+     * 设置客户端的标识
+     * @param tag 标识
+     */
+    public LoadBalancedInspectManager setTag(String tag) {
+        this.tag = tag != null ? tag + " " : "";
+        return this;
+    }
+
+    /**
      * 关闭探测器(关闭调度线程)
      */
     @Override
@@ -165,7 +175,7 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
             inspectThreadPool.shutdownNow();
         } catch (Throwable ignore){
         }
-        logger.info("Destroyed:" + this);
+        logger.info(tag + "Destroyed:" + this);
     }
 
     protected boolean isBlockIfInspectorError(){
@@ -184,7 +194,7 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
                 } catch (InterruptedException ignored) {
                 }
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Dispatch: start");
+                    logger.debug(tag + "Dispatch: start");
                 }
                 LoadBalancedHostManager hostManager;
                 LoadBalancedHostManager.Host[] hostArray;
@@ -196,7 +206,7 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
                     //检查是否配置
                     if (hostManager == null || inspectors == null){
                         if (logger.isWarnEnabled()) {
-                            logger.warn("Dispatch: no hostManager or inspectors, skip inspect");
+                            logger.warn(tag + "Dispatch: no hostManager or inspectors, skip inspect");
                         }
                         continue;
                     }
@@ -204,13 +214,13 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
                     hostArray = hostManager.getHostArray();
                     if (hostArray.length <= 0){
                         if (logger.isWarnEnabled()) {
-                            logger.warn("Dispatch: hostArray is empty, skip inspect");
+                            logger.warn(tag + "Dispatch: hostArray is empty, skip inspect");
                         }
                         continue;
                     }
                     //打印当前远端状态
                     if (verboseLog && logger.isDebugEnabled()) {
-                        logger.debug(hostManager.printHostsStatus("Host status (before inspect):"));
+                        logger.debug(hostManager.printHostsStatus(tag + "Host status (before inspect):"));
                     }
                     //探测所有远端
                     for (LoadBalancedHostManager.Host host : hostArray){
@@ -223,7 +233,7 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
                     }
                 }
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Dispatch: closed");
+                    logger.debug(tag + "Dispatch: closed");
                 }
             }
         });
@@ -237,13 +247,13 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
             @Override
             public void run() {
                 if (verboseLog && logger.isDebugEnabled()) {
-                    logger.debug("Inspect: inspecting " + host.getUrl());
+                    logger.debug(tag + "Inspect: inspecting " + host.getUrl());
                 }
                 //持有探测器
                 List<LoadBalanceInspector> inspectors = LoadBalancedInspectManager.this.inspectors;
                 if (inspectors == null){
                     if (logger.isWarnEnabled()) {
-                        logger.warn("Inspect: no inspectors, skip inspect");
+                        logger.warn(tag + "Inspect: no inspectors, skip inspect");
                     }
                     return;
                 }
@@ -261,7 +271,7 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
                         }
                     } catch (Throwable t) {
                         if (logger.isErrorEnabled()){
-                            logger.error("Inspect: error, url " + host.getUrl() + ", in " + inspector.getClass(), t);
+                            logger.error(tag + "Inspect: error, url " + host.getUrl() + ", in " + inspector.getClass(), t);
                         }
                         if (isBlockIfInspectorError()) {
                             block = true;
@@ -273,11 +283,11 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
                 if (block){
                     host.block(blockDuration);
                     if (logger.isInfoEnabled()) {
-                        logger.info("Inspect: block " + host.getUrl() + " " + blockDuration);
+                        logger.info(tag + "Inspect: block " + host.getUrl() + " " + blockDuration);
                     }
                 }
                 if (verboseLog && logger.isDebugEnabled()) {
-                    logger.debug("Inspect: inspected " + host.getUrl());
+                    logger.debug(tag + "Inspect: inspected " + host.getUrl());
                 }
             }
         });
