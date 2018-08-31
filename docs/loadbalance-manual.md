@@ -13,7 +13,7 @@
 
 //依赖
 dependencies {
-    compile 'com.github.shepherdviolet:slate-common:9.12'
+    compile 'com.github.shepherdviolet:slate-common:9.13'
 }
 ```
 
@@ -21,10 +21,10 @@ dependencies {
 
 ```text
 dependencies {
-    compile ('com.github.shepherdviolet:slate-common:9.12') {
+    compile ('com.github.shepherdviolet:slate-common:9.13') {
         transitive = false
     }
-    compile ('com.github.shepherdviolet:thistle:9.8') {
+    compile ('com.github.shepherdviolet:thistle:9.9') {
         transitive = false
     }
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
@@ -38,7 +38,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.12</version>
+        <version>9.13</version>
     </dependency>
 ```
 
@@ -48,7 +48,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.12</version>
+        <version>9.13</version>
         <exclusions>
              <exclusion>
                  <groupId>*</groupId>
@@ -59,7 +59,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>thistle</artifactId>
-        <version>9.8</version>
+        <version>9.9</version>
         <exclusions>
              <exclusion>
                  <groupId>*</groupId>
