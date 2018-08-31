@@ -111,7 +111,6 @@ dependencies {
         <property name="writeTimeout" value="10000"/>
         <property name="readTimeout" value="10000"/>
         <property name="verboseLog" value="true"/>
-        <!--<property name="logConfig" value="0x00000010"/>-->
         <!--<property name="verboseLogConfig" value="0x00000110"/>-->
         <!--<property name="dataConverter" ref="dataConverter"/> 默认提供GsonDataConverter-->
     </bean>
@@ -164,7 +163,6 @@ dependencies {
                 .setWriteTimeout(10000L)
                 .setReadTimeout(10000L)
                 //.setDataConverter(new GsonDataConverter())
-                //.setLogConfig(MultiHostOkHttpClient.LOG_CONFIG_BLOCK)
                 //.setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)
                 .setVerboseLog(true);
     }
@@ -189,7 +187,6 @@ dependencies {
         <property name="writeTimeout" value="10000"/>
         <property name="readTimeout" value="10000"/>
         <property name="verboseLog" value="true"/>
-        <!--<property name="logConfig" value="0x00000010"/>-->
         <!--<property name="verboseLogConfig" value="0x00000110"/>-->
         <!--<property name="dataConverter" ref="dataConverter"/> 默认提供GsonDataConverter-->
         <!--<property name="httpGetInspector" ref="/health"/> 将主动探测方式从telnet改为http get方式-->
@@ -208,7 +205,6 @@ dependencies {
             .setReadTimeout(10000L)
             //.setDataConverter(new GsonDataConverter())
             //.setHttpGetInspector("/health")
-            //.setLogConfig(MultiHostOkHttpClient.LOG_CONFIG_BLOCK)
             //.setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)
             .setVerboseLog(true);
 
