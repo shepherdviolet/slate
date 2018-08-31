@@ -1,4 +1,4 @@
-package sviolet.slate.springboot.config;
+package sviolet.slate.springboot.auto;
 
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

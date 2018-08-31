@@ -189,7 +189,7 @@ public class LoadBalancedHostManager {
      * @param tag 标识
      */
     public LoadBalancedHostManager setTag(String tag) {
-        this.tag = tag != null ? tag + " " : "";
+        this.tag = tag != null ? tag + "> " : "";
         return this;
     }
 

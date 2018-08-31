@@ -152,7 +152,7 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
      * @param tag 标识
      */
     public LoadBalancedInspectManager setTag(String tag) {
-        this.tag = tag != null ? tag + " " : "";
+        this.tag = tag != null ? tag + "> " : "";
         return this;
     }
 

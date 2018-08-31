@@ -1,16 +1,13 @@
-package sviolet.slate.springboot.config;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
+package sviolet.slate.springboot.modelx.loadbalance.auto;
 
 /**
- * 自动配置MultiHostOkHttpClient的参数
+ * 自动配置SimpleOkHttpClient的参数
  *
  * @author S.Violet
  */
-@ConfigurationProperties(prefix = "slate.httpclient")
-public class SimpleOkHttpClientProperties {
+public class HttpClientProperties {
 
-    private String[] hosts;
+    private String[] hosts = new String[0];
     private long initiativeInspectInterval = 5000L;
     private int maxThreads = 200;
     private int maxThreadsPerHost = 200;
@@ -91,4 +88,5 @@ public class SimpleOkHttpClientProperties {
     public void setVerboseLog(boolean verboseLog) {
         this.verboseLog = verboseLog;
     }
+
 }

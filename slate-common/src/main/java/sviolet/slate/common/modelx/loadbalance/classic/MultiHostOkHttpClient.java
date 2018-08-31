@@ -2018,7 +2018,7 @@ public class MultiHostOkHttpClient {
      * @param tag 标识
      */
     public MultiHostOkHttpClient setTag(String tag) {
-        settings.tag = tag != null ? tag + " " : "";
+        settings.tag = tag != null ? tag + "> " : "";
         return this;
     }
 
