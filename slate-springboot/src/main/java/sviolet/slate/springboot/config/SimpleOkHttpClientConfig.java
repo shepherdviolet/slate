@@ -7,11 +7,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import sviolet.slate.common.modelx.loadbalance.classic.GsonDataConverter;
-import sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient;
 import sviolet.slate.common.modelx.loadbalance.classic.SimpleOkHttpClient;
 
 /**
- * 自动配置MultiHostOkHttpClient
+ * 自动配置SimpleOkHttpClient
  *
  * @author S.Violet
  */
@@ -21,17 +20,17 @@ public class SimpleOkHttpClientConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleOkHttpClientConfig.class);
 
-    @Bean("slate.springboot.multiHostOkHttpClient")
+    @Bean("slate.springboot.simpleOkHttpClient")
     @ConditionalOnMissingBean
-    public MultiHostOkHttpClient multiHostOkHttpClient(SimpleOkHttpClientProperties simpleOkHttpClientProperties){
+    public SimpleOkHttpClient simpleOkHttpClient(SimpleOkHttpClientProperties simpleOkHttpClientProperties){
         if (simpleOkHttpClientProperties.getHosts() == null) {
             return null;
         }
-        logger.info("MultiHostOkHttpClient instance created automatically");
+        logger.info("SimpleOkHttpClient instance created automatically");
         for (String host : simpleOkHttpClientProperties.getHosts()) {
             logger.info("Host:" + host);
         }
-        return new SimpleOkHttpClient()
+        return (SimpleOkHttpClient) new SimpleOkHttpClient()
                 .setHostArray(simpleOkHttpClientProperties.getHosts())
                 .setInitiativeInspectInterval(simpleOkHttpClientProperties.getInitiativeInspectInterval())
                 .setMaxThreads(simpleOkHttpClientProperties.getMaxThreads())

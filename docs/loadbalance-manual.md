@@ -214,6 +214,28 @@ dependencies {
 
 ```
 
+### 使用Apollo配置中心实时调整配置
+
+```text
+@Component
+public class ApolloConfigChangeService {
+
+    @ApolloConfig
+    private Config apolloConfig;
+
+    @Autowired
+    private SimpleOkHttpClient simpleOkHttpClient;
+
+    @ApolloConfigChangeListener
+    private void onHttpClientChanged(ConfigChangeEvent configChangeEvent){
+        if (configChangeEvent.isChanged("http.client.urls")){
+            simpleOkHttpClient.setHosts(apolloConfig.getProperty("http.client.urls", ""));
+        }
+    }
+
+}
+```
+
 # 调用
 
 * 关于URL地址
