@@ -212,7 +212,16 @@ dependencies {
 
 ### 使用Apollo配置中心实时调整配置
 
+* Spring(XML)
+
 ```text
+SimpleOkHttpClient如果是通过XML方式配置的, 只需要配置<apollo:config/>即可实时根据Apollo配置中心调整
+```
+
+* Spring(注解)
+
+```text
+//SimpleOkHttpClient如果是通过@Bean方式配置的, 则按如下方式实现
 @Component
 public class ApolloConfigChangeService {
 
