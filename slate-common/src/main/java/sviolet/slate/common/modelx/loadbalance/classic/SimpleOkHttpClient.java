@@ -145,11 +145,15 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     }
 
     /**
-     * 设置主动探测间隔 (主动探测器), 运行时修改该参数无效!
+     * [线程安全/异步生效/可运行时修改]
+     * 设置主动探测间隔 (主动探测器)
      * @param initiativeInspectInterval 检测间隔ms, > 0 , 建议 > 5000
      */
     public SimpleOkHttpClient setInitiativeInspectInterval(long initiativeInspectInterval) {
         this.initiativeInspectInterval = initiativeInspectInterval;
+        if (inspectManager != null) {
+            inspectManager.setInspectInterval(initiativeInspectInterval);
+        }
         return this;
     }
 
@@ -173,13 +177,17 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     }
 
     /**
-     * 打印更多的日志, 默认关闭, 运行时修改该参数无效!
+     * [线程安全/异步生效/可运行时修改]
+     * 打印更多的日志, 默认关闭
      * @param verboseLog true:打印更多的调试日志, 默认关闭
      */
     @Override
     public MultiHostOkHttpClient setVerboseLog(boolean verboseLog) {
         super.setVerboseLog(verboseLog);
         this.verboseLog = verboseLog;
+        if (inspectManager != null) {
+            inspectManager.setVerboseLog(verboseLog);
+        }
         return this;
     }
 }
