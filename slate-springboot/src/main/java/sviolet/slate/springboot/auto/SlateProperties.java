@@ -14,7 +14,8 @@ import java.util.Map;
 public class SlateProperties {
 
     /**
-     * 自动配置SimpleOkHttpClient, 使用HttpClients示例获得
+     * slate.httpclients
+     * 自动配置SimpleOkHttpClient(多个)
      */
     private Map<String, HttpClientProperties> httpclients;
 

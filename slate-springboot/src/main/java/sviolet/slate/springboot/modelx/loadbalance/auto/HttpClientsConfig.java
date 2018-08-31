@@ -13,7 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 自动配置SimpleOkHttpClient
+ * slate.httpclients
+ * 自动配置SimpleOkHttpClient(多个)
  *
  * @author S.Violet
  */
@@ -22,6 +23,12 @@ public class HttpClientsConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpClientsConfig.class);
 
+    /**
+     * 自动配置SimpleOkHttpClient(多个)
+     *
+     * 只配置一个客户端, 且上下文中也没有手动创建的SimpleOkHttpClient时, 可以用@Autoaware SimpleOkHttpClient直接获得客户端实例,
+     * 否则要通过@Autoaware HttpClients获得客户端集合
+     */
     @Bean("slate.springboot.HttpClients")
     public HttpClients httpClients(SlateProperties slateProperties){
         Map<String, SimpleOkHttpClient> clients = new HashMap<>(1);
@@ -62,8 +69,8 @@ public class HttpClientsConfig {
     }
 
     /**
-     * slate.httpclients只配置了一个, 且上下文中没有手动创建过任何SimpleOkHttpClient时,
-     * 可以用@Autoaware SimpleOkHttpClient获得客户端实例
+     * 只配置一个客户端, 且上下文中也没有手动创建的SimpleOkHttpClient时, 可以用@Autoaware SimpleOkHttpClient直接获得客户端实例,
+     * 否则要通过@Autoaware HttpClients获得客户端集合
      */
     @Bean("slate.springboot.SimpleOkHttpClient")
     @ConditionalOnMissingBean
