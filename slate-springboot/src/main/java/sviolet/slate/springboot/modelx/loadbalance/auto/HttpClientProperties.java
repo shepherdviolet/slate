@@ -9,9 +9,20 @@ package sviolet.slate.springboot.modelx.loadbalance.auto;
 public class HttpClientProperties {
 
     /**
-     * 设置远端列表
+     * 设置远端列表: 逗号分隔格式. 若hosts和hostList同时设置, 则只有hosts配置生效.
+     * 例如:
+     * hosts: http://localhost:8080,http://localhost:8081
      */
-    private String[] hosts = new String[0];
+    private String hosts = "";
+
+    /**
+     * 设置远端列表: 列表格式. 若hosts和hostList同时设置, 则只有hosts配置生效.
+     * 例如:
+     * hostList:
+     *  - http://localhost:8080
+     *  - http://localhost:8081
+     */
+    private String[] hostList = new String[0];
 
     /**
      * 设置主动探测间隔 (主动探测器)
@@ -56,12 +67,20 @@ public class HttpClientProperties {
      */
     private boolean verboseLog = true;
 
-    public String[] getHosts() {
+    public String getHosts() {
         return hosts;
     }
 
-    public void setHosts(String[] hosts) {
+    public void setHosts(String hosts) {
         this.hosts = hosts;
+    }
+
+    public String[] getHostList() {
+        return hostList;
+    }
+
+    public void setHostList(String[] hostList) {
+        this.hostList = hostList;
     }
 
     public long getInitiativeInspectInterval() {
