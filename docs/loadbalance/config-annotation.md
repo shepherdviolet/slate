@@ -172,9 +172,9 @@ public class HttpClientConfigChangeListener {
     @Autowired
     private SimpleOkHttpClient simpleOkHttpClient;
 
-    @Value("http.client.hosts")
+    @Value("${http.client.hosts:}")
     public void setHosts(String hosts) {
-        if (simpleOkHttpClient != null) {
+        if (simpleOkHttpClient != null && !CheckUtils.isEmptyOrBlank(hosts)) {
             simpleOkHttpClient.setHosts(hosts);
         }
     }

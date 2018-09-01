@@ -169,9 +169,9 @@ public class HttpClientConfigChangeListener {
         client1 = httpClients.get("client1");
     }
 
-    @Value("http.client1.hosts")
+    @Value("${http.client1.hosts:}")
     public void setHosts(String hosts) {
-        if (client1 != null) {
+        if (client1 != null && !CheckUtils.isEmptyOrBlank(hosts)) {
             client1.setHosts(hosts);
         }
     }
