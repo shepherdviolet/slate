@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.*;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1692,9 +1693,27 @@ public class MultiHostOkHttpClient {
             if (dataConverter == null) {
                 throw new ResponseConvertException("No DataConverter set, you must set dataConverter before enqueue a beanBody");
             }
-            ParameterizedType parameterizedType = (ParameterizedType) this.getClass().getGenericSuperclass();
-            Class<T> type = (Class<T>) parameterizedType.getActualTypeArguments()[0];
-            onSucceed(dataConverter.convert(body, type));
+            //当前类的父类(BeanCallback实现类的父类), 即MultiHostOkHttpClient$BeanCallback
+            Type superType = getClass().getGenericSuperclass();
+            if (!(superType instanceof ParameterizedType)) {
+                //MultiHostOkHttpClient$BeanCallback有泛型, 因此这里的superType必然是ParameterizedType实例
+                //P.S.泛型类的实现类getGenericSuperclass返回ParameterizedType实例
+                //P.S.非泛型类的实现类getGenericSuperclass返回Class实例
+                throw new IllegalStateException("FATAL: superType is not an instance of ParameterizedType!");
+            }
+            //获取第0个泛型类型, 即T的实际类型
+            Type generic0Type = ((ParameterizedType)superType).getActualTypeArguments()[0];
+            //P.S.在getActualTypeArguments返回的类型数组中, 泛型类是ParameterizedType实例, 非泛型类是Class实例
+            if (generic0Type instanceof ParameterizedType) {
+                //如果第0个泛型类型(T的实际类型)是泛型类, 则generic0Type是ParameterizedType实例
+                //使用getRawType方法取原始类型用于类型转换
+                //例如T为Map<String, Object>时, 只取Map类型
+                onSucceed(dataConverter.convert(body, (Class<T>) ((ParameterizedType) generic0Type).getRawType()));
+            } else {
+                //如果第0个泛型类型(T的实际类型)不是泛型类, 则generic0Type是Class实例, 直接转为Class<T>即可
+                //例如T类Map时, 直接类型转换为Class<Map>即可
+                onSucceed(dataConverter.convert(body, (Class<T>) generic0Type));
+            }
         }
 
         @Override
