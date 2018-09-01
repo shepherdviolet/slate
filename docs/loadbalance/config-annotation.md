@@ -161,7 +161,28 @@ public SimpleOkHttpClient simpleOkHttpClient() {
 
 * 虽然Apollo配置中心新版本能实时更新XML属性和@Value注解中的${...}参数
 * 但是使用@Bean方式声明的类, 只在实例化时进行参数赋值
-* 因此必须通过Apollo监听器的方式实现:
+* 因此必须通过其他方式实现, 方法有两种
+
+* 方法1: @Value注解在方法上, 每次参数变化都会调用该方法, 以此实时改变参数
+
+```text
+@Component
+public class HttpClientConfigChangeListener {
+
+    @Autowired
+    private SimpleOkHttpClient simpleOkHttpClient;
+
+    @Value("http.client.hosts")
+    public void setHosts(String hosts) {
+        if (simpleOkHttpClient != null) {
+            simpleOkHttpClient.setHosts(hosts);
+        }
+    }
+
+}
+```
+
+* 方法2: Apollo配置变化监听器
 
 ```text
 @Component
