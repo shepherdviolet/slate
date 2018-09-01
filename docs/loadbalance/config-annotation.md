@@ -136,8 +136,13 @@ dependencies {
 * 实现了DisposableBean, 在Spring容器中会自动销毁<br>
 
 ```text
-    SimpleOkHttpClient client = new SimpleOkHttpClient()
-            .setHosts("http://127.0.0.1:8081,http://127.0.0.1:8082")
+@Value("${http.client.hosts}")
+private String hosts;
+
+@Bean
+public SimpleOkHttpClient simpleOkHttpClient() {
+    return (SimpleOkHttpClient) new SimpleOkHttpClient()
+            .setHosts(hosts)
             .setInitiativeInspectInterval(5000L)
             .setMaxThreads(200)
             .setMaxThreadsPerHost(200)
@@ -149,6 +154,7 @@ dependencies {
             //.setHttpGetInspector("/health")
             //.setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)
             .setVerboseLog(true);
+}
 ```
 
 ## 使用Apollo配置中心实时调整配置
@@ -169,17 +175,10 @@ public class ApolloConfigChangeService {
 
     @ApolloConfigChangeListener
     private void onHttpClientChanged(ConfigChangeEvent configChangeEvent){
-        if (configChangeEvent.isChanged("http.client.urls")){
-            simpleOkHttpClient.setHosts(apolloConfig.getProperty("http.client.urls", ""));
+        if (configChangeEvent.isChanged("http.client.hosts")){
+            simpleOkHttpClient.setHosts(apolloConfig.getProperty("http.client.hosts", ""));
         }
     }
 
 }
-```
-
-# 注入
-
-```text
-    @Autowired
-    private MultiHostOkHttpClient client;
 ```

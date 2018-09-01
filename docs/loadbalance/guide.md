@@ -5,5 +5,16 @@
 * 支持被动/主动方式探测后端是否可用, 自动选择可用的后端发送请求
 * 支持同步/异步方式请求
 
-# 目录
+# 配置
 
+* [Spring XML配置](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-xml.md)
+* [Spring 注解配置](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-annotation.md)
+* [SpringBoot YML自动配置](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-springboot.md)
+
+# 调用
+
+* [发送请求GET/POST](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/get-and-post.md)
+
+# 其他
+
+* [参数说明](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/properties.md)
