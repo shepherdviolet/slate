@@ -1,4 +1,4 @@
-# slate 9.12
+# slate 9.13
 * JavaEE common library
 * https://github.com/shepherdviolet/slate
 
@@ -12,9 +12,9 @@ repositories {
 }
 dependencies {
     // For spring boot
-    compile 'com.github.shepherdviolet:slate-springboot:9.12'
+    compile 'com.github.shepherdviolet:slate-springboot:9.13'
     // For others
-    compile 'com.github.shepherdviolet:slate-common:9.12'
+    compile 'com.github.shepherdviolet:slate-common:9.13'
 }
 
 ```
@@ -23,12 +23,12 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-springboot</artifactId>
-        <version>9.12</version>
+        <version>9.13</version>
     </dependency>
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.12</version>
+        <version>9.13</version>
     </dependency>
 ```
 
@@ -71,5 +71,5 @@ dependencies {
 
 # Manifest
 
-* [MultiHostOkHttpClient](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance-manual.md)
+* [MultiHostOkHttpClient](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/guide.md)
 * InterfaceInstantiation
