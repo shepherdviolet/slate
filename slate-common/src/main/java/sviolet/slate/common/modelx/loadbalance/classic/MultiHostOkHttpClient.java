@@ -1218,10 +1218,13 @@ public class MultiHostOkHttpClient {
         dispatcher.setMaxRequests(settings.maxThreads);
         dispatcher.setMaxRequestsPerHost(settings.maxThreadsPerHost);
 
+        ConnectionPool connectionPool = new ConnectionPool(settings.maxIdleConnections, 5, TimeUnit.MINUTES);
+
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .connectTimeout(settings.connectTimeout, TimeUnit.MILLISECONDS)
                 .writeTimeout(settings.writeTimeout, TimeUnit.MILLISECONDS)
                 .readTimeout(settings.readTimeout, TimeUnit.MILLISECONDS)
+                .connectionPool(connectionPool)
                 .dispatcher(dispatcher);
 
         builder.addInterceptor(new Interceptor(){
@@ -1437,6 +1440,7 @@ public class MultiHostOkHttpClient {
         private int verboseLogConfig = VERBOSE_LOG_CONFIG_DEFAULT;
         private int logConfig = LOG_CONFIG_DEFAULT;
 
+        private int maxIdleConnections = 16;
         private int maxThreads = 64;
         private int maxThreadsPerHost = 64;
         private long connectTimeout = 3000L;
@@ -1834,8 +1838,24 @@ public class MultiHostOkHttpClient {
 
     /**
      * [可运行时修改]
+     * 最大闲置连接数. 客户端会保持与服务端的连接, 保持数量由此设置决定, 直到闲置超过5分钟. 默认
+     * @param maxIdleConnections 最大闲置连接数, 默认16
+     */
+    public MultiHostOkHttpClient setMaxIdleConnections(int maxIdleConnections) {
+        try {
+            settingsLock.lock();
+            settings.maxIdleConnections = maxIdleConnections;
+            refreshSettings = true;
+        } finally {
+            settingsLock.unlock();
+        }
+        return this;
+    }
+
+    /**
+     * [可运行时修改]
      * 最大请求线程数(仅异步请求时有效)
-     * @param maxThreads 最大请求线程数
+     * @param maxThreads 最大请求线程数, 默认64
      */
     public MultiHostOkHttpClient setMaxThreads(int maxThreads) {
         try {
@@ -1851,7 +1871,7 @@ public class MultiHostOkHttpClient {
     /**
      * [可运行时修改]
      * 对应每个后端的最大请求线程数(仅异步请求时有效)
-     * @param maxThreadsPerHost 对应每个后端的最大请求线程数
+     * @param maxThreadsPerHost 对应每个后端的最大请求线程数, 默认64
      */
     public MultiHostOkHttpClient setMaxThreadsPerHost(int maxThreadsPerHost) {
         try {
