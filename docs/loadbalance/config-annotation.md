@@ -114,8 +114,9 @@ dependencies {
     public MultiHostOkHttpClient multiHostOkHttpClient(LoadBalancedHostManager loadBalancedHostManager) {
         return new MultiHostOkHttpClient()
                 .setHostManager(loadBalancedHostManager)
-                .setMaxThreads(200)
-                .setMaxThreadsPerHost(200)
+                .setMaxIdleConnections(20)
+                .setMaxThreads(200)//仅在异步方式有效, 同步无限制
+                .setMaxThreadsPerHost(200)//仅在异步方式有效, 同步无限制
                 .setPassiveBlockDuration(6000L)
                 .setConnectTimeout(3000L)
                 .setWriteTimeout(10000L)
@@ -144,8 +145,9 @@ public SimpleOkHttpClient simpleOkHttpClient() {
     return (SimpleOkHttpClient) new SimpleOkHttpClient()
             .setHosts(hosts)
             .setInitiativeInspectInterval(5000L)
-            .setMaxThreads(200)
-            .setMaxThreadsPerHost(200)
+            .setMaxIdleConnections(20)
+            .setMaxThreads(200)//仅在异步方式有效, 同步无限制
+            .setMaxThreadsPerHost(200)//仅在异步方式有效, 同步无限制
             .setPassiveBlockDuration(6000L)
             .setConnectTimeout(3000L)
             .setWriteTimeout(10000L)

@@ -98,8 +98,9 @@ dependencies {
     <!-- 调用该实例发送请求 -->
     <bean id="multiHostOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
         <property name="hostManager" ref="loadBalancedHostManager"/>
-        <property name="maxThreads" value="200"/>
-        <property name="maxThreadsPerHost" value="200"/>
+        <property name="maxIdleConnections" value="20"/>
+        <property name="maxThreads" value="200"/><!-- 仅在异步方式有效, 同步无限制 -->
+        <property name="maxThreadsPerHost" value="200"/><!-- 仅在异步方式有效, 同步无限制 -->
         <property name="passiveBlockDuration" value="6000"/>
         <property name="connectTimeout" value="3000"/>
         <property name="writeTimeout" value="10000"/>
@@ -123,8 +124,9 @@ dependencies {
     <bean id="simpleOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.SimpleOkHttpClient">
         <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
         <property name="initiativeInspectInterval" value="5000"/>
-        <property name="maxThreads" value="200"/>
-        <property name="maxThreadsPerHost" value="200"/>
+        <property name="maxIdleConnections" value="20"/>
+        <property name="maxThreads" value="200"/><!-- 仅在异步方式有效, 同步无限制 -->
+        <property name="maxThreadsPerHost" value="200"/><!-- 仅在异步方式有效, 同步无限制 -->
         <property name="passiveBlockDuration" value="6000"/>
         <property name="connectTimeout" value="3000"/>
         <property name="writeTimeout" value="10000"/>

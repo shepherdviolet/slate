@@ -1,4 +1,4 @@
-# Http请求客户端调用方法(GET/POST)
+# Http请求客户端调用方法(异步GET/POST)
 
 * 关于URL地址
 
@@ -9,113 +9,13 @@
 > 程序会自动选择一个应用服务器, 然后将应用服务器的地址与URL后缀拼接 <br>
 > 最终的请求地址为 http://127.0.0.1:8081/user/update.json 或 http://127.0.0.1:8082/user/update.json <br>
 
+* 注意
+
+> 异步方式通常在终端应用使用(安卓客户端等), 便于UI交互 <br>
+> 异步方式的等待队列长度无限, 并发数通过`maxThreads` / `maxThreadsPerHost`配置决定 <br>
+> 用于服务端时, 建议使用同步方式, 并自行实现线程隔离/线程数限制/等待队列限制等 <br>
+
 ### POST
-
-* 同步POST:返回byte[]类型的响应
- 
- ```text
-  try {
-      byte[] response = client.post("/post/json")
-              .urlParam("traceId", "000000001")
-              .body("hello world".getBytes())
-              //.formBody(formBody)//表单提交
-              //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
-              //.httpHeader("Accept", "application/json;charset=utf-8")
-              //.mediaType("application/json;charset=utf-8")
-              //.encode("utf-8")
-              .sendForBytes();
-  } catch (NoHostException e) {
-      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-  } catch (RequestBuildException e) {
-      //在网络请求未发送前抛出的异常
-  } catch (IOException e) {
-      //网络异常
-  } catch (HttpRejectException e) {
-      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-      //获得拒绝码 e.getResponseCode()
-      //获得拒绝信息 e.getResponseMessage()
-  }
- ```
-
-* 同步POST:返回InputStream类型的响应
-* 注意:InputStream需要手动关闭(close)
-
- ```text
- try (InputStream inputStream = client.post("/post/json")
-         .body("hello world".getBytes())
-         //.formBody(formBody)//表单提交
-         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
-         //.httpHeader("Accept", "application/json;charset=utf-8")
-         //.mediaType("application/json;charset=utf-8")
-         //.encode("utf-8")
-         .sendForInputStream()) {
-
-     inputStream......
-
- } catch (NoHostException e) {
-     //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
- } catch (RequestBuildException e) {
-     //在网络请求未发送前抛出的异常
- } catch (IOException e) {
-     //网络异常
- } catch (HttpRejectException e) {
-     //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     //获得拒绝码 e.getResponseCode()
-     //获得拒绝信息 e.getResponseMessage()
- }
-```
-
-* 同步POST:返回ResponsePackage类型的响应
-* 注意:ResponsePackage需要手动关闭(close)
-
- ```text
- try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.post("/post/json")
-         .body("hello world".getBytes())
-         //.formBody(formBody)//表单提交
-         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
-         //.httpHeader("Accept", "application/json;charset=utf-8")
-         //.mediaType("application/json;charset=utf-8")
-         //.encode("utf-8")
-         .send()) {
-
-     String response = responsePackage.body().string();
-
- } catch (NoHostException e) {
-     //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
- } catch (RequestBuildException e) {
-     //在网络请求未发送前抛出的异常
- } catch (IOException e) {
-     //网络异常
- } catch (HttpRejectException e) {
-     //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     //获得拒绝码 e.getResponseCode()
-     //获得拒绝信息 e.getResponseMessage()
- }
-```
-
-* 同步POST:请求报文体Map, 返回报文体Map
-* 注意:必须要配置dataConverter
-
-```text
- try {
-        Map<String, Object> requestMap = new HashMap<>(2);
-        requestMap.put("name", "wang wang");
-        requestMap.put("key", "963");
-        Map<String, Object> responseMap = client.post("/post/json")
-                .beanBody(requestMap)
-                .sendForBean(Map.class);
- } catch (NoHostException e) {
-     //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
- } catch (RequestBuildException e) {
-     //在网络请求未发送前抛出的异常
- } catch (IOException e) {
-     //网络异常
- } catch (HttpRejectException e) {
-     //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     //获得拒绝码 e.getResponseCode()
-     //获得拒绝信息 e.getResponseMessage()
- }
-```
 
 * 异步POST:返回byte[]类型的响应
 
@@ -240,106 +140,6 @@ client.post("/post/json")
 ```
 
 ### GET
-
-* 同步GET:返回byte[]类型的响应
- 
- ```text
-  try {
-      byte[] response = client.get("/get/json")
-              .urlParam("name", "000000001")
-              .urlParam("key", "000000001")
-              //.httpHeader("Accept", "application/json;charset=utf-8")
-              //.mediaType("application/json;charset=utf-8")
-              //.encode("utf-8")
-              .sendForBytes();
-  } catch (NoHostException e) {
-      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-  } catch (RequestBuildException e) {
-      //在网络请求未发送前抛出的异常
-  } catch (IOException e) {
-      //网络异常
-  } catch (HttpRejectException e) {
-      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-      //获得拒绝码 e.getResponseCode()
-      //获得拒绝信息 e.getResponseMessage()
-  }
- ```
-
-* 同步GET:返回InputStream类型的响应
-* 注意:InputStream需要手动关闭(close)
-
- ```text
- try (InputStream inputStream = client.get("/get/json")
-         .urlParam("name", "000000001")
-         .urlParam("key", "000000001")
-         //.httpHeader("Accept", "application/json;charset=utf-8")
-         //.mediaType("application/json;charset=utf-8")
-         //.encode("utf-8")
-         .sendForInputStream()) {
-
-     inputStream......
-
- } catch (NoHostException e) {
-     //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
- } catch (RequestBuildException e) {
-     //在网络请求未发送前抛出的异常
- } catch (IOException e) {
-     //网络异常
- } catch (HttpRejectException e) {
-     //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     //获得拒绝码 e.getResponseCode()
-     //获得拒绝信息 e.getResponseMessage()
- }
-```
-
-* 同步GET:返回ResponsePackage类型的响应
-* 注意:ResponsePackage需要手动关闭(close)
-
- ```text
- try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.get("/get/json")
-         .urlParam("name", "000000001")
-         .urlParam("key", "000000001")
-         //.httpHeader("Accept", "application/json;charset=utf-8")
-         //.mediaType("application/json;charset=utf-8")
-         //.encode("utf-8")
-         .send()) {
-
-     String response = responsePackage.body().string();
-
- } catch (NoHostException e) {
-     //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
- } catch (RequestBuildException e) {
-     //在网络请求未发送前抛出的异常
- } catch (IOException e) {
-     //网络异常
- } catch (HttpRejectException e) {
-     //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     //获得拒绝码 e.getResponseCode()
-     //获得拒绝信息 e.getResponseMessage()
- }
-```
-
-* 同步GET:返回报文体Map
-* 注意:必须要配置dataConverter
-
-```text
- try {
-        Map<String, Object> responseMap = client.get("/get/json")
-                .urlParam("name", "000000001")
-                .urlParam("key", "000000001")
-                .sendForBean(Map.class);
- } catch (NoHostException e) {
-     //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
- } catch (RequestBuildException e) {
-     //在网络请求未发送前抛出的异常
- } catch (IOException e) {
-     //网络异常
- } catch (HttpRejectException e) {
-     //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     //获得拒绝码 e.getResponseCode()
-     //获得拒绝信息 e.getResponseMessage()
- }
-```
 
 * 异步GET:返回byte[]类型的响应
 

@@ -13,7 +13,8 @@
 
 # 调用
 
-* [发送请求GET/POST](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/get-and-post.md)
+* [同步发送请求](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-sync.md)
+* [同步发送请求](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-async.md)
 
 # 其他
 

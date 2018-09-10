@@ -91,6 +91,7 @@ dependencies {
 ## YML配置(推荐)
 
 * 在application.yml/application-profile.yml中增加配置
+* `maxThreads` / `maxThreadsPerHost` 配置仅在异步方式有效, 同步无限制
 
 ```yaml
 slate:
@@ -100,6 +101,7 @@ slate:
         - http://127.0.0.1:8081
         - http://127.0.0.1:8082
       initiativeInspectInterval: 5000
+      maxIdleConnections: 20
       maxThreads: 200
       maxThreadsPerHost: 200
       passiveBlockDuration: 6000
@@ -110,6 +112,7 @@ slate:
     client2:
       hosts: http://127.0.0.1:8083,http://127.0.0.1:8084
       initiativeInspectInterval: 5000
+      maxIdleConnections: 20
       maxThreads: 200
       maxThreadsPerHost: 200
       passiveBlockDuration: 6000
