@@ -37,15 +37,15 @@ public class CGLibProxyUtils {
      * 通常用于将接口实例化
      */
     public static <T> T newEmptyInstance(Class<T> clazz) {
-        return (T) Proxy.newProxyInstance(EmptyInvocationHandler.class.getClassLoader(), new Class<?>[] {clazz}, new EmptyInvocationHandler());
+        return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] {clazz}, emptyInvocationHandler);
     }
 
-    static class EmptyInvocationHandler implements InvocationHandler {
+    private static InvocationHandler emptyInvocationHandler = new InvocationHandler() {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             // do something
             return null;
         }
-    }
+    };
 
 }

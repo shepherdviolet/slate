@@ -37,6 +37,7 @@ import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 
+import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -81,6 +82,9 @@ class InterfaceInstantiationBeanDefinitionRegistry4 implements BeanDefinitionReg
             }
             final InterfaceInstantiator interfaceInstantiatorFinal = interfaceInstantiator;
 
+            //指定的注解类型
+            Class<? extends Annotation> annotationClass = annotationAttributes.getClass("annotationClass");
+
             //接口搜索器
             ClassPathScanningCandidateComponentProvider beanScanner = new ClassPathScanningCandidateComponentProvider(false) {
                 @Override
@@ -92,7 +96,7 @@ class InterfaceInstantiationBeanDefinitionRegistry4 implements BeanDefinitionReg
 
             //根据注解过滤
             if (annotationAttributes.getBoolean("annotationRequired")) {
-                TypeFilter includeFilter = new AnnotationTypeFilter(InterfaceInstance.class);
+                TypeFilter includeFilter = new AnnotationTypeFilter(annotationClass);
                 beanScanner.addIncludeFilter(includeFilter);
             } else {
                 beanScanner.addIncludeFilter(new TypeFilter() {

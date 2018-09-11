@@ -80,15 +80,23 @@ public @interface EnableInterfaceInstantiation {
     /**
      * 自定义参数:
      * 配置接口类实例化器(可自定义实现)
+     * 默认DefaultInterfaceInstantiator.class
      */
     Class<? extends InterfaceInstantiator> interfaceInstantiator() default DefaultInterfaceInstantiator.class;
 
     /**
      * 自定义参数:
-     * true: 指定包路径下的接口类, 只有申明了@InterfaceInstantiation注解的才进行实例化.
-     * false: 指定包路径下的接口类, 不使用@InterfaceInstantiation注解也进行实例化.
+     * true: 指定包路径下的接口类, 必须申明指定注解才进行实例化(注解类型由annotationClass指定, 默认@InterfaceInstance).
+     * false: 指定包路径下的接口类, 不声明指定注解也进行实例化.
      * 默认true
      */
     boolean annotationRequired() default true;
+
+    /**
+     * 自定义参数:
+     * 当annotationRequired为true时, 指定包路径下的接口类必须声明指定的注解才能实例化, 注解类型可以在这里定义.
+     * 默认@InterfaceInstance
+     */
+    Class<? extends Annotation> annotationClass() default InterfaceInstance.class;
 
 }
