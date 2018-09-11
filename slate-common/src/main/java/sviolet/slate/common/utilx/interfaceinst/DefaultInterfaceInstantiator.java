@@ -25,9 +25,14 @@ import sviolet.slate.common.util.proxy.CGLibProxyUtils;
  * <p>接口实例化的默认实现, CGLib</p>
  * @author S.Violet
  */
-public class DefaultInterfaceInstantiator implements InterfaceInstantiator {
+public final class DefaultInterfaceInstantiator implements InterfaceInstantiator {
     @Override
     public Object newInstance(Class<?> clazz) {
         return CGLibProxyUtils.newEmptyInstance(clazz);
+    }
+
+    @Override
+    public String resolveBeanName(String beanClassName) {
+        return beanClassName;
     }
 }

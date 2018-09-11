@@ -32,4 +32,10 @@ public interface InterfaceInstantiator {
      */
     Object newInstance(Class<?> clazz);
 
+    /**
+     * 实现根据类名决定Bean名
+     * @return Bean name
+     */
+    String resolveBeanName(String beanClassName);
+
 }

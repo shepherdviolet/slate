@@ -132,6 +132,8 @@ class InterfaceInstantiationBeanDefinitionRegistry5 implements BeanDefinitionReg
 
                     //类名
                     String className = beanDefinition.getBeanClassName();
+                    //Bean名
+                    String beanName = interfaceInstantiator.resolveBeanName(className);
 
                     //跳过已实例化的接口
                     if (processedClasses.contains(className)) {
@@ -155,7 +157,7 @@ class InterfaceInstantiationBeanDefinitionRegistry5 implements BeanDefinitionReg
                         });
 
                         //注册Bean定义
-                        registry.registerBeanDefinition(className, beanDefinitionBuilder.getBeanDefinition());
+                        registry.registerBeanDefinition(beanName, beanDefinitionBuilder.getBeanDefinition());
 
                         //记录类名
                         processedClasses.add(className);

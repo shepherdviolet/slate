@@ -42,6 +42,11 @@ public abstract class ContextAwaredInterfaceInstantiator implements InterfaceIns
     }
 
     @Override
+    public String resolveBeanName(String beanClassName) {
+        return beanClassName;
+    }
+
+    @Override
     public final Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if ("setApplicationContext".equals(method.getName()) && args.length == 1 && args[0] instanceof ApplicationContext) {
             setApplicationContext((ApplicationContext) args[0]);
