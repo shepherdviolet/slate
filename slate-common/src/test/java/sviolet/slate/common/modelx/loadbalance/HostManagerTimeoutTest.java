@@ -9,7 +9,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * 测试要点:
  * 1.无需后端
- * 2.观察网络故障情况变化时, 故障后端是否被有效阻断
+ * 2.观察当状态变为bad时, 后端2是否有效阻断(5秒内), 且后续每隔一段时间只有一次重新尝试(即不会一直有大量的错误尝试)
+ * 3.观察当状态变为ok时, 后端2是否迅速恢复(5秒内)
  */
 public class HostManagerTimeoutTest {
 
