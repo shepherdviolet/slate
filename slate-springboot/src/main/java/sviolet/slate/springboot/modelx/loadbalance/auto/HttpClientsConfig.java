@@ -60,12 +60,14 @@ public class HttpClientsConfig {
 
                 clients.put(entry.getKey(), (SimpleOkHttpClient) client
                         .setInitiativeInspectInterval(entry.getValue().getInitiativeInspectInterval())
+                        .setReturnNullIfAllBlocked(entry.getValue().isReturnNullIfAllBlocked())
                         .setMaxThreads(entry.getValue().getMaxThreads())
                         .setMaxThreadsPerHost(entry.getValue().getMaxThreadsPerHost())
                         .setPassiveBlockDuration(entry.getValue().getPassiveBlockDuration())
                         .setConnectTimeout(entry.getValue().getConnectTimeout())
                         .setWriteTimeout(entry.getValue().getWriteTimeout())
                         .setReadTimeout(entry.getValue().getReadTimeout())
+                        .setRecoveryCoefficient(entry.getValue().getRecoveryCoefficient())
                         .setVerboseLog(entry.getValue().isVerboseLog())
                         .setDataConverter(new GsonDataConverter())
                         .setTag(entry.getKey())

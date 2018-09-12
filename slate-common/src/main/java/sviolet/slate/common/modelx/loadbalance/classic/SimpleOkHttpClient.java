@@ -182,6 +182,16 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     }
 
     /**
+     * [可运行时修改]
+     * 如果设置为false(默认), 当所有远端都被阻断时, nextHost方法返回一个后端.
+     * 如果设置为true, 当所有远端都被阻断时, nextHost方法返回null.
+     */
+    public MultiHostOkHttpClient setReturnNullIfAllBlocked(boolean returnNullIfAllBlocked) {
+        hostManager.setReturnNullIfAllBlocked(returnNullIfAllBlocked);
+        return this;
+    }
+
+    /**
      * 设置客户端的标识
      * @param tag 标识
      */

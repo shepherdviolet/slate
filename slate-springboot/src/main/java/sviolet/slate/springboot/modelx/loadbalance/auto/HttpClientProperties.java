@@ -67,6 +67,17 @@ public class HttpClientProperties {
      */
     private boolean verboseLog = true;
 
+    /**
+     * 如果设置为false(默认), 当所有远端都被阻断时, nextHost方法返回一个后端.
+     * 如果设置为true, 当所有远端都被阻断时, nextHost方法返回null.
+     */
+    private boolean returnNullIfAllBlocked = false;
+
+    /**
+     * 设置阻断后的恢复期系数, 修复期时长 = blockDuration * recoveryCoefficient, 设置1则无恢复期
+     */
+    private int recoveryCoefficient = 10;
+
     public String getHosts() {
         return hosts;
     }
@@ -147,4 +158,19 @@ public class HttpClientProperties {
         this.verboseLog = verboseLog;
     }
 
+    public boolean isReturnNullIfAllBlocked() {
+        return returnNullIfAllBlocked;
+    }
+
+    public void setReturnNullIfAllBlocked(boolean returnNullIfAllBlocked) {
+        this.returnNullIfAllBlocked = returnNullIfAllBlocked;
+    }
+
+    public int getRecoveryCoefficient() {
+        return recoveryCoefficient;
+    }
+
+    public void setRecoveryCoefficient(int recoveryCoefficient) {
+        this.recoveryCoefficient = recoveryCoefficient;
+    }
 }
