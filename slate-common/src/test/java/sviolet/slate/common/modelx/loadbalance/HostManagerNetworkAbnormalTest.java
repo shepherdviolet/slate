@@ -125,9 +125,7 @@ public class HostManagerNetworkAbnormalTest {
                         AtomicInteger counter = counters.get(host.getUrl());
                         counter.incrementAndGet();
                         AtomicBoolean switcher = switchers.get(host.getUrl());
-                        if (!switcher.get()) {
-                            host.block(3000L);
-                        }
+                        host.feedback(switcher.get(), 3000L, 4);
                     }
                 }
             }).start();
@@ -144,9 +142,7 @@ public class HostManagerNetworkAbnormalTest {
                         AtomicInteger counter = counters.get(host.getUrl());
                         counter.incrementAndGet();
                         AtomicBoolean switcher = switchers.get(host.getUrl());
-                        if (!switcher.get()) {
-                            host.block(3000L);
-                        }
+                        host.feedback(switcher.get(), 3000L, 4);
                     }
                 }
             }).start();

@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager;
 import sviolet.thistle.entity.Destroyable;
+import sviolet.thistle.util.common.CloseableUtils;
 import sviolet.thistle.util.conversion.ByteUtils;
 import sviolet.thistle.util.judge.CheckUtils;
 
@@ -942,12 +943,17 @@ public class MultiHostOkHttpClient {
     }
 
     private ResponsePackage syncCall(LoadBalancedHostManager.Host host, okhttp3.Request okRequest, Request request) throws RequestBuildException, IOException, HttpRejectException {
+        //后端是否健康
+        boolean isOk = true;
+        //被动阻断时长
+        long passiveBlockDuration = request.passiveBlockDuration >= 0 ? request.passiveBlockDuration : settings.passiveBlockDuration;
         try {
             //同步请求
             Response response = getOkHttpClient().newCall(okRequest).execute();
             printResponseCodeLog(response);
             //Http拒绝
             if (!isSucceed(response)) {
+                CloseableUtils.closeQuiet(response);
                 throw new HttpRejectException(response.code(), response.message());
             }
             //报文体
@@ -955,10 +961,9 @@ public class MultiHostOkHttpClient {
         } catch (Throwable t) {
             if (needBlock(t, settings)) {
                 //网络故障阻断后端
-                long passiveBlockDuration = request.passiveBlockDuration >= 0 ? request.passiveBlockDuration : settings.passiveBlockDuration;
-                host.block(passiveBlockDuration);
+                isOk = false;
                 if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_BLOCK)){
-                    logger.info(settings.tag + "Block: " + host.getUrl() + " " + passiveBlockDuration);
+                    logger.info(settings.tag + "Block: " + host.getUrl() + " " + passiveBlockDuration + " R" + settings.recoveryCoefficient);
                 }
             }
             if (t instanceof  IOException ||
@@ -967,6 +972,9 @@ public class MultiHostOkHttpClient {
             } else {
                 throw new RequestBuildException("Error while request build ?", t);
             }
+        } finally {
+            //反馈健康状态
+            host.feedback(isOk, passiveBlockDuration, settings.recoveryCoefficient);
         }
     }
 
@@ -1049,29 +1057,26 @@ public class MultiHostOkHttpClient {
                     printResponseCodeLog(response);
                     //Http拒绝
                     if (!isSucceed(response)) {
+                        CloseableUtils.closeQuiet(response);
                         Exception exception = new HttpRejectException(response.code(), response.message());
                         tryBlock(exception);
                         callback.onErrorAfterSend(exception);
                         return;
                     }
+                    //反馈健康(反馈健康无需计算阻断时长)
+                    host.feedback(true, 0);
                     //报文体
                     try {
                         callback.onSucceed(ResponsePackage.newInstance(response));
                         //自动关闭
                         if (request.autoClose) {
-                            try {
-                                response.close();
-                            } catch (Exception ignore) {
-                            }
+                            CloseableUtils.closeQuiet(response);
                         }
                     } catch (Exception e) {
                         //处理onSucceed
                         callback.errorOnSucceedProcessing(e);
                         //强制关闭
-                        try {
-                            response.close();
-                        } catch (Exception ignore) {
-                        }
+                        CloseableUtils.closeQuiet(response);
                     }
                 }
                 @Override
@@ -1083,10 +1088,14 @@ public class MultiHostOkHttpClient {
                     if (needBlock(e, settings)) {
                         //网络故障阻断后端
                         long passiveBlockDuration = request.passiveBlockDuration >= 0 ? request.passiveBlockDuration : settings.passiveBlockDuration;
-                        host.block(passiveBlockDuration);
+                        //反馈异常
+                        host.feedback(false, passiveBlockDuration, settings.recoveryCoefficient);
                         if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_BLOCK)) {
-                            logger.info(settings.tag + "Block: " + host.getUrl() + " " + passiveBlockDuration);
+                            logger.info(settings.tag + "Block: " + host.getUrl() + " " + passiveBlockDuration + " R" + settings.recoveryCoefficient);
                         }
+                    } else {
+                        //反馈健康(反馈健康无需计算阻断时长)
+                        host.feedback(true, 0);
                     }
                 }
             });
@@ -1439,6 +1448,7 @@ public class MultiHostOkHttpClient {
         private boolean verboseLog = false;
         private int verboseLogConfig = VERBOSE_LOG_CONFIG_DEFAULT;
         private int logConfig = LOG_CONFIG_DEFAULT;
+        private int recoveryCoefficient = 10;
 
         private int maxIdleConnections = 16;
         private int maxThreads = 64;
@@ -2040,6 +2050,15 @@ public class MultiHostOkHttpClient {
         } catch (Throwable t) {
             throw new RuntimeException("Invalid httpCodeNeedBlock " + codes, t);
         }
+        return this;
+    }
+
+    /**
+     * 设置阻断后的恢复期系数, 修复期时长 = blockDuration * recoveryCoefficient, 设置1则无恢复期
+     * @param recoveryCoefficient 阻断后的恢复期系数, >= 1
+     */
+    public MultiHostOkHttpClient setRecoveryCoefficient(int recoveryCoefficient) {
+        settings.recoveryCoefficient = recoveryCoefficient;
         return this;
     }
 

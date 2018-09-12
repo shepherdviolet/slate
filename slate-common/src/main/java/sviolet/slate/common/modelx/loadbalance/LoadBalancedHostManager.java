@@ -268,12 +268,12 @@ public class LoadBalancedHostManager {
 
             if (oldIndex != null){
                 try {
-                    newHostArray[i] = new Host(newUrl, hostArray[oldIndex].blockingTime);
+                    newHostArray[i] = new Host(newUrl, hostArray[oldIndex].blockUntil, hostArray[oldIndex].recoveryUntil, hostArray[oldIndex].recoveryGate);
                 } catch (Throwable ignore){
-                    newHostArray[i] = new Host(newUrl, new AtomicLong(0));
+                    newHostArray[i] = new Host(newUrl, new AtomicLong(0), new AtomicLong(0), new AtomicInteger(0));
                 }
             } else {
-                newHostArray[i] = new Host(newUrl, new AtomicLong(0));
+                newHostArray[i] = new Host(newUrl, new AtomicLong(0), new AtomicLong(0), new AtomicInteger(0));
             }
 
             newHostIndexMap.put(newUrl, i);
@@ -290,12 +290,16 @@ public class LoadBalancedHostManager {
 
     public static class Host {
 
-        private String url;
-        private AtomicLong blockingTime;
+        private String url;//URL
+        private AtomicLong blockUntil;//阻断至
+        private AtomicLong recoveryUntil;//恢复期至
+        private AtomicInteger recoveryGate;//恢复期限流
 
-        private Host(String url, AtomicLong blockingTime) {
+        private Host(String url, AtomicLong blockUntil, AtomicLong recoveryUntil, AtomicInteger recoveryGate) {
             this.url = url;
-            this.blockingTime = blockingTime;
+            this.blockUntil = blockUntil;
+            this.recoveryUntil = recoveryUntil;
+            this.recoveryGate = recoveryGate;
         }
 
         /**
@@ -306,15 +310,61 @@ public class LoadBalancedHostManager {
         }
 
         /**
-         * 阻断远端
-         * @param duration 阻断的时间ms
+         * 反馈后端健康状态(无阻断恢复期)
+         * @param isOk true:后端健康 false:后端异常(需要阻断)
+         * @param blockDuration (后端异常时)阻断时长, ms
          */
-        public void block(long duration){
-            long newTime = System.currentTimeMillis() + duration;
-            if (newTime < blockingTime.get()){
-                return;
+        public void feedback(boolean isOk, long blockDuration) {
+            feedback(isOk, blockDuration, 1);
+        }
+
+        /**
+         * 反馈后端健康状态
+         * @param isOk true:后端健康 false:后端异常(需要阻断)
+         * @param blockDuration (后端异常时)阻断时长, ms
+         * @param recoveryCoefficient 阻断后的恢复期系数, 修复期时长 = blockDuration * recoveryCoefficient, 设置1则无恢复期
+         */
+        public void feedback(boolean isOk, long blockDuration, int recoveryCoefficient) {
+            if (isOk) {
+                release();
+            } else {
+                block(blockDuration, recoveryCoefficient);
             }
-            blockingTime.set(newTime);
+        }
+
+        /**
+         * 放行
+         */
+        private void release(){
+            //解除阻断恢复期的流量限制
+            this.recoveryGate.set(Integer.MIN_VALUE);
+        }
+
+        /**
+         * 阻断
+         *
+         * @param blockDuration 阻断的时长, ms
+         * @param recoveryCoefficient 阻断后的恢复期系数, 修复期时长 = 阻断时长 * recoveryCoefficient, 设置1则无恢复期
+         */
+        private void block(long blockDuration, int recoveryCoefficient){
+            //最小1, 即无恢复期
+            if (recoveryCoefficient < 1) {
+                recoveryCoefficient = 1;
+            }
+            //当前时间
+            long currentTime = System.currentTimeMillis();
+            //阻断至
+            long blockUntil = currentTime + blockDuration;
+            if (blockUntil > this.blockUntil.get()){
+                this.blockUntil.set(blockUntil);
+            }
+            //恢复期至
+            long recoveryUntil = currentTime + blockDuration * recoveryCoefficient;
+            if (recoveryUntil > this.recoveryUntil.get()) {
+                this.recoveryUntil.set(recoveryUntil);
+            }
+            //恢复期流量重置(仅允许通过一次)
+            this.recoveryGate.set(0);
         }
 
         /**
@@ -323,7 +373,19 @@ public class LoadBalancedHostManager {
          * @return true:被阻断(不可用), false:未阻断(可用)
          */
         private boolean isBlocked(long currentTimeMillis){
-            return currentTimeMillis < blockingTime.get();
+            //阻断期一律返回阻断
+            if (currentTimeMillis < blockUntil.get()) {
+                return true;
+            }
+            //恢复期限流
+            if (currentTimeMillis < recoveryUntil.get()) {
+                //阻断后, 恢复期只能放行一次
+                //若恢复期的请求成功, 则有release方法释放流量控制
+                if (recoveryGate.incrementAndGet() > 1) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         @Override

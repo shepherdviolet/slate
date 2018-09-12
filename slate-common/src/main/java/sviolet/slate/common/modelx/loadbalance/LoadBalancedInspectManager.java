@@ -279,9 +279,9 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
                         }
                     }
                 }
-                //阻断
+                //阻断(无恢复期)
                 if (block){
-                    host.block(blockDuration);
+                    host.feedback(false, blockDuration, 1);
                     if (logger.isInfoEnabled()) {
                         logger.info(tag + "Inspect: block " + host.getUrl() + " " + blockDuration);
                     }

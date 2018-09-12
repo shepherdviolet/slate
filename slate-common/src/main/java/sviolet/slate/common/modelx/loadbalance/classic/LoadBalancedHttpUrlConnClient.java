@@ -318,6 +318,7 @@ public class LoadBalancedHttpUrlConnClient {
 
         HttpURLConnection urlConnection = null;
         OutputStream outputStream = null;
+        boolean isOk = true;
         try {
             Proxy proxy = settings.proxy;
             if (proxy == null) {
@@ -359,7 +360,7 @@ public class LoadBalancedHttpUrlConnClient {
         } catch (Throwable t) {
             if (needBlock(t, settings)) {
                 //网络故障阻断后端
-                host.block(settings.passiveBlockDuration);
+                isOk = false;
                 if (logger.isInfoEnabled()){
                     logger.info("Block " + host.getUrl() + " " + settings.passiveBlockDuration);
                 }
@@ -371,6 +372,7 @@ public class LoadBalancedHttpUrlConnClient {
                 throw new RequestBuildException("Error while request build ?", t);
             }
         } finally {
+            host.feedback(isOk, settings.passiveBlockDuration);
             if (outputStream != null){
                 try {
                     outputStream.close();
@@ -488,6 +490,7 @@ public class LoadBalancedHttpUrlConnClient {
         }
 
         HttpURLConnection urlConnection = null;
+        boolean isOk = true;
         try {
             Proxy proxy = settings.proxy;
             if (proxy == null) {
@@ -525,7 +528,7 @@ public class LoadBalancedHttpUrlConnClient {
         } catch (Throwable t) {
             if (needBlock(t, settings)) {
                 //网络故障阻断后端
-                host.block(settings.passiveBlockDuration);
+                isOk = false;
                 if (logger.isInfoEnabled()){
                     logger.info("Block " + host.getUrl() + " " + settings.passiveBlockDuration);
                 }
@@ -536,6 +539,8 @@ public class LoadBalancedHttpUrlConnClient {
             } else {
                 throw new RequestBuildException("Error while request build ?", t);
             }
+        } finally {
+            host.feedback(isOk, settings.passiveBlockDuration);
         }
     }
 

@@ -416,6 +416,7 @@ public class LoadBalancedOkHttpClient {
     }
 
     private ResponseBody syncCall(LoadBalancedHostManager.Host host, Request request) throws RequestBuildException, IOException, HttpRejectException {
+        boolean isOk = true;
         try {
             //同步请求
             Response response = getOkHttpClient().newCall(request).execute();
@@ -429,7 +430,7 @@ public class LoadBalancedOkHttpClient {
         } catch (Throwable t) {
             if (needBlock(t, settings)) {
                 //网络故障阻断后端
-                host.block(settings.passiveBlockDuration);
+                isOk = false;
                 if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_BLOCK)){
                     logger.info("Block: " + host.getUrl() + " " + settings.passiveBlockDuration);
                 }
@@ -440,6 +441,8 @@ public class LoadBalancedOkHttpClient {
             } else {
                 throw new RequestBuildException("Error while request build ?", t);
             }
+        } finally {
+            host.feedback(isOk, settings.passiveBlockDuration);
         }
     }
 
