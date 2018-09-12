@@ -117,7 +117,7 @@ dependencies {
                 .setMaxIdleConnections(20)
                 .setMaxThreads(200)//仅在异步方式有效, 同步无限制
                 .setMaxThreadsPerHost(200)//仅在异步方式有效, 同步无限制
-                .setPassiveBlockDuration(6000L)
+                .setPassiveBlockDuration(30000L)//被动阻断时间建议与所有超时时间加起来接近
                 .setConnectTimeout(3000L)
                 .setWriteTimeout(10000L)
                 .setReadTimeout(10000L)
@@ -148,7 +148,7 @@ public SimpleOkHttpClient simpleOkHttpClient() {
             .setMaxIdleConnections(20)
             .setMaxThreads(200)//仅在异步方式有效, 同步无限制
             .setMaxThreadsPerHost(200)//仅在异步方式有效, 同步无限制
-            .setPassiveBlockDuration(6000L)
+            .setPassiveBlockDuration(30000L)//被动阻断时间建议与所有超时时间加起来接近
             .setConnectTimeout(3000L)
             .setWriteTimeout(10000L)
             .setReadTimeout(10000L)

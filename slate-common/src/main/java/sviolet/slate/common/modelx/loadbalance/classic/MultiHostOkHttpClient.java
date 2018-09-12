@@ -65,7 +65,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *              .setHostManager(hostManager)
  *              .setMaxThreads(200)
  *              .setMaxThreadsPerHost(200)
- *              .setPassiveBlockDuration(6000L)
+ *              .setPassiveBlockDuration(30000L)
  *              .setConnectTimeout(3000L)
  *              .setWriteTimeout(10000L)
  *              .setReadTimeout(10000L);
@@ -89,7 +89,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
  *      <property name="maxThreads" value="200"/>
  *      <property name="maxThreadsPerHost" value="200"/>
- *      <property name="passiveBlockDuration" value="6000"/>
+ *      <property name="passiveBlockDuration" value="30000"/>
  *      <property name="connectTimeout" value="3000"/>
  *      <property name="writeTimeout" value="10000"/>
  *      <property name="readTimeout" value="10000"/>
@@ -115,7 +115,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
  *      <property name="maxThreads" value="200"/>
  *      <property name="maxThreadsPerHost" value="200"/>
- *      <property name="passiveBlockDuration" value="6000"/>
+ *      <property name="passiveBlockDuration" value="30000"/>
  *      <property name="connectTimeout" value="3000"/>
  *      <property name="writeTimeout" value="10000"/>
  *      <property name="readTimeout" value="10000"/>
@@ -155,7 +155,7 @@ public class MultiHostOkHttpClient {
                                                         VERBOSE_LOG_CONFIG_RAW_URL |
                                                         VERBOSE_LOG_CONFIG_RESPONSE_CODE;
 
-    private static final long PASSIVE_BLOCK_DURATION = 6000L;
+    private static final long PASSIVE_BLOCK_DURATION = 30000L;
     private static final String MEDIA_TYPE = "application/json;charset=utf-8";
     private static final String ENCODE = "utf-8";
 
@@ -1444,8 +1444,8 @@ public class MultiHostOkHttpClient {
         private int maxThreads = 64;
         private int maxThreadsPerHost = 64;
         private long connectTimeout = 3000L;
-        private long writeTimeout = 1000L;
-        private long readTimeout = 1000L;
+        private long writeTimeout = 10000L;
+        private long readTimeout = 10000L;
         private long maxReadLength = 10L * 1024L * 1024L;
         private CookieJar cookieJar;
         private Proxy proxy;

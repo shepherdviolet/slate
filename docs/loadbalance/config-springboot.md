@@ -92,6 +92,7 @@ dependencies {
 
 * 在application.yml/application-profile.yml中增加配置
 * `maxThreads` / `maxThreadsPerHost` 配置仅在异步方式有效, 同步无限制
+* `passiveBlockDuration`被动阻断时间建议与所有超时时间加起来接近
 
 ```yaml
 slate:
@@ -104,7 +105,7 @@ slate:
       maxIdleConnections: 20
       maxThreads: 200
       maxThreadsPerHost: 200
-      passiveBlockDuration: 6000
+      passiveBlockDuration: 30000
       connectTimeout: 3000
       writeTimeout: 10000
       readTimeout: 10000
@@ -115,7 +116,7 @@ slate:
       maxIdleConnections: 20
       maxThreads: 200
       maxThreadsPerHost: 200
-      passiveBlockDuration: 6000
+      passiveBlockDuration: 30000
       connectTimeout: 3000
       writeTimeout: 10000
       readTimeout: 10000

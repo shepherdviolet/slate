@@ -101,7 +101,7 @@ dependencies {
         <property name="maxIdleConnections" value="20"/>
         <property name="maxThreads" value="200"/><!-- 仅在异步方式有效, 同步无限制 -->
         <property name="maxThreadsPerHost" value="200"/><!-- 仅在异步方式有效, 同步无限制 -->
-        <property name="passiveBlockDuration" value="6000"/>
+        <property name="passiveBlockDuration" value="30000"/><!-- 被动阻断时间建议与所有超时时间加起来接近 -->
         <property name="connectTimeout" value="3000"/>
         <property name="writeTimeout" value="10000"/>
         <property name="readTimeout" value="10000"/>
@@ -127,7 +127,7 @@ dependencies {
         <property name="maxIdleConnections" value="20"/>
         <property name="maxThreads" value="200"/><!-- 仅在异步方式有效, 同步无限制 -->
         <property name="maxThreadsPerHost" value="200"/><!-- 仅在异步方式有效, 同步无限制 -->
-        <property name="passiveBlockDuration" value="6000"/>
+        <property name="passiveBlockDuration" value="30000"/><!-- 被动阻断时间建议与所有超时时间加起来接近 -->
         <property name="connectTimeout" value="3000"/>
         <property name="writeTimeout" value="10000"/>
         <property name="readTimeout" value="10000"/>
