@@ -68,7 +68,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({InterfaceInstantiationSelector.class})
+@Import({DefaultInterfaceInstSelector.class})
 public @interface EnableInterfaceInstantiation {
 
     /**

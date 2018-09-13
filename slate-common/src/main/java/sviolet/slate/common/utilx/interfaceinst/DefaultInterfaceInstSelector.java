@@ -19,38 +19,17 @@
 
 package sviolet.slate.common.utilx.interfaceinst;
 
-import org.springframework.beans.factory.FactoryBean;
+import java.lang.annotation.Annotation;
 
 /**
- * <p>[JDK8- Spring 5-]</p>
- *
- * <p>FactoryBean, 适配低版本</p>
- *
+ * <p>默认的ImportSelector, 配合EnableInterfaceInstantiation注解开启功能</p>
  * @author S.Violet
  */
-public class InterfaceInstantiationFactoryBean4<T> implements FactoryBean<T> {
-
-    private Class<?> clazz;
-    private InterfaceInstantiator interfaceInstantiator;
-
-    public InterfaceInstantiationFactoryBean4(Class<?> clazz, InterfaceInstantiator interfaceInstantiator) {
-        this.clazz = clazz;
-        this.interfaceInstantiator = interfaceInstantiator;
-    }
+public class DefaultInterfaceInstSelector extends InterfaceInstSelector {
 
     @Override
-    public T getObject() throws Exception {
-        return (T) interfaceInstantiator.newInstance(clazz);
-    }
-
-    @Override
-    public Class<?> getObjectType() {
-        return clazz;
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return true;
+    protected Class<? extends Annotation> getEnableAnnotationType() {
+        return EnableInterfaceInstantiation.class;
     }
 
 }

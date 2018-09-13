@@ -50,13 +50,13 @@ import java.util.function.Supplier;
  * @since 1.8
  * @author S.Violet
  */
-class InterfaceInstantiationBeanDefinitionRegistry5 implements BeanDefinitionRegistryPostProcessor {
+class InterfaceInstBeanDefRegistry5 implements BeanDefinitionRegistryPostProcessor {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private List<AnnotationAttributes> annotationAttributesList;
 
-    InterfaceInstantiationBeanDefinitionRegistry5(List<AnnotationAttributes> annotationAttributesList) {
+    InterfaceInstBeanDefRegistry5(List<AnnotationAttributes> annotationAttributesList) {
         this.annotationAttributesList = annotationAttributesList;
     }
 

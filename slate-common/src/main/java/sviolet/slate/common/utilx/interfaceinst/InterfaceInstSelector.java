@@ -23,6 +23,7 @@ import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,20 +31,26 @@ import java.util.List;
  * <p>ImportSelector</p>
  * @author S.Violet
  */
-public class InterfaceInstantiationSelector implements ImportSelector {
+public abstract class InterfaceInstSelector implements ImportSelector {
 
-    static List<AnnotationAttributes> annotationAttributesList = new ArrayList<>(1);
+    static List<AnnotationAttributes> annotationAttributesList = new ArrayList<>(8);
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+    public final String[] selectImports(AnnotationMetadata importingClassMetadata) {
         /*
          * 此处用静态变量持有注解参数, 原因见InterfaceInstantiationConfiguration
          */
-        AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableInterfaceInstantiation.class.getName(), false));
+        AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(getEnableAnnotationType().getName(), false));
         if (annotationAttributes != null) {
             annotationAttributesList.add(annotationAttributes);
         }
         //指定配置类
-        return new String[]{InterfaceInstantiationConfiguration.class.getName()};
+        return new String[]{InterfaceInstConfig.class.getName()};
     }
+
+    /**
+     * 自定义开关注解的类型, 默认EnableInterfaceInstantiation
+     */
+    protected abstract Class<? extends Annotation> getEnableAnnotationType();
+
 }

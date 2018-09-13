@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Role;
  * @author S.Violet
  */
 @Configuration
-public class InterfaceInstantiationConfiguration {
+public class InterfaceInstConfig {
 
     private static boolean isJdk8 = true;
     private static boolean isSpring5 = true;
@@ -64,9 +64,9 @@ public class InterfaceInstantiationConfiguration {
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     public static BeanDefinitionRegistryPostProcessor interfaceInstantiationBeanDefinitionRegistry(){
         if (isJdk8 && isSpring5) {
-            return new InterfaceInstantiationBeanDefinitionRegistry5(InterfaceInstantiationSelector.annotationAttributesList);
+            return new InterfaceInstBeanDefRegistry5(InterfaceInstSelector.annotationAttributesList);
         }
-        return new InterfaceInstantiationBeanDefinitionRegistry4(InterfaceInstantiationSelector.annotationAttributesList);
+        return new InterfaceInstBeanDefRegistry4(InterfaceInstSelector.annotationAttributesList);
     }
 
 //    /**

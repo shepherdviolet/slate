@@ -49,13 +49,13 @@ import java.util.Set;
  *
  * @author S.Violet
  */
-class InterfaceInstantiationBeanDefinitionRegistry4 implements BeanDefinitionRegistryPostProcessor {
+class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcessor {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private List<AnnotationAttributes> annotationAttributesList;
 
-    InterfaceInstantiationBeanDefinitionRegistry4(List<AnnotationAttributes> annotationAttributesList) {
+    InterfaceInstBeanDefRegistry4(List<AnnotationAttributes> annotationAttributesList) {
         this.annotationAttributesList = annotationAttributesList;
     }
 
@@ -151,7 +151,7 @@ class InterfaceInstantiationBeanDefinitionRegistry4 implements BeanDefinitionReg
                         constructorArgumentValues.addIndexedArgumentValue(1, interfaceInstantiator);
 
                         //Bean定义
-                        RootBeanDefinition rootBeanDefinition = new RootBeanDefinition(InterfaceInstantiationFactoryBean4.class, constructorArgumentValues, null);
+                        RootBeanDefinition rootBeanDefinition = new RootBeanDefinition(InterfaceInstFactoryBean4.class, constructorArgumentValues, null);
 
                         //注册Bean定义
                         registry.registerBeanDefinition(beanName, rootBeanDefinition);
