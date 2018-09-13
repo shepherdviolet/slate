@@ -27,15 +27,16 @@ public interface InterfaceInstantiator {
 
     /**
      * 实现将接口类实例化成对象
-     * @param clazz 接口类
-     * @return 实例化对象
+     * @param interfaceType 接口类型
+     * @return 实例化的对象
      */
-    Object newInstance(Class<?> clazz);
+    Object newInstance(Class<?> interfaceType);
 
     /**
-     * 实现根据类名决定Bean名
-     * @return Bean name
+     * 实现根据接口类型决定Bean名
+     * @param interfaceType 接口类型
+     * @return Bean名
      */
-    String resolveBeanName(String beanClassName);
+    String resolveBeanName(String interfaceType);
 
 }
