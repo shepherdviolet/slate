@@ -28,9 +28,9 @@ public class SlfSpiLogger implements SpiLogger {
 
     public SlfSpiLogger() {
         if (isSlf4jSupported) {
-            print("Thistle Spi | SlfSpiLogger: Slf4j logger enabled");
+            print(" ? ThistleSpi | SlfSpiLogger: Slf4j logger enabled");
         } else {
-            print("Thistle Spi | SlfSpiLogger: Slf4j logger disabled");
+            print(" ? ThistleSpi | SlfSpiLogger: Slf4j logger disabled");
         }
     }
 
