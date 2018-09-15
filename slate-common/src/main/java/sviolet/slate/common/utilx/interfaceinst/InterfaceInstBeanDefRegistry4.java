@@ -62,23 +62,23 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
-        logger.info("InterfaceInstantiation: -------------------------------------------------");
-        logger.info("InterfaceInstantiation: start (spring 5- or jdk 8-)");
+        logger.info("InterfaceInst | -------------------------------------------------");
+        logger.info("InterfaceInst | Start (spring 5- or jdk 8-) Doc: https://github.com/shepherdviolet/slate");
 
         Set<String> processedClasses = new HashSet<>(128);
 
         for (AnnotationAttributes annotationAttributes : annotationAttributesList) {
 
-            logger.info("InterfaceInstantiation: -------------------------------------------------");
+            logger.info("InterfaceInst | -------------------------------------------------");
 
             //接口类实例化器
             InterfaceInstantiator interfaceInstantiator;
             try {
                 Class<? extends InterfaceInstantiator> interfaceInstantiatorClass = annotationAttributes.getClass("interfaceInstantiator");
                 interfaceInstantiator = interfaceInstantiatorClass.newInstance();
-                logger.info("InterfaceInstantiation: interfaceInstantiator:" + interfaceInstantiatorClass.getName());
+                logger.info("InterfaceInst | interfaceInstantiator:" + interfaceInstantiatorClass.getName());
             } catch (Exception e) {
-                throw new FatalBeanException("InterfaceInstantiation: interfaceInstantiator create failed", e);
+                throw new FatalBeanException("InterfaceInst | interfaceInstantiator create failed", e);
             }
             final InterfaceInstantiator interfaceInstantiatorFinal = interfaceInstantiator;
 
@@ -111,7 +111,7 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
             String[] basePackages = annotationAttributes.getStringArray("basePackages");
 
             if (basePackages == null || basePackages.length <= 0) {
-                logger.info("InterfaceInstantiation: skip, no basePackages");
+                logger.info("InterfaceInst | skip, no basePackages");
                 return;
             }
 
@@ -119,7 +119,7 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
             for (String basePackage : basePackages) {
 
                 //搜索包路径下的接口类定义
-                logger.info("InterfaceInstantiation: scan package:" + basePackage);
+                logger.info("InterfaceInst | scan package:" + basePackage);
                 Set<BeanDefinition> beanDefinitions = beanScanner.findCandidateComponents(basePackage);
 
                 if (beanDefinitions == null || beanDefinitions.size() <= 0) {
@@ -136,7 +136,7 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
 
                     //跳过已实例化的接口
                     if (processedClasses.contains(className)) {
-                        logger.warn("InterfaceInstantiation: duplicate class(skipped):" + className);
+                        logger.warn("InterfaceInst | duplicate class(skipped):" + className);
                         continue;
                     }
 
@@ -159,10 +159,10 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
                         //记录类名
                         processedClasses.add(className);
 
-                        logger.info("InterfaceInstantiation: created:" + className);
+                        logger.info("InterfaceInst | created:" + className);
 
                     } catch (ClassNotFoundException e) {
-                        throw new FatalBeanException("InterfaceInstantiation: interface class not found:" + className, e);
+                        throw new FatalBeanException("InterfaceInst | interface class not found:" + className, e);
                     }
 
                 }
@@ -171,9 +171,9 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
 
         }
 
-        logger.info("InterfaceInstantiation: -------------------------------------------------");
-        logger.info("InterfaceInstantiation: finish");
-        logger.info("InterfaceInstantiation: -------------------------------------------------");
+        logger.info("InterfaceInst | -------------------------------------------------");
+        logger.info("InterfaceInst | finish");
+        logger.info("InterfaceInst | -------------------------------------------------");
 
     }
 
