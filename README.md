@@ -69,7 +69,12 @@ dependencies {
     </web-app>
 ```
 
-# Manifest
+# Contents
 
 * [MultiHostOkHttpClient](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/guide.md)
-* InterfaceInstantiation
+* [InterfaceInstantiation](https://github.com/shepherdviolet/slate/tree/develop/slate-common/src/main/java/sviolet/slate/common/utilx/interfaceinst)
+* [Utils](https://github.com/shepherdviolet/slate/tree/develop/slate-common/src/main/java/sviolet/slate/common/util)
+
+# Support for thistle
+
+* ThistleSpi slf4j logger support
