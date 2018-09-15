@@ -6,7 +6,7 @@
         mavenCentral()
     }
     dependencies {
-        compile ('com.github.shepherdviolet:slate-common:9.11') {
+        compile ('com.github.shepherdviolet:slate-common:10.0') {
             exclude group:'com.jcraft', module:'jsch'
             exclude group:'com.squareup.okhttp3'
             exclude group:'org.jetbrains.kotlin', module:'kotlin-stdlib-jre7'
@@ -15,7 +15,7 @@
             exclude group:'redis.clients'
             exclude group:'org.springframework'
         }
-        compile ('com.github.shepherdviolet:slate-common:9.11') {
+        compile ('com.github.shepherdviolet:slate-common:10.0') {
             exclude group:'org.springframework.boot'
         }
     }
@@ -25,7 +25,7 @@
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.10</version>
+        <version>10.0</version>
         <exclusions>
              <exclusion>
                  <groupId>com.jcraft</groupId>
@@ -60,7 +60,7 @@
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.10</version>
+        <version>10.0</version>
         <exclusions>
              <exclusion>
                  <groupId>org.springframework.boot</groupId>

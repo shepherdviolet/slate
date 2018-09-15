@@ -8,7 +8,7 @@
 
 //依赖
 dependencies {
-    compile 'com.github.shepherdviolet:slate-springboot:9.13'
+    compile 'com.github.shepherdviolet:slate-springboot:10.0'
 }
 ```
 
@@ -16,13 +16,13 @@ dependencies {
 
 ```text
 dependencies {
-    compile ('com.github.shepherdviolet:slate-springboot:9.13') {
+    compile ('com.github.shepherdviolet:slate-springboot:10.0') {
         transitive = false
     }
-    compile ('com.github.shepherdviolet:slate-common:9.13') {
+    compile ('com.github.shepherdviolet:slate-common:10.0') {
         transitive = false
     }
-    compile ('com.github.shepherdviolet:thistle:9.9') {
+    compile ('com.github.shepherdviolet:thistle:10.0') {
         transitive = false
     }
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
@@ -36,7 +36,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-springboot</artifactId>
-        <version>9.13</version>
+        <version>10.0</version>
     </dependency>
 ```
 
@@ -46,7 +46,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-springboot</artifactId>
-        <version>9.13</version>
+        <version>10.0</version>
         <exclusions>
              <exclusion>
                  <groupId>*</groupId>
@@ -57,7 +57,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>9.13</version>
+        <version>10.0</version>
         <exclusions>
              <exclusion>
                  <groupId>*</groupId>
@@ -68,7 +68,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>thistle</artifactId>
-        <version>9.9</version>
+        <version>10.0</version>
         <exclusions>
              <exclusion>
                  <groupId>*</groupId>
