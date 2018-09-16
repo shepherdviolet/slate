@@ -37,7 +37,7 @@ public abstract class ContextAwaredInterfaceInstantiator implements InterfaceIns
     private AtomicBoolean applicationContextAwared = new AtomicBoolean(false);
 
     @Override
-    public final Object newInstance(Class<?> interfaceType) {
+    public final Object newInstance(Class<?> interfaceType) throws Exception {
         //创建一个实现指定接口和ApplicationContextAware接口的代理类
         return Proxy.newProxyInstance(
                 Thread.currentThread().getContextClassLoader(),
@@ -49,7 +49,7 @@ public abstract class ContextAwaredInterfaceInstantiator implements InterfaceIns
      * 实现根据类名决定Bean名
      */
     @Override
-    public String resolveBeanName(String interfaceType) {
+    public String resolveBeanName(String interfaceType) throws Exception {
         return interfaceType;
     }
 
