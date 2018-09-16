@@ -63,7 +63,7 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
         logger.info("InterfaceInst | -------------------------------------------------");
-        logger.info("InterfaceInst | Start (spring 5- or jdk 8-) Doc: https://github.com/shepherdviolet/slate");
+        logger.info("InterfaceInst | Interface Instantiation Start (spring 5- or jdk 8-) Doc: https://github.com/shepherdviolet/slate");
 
         Set<String> processedClasses = new HashSet<>(128);
 
@@ -164,7 +164,7 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
                         //记录类名
                         processedClasses.add(className);
 
-                        logger.info("InterfaceInst | created:" + className + ", name:" + beanName);
+                        logger.info("InterfaceInst | instance created:" + className + ", name:" + beanName);
 
                     } catch (ClassNotFoundException e) {
                         throw new FatalBeanException("InterfaceInst | interface class not found:" + className, e);
@@ -177,7 +177,7 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
         }
 
         logger.info("InterfaceInst | -------------------------------------------------");
-        logger.info("InterfaceInst | finish");
+        logger.info("InterfaceInst | Interface Instantiation Finished");
         logger.info("InterfaceInst | -------------------------------------------------");
 
     }
