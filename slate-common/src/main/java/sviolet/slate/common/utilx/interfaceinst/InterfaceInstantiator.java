@@ -30,13 +30,13 @@ public interface InterfaceInstantiator {
      * @param interfaceType 接口类型
      * @return 实例化的对象
      */
-    Object newInstance(Class<?> interfaceType);
+    Object newInstance(Class<?> interfaceType) throws Exception;
 
     /**
      * 实现根据接口类型决定Bean名
      * @param interfaceType 接口类型
      * @return Bean名
      */
-    String resolveBeanName(String interfaceType);
+    String resolveBeanName(String interfaceType) throws Exception;
 
 }

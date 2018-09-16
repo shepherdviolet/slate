@@ -132,7 +132,12 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
                     //类名
                     String className = beanDefinition.getBeanClassName();
                     //Bean名
-                    String beanName = interfaceInstantiator.resolveBeanName(className);
+                    String beanName;
+                    try {
+                        beanName = interfaceInstantiator.resolveBeanName(className);
+                    } catch (Exception e) {
+                        throw new FatalBeanException("InterfaceInst | resolve bean name failed:" + className, e);
+                    }
 
                     //跳过已实例化的接口
                     if (processedClasses.contains(className)) {
@@ -159,7 +164,7 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
                         //记录类名
                         processedClasses.add(className);
 
-                        logger.info("InterfaceInst | created:" + className);
+                        logger.info("InterfaceInst | created:" + className + ", name:" + beanName);
 
                     } catch (ClassNotFoundException e) {
                         throw new FatalBeanException("InterfaceInst | interface class not found:" + className, e);
