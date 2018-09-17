@@ -76,9 +76,9 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
             try {
                 Class<? extends InterfaceInstantiator> interfaceInstantiatorClass = annotationAttributes.getClass("interfaceInstantiator");
                 interfaceInstantiator = interfaceInstantiatorClass.newInstance();
-                logger.info("InterfaceInst | interfaceInstantiator:" + interfaceInstantiatorClass.getName());
+                logger.info("InterfaceInst | InterfaceInstantiator:" + interfaceInstantiatorClass.getName());
             } catch (Exception e) {
-                throw new FatalBeanException("InterfaceInst | interfaceInstantiator create failed", e);
+                throw new FatalBeanException("InterfaceInst | InterfaceInstantiator create failed", e);
             }
             final InterfaceInstantiator interfaceInstantiatorFinal = interfaceInstantiator;
 
@@ -111,7 +111,7 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
             String[] basePackages = annotationAttributes.getStringArray("basePackages");
 
             if (basePackages == null || basePackages.length <= 0) {
-                logger.info("InterfaceInst | skip, no basePackages");
+                logger.info("InterfaceInst | Skip, no basePackages");
                 return;
             }
 
@@ -119,7 +119,7 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
             for (String basePackage : basePackages) {
 
                 //搜索包路径下的接口类定义
-                logger.info("InterfaceInst | scan package:" + basePackage);
+                logger.info("InterfaceInst | Scan package:" + basePackage);
                 Set<BeanDefinition> beanDefinitions = beanScanner.findCandidateComponents(basePackage);
 
                 if (beanDefinitions == null || beanDefinitions.size() <= 0) {
@@ -136,12 +136,12 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
                     try {
                         beanName = interfaceInstantiator.resolveBeanName(className);
                     } catch (Exception e) {
-                        throw new FatalBeanException("InterfaceInst | resolve bean name failed:" + className, e);
+                        throw new FatalBeanException("InterfaceInst | Resolve bean name failed:" + className, e);
                     }
 
                     //跳过已实例化的接口
                     if (processedClasses.contains(className)) {
-                        logger.warn("InterfaceInst | duplicate class(skipped):" + className);
+                        logger.warn("InterfaceInst | Duplicate class(skipped):" + className);
                         continue;
                     }
 
@@ -164,10 +164,10 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
                         //记录类名
                         processedClasses.add(className);
 
-                        logger.info("InterfaceInst | instance created:" + className + ", name:" + beanName);
+                        logger.info("InterfaceInst | Bean created:" + className + ", name:" + beanName);
 
                     } catch (ClassNotFoundException e) {
-                        throw new FatalBeanException("InterfaceInst | interface class not found:" + className, e);
+                        throw new FatalBeanException("InterfaceInst | Interface class not found:" + className, e);
                     }
 
                 }
