@@ -72,7 +72,7 @@ dependencies {
 # Contents
 
 * [MultiHostOkHttpClient](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/guide.md)
-* [InterfaceInstantiation](https://github.com/shepherdviolet/slate/blob/master/docs/interface-instantiation)
+* [InterfaceInstantiation](https://github.com/shepherdviolet/slate/blob/master/docs/interface-instantiation.md)
 * [Utils](https://github.com/shepherdviolet/slate/tree/develop/slate-common/src/main/java/sviolet/slate/common/util)
 
 # Support for thistle
