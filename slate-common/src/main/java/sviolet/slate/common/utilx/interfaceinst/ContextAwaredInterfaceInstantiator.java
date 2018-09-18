@@ -19,6 +19,7 @@
 
 package sviolet.slate.common.utilx.interfaceinst;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cglib.proxy.InvocationHandler;
 import org.springframework.cglib.proxy.Proxy;
 import org.springframework.context.ApplicationContext;
@@ -41,7 +42,7 @@ public abstract class ContextAwaredInterfaceInstantiator implements InterfaceIns
         //创建一个实现指定接口和ApplicationContextAware接口的代理类
         return Proxy.newProxyInstance(
                 Thread.currentThread().getContextClassLoader(),
-                new Class[]{interfaceType, ApplicationContextAware.class},
+                new Class[]{interfaceType, ApplicationContextAware.class, InitializingBean.class},
                 new InvokeHandler(interfaceType));
     }
 
@@ -54,7 +55,14 @@ public abstract class ContextAwaredInterfaceInstantiator implements InterfaceIns
     }
 
     /**
-     * 拦截接口方法调用
+     * 当接口实例初始化完成时(Spring InitializingBean.afterPropertiesSet), 触发该方法, 每个代理对象都会触发一次
+     * @param interfaceType 接口类型
+     * @param proxy 代理类实例
+     */
+    protected abstract void onInitialized(Class<?> interfaceType, Object proxy);
+
+    /**
+     * 当接口方法被调用时, 触发该方法
      * @param interfaceType 接口类型
      * @param proxy 代理类实例
      * @param method 被调用方法
@@ -75,7 +83,6 @@ public abstract class ContextAwaredInterfaceInstantiator implements InterfaceIns
 
         @Override
         public final Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            //当代理类的setApplicationContext被调用
             if (args.length == 1 && args[0] instanceof ApplicationContext && "setApplicationContext".equals(method.getName())) {
                 //第一个代理类的setApplicationContext被调用时, 将ApplicationContext对象传给ContextAwaredInterfaceInstantiator的实现类
                 //用于ContextAwaredInterfaceInstantiator的实现类从上下文中获取Bean, 便于实现更复杂的逻辑(转给其他Bean处理等)
@@ -83,6 +90,9 @@ public abstract class ContextAwaredInterfaceInstantiator implements InterfaceIns
                     setApplicationContext((ApplicationContext) args[0]);
                 }
                 return null;
+            } else if (args.length == 0 && "afterPropertiesSet".equals(method.getName())) {
+                //当代理类的afterPropertiesSet被调用时, 触发onInitialized
+                onInitialized(interfaceType, proxy);
             }
             //当代理类的其他方法被调用
             return onMethodInvoke(interfaceType, proxy, method, args);

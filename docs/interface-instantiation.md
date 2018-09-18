@@ -160,6 +160,11 @@ public class MyInterfaceInstantiator extends ContextAwaredInterfaceInstantiator 
     }
 
     @Override
+    protected void onInitialized(Class<?> interfaceType, Object proxy) {
+        //当Spring初始化完成, 每个代理类都会触发该方法
+    }
+
+    @Override
     protected Object onMethodInvoke(Class<?> interfaceType, Object proxy, Method method, Object[] objects) throws Throwable {
         //实现代理逻辑
         //示例: 将所有接口调用都转向调用PortalService
@@ -174,7 +179,7 @@ public class MyInterfaceInstantiator extends ContextAwaredInterfaceInstantiator 
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        //从ApplicationContext中获取Bean
+        //从ApplicationContext中获取Bean, 注意该方法只会触发一次
         portalService = applicationContext.getBean(PortalService.class);
     }
 
