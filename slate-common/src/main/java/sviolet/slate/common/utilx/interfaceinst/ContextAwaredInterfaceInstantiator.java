@@ -93,6 +93,7 @@ public abstract class ContextAwaredInterfaceInstantiator implements InterfaceIns
             } else if (args.length == 0 && "afterPropertiesSet".equals(method.getName())) {
                 //当代理类的afterPropertiesSet被调用时, 触发onInitialized
                 onInitialized(interfaceType, proxy);
+                return null;
             }
             //当代理类的其他方法被调用
             return onMethodInvoke(interfaceType, proxy, method, args);
