@@ -15,23 +15,15 @@ public class SlfSpiLogger implements SpiLogger {
         try {
             Class.forName("org.slf4j.Logger");
             provider = (SpiLogger) Class.forName("sviolet.slate.common.util.spi.SlfSpiLoggerProvider").newInstance();
-            isSlf4jSupported = true;
         } catch (Exception e) {
             // 否则使用默认方式输出日志
             provider = new DefaultSpiLogger();
-            isSlf4jSupported = false;
         }
     }
 
     private static SpiLogger provider;
-    private static boolean isSlf4jSupported;
 
     public SlfSpiLogger() {
-        if (isSlf4jSupported) {
-            print("? ThistleSpi | SlfSpiLogger: Slf4j logger enabled");
-        } else {
-            print("? ThistleSpi | SlfSpiLogger: Slf4j logger disabled");
-        }
     }
 
     @Override
