@@ -6,6 +6,8 @@ public interface TxTimerProvider {
 
     void stop();
 
+    boolean enabled();
+
     boolean canBeGet();
 
 }

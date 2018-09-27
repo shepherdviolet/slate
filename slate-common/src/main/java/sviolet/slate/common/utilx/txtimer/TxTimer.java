@@ -7,8 +7,15 @@ public class TxTimer {
     private static final TxTimerProvider provider;
 
     static {
+        //check args
         if ("true".equals(System.getProperty("slate.txtimer.enabled", "false"))) {
-            provider = ThistleSpi.newLoader().loadService(TxTimerProvider.class);
+            TxTimerProvider service = ThistleSpi.newLoader().loadService(TxTimerProvider.class);
+            //check enabled
+            if (service.enabled()) {
+                provider = service;
+            } else {
+                provider = null;
+            }
         } else {
             provider = null;
         }

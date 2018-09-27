@@ -16,27 +16,24 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
 
     static final int MAP_INIT_CAP;
     static final int HASH_LOCK_NUM;
+    static final int UPDATE_MAX_ATTEMPTS;
 
     static {
-        //map initial capacity
-        int mapInitCap;
-        try {
-            mapInitCap = Integer.parseInt(System.getProperty("slate.txtimer.mapinitcap", "1024"));
-        } catch (Exception e) {
-            logger.error("Error while parsing -Dslate.txtimer.mapinitcap to int, using 1024 by default", e);
-            mapInitCap = 1024;
-        }
-        MAP_INIT_CAP = mapInitCap;
-        //hash lockers number
-        int hashLockNum;
-        try {
-            hashLockNum = Integer.parseInt(System.getProperty("slate.txtimer.hashlocknum", "64"));
-        } catch (Exception e) {
-            logger.error("Error while parsing -Dslate.txtimer.hashlocknum to int, using 64 by default", e);
-            hashLockNum = 64;
-        }
-        HASH_LOCK_NUM = hashLockNum;
+        MAP_INIT_CAP = getIntFromProperty("slate.txtimer.mapinitcap", 1024);
+        HASH_LOCK_NUM = getIntFromProperty("slate.txtimer.hashlocknum", 64);
+        UPDATE_MAX_ATTEMPTS = getIntFromProperty("slate.txtime.updateattemps", 10);
     }
+
+    private static int getIntFromProperty(String key, int def) {
+        try {
+            return Integer.parseInt(System.getProperty(key, String.valueOf(def)));
+        } catch (Exception e) {
+            logger.error("Error while parsing -D" + key + " to int, using " + def + " by default", e);
+            return def;
+        }
+    }
+
+    /* *************************************************************************************************************** */
 
     private Map<String, Group> map = new ConcurrentHashMap<>(MAP_INIT_CAP);
     private ThreadLocal<Record> record = new ThreadLocal<>();
@@ -67,6 +64,11 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
         long elapse = System.currentTimeMillis() - record.getStartTime();
         Transaction transaction = getGroup(record.getGroupName()).getTransaction(record.getTransactionName());
         transaction.finish(elapse);
+    }
+
+    @Override
+    public boolean enabled() {
+        return true;
     }
 
     @Override
