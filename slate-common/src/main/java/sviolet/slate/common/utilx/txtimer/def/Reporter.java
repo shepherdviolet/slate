@@ -133,7 +133,7 @@ class Reporter {
             Collections.sort(infos, comparator);
 
             //输出日志
-            String title = "Group (" + groupEntry.getKey() + ") Time ( " + DateTimeUtils.getDateTime(reportStartTime) + "~" + DateTimeUtils.getDateTime(reportEndTime);
+            String title = "Group (" + groupEntry.getKey() + ") Time (" + DateTimeUtils.getDateTime(reportStartTime) + "~" + DateTimeUtils.getDateTime(reportEndTime) + ")";
             for (Info info : infos) {
                 print(title, String.valueOf(info));
                 if (info.duplicateTotal > 0) {
