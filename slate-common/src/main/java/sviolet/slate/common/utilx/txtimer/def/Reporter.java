@@ -73,7 +73,7 @@ class Reporter {
             print("Error Report", "Suggest 2: If you invoke TxTimer.stop() and TxTimer.start() in different threads?");
         }
 
-        long reportStartTime = currentTime - REPORT_INTERVAL_MILLIS;
+        long reportStartTime = currentTime - REPORT_INTERVAL_MILLIS - MINUTE_MILLIS;
         long reportEndTime = currentTime;
 
         Map<String, Group> groupsSnap = ConcurrentUtils.getSnapShot(provider.groups);

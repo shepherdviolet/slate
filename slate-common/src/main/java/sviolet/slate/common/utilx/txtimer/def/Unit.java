@@ -23,8 +23,8 @@ class Unit {
             }
             if (timeQuotient.compareAndSet(previousQuotient, quotient)) {
                 this.startTime.set(startTime);
-                this.minElapse.set(0);
-                this.maxElapse.set(0);
+                this.minElapse.set(Long.MAX_VALUE);
+                this.maxElapse.set(Long.MIN_VALUE);
                 this.totalElapse.set(0);
                 this.finishCount.set(0);
                 return true;
