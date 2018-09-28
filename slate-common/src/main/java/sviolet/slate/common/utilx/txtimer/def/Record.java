@@ -2,8 +2,11 @@ package sviolet.slate.common.utilx.txtimer.def;
 
 class Record {
 
+    //组名
     private String groupName;
+    //交易名
     private String transactionName;
+    //开始时间
     private long startTime;
 
     Record(String groupName, String transactionName) {

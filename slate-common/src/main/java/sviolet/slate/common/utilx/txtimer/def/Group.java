@@ -19,6 +19,7 @@ class Group {
     Transaction getTransaction(String transactionName){
         Transaction transaction = transactions.get(transactionName);
         if (transaction == null) {
+            //用StringHashLocks分散碰撞的可能性
             ReentrantLock lock = provider.locks.getLock(transactionName);
             try {
                 lock.lock();

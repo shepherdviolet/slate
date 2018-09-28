@@ -70,7 +70,6 @@ class Reporter {
             print("Error Report", "ERROR!!! Times:" + provider.missingCount.get() + ", No record found in ThreadLocal when invoking TxTimer.stop()");
             print("Error Report", "Suggest 1: If you invoke TxTimer.stop() without or before TxTimer.start()?");
             print("Error Report", "Suggest 2: If you invoke TxTimer.stop() twice?");
-            print("Error Report", "Suggest 2: If you invoke TxTimer.stop() and TxTimer.start() in different threads?");
         }
 
         long reportStartTime = currentTime - REPORT_INTERVAL_MILLIS - MINUTE_MILLIS;
