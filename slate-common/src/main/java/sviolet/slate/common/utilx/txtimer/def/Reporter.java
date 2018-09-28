@@ -88,6 +88,7 @@ class Reporter {
                 long totalElapseSum = 0;
                 long maxElapse = Long.MIN_VALUE;
                 long minElapse = Long.MAX_VALUE;
+                int unitNum = 0;
 
                 List<Unit> unitList = transactionEntry.getValue().getUnits(reportStartTime, reportEndTime);
                 for (Unit unit : unitList) {
@@ -115,6 +116,7 @@ class Reporter {
                     totalElapseSum += unitTotalElapse;
                     maxElapse = Math.max(maxElapse, unitMaxElapse);
                     minElapse = Math.min(minElapse, unitMinElapse);
+                    unitNum++;
                 }
 
                 Info info = new Info();
@@ -126,6 +128,7 @@ class Reporter {
                 info.averageElapse = finishCountSum > 0 ? totalElapseSum / finishCountSum : 0;
                 info.maxElapse = maxElapse;
                 info.minElapse = minElapse;
+                info.unitNum = unitNum;
                 infos.add(info);
 
             }
@@ -163,11 +166,12 @@ class Reporter {
         private long maxElapse;
         private long minElapse;
         private long averageElapse;
+        private int unitNum;
 
         @Override
         public String toString() {
             return transactionName +
-                    " > last " + REPORT_INTERVAL +
+                    " > last " + unitNum +
                     " min ( cnt:" + finish +
                     ", avg:" + averageElapse +
                     "ms, max:" + maxElapse +
