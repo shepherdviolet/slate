@@ -82,12 +82,12 @@ class Reporter {
             Map<String, Transaction> transactionsSnap = ConcurrentUtils.getSnapShot(groupEntry.getValue().transactions);
             List<Info> infos = new ArrayList<>(transactionsSnap.size());
 
-            int finishCountSum = 0;
-            long totalElapseSum = 0;
-            long maxElapse = Long.MIN_VALUE;
-            long minElapse = Long.MAX_VALUE;
-
             for (Map.Entry<String, Transaction> transactionEntry : transactionsSnap.entrySet()) {
+
+                int finishCountSum = 0;
+                long totalElapseSum = 0;
+                long maxElapse = Long.MIN_VALUE;
+                long minElapse = Long.MAX_VALUE;
 
                 List<Unit> unitList = transactionEntry.getValue().getUnits(reportStartTime, reportEndTime);
                 for (Unit unit : unitList) {
@@ -133,7 +133,7 @@ class Reporter {
             Collections.sort(infos, comparator);
 
             //输出日志
-            String title = "Group:" + groupEntry.getKey() + ", Time:" + DateTimeUtils.getDateTime(reportStartTime) + " ~ " + DateTimeUtils.getDateTime(reportEndTime);
+            String title = "Group (" + groupEntry.getKey() + ") Time ( " + DateTimeUtils.getDateTime(reportStartTime) + "~" + DateTimeUtils.getDateTime(reportEndTime);
             for (Info info : infos) {
                 print(title, String.valueOf(info));
                 if (info.duplicateTotal > 0) {
@@ -167,13 +167,13 @@ class Reporter {
         @Override
         public String toString() {
             return transactionName +
-                    "> last " + REPORT_INTERVAL +
-                    " minutes ( finished:" + finish +
-                    ", maxElapse:" + maxElapse +
-                    ", minElapse:" + minElapse +
-                    ", averageElapse:" + averageElapse +
-                    " ) total ( finished:" + finishTotal +
-                    ", running:" + runningTotal +
+                    " > last " + REPORT_INTERVAL +
+                    " min ( cnt:" + finish +
+                    ", avg:" + averageElapse +
+                    "ms, max:" + maxElapse +
+                    "ms, min:" + minElapse +
+                    "ms ) total ( cnt:" + finishTotal +
+                    ", ing:" + runningTotal +
                     " )";
         }
     }
@@ -204,10 +204,10 @@ class Reporter {
 
     private void flush(){
 
-        StringBuilder stringBuilder = new StringBuilder("\nTxTimer | ------------------------------------------------------------------------------");
+        StringBuilder stringBuilder = new StringBuilder("\nTxTimer | ------------------------------------------------------------------------------------------------------------");
         stringBuilder.append("\nTxTimer | ");
         stringBuilder.append(title);
-        stringBuilder.append(" ");
+        stringBuilder.append("  Page ");
         stringBuilder.append(page);
 
         for (String msg : messagePool) {

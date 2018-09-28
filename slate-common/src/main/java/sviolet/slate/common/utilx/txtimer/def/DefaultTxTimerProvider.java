@@ -25,8 +25,8 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
     static {
         REPORT_INTERVAL = getIntFromProperty("slate.txtimer.reportinterval", 5);
         REPORT_INTERVAL_MILLIS = REPORT_INTERVAL * 60 * 1000;
-        if (REPORT_INTERVAL < 3 || REPORT_INTERVAL > 60) {
-            throw new IllegalArgumentException("slate.txtimer.reportinterval must >= 3 and <= 60 (minus)");
+        if (REPORT_INTERVAL < 2 || REPORT_INTERVAL > 60) {
+            throw new IllegalArgumentException("slate.txtimer.reportinterval must >= 2 and <= 60 (minus)");
         }
 
         MAP_INIT_CAP = getIntFromProperty("slate.txtimer.mapinitcap", 1024);
