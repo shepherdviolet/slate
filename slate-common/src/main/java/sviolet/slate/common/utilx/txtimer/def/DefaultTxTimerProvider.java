@@ -42,7 +42,7 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
     static final int UPDATE_MAX_ATTEMPTS;
 
     static {
-        REPORT_INTERVAL = getIntFromProperty("slate.txtimer.reportinterval", 5);
+        REPORT_INTERVAL = getIntFromProperty("slate.txtimer.reportinterval", 30);
         REPORT_INTERVAL_MILLIS = REPORT_INTERVAL * 60 * 1000;
         if (REPORT_INTERVAL < 3 || REPORT_INTERVAL > 60) {
             throw new IllegalArgumentException("slate.txtimer.reportinterval must >= 3 and <= 60 (minus)");

@@ -28,7 +28,10 @@ class Reporter {
             @Override
             public void run() {
                 shutdown = true;
-                reportThreadPool.shutdown();
+                try {
+                    reportThreadPool.shutdownNow();
+                } catch (Exception ignore) {
+                }
             }
         }));
     }
@@ -52,7 +55,7 @@ class Reporter {
             long startTime = System.currentTimeMillis();
             while (System.currentTimeMillis() - startTime < REPORT_INTERVAL_MILLIS) {
                 try {
-                    Thread.sleep(10000L);
+                    Thread.sleep(MINUTE_MILLIS);
                 } catch (InterruptedException ignored) {
                 }
                 if (shutdown) {

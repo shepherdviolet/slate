@@ -8,11 +8,11 @@ import sviolet.thistle.util.spi.ThistleSpi;
  * <p>默认实现了交易耗时的统计, 并通过日志定时输出报告. 可以使用ThistleSpi替换实现.</p>
  *
  * <p>公共参数:<br>
- *      -Dslate.txtimer.enabled=true 启用统计, 默认false<br>
+ *      -Dslate.txtimer.enabled=true 启用统计, 默认true, 默认开启<br>
  * </p>
  *
  * <p>默认实现的参数(在没有替换实现时):<br>
- *      -Dslate.txtimer.reportinterval=5 日志报告输出间隔, 单位分钟, [3-60], 默认5<br>
+ *      -Dslate.txtimer.reportinterval=30 日志报告输出间隔, 单位分钟, [3-60], 默认30<br>
  *      -Dslate.txtime.reportlines=20 日志每次输出的最大行数, 大于该行数会分页, 默认20<br>
  * </p>
  *
@@ -26,7 +26,7 @@ public class TxTimer {
 
     static {
         //统计开关, 默认关闭
-        if ("true".equals(System.getProperty("slate.txtimer.enabled", "false"))) {
+        if ("true".equals(System.getProperty("slate.txtimer.enabled", "true"))) {
             TxTimerProvider service = ThistleSpi.newLoader().loadService(TxTimerProvider.class);
             //再根据provider判断是否要启用
             if (service.enabled()) {
@@ -51,8 +51,6 @@ public class TxTimer {
      *  }
      * </code>
      *
-     * <p>需要添加启动参数-Dslate.txtimer.enabled=true启用功能</p>
-     *
      * @param groupName 组别
      * @param transactionName 交易名
      */
@@ -73,8 +71,6 @@ public class TxTimer {
      *      TxTimer.stop();
      *  }
      * </code>
-     *
-     * <p>需要添加启动参数-Dslate.txtimer.enabled=true启用功能</p>
      *
      */
     public static void stop(){
