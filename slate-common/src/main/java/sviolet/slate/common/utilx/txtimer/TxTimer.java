@@ -13,7 +13,7 @@ import sviolet.thistle.util.spi.ThistleSpi;
  *
  * <p>默认实现的参数(在没有替换实现时):<br>
  *      -Dslate.txtimer.reportinterval=30 日志报告输出间隔, 单位分钟, [3-60], 默认30<br>
- *      -Dslate.txtime.reportlines=20 日志每次输出的最大行数, 大于该行数会分页, 默认20<br>
+ *      -Dslate.txtimer.reportlines=20 日志每次输出的最大行数, 大于该行数会分页, 默认20<br>
  * </p>
  *
  * </p>

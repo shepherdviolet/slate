@@ -44,14 +44,14 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
     static {
         REPORT_INTERVAL = getIntFromProperty("slate.txtimer.reportinterval", 30);
         REPORT_INTERVAL_MILLIS = REPORT_INTERVAL * 60 * 1000;
-        if (REPORT_INTERVAL < 3 || REPORT_INTERVAL > 60) {
-            throw new IllegalArgumentException("slate.txtimer.reportinterval must >= 3 and <= 60 (minus)");
+        if (REPORT_INTERVAL < 2 || REPORT_INTERVAL > 60) {
+            throw new IllegalArgumentException("slate.txtimer.reportinterval must >= 2 and <= 60 (minus)");
         }
 
-        REPORT_LINES = getIntFromProperty("slate.txtime.reportlines", 20);
+        REPORT_LINES = getIntFromProperty("slate.txtimer.reportlines", 20);
         MAP_INIT_CAP = getIntFromProperty("slate.txtimer.mapinitcap", 1024);
         HASH_LOCK_NUM = getIntFromProperty("slate.txtimer.hashlocknum", 32);
-        UPDATE_MAX_ATTEMPTS = getIntFromProperty("slate.txtime.updateattemps", 10);
+        UPDATE_MAX_ATTEMPTS = getIntFromProperty("slate.txtimer.updateattemps", 10);
     }
 
     private static int getIntFromProperty(String key, int def) {

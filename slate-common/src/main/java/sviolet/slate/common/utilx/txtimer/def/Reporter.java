@@ -212,7 +212,7 @@ class Reporter {
             //设置标题
             this.title = title;
         }
-        if (messagePool.size() >= 20) {
+        if (messagePool.size() >= REPORT_LINES) {
             flush();
         }
         messagePool.add(msg);
