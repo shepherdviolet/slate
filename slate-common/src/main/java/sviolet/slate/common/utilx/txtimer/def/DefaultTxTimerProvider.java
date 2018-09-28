@@ -25,7 +25,7 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
     static {
         REPORT_INTERVAL = getIntFromProperty("slate.txtimer.reportinterval", 5);
         REPORT_INTERVAL_MILLIS = REPORT_INTERVAL * 60 * 1000;
-        if (REPORT_INTERVAL < 2 || REPORT_INTERVAL > 60) {
+        if (REPORT_INTERVAL < 3 || REPORT_INTERVAL > 60) {
             throw new IllegalArgumentException("slate.txtimer.reportinterval must >= 3 and <= 60 (minus)");
         }
 
@@ -76,6 +76,7 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
             missingCount.incrementAndGet();
             return;
         }
+        this.record.set(null);
         long elapse = System.currentTimeMillis() - record.getStartTime();
         Transaction transaction = getGroup(record.getGroupName()).getTransaction(record.getTransactionName());
         transaction.finish(System.currentTimeMillis(), elapse);
