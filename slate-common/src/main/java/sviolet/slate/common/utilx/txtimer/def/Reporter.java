@@ -19,11 +19,11 @@ class Reporter {
 
     private ExecutorService reportThreadPool = ThreadPoolExecutorUtils.createLazy(60, "Slate-TxTimer-Report-%d");
     private volatile boolean shutdown = false;
-    private long lastReportTime = 0;
 
     Reporter(DefaultTxTimerProvider provider) {
         this.provider = provider;
 
+        //监听进程结束事件
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
@@ -33,6 +33,9 @@ class Reporter {
         }));
     }
 
+    /**
+     * 提醒日志输出线程工作, 使用了Lazy线程池, 反复调用execute至多执行2次, 这样在有交易时, 会进行日志输出, 若无交易, 则线程会结束
+     */
     void notifyReport(){
         if (!shutdown) {
             reportThreadPool.execute(reportTask);
@@ -45,6 +48,7 @@ class Reporter {
             if (shutdown) {
                 return;
             }
+            //等待报告输出间隔时间到
             long startTime = System.currentTimeMillis();
             while (System.currentTimeMillis() - startTime < REPORT_INTERVAL_MILLIS) {
                 try {
@@ -55,40 +59,43 @@ class Reporter {
                     return;
                 }
             }
-            long currentTime = System.currentTimeMillis();
-            if (currentTime - lastReportTime < REPORT_INTERVAL_MILLIS) {
-                return;
-            }
-            report(currentTime);
-            lastReportTime = currentTime;
+            //输出报告
+            report(System.currentTimeMillis());
         }
     };
 
     private void report(long currentTime){
 
+        //输出错误提醒, 重复调用stop, 没做start直接做stop, 有可能会导致这个问题
         if (provider.missingCount.get() > 0) {
             print("Error Report", "ERROR!!! Times:" + provider.missingCount.get() + ", No record found in ThreadLocal when invoking TxTimer.stop()");
             print("Error Report", "Suggest 1: If you invoke TxTimer.stop() without or before TxTimer.start()?");
             print("Error Report", "Suggest 2: If you invoke TxTimer.stop() twice?");
         }
 
+        //报告起始时间(多减一分钟)
         long reportStartTime = currentTime - REPORT_INTERVAL_MILLIS - MINUTE_MILLIS;
+        //报告结束事件
         long reportEndTime = currentTime;
 
+        //遍历groups
         Map<String, Group> groupsSnap = ConcurrentUtils.getSnapShot(provider.groups);
         for (Map.Entry<String, Group> groupEntry : groupsSnap.entrySet()) {
 
             Map<String, Transaction> transactionsSnap = ConcurrentUtils.getSnapShot(groupEntry.getValue().transactions);
             List<Info> infos = new ArrayList<>(transactionsSnap.size());
 
+            //遍历transactions
             for (Map.Entry<String, Transaction> transactionEntry : transactionsSnap.entrySet()) {
 
+                //将时间段内的多个统计单元做合并计算
                 int finishCountSum = 0;
                 long totalElapseSum = 0;
                 long maxElapse = Long.MIN_VALUE;
                 long minElapse = Long.MAX_VALUE;
                 int unitNum = 0;
 
+                //遍历时间段内的统计单元
                 List<Unit> unitList = transactionEntry.getValue().getUnits(reportStartTime, reportEndTime);
                 for (Unit unit : unitList) {
                     //记录时间商数, 若最后该值变化, 说明单元被翻篇, 数据无效
@@ -118,6 +125,7 @@ class Reporter {
                     unitNum++;
                 }
 
+                //交易统计结果
                 Info info = new Info();
                 info.transactionName = transactionEntry.getKey();
                 info.finishTotal = transactionEntry.getValue().finishCount.get();
@@ -125,13 +133,14 @@ class Reporter {
                 info.duplicateTotal = transactionEntry.getValue().duplicateCount.get();
                 info.finish = finishCountSum;
                 info.averageElapse = finishCountSum > 0 ? totalElapseSum / finishCountSum : 0;
-                info.maxElapse = maxElapse;
-                info.minElapse = minElapse;
+                info.maxElapse = maxElapse != Long.MIN_VALUE ? maxElapse : 0;
+                info.minElapse = minElapse != Long.MAX_VALUE ? minElapse : 0;
                 info.unitNum = unitNum;
                 infos.add(info);
 
             }
 
+            //排序
             Collections.sort(infos, comparator);
 
             //输出日志
@@ -145,6 +154,7 @@ class Reporter {
 
         }
 
+        //保证日志都写完
         finish();
 
     }

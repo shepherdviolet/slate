@@ -79,18 +79,25 @@ class Transaction {
         return unit;
     }
 
+    /**
+     * 根据时间段获取单元, 用于报告输出
+     */
     List<Unit> getUnits(long startTime, long endTime){
+        //计算开始时间的余数
         long startMinute = startTime / MINUTE_MILLIS;
         int startRemainder = (int) (startMinute % units.length);
+        //计算截止时间的余数
         long endMinute = endTime / MINUTE_MILLIS;
         int endRemainder = (int) (endMinute % units.length);
 
         List<Unit> unitList = new ArrayList<>(units.length);
         if (startRemainder < endRemainder) {
+            //如果连续
             for (int i = startRemainder ; i < endRemainder ; i++) {
                 unitList.add(units[i]);
             }
         } else if (startRemainder > endRemainder){
+            //如果不连续(后半段到前半段)
             for (int i = startRemainder ; i < units.length ; i++) {
                 unitList.add(units[i]);
             }
