@@ -2,6 +2,11 @@ package sviolet.slate.common.utilx.txtimer;
 
 import sviolet.thistle.util.spi.ThistleSpi;
 
+/**
+ * 简易版交易耗时统计
+ *
+ * @author S.Violet
+ */
 public class TxTimer {
 
     private static final TxTimerProvider provider;

@@ -14,14 +14,25 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultTxTimerProvider.class);
 
+    static final int REPORT_INTERVAL;
+    static final int REPORT_INTERVAL_MILLIS;
+
     static final int MAP_INIT_CAP;
     static final int HASH_LOCK_NUM;
     static final int UPDATE_MAX_ATTEMPTS;
+    static final int REPORT_LINES;
 
     static {
+        REPORT_INTERVAL = getIntFromProperty("slate.txtimer.reportinterval", 5);
+        REPORT_INTERVAL_MILLIS = REPORT_INTERVAL * 60 * 1000;
+        if (REPORT_INTERVAL < 2 || REPORT_INTERVAL > 60) {
+            throw new IllegalArgumentException("slate.txtimer.reportinterval must >= 3 and <= 60 (minus)");
+        }
+
         MAP_INIT_CAP = getIntFromProperty("slate.txtimer.mapinitcap", 1024);
-        HASH_LOCK_NUM = getIntFromProperty("slate.txtimer.hashlocknum", 64);
+        HASH_LOCK_NUM = getIntFromProperty("slate.txtimer.hashlocknum", 32);
         UPDATE_MAX_ATTEMPTS = getIntFromProperty("slate.txtime.updateattemps", 10);
+        REPORT_LINES = getIntFromProperty("slate.txtime.reportlines", 20);
     }
 
     private static int getIntFromProperty(String key, int def) {
@@ -35,18 +46,22 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
 
     /* *************************************************************************************************************** */
 
-    private Map<String, Group> map = new ConcurrentHashMap<>(MAP_INIT_CAP);
+    static final long MINUTE_MILLIS = 60L * 1000L;
+
     private ThreadLocal<Record> record = new ThreadLocal<>();
-    private AtomicInteger missingCount = new AtomicInteger(0);
+
+    Map<String, Group> groups = new ConcurrentHashMap<>(MAP_INIT_CAP);
+    AtomicInteger missingCount = new AtomicInteger(0);
 
     StringHashLocks locks = new StringHashLocks(HASH_LOCK_NUM);
+    Reporter reporter = new Reporter(this);
 
     @Override
     public void start(String groupName, String transactionName) {
         Record record = this.record.get();
         if (record != null) {
             Transaction transaction = getGroup(record.getGroupName()).getTransaction(record.getTransactionName());
-            transaction.lost();
+            transaction.duplicate();
         }
         Transaction transaction = getGroup(groupName).getTransaction(transactionName);
         transaction.running();
@@ -63,7 +78,7 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
         }
         long elapse = System.currentTimeMillis() - record.getStartTime();
         Transaction transaction = getGroup(record.getGroupName()).getTransaction(record.getTransactionName());
-        transaction.finish(elapse);
+        transaction.finish(System.currentTimeMillis(), elapse);
     }
 
     @Override
@@ -77,15 +92,15 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
     }
 
     private Group getGroup(String groupName) {
-        Group group = map.get(groupName);
+        Group group = groups.get(groupName);
         if (group == null) {
             ReentrantLock lock = locks.getLock(groupName);
             try {
                 lock.lock();
-                group = map.get(groupName);
+                group = groups.get(groupName);
                 if (group == null) {
-                    group = new Group(this, groupName);
-                    map.put(groupName, group);
+                    group = new Group(this);
+                    groups.put(groupName, group);
                 }
             } finally {
                 lock.unlock();

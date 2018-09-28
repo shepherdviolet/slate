@@ -7,15 +7,32 @@ import static sviolet.slate.common.utilx.txtimer.def.DefaultTxTimerProvider.UPDA
 
 class Unit {
 
-    private String group;
-    private String key;
-    private long startTime;
-    private AtomicInteger finishCount = new AtomicInteger(0);
-    private AtomicLong totalElapse = new AtomicLong(0);
-    private AtomicLong maxElapse = new AtomicLong(Long.MIN_VALUE);
-    private AtomicLong minElapse = new AtomicLong(Long.MAX_VALUE);
+    AtomicLong startTime = new AtomicLong(0);
+    AtomicLong timeQuotient = new AtomicLong(0);
+    AtomicInteger finishCount = new AtomicInteger(0);
+    AtomicLong totalElapse = new AtomicLong(0);
+    AtomicLong maxElapse = new AtomicLong(Long.MIN_VALUE);
+    AtomicLong minElapse = new AtomicLong(Long.MAX_VALUE);
 
-    void add(long elapse){
+    boolean turnOver(long startTime, long quotient){
+        long previousQuotient;
+        while (true) {
+            previousQuotient = timeQuotient.get();
+            if (quotient <= previousQuotient) {
+                return false;
+            }
+            if (timeQuotient.compareAndSet(previousQuotient, quotient)) {
+                this.startTime.set(startTime);
+                this.minElapse.set(0);
+                this.maxElapse.set(0);
+                this.totalElapse.set(0);
+                this.finishCount.set(0);
+                return true;
+            }
+        }
+    }
+
+    void record(long elapse){
         finishCount.incrementAndGet();
         totalElapse.addAndGet(elapse);
         //max elapse
