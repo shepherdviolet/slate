@@ -108,6 +108,7 @@ dependencies {
         <property name="verboseLog" value="true"/>
         <!--<property name="verboseLogConfig" value="0x00000110"/>-->
         <!--<property name="dataConverter" ref="dataConverter"/> 默认提供GsonDataConverter-->
+        <!--<property name="txTimerEnabled" value="true"/>-->
     </bean>
     
 ```
@@ -135,6 +136,7 @@ dependencies {
         <!--<property name="verboseLogConfig" value="0x00000110"/>-->
         <!--<property name="dataConverter" ref="dataConverter"/> 默认提供GsonDataConverter-->
         <!--<property name="httpGetInspector" ref="/health"/> 将主动探测方式从telnet改为http get方式-->
+        <!--<property name="txTimerEnabled" value="true"/>-->
     </bean>
 ```
 

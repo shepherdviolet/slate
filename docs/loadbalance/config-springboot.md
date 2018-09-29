@@ -110,6 +110,7 @@ slate:
       writeTimeout: 10000
       readTimeout: 10000
       verboseLog: true
+      txTimerEnabled: false
     client2:
       hosts: http://127.0.0.1:8083,http://127.0.0.1:8084
       initiativeInspectInterval: 5000
@@ -121,6 +122,7 @@ slate:
       writeTimeout: 10000
       readTimeout: 10000
       verboseLog: true
+      txTimerEnabled: false
 ```
 
 * 以上文为例, 配置了client1和client2两个HTTP请求客户端
@@ -133,6 +135,7 @@ slate:
 * 健康被动探测阻断时长(passiveBlockDuration)为6000ms
 * connectTimeout/writeTimeout/readTimeout分别为连接/写/读超时时间, 单位ms
 * verboseLog为true时会输出更多日志
+* 禁用TxTimer对请求耗时的统计(目前只支持同步方式)
 
 ## 手动配置
 

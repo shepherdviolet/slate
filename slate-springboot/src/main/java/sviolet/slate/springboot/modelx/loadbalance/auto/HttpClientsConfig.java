@@ -71,6 +71,7 @@ public class HttpClientsConfig {
                         .setVerboseLog(entry.getValue().isVerboseLog())
                         .setDataConverter(new GsonDataConverter())
                         .setTag(entry.getKey())
+                        .setTxTimerEnabled(entry.getValue().isTxTimerEnabled())
                 );
 
             }

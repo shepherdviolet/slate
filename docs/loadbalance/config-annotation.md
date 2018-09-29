@@ -123,7 +123,8 @@ dependencies {
                 .setReadTimeout(10000L)
                 //.setDataConverter(new GsonDataConverter())
                 //.setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)
-                .setVerboseLog(true);
+                .setVerboseLog(true)
+                .setTxTimerEnabled(false);
     }
     
 ```
@@ -155,7 +156,8 @@ public SimpleOkHttpClient simpleOkHttpClient() {
             //.setDataConverter(new GsonDataConverter())
             //.setHttpGetInspector("/health")
             //.setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)
-            .setVerboseLog(true);
+            .setVerboseLog(true)
+            .setTxTimerEnabled(false);
 }
 ```
 

@@ -23,6 +23,8 @@ import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager;
+import sviolet.slate.common.utilx.txtimer.noref.NoRefTxTimer;
+import sviolet.slate.common.utilx.txtimer.noref.NoRefTxTimerFactory;
 import sviolet.thistle.entity.Destroyable;
 import sviolet.thistle.util.common.CloseableUtils;
 import sviolet.thistle.util.conversion.ByteUtils;
@@ -159,6 +161,8 @@ public class MultiHostOkHttpClient {
     private static final long PASSIVE_BLOCK_DURATION = 30000L;
     private static final String MEDIA_TYPE = "application/json;charset=utf-8";
     private static final String ENCODE = "utf-8";
+    private static final String TXTIMER_GROUP_SEND = "MultiHostOkHttpClient-Send-";
+    private static final String TXTIMER_GROUP_CONNECT = "MultiHostOkHttpClient-Connect-";
 
     private static Logger logger = LoggerFactory.getLogger(MultiHostOkHttpClient.class);
 
@@ -168,6 +172,8 @@ public class MultiHostOkHttpClient {
     private Settings settings = new Settings();
     private volatile boolean refreshSettings = false;
     private ReentrantLock settingsLock = new ReentrantLock();
+
+    private NoRefTxTimer txTimer;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 请求 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -678,7 +684,17 @@ public class MultiHostOkHttpClient {
             if (client == null) {
                 throw new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)");
             }
-            return client.responseToBean(client.requestSend(this), type, this);
+            NoRefTxTimer txTimer = client.txTimer;
+            if (txTimer != null) {
+                try {
+                    txTimer.start(TXTIMER_GROUP_SEND + client.settings.tag, urlSuffix);
+                    return client.responseToBean(client.requestSend(this), type, this);
+                } finally {
+                    txTimer.stop();
+                }
+            } else {
+                return client.responseToBean(client.requestSend(this), type, this);
+            }
         }
 
         /**
@@ -696,7 +712,17 @@ public class MultiHostOkHttpClient {
             if (client == null) {
                 throw new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)");
             }
-            return client.responseToBytes(client.requestSend(this));
+            NoRefTxTimer txTimer = client.txTimer;
+            if (txTimer != null) {
+                try {
+                    txTimer.start(TXTIMER_GROUP_SEND + client.settings.tag, urlSuffix);
+                    return client.responseToBytes(client.requestSend(this));
+                } finally {
+                    txTimer.stop();
+                }
+            } else {
+                return client.responseToBytes(client.requestSend(this));
+            }
         }
 
         /**
@@ -714,7 +740,17 @@ public class MultiHostOkHttpClient {
             if (client == null) {
                 throw new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)");
             }
-            return client.responseToInputStream(client.requestSend(this));
+            NoRefTxTimer txTimer = client.txTimer;
+            if (txTimer != null) {
+                try {
+                    txTimer.start(TXTIMER_GROUP_SEND + client.settings.tag, urlSuffix);
+                    return client.responseToInputStream(client.requestSend(this));
+                } finally {
+                    txTimer.stop();
+                }
+            } else {
+                return client.responseToInputStream(client.requestSend(this));
+            }
         }
 
         /**
@@ -732,7 +768,17 @@ public class MultiHostOkHttpClient {
             if (client == null) {
                 throw new RequestBuildException("Missing MultiHostOkHttpClient instance, has been destroyed (cleaned by gc)");
             }
-            return client.requestSend(this);
+            NoRefTxTimer txTimer = client.txTimer;
+            if (txTimer != null) {
+                try {
+                    txTimer.start(TXTIMER_GROUP_CONNECT + client.settings.tag, urlSuffix);
+                    return client.requestSend(this);
+                } finally {
+                    txTimer.stop();
+                }
+            } else {
+                return client.requestSend(this);
+            }
         }
 
         /**
@@ -2077,6 +2123,19 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setTag(String tag) {
         settings.tag = tag != null ? tag + "> " : "";
+        return this;
+    }
+
+    /**
+     * [可运行时修改]
+     * 启用/禁用TxTimer统计请求耗时(暂时只支持同步方式), 默认禁用
+     */
+    public MultiHostOkHttpClient setTxTimerEnabled(boolean enabled){
+        if (enabled && txTimer == null) {
+            txTimer = NoRefTxTimerFactory.newInstance();
+        } else if (!enabled){
+            txTimer = null;
+        }
         return this;
     }
 

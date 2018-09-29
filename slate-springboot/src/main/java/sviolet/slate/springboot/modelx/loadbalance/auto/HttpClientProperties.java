@@ -78,6 +78,11 @@ public class HttpClientProperties {
      */
     private int recoveryCoefficient = 10;
 
+    /**
+     * 启用/禁用TxTimer统计请求耗时(暂时只支持同步方式), 默认禁用
+     */
+    private boolean txTimerEnabled = false;
+
     public String getHosts() {
         return hosts;
     }
@@ -172,5 +177,13 @@ public class HttpClientProperties {
 
     public void setRecoveryCoefficient(int recoveryCoefficient) {
         this.recoveryCoefficient = recoveryCoefficient;
+    }
+
+    public boolean isTxTimerEnabled() {
+        return txTimerEnabled;
+    }
+
+    public void setTxTimerEnabled(boolean txTimerEnabled) {
+        this.txTimerEnabled = txTimerEnabled;
     }
 }
