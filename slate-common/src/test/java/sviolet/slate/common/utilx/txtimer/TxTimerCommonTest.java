@@ -1,5 +1,6 @@
 package sviolet.slate.common.utilx.txtimer;
 
+import sviolet.slate.common.utilx.txtimer.def.DefaultTxTimerConfig;
 import sviolet.thistle.util.crypto.SecureRandomUtils;
 
 public class TxTimerCommonTest {
@@ -8,8 +9,12 @@ public class TxTimerCommonTest {
         System.setProperty("slate.txtimer.enabled", "true");
         System.setProperty("slate.txtimer.report.interval", "2");
         System.setProperty("slate.txtimer.threshold.avg", "110");
-        System.setProperty("slate.txtimer.threshold.max", "200");
-        System.setProperty("slate.txtimer.threshold.min", "40");
+        System.setProperty("slate.txtimer.threshold.max", "700");
+        System.setProperty("slate.txtimer.threshold.min", "30");
+
+        DefaultTxTimerConfig.setThresholdAvg(0);
+        DefaultTxTimerConfig.setThresholdMax(0);
+        DefaultTxTimerConfig.setThresholdMin(0);
 
         for (int i = 0 ; i < 1000 ; i++) {
             final int finalI = i;

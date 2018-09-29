@@ -1,5 +1,7 @@
 package sviolet.slate.common.utilx.txtimer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sviolet.thistle.util.spi.ThistleSpi;
 
 /**
@@ -31,6 +33,8 @@ import sviolet.thistle.util.spi.ThistleSpi;
  */
 public class TxTimer {
 
+    private static final Logger logger = LoggerFactory.getLogger(TxTimer.class);
+
     private static final TxTimerProvider provider;
 
     static {
@@ -40,6 +44,7 @@ public class TxTimer {
             //再根据provider判断是否要启用
             if (service.enabled()) {
                 provider = service;
+                logger.info("TxTimer | TxTimer enabled");
             } else {
                 provider = null;
             }
@@ -92,6 +97,7 @@ public class TxTimer {
         if (provider != null && provider.canBeGet()) {
             return provider;
         }
+        logger.error("TxTimer | Prohibit access to get TxTimerProvider, Null or Banned by TxTimerProvider.canBeGet()");
         return null;
     }
 

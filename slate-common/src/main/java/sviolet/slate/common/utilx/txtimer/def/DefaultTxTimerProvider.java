@@ -1,7 +1,5 @@
 package sviolet.slate.common.utilx.txtimer.def;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import sviolet.slate.common.utilx.txtimer.TxTimerProvider;
 import sviolet.thistle.model.concurrent.StringHashLocks;
 
@@ -16,8 +14,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author S.Violet
  */
 public class DefaultTxTimerProvider implements TxTimerProvider {
-
-    private static final Logger logger = LoggerFactory.getLogger(DefaultTxTimerProvider.class);
 
     //每分钟的毫秒数
     static final long MINUTE_MILLIS = 60L * 1000L;
