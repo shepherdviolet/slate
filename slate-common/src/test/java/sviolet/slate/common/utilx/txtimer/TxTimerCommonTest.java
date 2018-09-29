@@ -6,15 +6,20 @@ import sviolet.thistle.util.crypto.SecureRandomUtils;
 public class TxTimerCommonTest {
 
     public static void main(String[] args) throws InterruptedException {
+        //ARGS
         System.setProperty("slate.txtimer.enabled", "true");
         System.setProperty("slate.txtimer.report.interval", "2");
         System.setProperty("slate.txtimer.threshold.avg", "110");
-        System.setProperty("slate.txtimer.threshold.max", "700");
-        System.setProperty("slate.txtimer.threshold.min", "30");
+//        System.setProperty("slate.txtimer.threshold.max", "700");
+//        System.setProperty("slate.txtimer.threshold.min", "30");
 
-        DefaultTxTimerConfig.setThresholdAvg(0);
-        DefaultTxTimerConfig.setThresholdMax(0);
-        DefaultTxTimerConfig.setThresholdMin(0);
+        //Set
+        DefaultTxTimerConfig.setThresholdAvg(120);
+        DefaultTxTimerConfig.setThresholdMax(600);
+        DefaultTxTimerConfig.setThresholdMin(30);
+
+        //Set2
+        DefaultTxTimerConfig.setThresholdMax(700);
 
         for (int i = 0 ; i < 1000 ; i++) {
             final int finalI = i;
