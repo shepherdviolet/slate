@@ -6,7 +6,10 @@ public class TxTimerCommonTest {
 
     public static void main(String[] args) throws InterruptedException {
         System.setProperty("slate.txtimer.enabled", "true");
-        System.setProperty("slate.txtimer.reportinterval", "2");
+        System.setProperty("slate.txtimer.report.interval", "2");
+        System.setProperty("slate.txtimer.threshold.avg", "110");
+        System.setProperty("slate.txtimer.threshold.max", "200");
+        System.setProperty("slate.txtimer.threshold.min", "40");
 
         for (int i = 0 ; i < 1000 ; i++) {
             final int finalI = i;

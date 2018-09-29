@@ -17,33 +17,30 @@ class DefaultTxTimerConfig {
     static int reportInterval;
     static int reportIntervalMillis;
     /**
-     * 可动态调整, 启动参数优先级大于动态配置
-     * [基本设置]打印周期内交易次数大于该值的记录, 默认0
-     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
-     */
-    static int thresholdCnt;
-    static boolean lockThresholdCnt = false;
-    /**
-     * 可动态调整, 启动参数优先级大于动态配置
-     * [基本设置]打印周期内平均耗时超过该值的记录, 单位:毫秒, 默认0
-     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
+     * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [基本设置]打印周期内平均耗时超过该值的交易, 单位:毫秒<br>
+     * slate.txtimer.threshold系列参数均未配置, 则输出全部交易的报告. 若设置了任意一个, 则只有满足条件的交易才输出:
+     * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
      */
     static int thresholdAvg;
     static boolean lockThresholdAvg = false;
     /**
-     * 可动态调整, 启动参数优先级大于动态配置
-     * [基本设置]打印周期内最大耗时超过该值的记录, 单位:毫秒, 默认0
-     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
+     * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [基本设置]打印周期内最大耗时超过该值的交易, 单位:毫秒<br>
+     * slate.txtimer.threshold系列参数均未配置, 则输出全部交易的报告. 若设置了任意一个, 则只有满足条件的交易才输出:
+     * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
      */
     static int thresholdMax;
     static boolean lockThresholdMax = false;
     /**
-     * 可动态调整, 启动参数优先级大于动态配置
-     * [基本设置]打印周期内最小耗时超过该值的记录, 单位:毫秒, 默认0
-     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
+     * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [基本设置]打印周期内最小耗时超过该值的交易, 单位:毫秒<br>
+     * slate.txtimer.threshold系列参数均未配置, 则输出全部交易的报告. 若设置了任意一个, 则只有满足条件的交易才输出:
+     * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
      */
     static int thresholdMin;
     static boolean lockThresholdMin = false;
+    static boolean thresholdEnabled = false;
 
     /**
      * 启动后固定
@@ -69,24 +66,10 @@ class DefaultTxTimerConfig {
     /* ******************************************************************************************************************* */
 
     /**
-     * 可动态调整, 启动参数优先级大于动态配置
-     * [基本设置]打印周期内交易次数大于该值的记录, 默认0
-     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
-     */
-    public static void setThresholdCnt(int thresholdCnt) {
-        if (lockThresholdCnt) {
-            logger.warn("TxTimer | Config: thresholdCnt has been locked by -Dslate.txtimer.threshold.cnt, can not change");
-            return;
-        }
-        DefaultTxTimerConfig.thresholdCnt = thresholdCnt;
-        logger.info("TxTimer | Config: thresholdCnt change to " + thresholdCnt);
-        logger.info("TxTimer | Config: Now report if " + reportCondition());
-    }
-
-    /**
-     * 可动态调整, 启动参数优先级大于动态配置
-     * [基本设置]打印周期内平均耗时超过该值的记录, 单位:毫秒, 默认0
-     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
+     * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [基本设置]打印周期内平均耗时超过该值的记录, 单位:毫秒<br>
+     * slate.txtimer.threshold系列参数均未配置, 则输出全部交易的报告. 若设置了任意一个, 则只有满足条件的交易才输出:
+     * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
      */
     public static void setThresholdAvg(int thresholdAvg) {
         if (lockThresholdAvg) {
@@ -94,14 +77,16 @@ class DefaultTxTimerConfig {
             return;
         }
         DefaultTxTimerConfig.thresholdAvg = thresholdAvg;
+        thresholdEnabled = true;
         logger.info("TxTimer | Config: thresholdAvg change to " + thresholdAvg);
-        logger.info("TxTimer | Config: Now report if " + reportCondition());
+        logger.info("TxTimer | Config: Now report " + reportCondition());
     }
 
     /**
-     * 可动态调整, 启动参数优先级大于动态配置
-     * [基本设置]打印周期内最大耗时超过该值的记录, 单位:毫秒, 默认0
-     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
+     * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [基本设置]打印周期内最大耗时超过该值的记录, 单位:毫秒<br>
+     * slate.txtimer.threshold系列参数均未配置, 则输出全部交易的报告. 若设置了任意一个, 则只有满足条件的交易才输出:
+     * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
      */
     public static void setThresholdMax(int thresholdMax) {
         if (lockThresholdMax) {
@@ -109,14 +94,16 @@ class DefaultTxTimerConfig {
             return;
         }
         DefaultTxTimerConfig.thresholdMax = thresholdMax;
+        thresholdEnabled = true;
         logger.info("TxTimer | Config: thresholdMax change to " + thresholdMax);
-        logger.info("TxTimer | Config: Now report if " + reportCondition());
+        logger.info("TxTimer | Config: Now report " + reportCondition());
     }
 
     /**
-     * 可动态调整, 启动参数优先级大于动态配置
-     * [基本设置]打印周期内最小耗时超过该值的记录, 单位:毫秒, 默认0
-     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
+     * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [基本设置]打印周期内最小耗时超过该值的记录, 单位:毫秒<br>
+     * slate.txtimer.threshold系列参数均未配置, 则输出全部交易的报告. 若设置了任意一个, 则只有满足条件的交易才输出:
+     * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
      */
     public static void setThresholdMin(int thresholdMin) {
         if (lockThresholdMin) {
@@ -124,9 +111,9 @@ class DefaultTxTimerConfig {
             return;
         }
         DefaultTxTimerConfig.thresholdMin = thresholdMin;
+        thresholdEnabled = true;
         logger.info("TxTimer | Config: thresholdMin change to " + thresholdMin);
-        logger.info("TxTimer | Config: Now report if " + reportCondition());
-
+        logger.info("TxTimer | Config: Now report " + reportCondition());
     }
 
     /* ******************************************************************************************************************* */
@@ -139,15 +126,13 @@ class DefaultTxTimerConfig {
         logger.info("TxTimer | Config: Report every " + reportInterval + " minutes");
         reportIntervalMillis = reportInterval * 60 * 1000;
 
-        thresholdCnt = getIntFromProperty("slate.txtimer.threshold.cnt", -2);
-        if (thresholdCnt > -2) { lockThresholdCnt = true; logger.debug("TxTimer | Config: thresholdCnt is locked by -Dslate.txtimer.threshold.cnt"); }
-        thresholdAvg = getIntFromProperty("slate.txtimer.threshold.avg", -1);
-        if (thresholdAvg > -2) { lockThresholdAvg = true; logger.debug("TxTimer | Config: thresholdAvg is locked by -Dslate.txtimer.threshold.avg"); }
-        thresholdMax = getIntFromProperty("slate.txtimer.threshold.max", -1);
-        if (thresholdMax > -2) { lockThresholdMax = true; logger.debug("TxTimer | Config: thresholdMax is locked by -Dslate.txtimer.threshold.max"); }
-        thresholdMin = getIntFromProperty("slate.txtimer.threshold.min", -1);
-        if (thresholdMin > -2) { lockThresholdMin = true; logger.debug("TxTimer | Config: thresholdMin is locked by -Dslate.txtimer.threshold.min"); }
-        logger.info("TxTimer | Config: Report if " + reportCondition());
+        thresholdAvg = getIntFromProperty("slate.txtimer.threshold.avg", Integer.MAX_VALUE);
+        if (thresholdAvg < Integer.MAX_VALUE) { lockThresholdAvg = true; thresholdEnabled = true; logger.debug("TxTimer | Config: thresholdAvg is locked by -Dslate.txtimer.threshold.avg=" + thresholdAvg); }
+        thresholdMax = getIntFromProperty("slate.txtimer.threshold.max", Integer.MAX_VALUE);
+        if (thresholdMax < Integer.MAX_VALUE) { lockThresholdMax = true; thresholdEnabled = true; logger.debug("TxTimer | Config: thresholdMax is locked by -Dslate.txtimer.threshold.max=" + thresholdMax); }
+        thresholdMin = getIntFromProperty("slate.txtimer.threshold.min", Integer.MAX_VALUE);
+        if (thresholdMin < Integer.MAX_VALUE) { lockThresholdMin = true; thresholdEnabled = true; logger.debug("TxTimer | Config: thresholdMin is locked by -Dslate.txtimer.threshold.min=" + thresholdMin); }
+        logger.info("TxTimer | Config: Report " + reportCondition());
 
         pageLines = getIntFromProperty("slate.txtimer.pagelines", 20);
         mapInitCap = getIntFromProperty("slate.txtimer.mapinitcap", 128);
@@ -165,7 +150,13 @@ class DefaultTxTimerConfig {
     }
 
     static String reportCondition(){
-        return "cnt >= " + thresholdCnt + " && ( avg >= " + thresholdAvg + " || max >= " + thresholdMax + " || min >= " + thresholdMin + " )";
+        if (thresholdEnabled) {
+            return "if avg >= " + (thresholdAvg < Integer.MAX_VALUE ? thresholdAvg : "∞") +
+                    " || max >= " + (thresholdMax < Integer.MAX_VALUE ? thresholdMax : "∞") +
+                    " || min >= " + (thresholdMin < Integer.MAX_VALUE ? thresholdMin : "∞");
+        } else {
+            return "all";
+        }
     }
 
 }

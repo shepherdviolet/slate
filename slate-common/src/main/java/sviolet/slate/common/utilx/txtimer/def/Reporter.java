@@ -150,10 +150,10 @@ class Reporter {
             String title = "Group (" + groupEntry.getKey() + ") Time (" + DateTimeUtils.getDateTime(reportStartTime) + "~" + DateTimeUtils.getDateTime(reportEndTime) + ")";
             for (Info info : infos) {
                 if (info.duplicateTotal > 0 ||
-                        info.finish >= DefaultTxTimerConfig.thresholdCnt && (
+                        !DefaultTxTimerConfig.thresholdEnabled ||
                         info.averageElapse >= DefaultTxTimerConfig.thresholdAvg ||
                         info.maxElapse >= DefaultTxTimerConfig.thresholdMax ||
-                        info.minElapse >= DefaultTxTimerConfig.thresholdMin)) {
+                        info.minElapse >= DefaultTxTimerConfig.thresholdMin) {
                     print(title, String.valueOf(info));
                 }
                 if (info.duplicateTotal > 0) {
