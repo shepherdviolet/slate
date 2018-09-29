@@ -38,21 +38,21 @@ public class HttpClientsConfig {
 
             for (Map.Entry<String, HttpClientProperties> entry : slateProperties.getHttpclients().entrySet()) {
 
-                logger.info("Slate HttpClients: creating http client with tag:" + entry.getKey());
+                logger.info("Slate HttpClients | creating http client with tag:" + entry.getKey());
 
                 if (entry.getValue() == null) {
-                    logger.warn("Slate HttpClients: tag " + entry.getKey() + " has no properties, skip creating");
+                    logger.warn("Slate HttpClients | tag " + entry.getKey() + " has no properties, skip creating");
                 }
 
                 SimpleOkHttpClient client;
 
                 if (!CheckUtils.isEmptyOrBlank(entry.getValue().getHosts())) {
-                    logger.info("Slate HttpClients: hosts:" + entry.getValue().getHosts());
+                    logger.info("Slate HttpClients | hosts:" + entry.getValue().getHosts());
                     client = new SimpleOkHttpClient()
                             .setHosts(entry.getValue().getHosts());
                 } else {
                     for (String host : entry.getValue().getHostList()) {
-                        logger.info("Slate HttpClients: host:" + host);
+                        logger.info("Slate HttpClients | host:" + host);
                     }
                     client = new SimpleOkHttpClient()
                             .setHostArray(entry.getValue().getHostList());
@@ -90,7 +90,7 @@ public class HttpClientsConfig {
     public SimpleOkHttpClient httpClient(HttpClients httpClients){
         if (httpClients.size() == 1) {
             for (String tag : httpClients.tags()) {
-                logger.debug("Slate HttpClients: only one instance, you can get instance by @Autowired SimpleOkHttpClient");
+                logger.debug("Slate HttpClients | only one instance, you can get instance by @Autowired SimpleOkHttpClient");
                 return httpClients.get(tag);
             }
         }
