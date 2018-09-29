@@ -7,6 +7,8 @@ import sviolet.thistle.util.spi.ThistleSpi;
 /**
  * <p>简易版交易耗时统计, 提供默认实现, 也可以用ThistleSpi扩展</p>
  *
+ * <p>日志前缀:TxTimer</p>
+ *
  * <p>启动参数:<br>
  *      -Dslate.txtimer.enabled=true 启用统计, true开启, false关闭, 默认开启<br>
  * </p>
