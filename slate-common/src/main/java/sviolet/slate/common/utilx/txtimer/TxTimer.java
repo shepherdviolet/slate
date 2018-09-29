@@ -3,7 +3,7 @@ package sviolet.slate.common.utilx.txtimer;
 import sviolet.thistle.util.spi.ThistleSpi;
 
 /**
- * <p>简易版交易耗时统计, 具体实现由ThistleSpi扩展</p>
+ * <p>简易版交易耗时统计, 提供默认实现, 也可以用ThistleSpi扩展</p>
  *
  * <p>启动参数:<br>
  *      -Dslate.txtimer.enabled=true 启用统计, true开启, false关闭, 默认开启<br>
@@ -27,7 +27,7 @@ import sviolet.thistle.util.spi.ThistleSpi;
  *
  * <p>slate.txtimer.threshold系列阈值参数用于控制日志输出, 当交易在周期内满足阈值要求时, 才会输出到日志文件中, 条件如下:</p>
  *
- * <p>cnt>thresholdCnt && (avg>thresholdAvg || max>thresholdMax || min>thresholdMin)</p>
+ * <p>cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)</p>
  *
  * @author S.Violet
  */

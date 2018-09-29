@@ -19,28 +19,28 @@ class DefaultTxTimerConfig {
     /**
      * 可动态调整, 启动参数优先级大于动态配置
      * [基本设置]打印周期内交易次数大于该值的记录, 默认0
-     * 满足cnt>thresholdCnt && (avg>thresholdAvg || max>thresholdMax || min>thresholdMin)条件时打印日志
+     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
      */
     static int thresholdCnt;
     static boolean lockThresholdCnt = false;
     /**
      * 可动态调整, 启动参数优先级大于动态配置
      * [基本设置]打印周期内平均耗时超过该值的记录, 单位:毫秒, 默认0
-     * 满足cnt>thresholdCnt && (avg>thresholdAvg || max>thresholdMax || min>thresholdMin)条件时打印日志
+     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
      */
     static int thresholdAvg;
     static boolean lockThresholdAvg = false;
     /**
      * 可动态调整, 启动参数优先级大于动态配置
      * [基本设置]打印周期内最大耗时超过该值的记录, 单位:毫秒, 默认0
-     * 满足cnt>thresholdCnt && (avg>thresholdAvg || max>thresholdMax || min>thresholdMin)条件时打印日志
+     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
      */
     static int thresholdMax;
     static boolean lockThresholdMax = false;
     /**
      * 可动态调整, 启动参数优先级大于动态配置
      * [基本设置]打印周期内最小耗时超过该值的记录, 单位:毫秒, 默认0
-     * 满足cnt>thresholdCnt && (avg>thresholdAvg || max>thresholdMax || min>thresholdMin)条件时打印日志
+     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
      */
     static int thresholdMin;
     static boolean lockThresholdMin = false;
@@ -68,6 +68,11 @@ class DefaultTxTimerConfig {
 
     /* ******************************************************************************************************************* */
 
+    /**
+     * 可动态调整, 启动参数优先级大于动态配置
+     * [基本设置]打印周期内交易次数大于该值的记录, 默认0
+     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
+     */
     public static void setThresholdCnt(int thresholdCnt) {
         if (lockThresholdCnt) {
             logger.warn("TxTimer | Config: thresholdCnt has been locked by -Dslate.txtimer.threshold.cnt, can not change");
@@ -78,6 +83,11 @@ class DefaultTxTimerConfig {
         logger.info("TxTimer | Config: Now report if " + reportCondition());
     }
 
+    /**
+     * 可动态调整, 启动参数优先级大于动态配置
+     * [基本设置]打印周期内平均耗时超过该值的记录, 单位:毫秒, 默认0
+     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
+     */
     public static void setThresholdAvg(int thresholdAvg) {
         if (lockThresholdAvg) {
             logger.warn("TxTimer | Config: thresholdAvg has been locked by -Dslate.txtimer.threshold.avg, can not change");
@@ -88,6 +98,11 @@ class DefaultTxTimerConfig {
         logger.info("TxTimer | Config: Now report if " + reportCondition());
     }
 
+    /**
+     * 可动态调整, 启动参数优先级大于动态配置
+     * [基本设置]打印周期内最大耗时超过该值的记录, 单位:毫秒, 默认0
+     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
+     */
     public static void setThresholdMax(int thresholdMax) {
         if (lockThresholdMax) {
             logger.warn("TxTimer | Config: thresholdMax has been locked by -Dslate.txtimer.threshold.max, can not change");
@@ -98,6 +113,11 @@ class DefaultTxTimerConfig {
         logger.info("TxTimer | Config: Now report if " + reportCondition());
     }
 
+    /**
+     * 可动态调整, 启动参数优先级大于动态配置
+     * [基本设置]打印周期内最小耗时超过该值的记录, 单位:毫秒, 默认0
+     * 满足cnt >= thresholdCnt && (avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin)条件时打印日志
+     */
     public static void setThresholdMin(int thresholdMin) {
         if (lockThresholdMin) {
             logger.warn("TxTimer | Config: thresholdMin has been locked by -Dslate.txtimer.threshold.min, can not change");
@@ -145,7 +165,7 @@ class DefaultTxTimerConfig {
     }
 
     static String reportCondition(){
-        return "cnt > " + thresholdCnt + " && ( avg > " + thresholdAvg + " || max > " + thresholdMax + " || min > " + thresholdMin + " )";
+        return "cnt >= " + thresholdCnt + " && ( avg >= " + thresholdAvg + " || max >= " + thresholdMax + " || min >= " + thresholdMin + " )";
     }
 
 }

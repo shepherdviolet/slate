@@ -149,7 +149,13 @@ class Reporter {
             //输出日志
             String title = "Group (" + groupEntry.getKey() + ") Time (" + DateTimeUtils.getDateTime(reportStartTime) + "~" + DateTimeUtils.getDateTime(reportEndTime) + ")";
             for (Info info : infos) {
-                print(title, String.valueOf(info));
+                if (info.duplicateTotal > 0 ||
+                        info.finish >= DefaultTxTimerConfig.thresholdCnt && (
+                        info.averageElapse >= DefaultTxTimerConfig.thresholdAvg ||
+                        info.maxElapse >= DefaultTxTimerConfig.thresholdMax ||
+                        info.minElapse >= DefaultTxTimerConfig.thresholdMin)) {
+                    print(title, String.valueOf(info));
+                }
                 if (info.duplicateTotal > 0) {
                     print(title, "ERROR!!! Times:" + info.duplicateTotal + ", TxTimer.start() been invoked before previous transaction finished (you invoke TxTimer.start() twice before TxTimer.stop(), start > start > stop)");
                 }
