@@ -3,20 +3,31 @@ package sviolet.slate.common.utilx.txtimer;
 import sviolet.thistle.util.spi.ThistleSpi;
 
 /**
- * <p>简易版交易耗时统计</p>
+ * <p>简易版交易耗时统计, 具体实现由ThistleSpi扩展</p>
  *
- * <p>默认实现了交易耗时的统计, 并通过日志定时输出报告. 可以使用ThistleSpi替换实现.</p>
- *
- * <p>公共参数:<br>
- *      -Dslate.txtimer.enabled=true 启用统计, 默认true, 默认开启<br>
+ * <p>启动参数:<br>
+ *      -Dslate.txtimer.enabled=true 启用统计, true开启, false关闭, 默认开启<br>
  * </p>
  *
- * <p>默认实现的参数(在没有替换实现时):<br>
- *      -Dslate.txtimer.reportinterval=30 日志报告输出间隔, 单位分钟, [3-60], 默认30<br>
- *      -Dslate.txtimer.reportlines=20 日志每次输出的最大行数, 大于该行数会分页, 默认20<br>
+ * <p>默认实现 ********************************************************************************************</p>
+ *
+ * <p>
+ *     1.默认实现了交易耗时的统计, 并通过日志定时输出报告. <br>
+ *     2.可以使用ThistleSpi替换实现, 替换实现后下面的参数无效. <br>
  * </p>
  *
+ * <p>默认实现的启动参数:<br>
+ *      -Dslate.txtimer.report.interval=5 日志报告输出间隔, 单位分钟, [2-60], 默认5 <br>
+ *      -Dslate.txtimer.pagelines=20 日志每次输出的最大行数, 大于该行数会分页, 默认20 <br>
+ *      -Dslate.txtimer.threshold.cnt=10 打印周期内交易次数大于该值的记录, 默认0 <br>
+ *      -Dslate.txtimer.threshold.avg=2000 打印周期内平均耗时超过该值的记录, 单位:毫秒, 默认0 <br>
+ *      -Dslate.txtimer.threshold.max=10000 打印周期内最大耗时超过该值的记录, 单位:毫秒, 默认0 <br>
+ *      -Dslate.txtimer.threshold.min=1000 打印周期内最小耗时超过该值的记录, 单位:毫秒, 默认0 <br>
  * </p>
+ *
+ * <p>slate.txtimer.threshold系列阈值参数用于控制日志输出, 当交易在周期内满足阈值要求时, 才会输出到日志文件中, 条件如下:</p>
+ *
+ * <p>cnt>thresholdCnt && (avg>thresholdAvg || max>thresholdMax || min>thresholdMin)</p>
  *
  * @author S.Violet
  */

@@ -3,8 +3,6 @@ package sviolet.slate.common.utilx.txtimer.def;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static sviolet.slate.common.utilx.txtimer.def.DefaultTxTimerProvider.UPDATE_MAX_ATTEMPTS;
-
 class Unit {
 
     //开始时间
@@ -54,7 +52,7 @@ class Unit {
         //耗时累计
         totalElapse.addAndGet(elapse);
         //max elapse
-        for (int i = 0 ; i < UPDATE_MAX_ATTEMPTS ; i++) {
+        for (int i = 0 ; i < DefaultTxTimerConfig.updateAttempts; i++) {
             long previous = maxElapse.get();
             if (elapse > previous) {
                 if (maxElapse.compareAndSet(previous, elapse)) {
@@ -63,7 +61,7 @@ class Unit {
             }
         }
         //min elapse
-        for (int i = 0 ; i < UPDATE_MAX_ATTEMPTS ; i++) {
+        for (int i = 0 ; i < DefaultTxTimerConfig.updateAttempts; i++) {
             long previous = minElapse.get();
             if (elapse < previous) {
                 if (minElapse.compareAndSet(previous, elapse)) {

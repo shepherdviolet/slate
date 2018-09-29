@@ -14,8 +14,6 @@ public interface TxTimerProvider {
      *  }
      * </code>
      *
-     * <p>需要添加启动参数-Dslate.txtimer.enabled=true启用功能</p>
-     *
      * @param groupName 组别
      * @param transactionName 交易名
      */
@@ -32,8 +30,6 @@ public interface TxTimerProvider {
      *      TxTimer.stop();
      *  }
      * </code>
-     *
-     * <p>需要添加启动参数-Dslate.txtimer.enabled=true启用功能</p>
      *
      */
     void stop();

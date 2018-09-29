@@ -19,54 +19,6 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultTxTimerProvider.class);
 
-    /**
-     * [基本设置]日志报告输出间隔, 单位:分钟, [3-60]
-     */
-    static final int REPORT_INTERVAL;
-
-    /**
-     * [调优设置]日志每次输出的最大行数, 大于该行数会分页, 默认20
-     */
-    static final int REPORT_LINES;
-    /**
-     * [调优设置]内部Map的初始大小, 大于观测点数量为宜
-     */
-    static final int MAP_INIT_CAP;
-    /**
-     * [调优设置]StringHashLocks的锁数量
-     */
-    static final int HASH_LOCK_NUM;
-    /**
-     * [调优设置]内部一些非锁更新操作的最大尝试次数
-     */
-    static final int UPDATE_MAX_ATTEMPTS;
-
-    static {
-        REPORT_INTERVAL = getIntFromProperty("slate.txtimer.reportinterval", 30);
-        REPORT_INTERVAL_MILLIS = REPORT_INTERVAL * 60 * 1000;
-        if (REPORT_INTERVAL < 2 || REPORT_INTERVAL > 60) {
-            throw new IllegalArgumentException("slate.txtimer.reportinterval must >= 2 and <= 60 (minus)");
-        }
-
-        REPORT_LINES = getIntFromProperty("slate.txtimer.reportlines", 20);
-        MAP_INIT_CAP = getIntFromProperty("slate.txtimer.mapinitcap", 1024);
-        HASH_LOCK_NUM = getIntFromProperty("slate.txtimer.hashlocknum", 32);
-        UPDATE_MAX_ATTEMPTS = getIntFromProperty("slate.txtimer.updateattemps", 10);
-    }
-
-    private static int getIntFromProperty(String key, int def) {
-        try {
-            return Integer.parseInt(System.getProperty(key, String.valueOf(def)));
-        } catch (Exception e) {
-            logger.error("Error while parsing -D" + key + " to int, using " + def + " by default", e);
-            return def;
-        }
-    }
-
-    /* *************************************************************************************************************** */
-
-    //日志报告输出间隔的毫秒数
-    static final int REPORT_INTERVAL_MILLIS;
     //每分钟的毫秒数
     static final long MINUTE_MILLIS = 60L * 1000L;
 
@@ -74,12 +26,12 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
     private ThreadLocal<Record> record = new ThreadLocal<>();
 
     //组Map
-    Map<String, Group> groups = new ConcurrentHashMap<>(MAP_INIT_CAP);
+    Map<String, Group> groups = new ConcurrentHashMap<>();
     //stop时记录找不到的计数器
     AtomicInteger missingCount = new AtomicInteger(0);
 
     //锁
-    StringHashLocks locks = new StringHashLocks(HASH_LOCK_NUM);
+    StringHashLocks locks = new StringHashLocks(DefaultTxTimerConfig.hashLockNum);
     //日志输出器
     Reporter reporter = new Reporter(this);
 

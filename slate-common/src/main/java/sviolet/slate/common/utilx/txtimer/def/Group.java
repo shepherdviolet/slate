@@ -4,13 +4,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static sviolet.slate.common.utilx.txtimer.def.DefaultTxTimerProvider.*;
-
 class Group {
 
     private DefaultTxTimerProvider provider;
 
-    Map<String, Transaction> transactions = new ConcurrentHashMap<>(MAP_INIT_CAP);
+    Map<String, Transaction> transactions = new ConcurrentHashMap<>(DefaultTxTimerConfig.mapInitCap);
 
     Group(DefaultTxTimerProvider provider) {
         this.provider = provider;

@@ -53,7 +53,7 @@ class Reporter {
             }
             //等待报告输出间隔时间到
             long startTime = System.currentTimeMillis();
-            while (System.currentTimeMillis() - startTime < REPORT_INTERVAL_MILLIS) {
+            while (System.currentTimeMillis() - startTime < DefaultTxTimerConfig.reportIntervalMillis) {
                 try {
                     Thread.sleep(MINUTE_MILLIS);
                 } catch (InterruptedException ignored) {
@@ -77,7 +77,7 @@ class Reporter {
         }
 
         //报告起始时间(多减一分钟)
-        long reportStartTime = currentTime - REPORT_INTERVAL_MILLIS - MINUTE_MILLIS;
+        long reportStartTime = currentTime - DefaultTxTimerConfig.reportIntervalMillis - MINUTE_MILLIS;
         //报告结束事件
         long reportEndTime = currentTime;
 
@@ -198,7 +198,7 @@ class Reporter {
 
     private String title;
     private int page = 1;
-    private List<String> messagePool = new ArrayList<>(REPORT_LINES);
+    private List<String> messagePool = new ArrayList<>(DefaultTxTimerConfig.pageLines);
 
     private void print(String title, String msg){
         //如果标题变化
@@ -212,7 +212,7 @@ class Reporter {
             //设置标题
             this.title = title;
         }
-        if (messagePool.size() >= REPORT_LINES) {
+        if (messagePool.size() >= DefaultTxTimerConfig.pageLines) {
             flush();
         }
         messagePool.add(msg);
