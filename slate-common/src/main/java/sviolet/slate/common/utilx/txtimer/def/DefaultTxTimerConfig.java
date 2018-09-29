@@ -84,6 +84,23 @@ public class DefaultTxTimerConfig {
 
     /**
      * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [基本设置]打印周期内平均耗时超过该值的记录, 单位:毫秒<br>
+     * slate.txtimer.threshold系列参数均未配置, 则输出全部交易的报告. 若设置了任意一个, 则只有满足条件的交易才输出:
+     * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
+     */
+    public static void setThresholdAvg(String thresholdAvg) {
+        int value;
+        try {
+            value = Integer.valueOf(thresholdAvg);
+        } catch (Exception e) {
+            logger.error("TxTimer | Config: Error while parsing thresholdAvg " + thresholdAvg + " to int, change thresholdAvg failed", e);
+            return;
+        }
+        setThresholdAvg(value);
+    }
+
+    /**
+     * 可动态调整, 启动参数优先级大于动态配置<br>
      * [基本设置]打印周期内最大耗时超过该值的记录, 单位:毫秒<br>
      * slate.txtimer.threshold系列参数均未配置, 则输出全部交易的报告. 若设置了任意一个, 则只有满足条件的交易才输出:
      * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
@@ -101,6 +118,23 @@ public class DefaultTxTimerConfig {
 
     /**
      * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [基本设置]打印周期内最大耗时超过该值的记录, 单位:毫秒<br>
+     * slate.txtimer.threshold系列参数均未配置, 则输出全部交易的报告. 若设置了任意一个, 则只有满足条件的交易才输出:
+     * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
+     */
+    public static void setThresholdMax(String thresholdMax) {
+        int value;
+        try {
+            value = Integer.valueOf(thresholdMax);
+        } catch (Exception e) {
+            logger.error("TxTimer | Config: Error while parsing thresholdMax " + thresholdMax + " to int, change thresholdMax failed", e);
+            return;
+        }
+        setThresholdMax(value);
+    }
+
+    /**
+     * 可动态调整, 启动参数优先级大于动态配置<br>
      * [基本设置]打印周期内最小耗时超过该值的记录, 单位:毫秒<br>
      * slate.txtimer.threshold系列参数均未配置, 则输出全部交易的报告. 若设置了任意一个, 则只有满足条件的交易才输出:
      * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
@@ -114,6 +148,23 @@ public class DefaultTxTimerConfig {
         thresholdEnabled = true;
         logger.info("TxTimer | Config: thresholdMin change to " + thresholdMin);
         logger.info("TxTimer | Config: Now report " + reportCondition());
+    }
+
+    /**
+     * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [基本设置]打印周期内最小耗时超过该值的记录, 单位:毫秒<br>
+     * slate.txtimer.threshold系列参数均未配置, 则输出全部交易的报告. 若设置了任意一个, 则只有满足条件的交易才输出:
+     * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
+     */
+    public static void setThresholdMin(String thresholdMin) {
+        int value;
+        try {
+            value = Integer.valueOf(thresholdMin);
+        } catch (Exception e) {
+            logger.error("TxTimer | Config: Error while parsing thresholdMin " + thresholdMin + " to int, change thresholdMin failed", e);
+            return;
+        }
+        setThresholdMin(value);
     }
 
     /* ******************************************************************************************************************* */
