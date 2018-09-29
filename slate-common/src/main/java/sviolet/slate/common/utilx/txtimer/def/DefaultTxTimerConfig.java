@@ -2,8 +2,6 @@ package sviolet.slate.common.utilx.txtimer.def;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.slate.common.utilx.txtimer.TxTimer;
-import sviolet.slate.common.utilx.txtimer.TxTimerProvider;
 
 /**
  * <p>默认交易耗时统计的配置</p>
@@ -74,10 +72,6 @@ public class DefaultTxTimerConfig {
      * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
      */
     public static void setThresholdAvg(int thresholdAvg) {
-        if (invalid) {
-            logger.warn("TxTimer | Config: DefaultTxTimerConfig is invalid because DefaultTxTimerProvider is not implementation of TxTimer");
-            return;
-        }
         if (lockThresholdAvg) {
             logger.warn("TxTimer | Config: thresholdAvg has been locked by -Dslate.txtimer.threshold.avg, can not change");
             return;
@@ -95,10 +89,6 @@ public class DefaultTxTimerConfig {
      * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
      */
     public static void setThresholdMax(int thresholdMax) {
-        if (invalid) {
-            logger.warn("TxTimer | Config: DefaultTxTimerConfig is invalid because DefaultTxTimerProvider is not implementation of TxTimer");
-            return;
-        }
         if (lockThresholdMax) {
             logger.warn("TxTimer | Config: thresholdMax has been locked by -Dslate.txtimer.threshold.max, can not change");
             return;
@@ -116,10 +106,6 @@ public class DefaultTxTimerConfig {
      * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
      */
     public static void setThresholdMin(int thresholdMin) {
-        if (invalid) {
-            logger.warn("TxTimer | Config: DefaultTxTimerConfig is invalid because DefaultTxTimerProvider is not implementation of TxTimer");
-            return;
-        }
         if (lockThresholdMin) {
             logger.warn("TxTimer | Config: thresholdMin has been locked by -Dslate.txtimer.threshold.min, can not change");
             return;
@@ -134,48 +120,38 @@ public class DefaultTxTimerConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultTxTimerConfig.class);
 
-    private static boolean invalid = false;
-
     static {
-        TxTimerProvider provider = TxTimer.getProvider();
-        if (provider != null && provider.getClass().equals(DefaultTxTimerProvider.class)) {
-
-            reportInterval = getIntFromProperty("slate.txtimer.report.interval", 5);
-            if (reportInterval < 2 || reportInterval > 60) {
-                throw new IllegalArgumentException("slate.txtimer.report.interval must >= 2 and <= 60 (minus)");
-            }
-            logger.info("TxTimer | Config: Report every " + reportInterval + " minutes");
-            reportIntervalMillis = reportInterval * 60 * 1000;
-
-            thresholdAvg = getIntFromProperty("slate.txtimer.threshold.avg", Integer.MAX_VALUE);
-            if (thresholdAvg < Integer.MAX_VALUE) {
-                lockThresholdAvg = true;
-                thresholdEnabled = true;
-                logger.debug("TxTimer | Config: thresholdAvg is locked by -Dslate.txtimer.threshold.avg=" + thresholdAvg);
-            }
-            thresholdMax = getIntFromProperty("slate.txtimer.threshold.max", Integer.MAX_VALUE);
-            if (thresholdMax < Integer.MAX_VALUE) {
-                lockThresholdMax = true;
-                thresholdEnabled = true;
-                logger.debug("TxTimer | Config: thresholdMax is locked by -Dslate.txtimer.threshold.max=" + thresholdMax);
-            }
-            thresholdMin = getIntFromProperty("slate.txtimer.threshold.min", Integer.MAX_VALUE);
-            if (thresholdMin < Integer.MAX_VALUE) {
-                lockThresholdMin = true;
-                thresholdEnabled = true;
-                logger.debug("TxTimer | Config: thresholdMin is locked by -Dslate.txtimer.threshold.min=" + thresholdMin);
-            }
-            logger.info("TxTimer | Config: Report " + reportCondition());
-
-            pageLines = getIntFromProperty("slate.txtimer.pagelines", 20);
-            mapInitCap = getIntFromProperty("slate.txtimer.mapinitcap", 128);
-            hashLockNum = getIntFromProperty("slate.txtimer.hashlocknum", 16);
-            updateAttempts = getIntFromProperty("slate.txtimer.updateattemps", 10);
-
-        } else {
-            invalid = true;
-            logger.warn("TxTimer | Config: DefaultTxTimerConfig is invalid because DefaultTxTimerProvider is not implementation of TxTimer");
+        reportInterval = getIntFromProperty("slate.txtimer.report.interval", 5);
+        if (reportInterval < 2 || reportInterval > 60) {
+            throw new IllegalArgumentException("slate.txtimer.report.interval must >= 2 and <= 60 (minus)");
         }
+        logger.info("TxTimer | Config: Report every " + reportInterval + " minutes");
+        reportIntervalMillis = reportInterval * 60 * 1000;
+
+        thresholdAvg = getIntFromProperty("slate.txtimer.threshold.avg", Integer.MAX_VALUE);
+        if (thresholdAvg < Integer.MAX_VALUE) {
+            lockThresholdAvg = true;
+            thresholdEnabled = true;
+            logger.debug("TxTimer | Config: thresholdAvg is locked by -Dslate.txtimer.threshold.avg=" + thresholdAvg);
+        }
+        thresholdMax = getIntFromProperty("slate.txtimer.threshold.max", Integer.MAX_VALUE);
+        if (thresholdMax < Integer.MAX_VALUE) {
+            lockThresholdMax = true;
+            thresholdEnabled = true;
+            logger.debug("TxTimer | Config: thresholdMax is locked by -Dslate.txtimer.threshold.max=" + thresholdMax);
+        }
+        thresholdMin = getIntFromProperty("slate.txtimer.threshold.min", Integer.MAX_VALUE);
+        if (thresholdMin < Integer.MAX_VALUE) {
+            lockThresholdMin = true;
+            thresholdEnabled = true;
+            logger.debug("TxTimer | Config: thresholdMin is locked by -Dslate.txtimer.threshold.min=" + thresholdMin);
+        }
+        logger.info("TxTimer | Config: Report " + reportCondition());
+
+        pageLines = getIntFromProperty("slate.txtimer.pagelines", 20);
+        mapInitCap = getIntFromProperty("slate.txtimer.mapinitcap", 128);
+        hashLockNum = getIntFromProperty("slate.txtimer.hashlocknum", 16);
+        updateAttempts = getIntFromProperty("slate.txtimer.updateattemps", 10);
     }
 
     private static int getIntFromProperty(String key, int def) {

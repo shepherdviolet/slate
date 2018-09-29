@@ -44,7 +44,7 @@ public class TxTimer {
             //再根据provider判断是否要启用
             if (service.enabled()) {
                 provider = service;
-                logger.info("TxTimer | TxTimer enabled");
+                logger.info("TxTimer | TxTimer enabled, " + provider.getClass().getName());
             } else {
                 provider = null;
             }
