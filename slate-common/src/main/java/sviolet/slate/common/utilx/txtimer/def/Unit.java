@@ -3,6 +3,8 @@ package sviolet.slate.common.utilx.txtimer.def;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static sviolet.slate.common.utilx.txtimer.def.DefaultTxTimerProvider.MINUTE_MILLIS;
+
 class Unit {
 
     //开始时间
@@ -33,7 +35,7 @@ class Unit {
             //若当前商数大于之前商数, 尝试更新商数
             if (timeQuotient.compareAndSet(previousQuotient, quotient)) {
                 //更新成功则重置统计单元
-                this.startTime.set(startTime);
+                this.startTime.set((startTime / MINUTE_MILLIS) * MINUTE_MILLIS);
                 this.minElapse.set(Long.MAX_VALUE);
                 this.maxElapse.set(Long.MIN_VALUE);
                 this.totalElapse.set(0);

@@ -86,10 +86,10 @@ class Reporter {
             reportAll = true;
         }
 
+        //报告结束事件(抹去秒数)
+        long reportEndTime = currentTime / MINUTE_MILLIS * MINUTE_MILLIS;
         //报告起始时间(多减一分钟)
-        long reportStartTime = currentTime - DefaultTxTimerConfig.reportIntervalMillis - MINUTE_MILLIS;
-        //报告结束事件
-        long reportEndTime = currentTime;
+        long reportStartTime = reportEndTime - DefaultTxTimerConfig.reportIntervalMillis - MINUTE_MILLIS;
 
         //遍历groups
         Map<String, Group> groupsSnap = ConcurrentUtils.getSnapShot(provider.groups);
@@ -115,7 +115,7 @@ class Reporter {
                     long unitQuotient = unit.timeQuotient.get();
                     long unitStartTime = unit.startTime.get();
                     //排除非报告期间的单元
-                    if (unitStartTime < reportStartTime || unitStartTime > reportEndTime) {
+                    if (unitStartTime < reportStartTime || unitStartTime >= reportEndTime) {
                         continue;
                     }
                     //取值
