@@ -14,11 +14,13 @@ public class TxTimerCommonTest {
 //        System.setProperty("slate.txtimer.threshold.min", "30");
 
         //Set
+        DefaultTxTimerConfig.setReportAllInterval(60);
         DefaultTxTimerConfig.setThresholdAvg(120);
         DefaultTxTimerConfig.setThresholdMax(600);
         DefaultTxTimerConfig.setThresholdMin(30);
 
         //Set2
+        DefaultTxTimerConfig.setReportAllInterval(5);
         DefaultTxTimerConfig.setThresholdMax(700);
 
         for (int i = 0 ; i < 1000 ; i++) {
