@@ -151,7 +151,7 @@ class Reporter {
                 //粗略地估算总平均耗时
                 if (info.finishTotal > transactionEntry.getValue().lastFinishCount) {
                     float changeRate;
-                    if (info.finishTotal > 10000) {
+                    if (info.finishTotal > 100000) {
                         changeRate = 0.01f;
                     } else {
                         changeRate = (info.finishTotal - transactionEntry.getValue().lastFinishCount) / info.finishTotal;
