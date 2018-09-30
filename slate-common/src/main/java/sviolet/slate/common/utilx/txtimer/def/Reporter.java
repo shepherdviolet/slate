@@ -156,7 +156,7 @@ class Reporter {
                     if (info.finishTotal > 100000) {
                         changeRate = 0.03f;
                     } else {
-                        changeRate = info.finish / info.finishTotal;
+                        changeRate = (float)info.finish / (float)info.finishTotal;
                         if (changeRate < 0.03f) {
                             changeRate = 0.03f;
                         }
