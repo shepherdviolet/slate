@@ -84,7 +84,7 @@ public class DefaultTxTimerConfig {
         DefaultTxTimerConfig.reportAllInterval = reportAllInterval;
         reportAllIntervalMillis = reportAllInterval * 60L * 1000L;
         logger.info("TxTimer | Config: reportAllInterval change to " + reportAllInterval);
-        logger.info("TxTimer | Config: Report all transaction every " + reportAllInterval + " minutes");
+        logger.info("TxTimer | Config: Now report all transaction every " + reportAllInterval + " minutes");
     }
 
     /**
