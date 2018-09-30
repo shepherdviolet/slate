@@ -26,8 +26,8 @@ class Transaction {
     Transaction(DefaultTxTimerProvider provider) {
         this.provider = provider;
 
-        //创建统计报告时长两倍时长的统计单元, 每分钟一个单元
-        units = new Unit[DefaultTxTimerConfig.reportInterval * 2];
+        //创建统计报告时长+6的统计单元, 每分钟一个单元
+        units = new Unit[DefaultTxTimerConfig.reportInterval + 6];
         for (int i = 0 ; i < units.length ; i++) {
             units[i] = new Unit();
         }
