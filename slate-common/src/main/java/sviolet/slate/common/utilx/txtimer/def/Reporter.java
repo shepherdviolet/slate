@@ -19,6 +19,7 @@ class Reporter {
 
     private ExecutorService reportThreadPool = ThreadPoolExecutorUtils.createLazy(60, "Slate-TxTimer-Report-%d");
     private volatile boolean shutdown = false;
+    private long lastReportAllTime = System.currentTimeMillis();
 
     Reporter(DefaultTxTimerProvider provider) {
         this.provider = provider;
@@ -74,6 +75,13 @@ class Reporter {
             print("Error Report", "ERROR!!! Times:" + provider.missingCount.get() + ", No record found in ThreadLocal when invoking TxTimer.stop()");
             print("Error Report", "Suggest 1: If you invoke TxTimer.stop() without or before TxTimer.start()?");
             print("Error Report", "Suggest 2: If you invoke TxTimer.stop() twice?");
+        }
+
+        //判断是否打印全量日志
+        boolean reportAll = false;
+        if (System.currentTimeMillis() - lastReportAllTime > DefaultTxTimerConfig.reportAllIntervalMillis){
+            lastReportAllTime = System.currentTimeMillis();
+            reportAll = true;
         }
 
         //报告起始时间(多减一分钟)
@@ -139,6 +147,25 @@ class Reporter {
                 info.maxElapse = maxElapse != Long.MIN_VALUE ? maxElapse : 0;
                 info.minElapse = minElapse != Long.MAX_VALUE ? minElapse : 0;
                 info.unitNum = unitNum;
+
+                //粗略地估算总平均耗时
+                if (info.finishTotal > transactionEntry.getValue().lastFinishCount) {
+                    float changeRate;
+                    if (info.finishTotal > 10000) {
+                        changeRate = 0.01f;
+                    } else {
+                        changeRate = (info.finishTotal - transactionEntry.getValue().lastFinishCount) / info.finishTotal;
+                        if (changeRate < 0.01f) {
+                            changeRate = 0.01f;
+                        }
+                    }
+                    transactionEntry.getValue().lastFinishCount = info.finishTotal;
+                    transactionEntry.getValue().averageElapseTotal =
+                            (long) ((float)transactionEntry.getValue().averageElapseTotal * (1f - changeRate) +
+                                   (float)info.averageElapse * changeRate);
+                }
+                info.averageElapseTotal = transactionEntry.getValue().averageElapseTotal;
+
                 infos.add(info);
 
             }
@@ -147,9 +174,10 @@ class Reporter {
             Collections.sort(infos, comparator);
 
             //输出日志
-            String title = "Group (" + groupEntry.getKey() + ") Time (" + DateTimeUtils.getDateTime(reportStartTime) + "~" + DateTimeUtils.getDateTime(reportEndTime) + ")";
+            String title = (reportAll ? "[ReportAll] " : "") + "Group (" + groupEntry.getKey() + ") Time (" + DateTimeUtils.getDateTime(reportStartTime) + "~" + DateTimeUtils.getDateTime(reportEndTime) + ")";
             for (Info info : infos) {
-                if (info.duplicateTotal > 0 ||
+                if (reportAll ||
+                        info.duplicateTotal > 0 ||
                         !DefaultTxTimerConfig.thresholdEnabled ||
                         info.averageElapse >= DefaultTxTimerConfig.thresholdAvg ||
                         info.maxElapse >= DefaultTxTimerConfig.thresholdMax ||
@@ -180,6 +208,7 @@ class Reporter {
         private int finishTotal;
         private int runningTotal;
         private int duplicateTotal;
+        private long averageElapseTotal;
         private int finish;
         private long maxElapse;
         private long minElapse;
@@ -196,7 +225,7 @@ class Reporter {
                     "ms, min:" + minElapse +
                     "ms ) total ( cnt:" + finishTotal +
                     ", ing:" + runningTotal +
-                    " )";
+                    ", est-avg: " + averageElapseTotal + "ms )";
         }
     }
 

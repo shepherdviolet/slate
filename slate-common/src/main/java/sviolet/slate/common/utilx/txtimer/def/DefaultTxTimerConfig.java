@@ -18,6 +18,13 @@ public class DefaultTxTimerConfig {
     static int reportIntervalMillis;
     /**
      * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [基本设置]全量日志报告输出间隔(周期), 单位:分钟, [30-∞], 默认∞(不输出全量日志)
+     */
+    static int reportAllInterval;
+    static long reportAllIntervalMillis = Long.MAX_VALUE;
+    static boolean lockReportAllInterval = false;
+    /**
+     * 可动态调整, 启动参数优先级大于动态配置<br>
      * [基本设置]打印周期内平均耗时超过该值的交易, 单位:毫秒<br>
      * slate.txtimer.threshold系列参数均未配置, 则输出全部交易的报告. 若设置了任意一个, 则只有满足条件的交易才输出:
      * avg >= thresholdAvg || max >= thresholdMax || min >= thresholdMin<br>
@@ -64,6 +71,36 @@ public class DefaultTxTimerConfig {
     static int updateAttempts;
 
     /* ******************************************************************************************************************* */
+
+    /**
+     * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [基本设置]全量日志报告输出间隔(周期), 单位:分钟, [30-∞], 默认∞(不输出全量日志)
+     */
+    public static void setReportAllInterval(int reportAllInterval) {
+        if (lockReportAllInterval) {
+            logger.warn("TxTimer | Config: reportAllInterval has been locked by -Dslate.txtimer.reportall.interval, can not change");
+            return;
+        }
+        DefaultTxTimerConfig.reportAllInterval = reportAllInterval;
+        reportAllIntervalMillis = reportAllInterval * 60L * 1000L;
+        logger.info("TxTimer | Config: reportAllInterval change to " + reportAllInterval);
+        logger.info("TxTimer | Config: Report all transaction every " + reportAllInterval + " minutes");
+    }
+
+    /**
+     * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [基本设置]全量日志报告输出间隔(周期), 单位:分钟, [30-∞], 默认∞(不输出全量日志)
+     */
+    public static void setReportAllInterval(String reportAllInterval) {
+        int value;
+        try {
+            value = Integer.valueOf(reportAllInterval);
+        } catch (Exception e) {
+            logger.error("TxTimer | Config: Error while parsing reportAllInterval " + reportAllInterval + " to int, change reportAllInterval failed", e);
+            return;
+        }
+        setReportAllInterval(value);
+    }
 
     /**
      * 可动态调整, 启动参数优先级大于动态配置<br>
@@ -174,10 +211,21 @@ public class DefaultTxTimerConfig {
     static {
         reportInterval = getIntFromProperty("slate.txtimer.report.interval", 5);
         if (reportInterval < 2 || reportInterval > 60) {
-            throw new IllegalArgumentException("slate.txtimer.report.interval must >= 2 and <= 60 (minus)");
+            throw new IllegalArgumentException("slate.txtimer.report.interval must >= 2 and <= 60 (minute)");
         }
         logger.info("TxTimer | Config: Report every " + reportInterval + " minutes");
         reportIntervalMillis = reportInterval * 60 * 1000;
+
+        reportAllInterval = getIntFromProperty("slate.txtimer.reportall.interval", Integer.MAX_VALUE);
+        if (reportAllInterval < 30) {
+            throw new IllegalArgumentException("slate.txtimer.reportall.interval must >= 30 (minute)");
+        }
+        if (reportAllInterval < Integer.MAX_VALUE) {
+            lockReportAllInterval = true;
+            reportAllIntervalMillis = reportAllInterval * 60L * 1000L;
+            logger.debug("TxTimer | Config: reportAllInterval is locked by -Dslate.txtimer.reportall.interval=" + reportAllInterval);
+            logger.info("TxTimer | Config: Report all transaction every " + reportAllInterval + " minutes");
+        }
 
         thresholdAvg = getIntFromProperty("slate.txtimer.threshold.avg", Integer.MAX_VALUE);
         if (thresholdAvg < Integer.MAX_VALUE) {

@@ -12,6 +12,13 @@ import sviolet.thistle.util.judge.CheckUtils;
 @Component
 public class DefaultTxTimerSpringConfig {
 
+    @Value("${slate.txtimer.reportall.interval:}")
+    private void setReportAllInterval(String reportAllInterval){
+        if (!CheckUtils.isEmptyOrBlank(reportAllInterval)){
+            DefaultTxTimerConfig.setReportAllInterval(reportAllInterval);
+        }
+    }
+
     @Value("${slate.txtimer.threshold.avg:}")
     private void setThresholdAvg(String avg){
         if (!CheckUtils.isEmptyOrBlank(avg)){

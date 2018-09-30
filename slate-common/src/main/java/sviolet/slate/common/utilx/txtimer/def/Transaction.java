@@ -17,6 +17,10 @@ class Transaction {
     //碰撞计数, 重复调用start没有做stop, 忘记做stop, 有可能会导致这个问题
     AtomicInteger duplicateCount = new AtomicInteger(0);
 
+    //用于粗略地估算总平均耗时
+    long lastFinishCount = 0;
+    long averageElapseTotal = 0;
+
     //将统计单元按分钟划分, 预置并重复使用
     private Unit[] units;
 

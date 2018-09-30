@@ -20,9 +20,13 @@ import sviolet.thistle.util.spi.ThistleSpi;
  *     2.可以使用ThistleSpi替换实现, 替换实现后下面的参数无效. <br>
  * </p>
  *
- * <p>默认实现的启动参数:<br>
+ * <p>默认实现的启动参数(不可动态修改):<br>
  *      -Dslate.txtimer.report.interval=5 日志报告输出间隔, 单位分钟, [2-60], 默认5 <br>
  *      -Dslate.txtimer.pagelines=20 日志每次输出的最大行数, 大于该行数会分页, 默认20 <br>
+ * </p>
+ *
+ * <p>默认实现的启动参数(可动态修改):<br>
+ *      -Dslate.txtimer.reportall.interval=60 全量日志报告输出间隔(周期), 单位:分钟, [30-∞], 默认∞(不输出全量日志)<br>
  *      -Dslate.txtimer.threshold.avg=2000 打印周期内平均耗时超过该值的交易, 单位:毫秒<br>
  *      -Dslate.txtimer.threshold.max=10000 打印周期内最大耗时超过该值的交易, 单位:毫秒<br>
  *      -Dslate.txtimer.threshold.min=1000 打印周期内最小耗时超过该值的交易, 单位:毫秒<br>
