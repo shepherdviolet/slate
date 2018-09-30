@@ -151,9 +151,11 @@ class Reporter {
                 info.unitNum = unitNum;
 
                 //粗略地估算总平均耗时
-                if (info.finish > 0) {
+                if (transactionEntry.getValue().averageElapseTotal == 0){
+                    transactionEntry.getValue().averageElapseTotal = info.averageElapse;
+                } else if (info.finish > 0) {
                     float changeRate;
-                    if (info.finishTotal > 100000) {
+                    if (info.finishTotal > 10000) {
                         changeRate = 0.03f;
                     } else {
                         changeRate = (float)info.finish / (float)info.finishTotal;
@@ -165,8 +167,8 @@ class Reporter {
                             (long) ((float)transactionEntry.getValue().averageElapseTotal * (1f - changeRate) +
                                    (float)info.averageElapse * changeRate);
                 }
-                info.averageElapseTotal = transactionEntry.getValue().averageElapseTotal;
 
+                info.averageElapseTotal = transactionEntry.getValue().averageElapseTotal;
                 infos.add(info);
 
             }
