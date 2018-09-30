@@ -71,9 +71,10 @@ dependencies {
 
 # Contents
 
-* [MultiHostOkHttpClient](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/guide.md)
-* [InterfaceInstantiation](https://github.com/shepherdviolet/slate/blob/master/docs/interface-instantiation.md)
-* [Utils](https://github.com/shepherdviolet/slate/tree/develop/slate-common/src/main/java/sviolet/slate/common/util)
+* [MultiHostOkHttpClient | HTTP client supporting load balancing](https://github.com/shepherdviolet/slate/blob/master/docs/httpclient/guide.md)
+* [InterfaceInstantiation | Interface instantiation tool, supporting proxy](https://github.com/shepherdviolet/slate/blob/master/docs/interfaceinst/guide.md)
+* [TxTimer | Simple transaction elapse statistics tool](https://github.com/shepherdviolet/slate/blob/master/docs/txtimer/guide.md)
+* [Utils | Other utils are here](https://github.com/shepherdviolet/slate/tree/develop/slate-common/src/main/java/sviolet/slate/common/util)
 
 # Support for thistle
 

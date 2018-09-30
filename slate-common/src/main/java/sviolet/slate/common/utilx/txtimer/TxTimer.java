@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import sviolet.thistle.util.spi.ThistleSpi;
 
 /**
- * <p>简易版交易耗时统计, 提供默认实现, 也可以用ThistleSpi扩展</p>
+ * <p>简单的交易耗时统计, 提供默认实现, 也可以用ThistleSpi扩展</p>
  *
  * <p>日志前缀:TxTimer</p>
  *
