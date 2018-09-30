@@ -18,7 +18,7 @@ public class DefaultTxTimerConfig {
     static int reportIntervalMillis;
     /**
      * 可动态调整, 启动参数优先级大于动态配置<br>
-     * [基本设置]全量日志报告输出间隔(周期), 单位:分钟, [30-∞], 默认∞(不输出全量日志)
+     * [基本设置]全量日志报告输出间隔(周期), 单位:分钟, [2-∞], 默认∞(不输出全量日志)
      */
     static int reportAllInterval;
     static long reportAllIntervalMillis = Long.MAX_VALUE;
@@ -211,14 +211,14 @@ public class DefaultTxTimerConfig {
     static {
         reportInterval = getIntFromProperty("slate.txtimer.report.interval", 5);
         if (reportInterval < 2 || reportInterval > 60) {
-            throw new IllegalArgumentException("slate.txtimer.report.interval must >= 2 and <= 60 (minute)");
+            throw new IllegalArgumentException("-Dslate.txtimer.report.interval must >= 2 and <= 60 (minute)");
         }
         logger.info("TxTimer | Config: Report every " + reportInterval + " minutes");
         reportIntervalMillis = reportInterval * 60 * 1000;
 
         reportAllInterval = getIntFromProperty("slate.txtimer.reportall.interval", Integer.MAX_VALUE);
-        if (reportAllInterval < 30) {
-            throw new IllegalArgumentException("slate.txtimer.reportall.interval must >= 30 (minute)");
+        if (reportAllInterval < 2) {
+            throw new IllegalArgumentException("-Dslate.txtimer.reportall.interval must >= 2 (minute)");
         }
         if (reportAllInterval < Integer.MAX_VALUE) {
             lockReportAllInterval = true;

@@ -26,7 +26,7 @@ import sviolet.thistle.util.spi.ThistleSpi;
  * </p>
  *
  * <p>默认实现的启动参数(可动态修改):<br>
- *      -Dslate.txtimer.reportall.interval=60 全量日志报告输出间隔(周期), 单位:分钟, [30-∞], 默认∞(不输出全量日志)<br>
+ *      -Dslate.txtimer.reportall.interval=60 全量日志报告输出间隔(周期), 单位:分钟, [2-∞], 默认∞(不输出全量日志)<br>
  *      -Dslate.txtimer.threshold.avg=2000 打印周期内平均耗时超过该值的交易, 单位:毫秒<br>
  *      -Dslate.txtimer.threshold.max=10000 打印周期内最大耗时超过该值的交易, 单位:毫秒<br>
  *      -Dslate.txtimer.threshold.min=1000 打印周期内最小耗时超过该值的交易, 单位:毫秒<br>
