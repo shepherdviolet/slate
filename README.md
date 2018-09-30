@@ -1,4 +1,4 @@
-# slate 10.0
+# slate 10.1
 * JavaEE common library
 * https://github.com/shepherdviolet/slate
 
@@ -12,9 +12,9 @@ repositories {
 }
 dependencies {
     // For spring boot
-    compile 'com.github.shepherdviolet:slate-springboot:10.0'
+    compile 'com.github.shepherdviolet:slate-springboot:10.1'
     // For others
-    compile 'com.github.shepherdviolet:slate-common:10.0'
+    compile 'com.github.shepherdviolet:slate-common:10.1'
 }
 
 ```
@@ -23,12 +23,12 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-springboot</artifactId>
-        <version>10.0</version>
+        <version>10.1</version>
     </dependency>
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>10.0</version>
+        <version>10.1</version>
     </dependency>
 ```
 
