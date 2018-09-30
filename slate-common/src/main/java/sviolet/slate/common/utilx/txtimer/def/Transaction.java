@@ -18,7 +18,6 @@ class Transaction {
     AtomicInteger duplicateCount = new AtomicInteger(0);
 
     //用于粗略地估算总平均耗时
-    long lastFinishCount = 0;
     long averageElapseTotal = 0;
 
     //将统计单元按分钟划分, 预置并重复使用

@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.thistle.util.concurrent.ConcurrentUtils;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
-import sviolet.thistle.util.conversion.DateTimeUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
@@ -18,6 +18,8 @@ class Reporter {
     private DefaultTxTimerProvider provider;
 
     private ExecutorService reportThreadPool = ThreadPoolExecutorUtils.createLazy(60, "Slate-TxTimer-Report-%d");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd HH:mm");
+
     private volatile boolean shutdown = false;
     private long lastReportAllTime = System.currentTimeMillis();
 
@@ -149,17 +151,16 @@ class Reporter {
                 info.unitNum = unitNum;
 
                 //粗略地估算总平均耗时
-                if (info.finishTotal > transactionEntry.getValue().lastFinishCount) {
+                if (info.finish > 0) {
                     float changeRate;
                     if (info.finishTotal > 100000) {
-                        changeRate = 0.01f;
+                        changeRate = 0.03f;
                     } else {
-                        changeRate = (info.finishTotal - transactionEntry.getValue().lastFinishCount) / info.finishTotal;
-                        if (changeRate < 0.01f) {
-                            changeRate = 0.01f;
+                        changeRate = info.finish / info.finishTotal;
+                        if (changeRate < 0.03f) {
+                            changeRate = 0.03f;
                         }
                     }
-                    transactionEntry.getValue().lastFinishCount = info.finishTotal;
                     transactionEntry.getValue().averageElapseTotal =
                             (long) ((float)transactionEntry.getValue().averageElapseTotal * (1f - changeRate) +
                                    (float)info.averageElapse * changeRate);
@@ -174,7 +175,7 @@ class Reporter {
             Collections.sort(infos, comparator);
 
             //输出日志
-            String title = (reportAll ? "[ReportAll] " : "") + "Group (" + groupEntry.getKey() + ") Time (" + DateTimeUtils.getDateTime(reportStartTime) + "~" + DateTimeUtils.getDateTime(reportEndTime) + ")";
+            String title = (reportAll ? "[ReportAll] " : "") + "Group (" + groupEntry.getKey() + ") Time (" + dateFormat.format(new Date(reportStartTime)) + " - " + dateFormat.format(new Date(reportEndTime)) + ")";
             for (Info info : infos) {
                 if (reportAll ||
                         info.duplicateTotal > 0 ||
