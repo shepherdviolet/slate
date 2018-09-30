@@ -1,15 +1,17 @@
 package sviolet.slate.common.utilx.txtimer.def;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 import sviolet.thistle.util.judge.CheckUtils;
 
 /**
- * 用于Spring容器中修改配置, 将该类注册为Bean即可(仅支持部分配置)
+ * 用于Spring容器中修改配置(仅支持部分配置), 引入本配置类即可.
+ *
+ * <code>@Import(DefaultTxTimerSpringConfig.class)</code>
  *
  * @author S.Violet
  */
-@Component
+@Configuration
 public class DefaultTxTimerSpringConfig {
 
     @Value("${slate.txtimer.reportall.interval:}")
