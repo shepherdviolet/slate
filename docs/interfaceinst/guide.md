@@ -5,9 +5,10 @@
 * 将指定路径下的接口类实例化并作为Bean注册到ApplicationContext
 * 可以对这些接口实例做AOP切面实现功能, 也可以自定义`接口实例化器`将接口实例化成想要的代理类
 
-## 特征信息
+## 日志
 
 * 日志前缀`InterfaceInst`
+* [日志样例](https://github.com/shepherdviolet/slate/blob/master/docs/interfaceinst/log-sample.md)
 
 ## InterfaceInstantiation做了些什么?
 
