@@ -13,10 +13,10 @@
 -Dslate.txtimer.enabled=false
 ```
 
-### 特征信息
+### 日志
 
-* 日志前缀`TxTimer`
-* 日志包路径`sviolet.slate.common.utilx.txtimer.def`
+* 日志前缀:`TxTimer`
+* [日志样例](https://github.com/shepherdviolet/slate/blob/master/docs/txtimer/log-sample.md)
 
 # 记录耗时
 
