@@ -104,7 +104,7 @@ public class LoadBalancedHostManager {
     private ExecutorService settingThreadPool = ThreadPoolExecutorUtils.createLazy(60L, "Slate-LBHostManager-Set-%d");
     private AtomicReference<List<String>> newSettings = new AtomicReference<>(null);
 
-    private boolean initialized = false;
+    private volatile boolean initialized = false;
     private ReentrantLock initLock = new ReentrantLock();
 
     /**
