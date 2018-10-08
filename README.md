@@ -1,5 +1,5 @@
 # slate 10.1
-* JavaEE common library
+* Java common library for spring framework (Java 7)
 * https://github.com/shepherdviolet/slate
 
 ### Import dependencies from maven repository
