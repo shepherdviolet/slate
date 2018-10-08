@@ -1,12 +1,12 @@
 package sviolet.slate.common.utilx.txtimer.def;
 
 import sviolet.slate.common.utilx.txtimer.TxTimerProvider;
-import sviolet.thistle.model.concurrent.StringHashLocks;
+import sviolet.thistle.model.concurrent.UnsafeHashSpinLocks;
+import sviolet.thistle.model.concurrent.UnsafeSpinLock;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <p>默认实现了交易耗时的统计, 并通过日志定时输出报告. 可以使用ThistleSpi替换实现.</p>
@@ -27,7 +27,8 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
     AtomicInteger missingCount = new AtomicInteger(0);
 
     //锁
-    StringHashLocks locks = new StringHashLocks(DefaultTxTimerConfig.hashLockNum);
+    @SuppressWarnings("deprecation")
+    UnsafeHashSpinLocks locks = new UnsafeHashSpinLocks(DefaultTxTimerConfig.hashLockNum);
     //日志输出器
     Reporter reporter = new Reporter(this);
 
@@ -78,11 +79,12 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     private Group getGroup(String groupName) {
         Group group = groups.get(groupName);
         if (group == null) {
-            //用StringHashLocks分散碰撞的可能性
-            ReentrantLock lock = locks.getLock(groupName);
+            //用UnsafeHashSpinLocks分散碰撞的可能性
+            UnsafeSpinLock lock = locks.getLock(groupName);
             try {
                 lock.lock();
                 group = groups.get(groupName);
