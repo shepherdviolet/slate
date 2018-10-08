@@ -44,7 +44,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * <p>支持均衡负载的OkHttpClient(简单的示例模板, 建议自行实现)</p>
@@ -171,7 +171,9 @@ public class MultiHostOkHttpClient {
 
     private Settings settings = new Settings();
     private volatile boolean refreshSettings = false;
-    private ReentrantLock settingsLock = new ReentrantLock();
+    private volatile Exception clientCreateException;
+    private AtomicBoolean settingsLock = new AtomicBoolean(false);
+    private SettingsSpinLock settingsSpinLock = new SettingsSpinLock();
 
     private NoRefTxTimer txTimer;
 
@@ -1163,21 +1165,35 @@ public class MultiHostOkHttpClient {
     }
 
     private OkHttpClient getOkHttpClient(){
-        OkHttpClient client = okHttpClient;
-        if (client == null || refreshSettings) {
-            try {
-                settingsLock.lock();
-                client = okHttpClient;
-                if (client == null || refreshSettings) {
-                    client = createOkHttpClient(settings);
-                    okHttpClient = client;
-                    refreshSettings = false;
+        //客户端创建错误后, 不再重试
+        if (clientCreateException != null) {
+            throw new IllegalStateException("Client create error", clientCreateException);
+        }
+        //一次检查
+        while (okHttpClient == null || refreshSettings) {
+            //自旋锁
+            if (!settingsLock.get() && settingsLock.compareAndSet(false, true)) {
+                try {
+                    //二次检查e
+                    if (okHttpClient == null || refreshSettings) {
+                        OkHttpClient client = createOkHttpClient(settings);
+                        okHttpClient = client;
+                        refreshSettings = false;
+                        //跳出循环, 避免因为refreshSettings反复被改为true反复由同一个线程创建客户端
+                        break;
+                    }
+                } catch (Exception e) {
+                    clientCreateException = e;
+                    throw e;
+                } finally {
+                    //解锁
+                    settingsLock.set(false);
                 }
-            } finally {
-                settingsLock.unlock();
+            } else {
+                Thread.yield();
             }
         }
-        return client;
+        return okHttpClient;
     }
 
     private void printPostInputsLog(Request request, LoadBalancedHostManager.Host host) {
@@ -1899,11 +1915,10 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setMaxIdleConnections(int maxIdleConnections) {
         try {
-            settingsLock.lock();
+            settingsSpinLock.lock();
             settings.maxIdleConnections = maxIdleConnections;
-            refreshSettings = true;
         } finally {
-            settingsLock.unlock();
+            settingsSpinLock.unlock();
         }
         return this;
     }
@@ -1915,11 +1930,10 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setMaxThreads(int maxThreads) {
         try {
-            settingsLock.lock();
+            settingsSpinLock.lock();
             settings.maxThreads = maxThreads;
-            refreshSettings = true;
         } finally {
-            settingsLock.unlock();
+            settingsSpinLock.unlock();
         }
         return this;
     }
@@ -1931,11 +1945,10 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setMaxThreadsPerHost(int maxThreadsPerHost) {
         try {
-            settingsLock.lock();
+            settingsSpinLock.lock();
             settings.maxThreadsPerHost = maxThreadsPerHost;
-            refreshSettings = true;
         } finally {
-            settingsLock.unlock();
+            settingsSpinLock.unlock();
         }
         return this;
     }
@@ -1947,11 +1960,10 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setConnectTimeout(long connectTimeout) {
         try {
-            settingsLock.lock();
+            settingsSpinLock.lock();
             settings.connectTimeout = connectTimeout;
-            refreshSettings = true;
         } finally {
-            settingsLock.unlock();
+            settingsSpinLock.unlock();
         }
         return this;
     }
@@ -1963,11 +1975,10 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setWriteTimeout(long writeTimeout) {
         try {
-            settingsLock.lock();
+            settingsSpinLock.lock();
             settings.writeTimeout = writeTimeout;
-            refreshSettings = true;
         } finally {
-            settingsLock.unlock();
+            settingsSpinLock.unlock();
         }
         return this;
     }
@@ -1979,11 +1990,10 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setReadTimeout(long readTimeout) {
         try {
-            settingsLock.lock();
+            settingsSpinLock.lock();
             settings.readTimeout = readTimeout;
-            refreshSettings = true;
         } finally {
-            settingsLock.unlock();
+            settingsSpinLock.unlock();
         }
         return this;
     }
@@ -2005,11 +2015,10 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setCookieJar(CookieJar cookieJar) {
         try {
-            settingsLock.lock();
+            settingsSpinLock.lock();
             settings.cookieJar = cookieJar;
-            refreshSettings = true;
         } finally {
-            settingsLock.unlock();
+            settingsSpinLock.unlock();
         }
         return this;
     }
@@ -2039,11 +2048,10 @@ public class MultiHostOkHttpClient {
             throw new IllegalArgumentException("Invalid proxy string \"" + proxy + "\", correct \"X.X.X.X:XXX\", example \"127.0.0.1:8080\"");
         }
         try {
-            settingsLock.lock();
+            settingsSpinLock.lock();
             settings.proxy = proxyObj;
-            refreshSettings = true;
         } finally {
-            settingsLock.unlock();
+            settingsSpinLock.unlock();
         }
         return this;
     }
@@ -2055,11 +2063,10 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setDns(Dns dns) {
         try {
-            settingsLock.lock();
+            settingsSpinLock.lock();
             settings.dns = dns;
-            refreshSettings = true;
         } finally {
-            settingsLock.unlock();
+            settingsSpinLock.unlock();
         }
         return this;
     }
@@ -2071,11 +2078,10 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setSSLSocketFactory(SSLSocketFactory sslSocketFactory) {
         try {
-            settingsLock.lock();
+            settingsSpinLock.lock();
             settings.sslSocketFactory = sslSocketFactory;
-            refreshSettings = true;
         } finally {
-            settingsLock.unlock();
+            settingsSpinLock.unlock();
         }
         return this;
     }
@@ -2137,6 +2143,29 @@ public class MultiHostOkHttpClient {
             txTimer = null;
         }
         return this;
+    }
+
+    private class SettingsSpinLock {
+
+        private void lock(){
+            while (true) {
+                if (!settingsLock.get() && settingsLock.compareAndSet(false, true)) {
+                    break;
+                } else {
+                    Thread.yield();
+                }
+            }
+        }
+
+        private void unlock(){
+            //标记为需要更新
+            refreshSettings = true;
+            //清除异常
+            clientCreateException = null;
+            //解锁
+            settingsLock.set(false);
+        }
+
     }
 
 }
