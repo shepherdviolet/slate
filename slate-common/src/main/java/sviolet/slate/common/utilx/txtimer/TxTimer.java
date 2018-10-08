@@ -46,7 +46,7 @@ public class TxTimer {
     static {
         //统计开关, 默认关闭
         if ("true".equals(System.getProperty("slate.txtimer.enabled", "true"))) {
-            TxTimerProvider service = ThistleSpi.newLoader().loadService(TxTimerProvider.class);
+            TxTimerProvider service = ThistleSpi.getLoader().loadService(TxTimerProvider.class);
             //再根据provider判断是否要启用
             if (service.enabled()) {
                 provider = service;
