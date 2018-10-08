@@ -26,10 +26,10 @@ import sviolet.thistle.util.judge.CheckUtils;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 负载均衡--远端URL管理器
@@ -105,7 +105,7 @@ public class LoadBalancedHostManager {
     private AtomicReference<List<String>> newSettings = new AtomicReference<>(null);
 
     private volatile boolean initialized = false;
-    private ReentrantLock initLock = new ReentrantLock();
+    private AtomicBoolean initLock = new AtomicBoolean(false);
 
     /**
      * [线程安全/异步生效/可运行时修改]
@@ -156,16 +156,14 @@ public class LoadBalancedHostManager {
             }
         }
 
-        if (!initialized){
-            try {
-                initLock.lock();
-                if (!initialized){
-                    settingInstall(hosts);
-                    initialized = true;
-                    return this;
-                }
-            } finally {
-                initLock.unlock();
+        //初始化耗时短, 用自旋锁
+        while (!initialized){
+            if (!initLock.get() && initLock.compareAndSet(false, true)) {
+                settingInstall(hosts);
+                initialized = true;
+                return this;
+            } else {
+                Thread.yield();
             }
         }
 
