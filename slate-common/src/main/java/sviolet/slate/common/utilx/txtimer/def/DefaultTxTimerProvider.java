@@ -79,11 +79,11 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     private Group getGroup(String groupName) {
         Group group = groups.get(groupName);
         if (group == null) {
             //用UnsafeHashSpinLocks分散碰撞的可能性
+            @SuppressWarnings("deprecation")
             UnsafeSpinLock lock = locks.getLock(groupName);
             try {
                 lock.lock();

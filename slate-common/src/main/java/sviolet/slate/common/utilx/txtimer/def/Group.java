@@ -1,8 +1,9 @@
 package sviolet.slate.common.utilx.txtimer.def;
 
+import sviolet.thistle.model.concurrent.UnsafeSpinLock;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 class Group {
 
@@ -18,7 +19,8 @@ class Group {
         Transaction transaction = transactions.get(transactionName);
         if (transaction == null) {
             //用StringHashLocks分散碰撞的可能性
-            ReentrantLock lock = provider.locks.getLock(transactionName);
+            @SuppressWarnings("deprecation")
+            UnsafeSpinLock lock = provider.locks.getLock(transactionName);
             try {
                 lock.lock();
                 transaction = transactions.get(transactionName);
