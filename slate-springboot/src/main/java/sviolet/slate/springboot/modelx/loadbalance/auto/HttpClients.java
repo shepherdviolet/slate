@@ -1,6 +1,6 @@
 package sviolet.slate.springboot.modelx.loadbalance.auto;
 
-import sviolet.slate.common.modelx.loadbalance.classic.SimpleOkHttpClient;
+import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
 
 import java.util.Set;
 

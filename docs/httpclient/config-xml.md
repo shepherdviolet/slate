@@ -82,13 +82,13 @@ dependencies {
 
     <!-- 后端管理器 -->
     <!-- 配置管理后端地址和状态 -->
-    <bean id="loadBalancedHostManager" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager">
+    <bean id="loadBalancedHostManager" class="sviolet.slate.common.x.net.loadbalance.LoadBalancedHostManager">
         <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
     </bean>
     
     <!-- 主动探测管理器 -->
     <!-- 定时探测后端状态(默认Telnet方式) -->
-    <bean id="loadBalancedInspector" class="sviolet.slate.common.modelx.loadbalance.LoadBalancedInspectManager"
+    <bean id="loadBalancedInspector" class="sviolet.slate.common.x.net.loadbalance.LoadBalancedInspectManager"
         destroy-method="close">
         <property name="hostManager" ref="loadBalancedHostManager"/>
         <property name="inspectInterval" value="5000"/>
@@ -96,7 +96,7 @@ dependencies {
     
     <!-- HTTP请求客户端 -->
     <!-- 调用该实例发送请求 -->
-    <bean id="multiHostOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.MultiHostOkHttpClient">
+    <bean id="multiHostOkHttpClient" class="sviolet.slate.common.x.net.loadbalance.classic.MultiHostOkHttpClient">
         <property name="hostManager" ref="loadBalancedHostManager"/>
         <property name="maxIdleConnections" value="20"/>
         <property name="maxThreads" value="200"/><!-- 仅在异步方式有效, 同步无限制 -->
@@ -122,7 +122,7 @@ dependencies {
 * 实现了DisposableBean, 在Spring容器中会自动销毁<br>
 
 ```text
-    <bean id="simpleOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.SimpleOkHttpClient">
+    <bean id="simpleOkHttpClient" class="sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient">
         <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
         <property name="initiativeInspectInterval" value="5000"/>
         <property name="maxIdleConnections" value="20"/>
@@ -151,7 +151,7 @@ dependencies {
     <apollo:config/>
 
     <!-- 使用${...}应用apollo参数 -->
-    <bean id="simpleOkHttpClient" class="sviolet.slate.common.modelx.loadbalance.classic.SimpleOkHttpClient">
+    <bean id="simpleOkHttpClient" class="sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient">
         <property name="hosts" value="${http.client.hosts}"/>
         ......
     </bean>
