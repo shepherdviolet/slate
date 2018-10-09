@@ -2,7 +2,7 @@ package sviolet.slate.common.utilx.txtimer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.thistle.util.spi.ThistleSpi;
+import sviolet.thistle.x.common.thistlespi.ThistleSpi;
 
 /**
  * <p>简单的交易耗时统计, 提供默认实现, 也可以用ThistleSpi扩展</p>

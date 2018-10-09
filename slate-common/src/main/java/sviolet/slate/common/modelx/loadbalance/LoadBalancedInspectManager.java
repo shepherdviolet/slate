@@ -22,7 +22,7 @@ package sviolet.slate.common.modelx.loadbalance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.slate.common.modelx.loadbalance.inspector.TelnetLoadBalanceInspector;
-import sviolet.thistle.entity.Destroyable;
+import sviolet.thistle.entity.common.Destroyable;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
 import sviolet.thistle.util.lifecycle.DestroyableManageUtils;
 

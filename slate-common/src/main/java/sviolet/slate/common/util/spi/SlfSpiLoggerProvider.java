@@ -2,7 +2,7 @@ package sviolet.slate.common.util.spi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.thistle.util.spi.SpiLogger;
+import sviolet.thistle.x.common.thistlespi.SpiLogger;
 
 /**
  * ThistleSpi采用SLF4J输出日志(提供者)

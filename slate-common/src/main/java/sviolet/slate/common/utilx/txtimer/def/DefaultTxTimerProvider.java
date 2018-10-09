@@ -1,8 +1,8 @@
 package sviolet.slate.common.utilx.txtimer.def;
 
 import sviolet.slate.common.utilx.txtimer.TxTimerProvider;
-import sviolet.thistle.model.concurrent.UnsafeHashSpinLocks;
-import sviolet.thistle.model.concurrent.UnsafeSpinLock;
+import sviolet.thistle.model.concurrent.lock.UnsafeHashSpinLocks;
+import sviolet.thistle.model.concurrent.lock.UnsafeSpinLock;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager;
 import sviolet.slate.common.utilx.txtimer.noref.NoRefTxTimer;
 import sviolet.slate.common.utilx.txtimer.noref.NoRefTxTimerFactory;
-import sviolet.thistle.entity.Destroyable;
+import sviolet.thistle.entity.common.Destroyable;
 import sviolet.thistle.util.common.CloseableUtils;
 import sviolet.thistle.util.conversion.ByteUtils;
 import sviolet.thistle.util.judge.CheckUtils;

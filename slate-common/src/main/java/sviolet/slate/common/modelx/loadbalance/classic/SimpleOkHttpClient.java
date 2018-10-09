@@ -24,7 +24,7 @@ import org.springframework.beans.factory.InitializingBean;
 import sviolet.slate.common.modelx.loadbalance.LoadBalancedHostManager;
 import sviolet.slate.common.modelx.loadbalance.LoadBalancedInspectManager;
 import sviolet.slate.common.modelx.loadbalance.inspector.HttpGetLoadBalanceInspector;
-import sviolet.thistle.entity.Destroyable;
+import sviolet.thistle.entity.common.Destroyable;
 
 import java.io.Closeable;
 
