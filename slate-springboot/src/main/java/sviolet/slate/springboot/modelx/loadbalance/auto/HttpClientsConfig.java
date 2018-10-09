@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import sviolet.slate.common.modelx.loadbalance.classic.GsonDataConverter;
-import sviolet.slate.common.modelx.loadbalance.classic.SimpleOkHttpClient;
+import sviolet.slate.common.x.net.loadbalance.classic.GsonDataConverter;
+import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
 import sviolet.slate.springboot.auto.SlateProperties;
 import sviolet.thistle.util.judge.CheckUtils;
 

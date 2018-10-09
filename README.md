@@ -1,5 +1,5 @@
-# slate 10.1
-* JavaEE common library
+# slate 11.0
+* Java common library for spring framework (Java 7)
 * https://github.com/shepherdviolet/slate
 
 ### Import dependencies from maven repository
@@ -12,9 +12,9 @@ repositories {
 }
 dependencies {
     // For spring boot
-    compile 'com.github.shepherdviolet:slate-springboot:10.1'
+    compile 'com.github.shepherdviolet:slate-springboot:11.0'
     // For others
-    compile 'com.github.shepherdviolet:slate-common:10.1'
+    compile 'com.github.shepherdviolet:slate-common:11.0'
 }
 
 ```
@@ -23,12 +23,12 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-springboot</artifactId>
-        <version>10.1</version>
+        <version>11.0</version>
     </dependency>
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>10.1</version>
+        <version>11.0</version>
     </dependency>
 ```
 

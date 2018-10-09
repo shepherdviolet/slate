@@ -2,8 +2,8 @@ package sviolet.slate.springboot.modelx.loadbalance.auto;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import sviolet.slate.common.modelx.loadbalance.classic.SimpleOkHttpClient;
-import sviolet.thistle.entity.Destroyable;
+import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
+import sviolet.thistle.entity.common.Destroyable;
 
 import java.io.Closeable;
 import java.io.IOException;
