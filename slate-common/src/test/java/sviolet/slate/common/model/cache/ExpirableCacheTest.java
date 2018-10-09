@@ -20,7 +20,7 @@
 package sviolet.slate.common.model.cache;
 
 import ch.qos.logback.classic.Level;
-import sviolet.slate.common.helperx.logback.LogbackHelper;
+import sviolet.slate.common.x.helper.logback.LogbackHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
