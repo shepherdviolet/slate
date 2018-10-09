@@ -9,7 +9,7 @@
 InterfaceInstBeanDefRegistry5 : InterfaceInst | -------------------------------------------------
 InterfaceInstBeanDefRegistry5 : InterfaceInst | Interface Instantiation Start (spring 5+ and jdk 8+) Doc: https://github.com/shepherdviolet/slate
 InterfaceInstBeanDefRegistry5 : InterfaceInst | -------------------------------------------------
-InterfaceInstBeanDefRegistry5 : InterfaceInst | InterfaceInstantiator:cn.com.beeb.beet.scrunchy.core.ServiceDispatchInstanceInstantiator
+InterfaceInstBeanDefRegistry5 : InterfaceInst | InterfaceInstantiator:beet.scrunchy.core.ServiceDispatchInstanceInstantiator
 InterfaceInstBeanDefRegistry5 : InterfaceInst | Scan package:template.api
 InterfaceInstBeanDefRegistry5 : InterfaceInst | Bean created:template.api.base.UserService, name:proxy.template.api.base.UserService
 InterfaceInstBeanDefRegistry5 : InterfaceInst | -------------------------------------------------

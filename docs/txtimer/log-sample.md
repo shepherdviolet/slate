@@ -7,7 +7,7 @@
 * `total ( cnt:... ing:... est-avg:... )`: 该交易累计交易数(cnt), 当前执行中的交易数(ing), 平均耗时估计(est-avg)
 
 ```text
-2018-10-03 09:12:38,978 INFO Slate-TxTimer-Report-0 s.s.common.utilx.txtimer.def.Reporter : 
+2018-10-03 09:12:38,978 INFO Slate-TxTimer-Report-0 s.s.common.x.monitor.txtimer.def.Reporter : 
 TxTimer | ------------------------------------------------------------------------------------------------------------
 TxTimer | Group (Scrunchy-Actions) Time (10/03 09:09 - 10/03 09:12)  Page 1
 TxTimer | template.api.base.UserService#get > last 2 min ( cnt:44, avg:1ms, max:16ms, min:0ms ) total ( cnt:44, ing:0, est-avg: 1ms )

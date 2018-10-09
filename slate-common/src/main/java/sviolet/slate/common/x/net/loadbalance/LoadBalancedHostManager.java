@@ -40,7 +40,6 @@ import java.util.concurrent.atomic.AtomicReference;
  *              //设置/刷新远端清单(线程安全/异步更新)
  *              .setHostArray(new String[]{
  *                  "http://www.baidu.com",
- *                  "https://api.beeb.com.cn",
  *                  "http://127.0.0.1:8080",
  *                  "http://127.0.0.1:8081"
  *              });
