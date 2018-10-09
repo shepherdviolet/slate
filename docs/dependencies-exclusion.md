@@ -6,16 +6,15 @@
         mavenCentral()
     }
     dependencies {
-        compile ('com.github.shepherdviolet:slate-common:10.0') {
+        compile ('com.github.shepherdviolet:slate-common:11.0') {
             exclude group:'com.jcraft', module:'jsch'
             exclude group:'com.squareup.okhttp3'
-            exclude group:'org.jetbrains.kotlin', module:'kotlin-stdlib-jre7'
             exclude group:'com.google.code.gson'
             exclude group:'org.bouncycastle'
             exclude group:'redis.clients'
             exclude group:'org.springframework'
         }
-        compile ('com.github.shepherdviolet:slate-common:10.0') {
+        compile ('com.github.shepherdviolet:slate-common:11.0') {
             exclude group:'org.springframework.boot'
         }
     }
@@ -25,7 +24,7 @@
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>10.0</version>
+        <version>11.0</version>
         <exclusions>
              <exclusion>
                  <groupId>com.jcraft</groupId>
@@ -34,10 +33,6 @@
              <exclusion>
                  <groupId>com.squareup.okhttp3</groupId>
                  <artifactId>*</artifactId>
-             </exclusion>
-             <exclusion>
-                 <groupId>org.jetbrains.kotlin</groupId>
-                 <artifactId>kotlin-stdlib-jre7</artifactId>
              </exclusion>
              <exclusion>
                  <groupId>com.google.code.gson</groupId>
@@ -60,7 +55,7 @@
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>10.0</version>
+        <version>11.0</version>
         <exclusions>
              <exclusion>
                  <groupId>org.springframework.boot</groupId>
