@@ -17,19 +17,19 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.utilx.interfaceinst;
+package sviolet.slate.common.x.proxy.interfaceinst;
 
-import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * <p>默认的ImportSelector, 配合EnableInterfaceInstantiation注解开启功能</p>
+ * <p>声明该接口需要被实例化</p>
  * @author S.Violet
  */
-public class DefaultInterfaceInstSelector extends InterfaceInstSelector {
-
-    @Override
-    protected Class<? extends Annotation> getEnableAnnotationType() {
-        return EnableInterfaceInstantiation.class;
-    }
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface InterfaceInstance {
 
 }

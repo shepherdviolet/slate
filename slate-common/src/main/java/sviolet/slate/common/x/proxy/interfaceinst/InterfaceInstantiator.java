@@ -17,22 +17,26 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.utilx.interfaceinst;
-
-import sviolet.slate.common.util.proxy.CGLibProxyUtils;
+package sviolet.slate.common.x.proxy.interfaceinst;
 
 /**
- * <p>接口实例化的默认实现, CGLib</p>
+ * <p>接口实例化器</p>
  * @author S.Violet
  */
-public final class DefaultInterfaceInstantiator implements InterfaceInstantiator {
-    @Override
-    public Object newInstance(Class<?> clazz) {
-        return CGLibProxyUtils.newEmptyInstance(clazz);
-    }
+public interface InterfaceInstantiator {
 
-    @Override
-    public String resolveBeanName(String beanClassName) {
-        return beanClassName;
-    }
+    /**
+     * 实现将接口类实例化成对象
+     * @param interfaceType 接口类型
+     * @return 实例化的对象
+     */
+    Object newInstance(Class<?> interfaceType) throws Exception;
+
+    /**
+     * 实现根据接口类型决定Bean名
+     * @param interfaceType 接口类型
+     * @return Bean名
+     */
+    String resolveBeanName(String interfaceType) throws Exception;
+
 }

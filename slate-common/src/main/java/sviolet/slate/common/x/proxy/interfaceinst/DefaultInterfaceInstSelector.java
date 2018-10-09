@@ -17,26 +17,19 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.utilx.interfaceinst;
+package sviolet.slate.common.x.proxy.interfaceinst;
+
+import java.lang.annotation.Annotation;
 
 /**
- * <p>接口实例化器</p>
+ * <p>默认的ImportSelector, 配合EnableInterfaceInstantiation注解开启功能</p>
  * @author S.Violet
  */
-public interface InterfaceInstantiator {
+public class DefaultInterfaceInstSelector extends InterfaceInstSelector {
 
-    /**
-     * 实现将接口类实例化成对象
-     * @param interfaceType 接口类型
-     * @return 实例化的对象
-     */
-    Object newInstance(Class<?> interfaceType) throws Exception;
-
-    /**
-     * 实现根据接口类型决定Bean名
-     * @param interfaceType 接口类型
-     * @return Bean名
-     */
-    String resolveBeanName(String interfaceType) throws Exception;
+    @Override
+    protected Class<? extends Annotation> getEnableAnnotationType() {
+        return EnableInterfaceInstantiation.class;
+    }
 
 }

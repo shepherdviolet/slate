@@ -17,19 +17,22 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.utilx.interfaceinst;
+package sviolet.slate.common.x.proxy.interfaceinst;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import sviolet.slate.common.util.proxy.CGLibProxyUtils;
 
 /**
- * <p>声明该接口需要被实例化</p>
+ * <p>接口实例化的默认实现, CGLib</p>
  * @author S.Violet
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface InterfaceInstance {
+public final class DefaultInterfaceInstantiator implements InterfaceInstantiator {
+    @Override
+    public Object newInstance(Class<?> clazz) {
+        return CGLibProxyUtils.newEmptyInstance(clazz);
+    }
 
+    @Override
+    public String resolveBeanName(String beanClassName) {
+        return beanClassName;
+    }
 }

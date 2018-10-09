@@ -17,7 +17,7 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.utilx.interfaceinst;
+package sviolet.slate.common.x.proxy.interfaceinst;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

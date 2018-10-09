@@ -1,4 +1,4 @@
-package sviolet.slate.common.util.spi;
+package sviolet.slate.common.x.common.thistlespi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
