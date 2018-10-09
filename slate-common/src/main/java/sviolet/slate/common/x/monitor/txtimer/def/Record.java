@@ -1,4 +1,4 @@
-package sviolet.slate.common.utilx.txtimer.def;
+package sviolet.slate.common.x.monitor.txtimer.def;
 
 class Record {
 

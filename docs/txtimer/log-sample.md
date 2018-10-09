@@ -1,6 +1,6 @@
 # TxTimer 日志样例
 
-* SLF4J日志级别`INFO`, 日志包路径`sviolet.slate.common.utilx.txtimer.def`
+* SLF4J日志级别`INFO`, 日志包路径`sviolet.slate.common.x.monitor.txtimer.def`
 * `Group (...) Time (...)  Page ...`: 当前打印的交易组别, 统计时间区间(非精确), 页码
 * 默认情况下, 当一个组别的输出记录超过20条时, 会分页, 每页的页码会+1
 * ` ... > last ? min ( cnt: ... avg: ... max:... min:... ) `: 该交易最近N分钟的交易数(cnt), 平均耗时(avg), 最大耗时(max), 最小耗时(min)

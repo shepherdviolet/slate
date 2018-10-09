@@ -1,9 +1,9 @@
-package sviolet.slate.common.utilx.txtimer.def;
+package sviolet.slate.common.x.monitor.txtimer.def;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static sviolet.slate.common.utilx.txtimer.def.DefaultTxTimerProvider.MINUTE_MILLIS;
+import static sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider.MINUTE_MILLIS;
 
 class Unit {
 

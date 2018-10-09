@@ -1,8 +1,8 @@
-package sviolet.slate.common.utilx.txtimer.noref;
+package sviolet.slate.common.x.monitor.txtimer.noref;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.slate.common.utilx.txtimer.TxTimerProvider;
+import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider;
 
 /**
  * <p>对TxTimer类无引用的NoRefTxTimer代理工厂</p>
@@ -18,7 +18,7 @@ public class NoRefTxTimerFactory {
 
     public static NoRefTxTimer newInstance() {
         try {
-            return (NoRefTxTimer) Class.forName("sviolet.slate.common.utilx.txtimer.noref.NoRefTxTimerImpl").newInstance();
+            return (NoRefTxTimer) Class.forName("sviolet.slate.common.x.monitor.txtimer.noref.NoRefTxTimerImpl").newInstance();
         } catch (Exception e) {
             logger.error("TxTimer | NoRefTxTimerFactory create NoRefTxTimer instance failed, TxTimer disabled !!!", e);
             return new DummyNoRefTxTimer();

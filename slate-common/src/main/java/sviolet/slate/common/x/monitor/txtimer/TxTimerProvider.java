@@ -1,4 +1,4 @@
-package sviolet.slate.common.utilx.txtimer;
+package sviolet.slate.common.x.monitor.txtimer;
 
 public interface TxTimerProvider {
 

@@ -1,10 +1,10 @@
-package sviolet.slate.common.utilx.txtimer.def;
+package sviolet.slate.common.x.monitor.txtimer.def;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static sviolet.slate.common.utilx.txtimer.def.DefaultTxTimerProvider.*;
+import static sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider.*;
 
 class Transaction {
 

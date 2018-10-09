@@ -1,6 +1,6 @@
-package sviolet.slate.common.utilx.txtimer;
+package sviolet.slate.common.x.monitor.txtimer;
 
-import sviolet.slate.common.utilx.txtimer.def.DefaultTxTimerConfig;
+import sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerConfig;
 import sviolet.thistle.util.crypto.SecureRandomUtils;
 
 public class TxTimerCommonTest {

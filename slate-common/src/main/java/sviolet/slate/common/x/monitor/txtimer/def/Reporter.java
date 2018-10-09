@@ -1,4 +1,4 @@
-package sviolet.slate.common.utilx.txtimer.def;
+package sviolet.slate.common.x.monitor.txtimer.def;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
-import static sviolet.slate.common.utilx.txtimer.def.DefaultTxTimerProvider.*;
+import static sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider.*;
 
 class Reporter {
 

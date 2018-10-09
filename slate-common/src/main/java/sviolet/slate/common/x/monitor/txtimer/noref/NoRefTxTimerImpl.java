@@ -1,7 +1,7 @@
-package sviolet.slate.common.utilx.txtimer.noref;
+package sviolet.slate.common.x.monitor.txtimer.noref;
 
-import sviolet.slate.common.utilx.txtimer.TxTimer;
-import sviolet.slate.common.utilx.txtimer.TxTimerProvider;
+import sviolet.slate.common.x.monitor.txtimer.TxTimer;
+import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider;
 
 /**
  * 与TxTimer关联点

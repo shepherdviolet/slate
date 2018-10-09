@@ -1,4 +1,4 @@
-package sviolet.slate.common.utilx.txtimer;
+package sviolet.slate.common.x.monitor.txtimer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

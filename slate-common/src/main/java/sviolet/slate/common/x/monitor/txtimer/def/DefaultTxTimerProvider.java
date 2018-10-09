@@ -1,6 +1,6 @@
-package sviolet.slate.common.utilx.txtimer.def;
+package sviolet.slate.common.x.monitor.txtimer.def;
 
-import sviolet.slate.common.utilx.txtimer.TxTimerProvider;
+import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider;
 import sviolet.thistle.model.concurrent.lock.UnsafeHashSpinLocks;
 import sviolet.thistle.model.concurrent.lock.UnsafeSpinLock;
 
