@@ -151,6 +151,9 @@ public class SlateBeanUtils {
         private String field;
         private MappingException(String message, Throwable cause, String from, String to, String field) {
             super(message, cause);
+            this.from = from;
+            this.to = to;
+            this.field = field != null ? field : "?";
         }
         public String getFrom() {
             return from;
