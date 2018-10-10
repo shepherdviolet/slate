@@ -6,14 +6,14 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BeanMapperFromToMapTest {
+public class SlateBeanUtilsFromToMapTest {
 
     @Test
     public void toMap(){
         Bean bean = new Bean();
         bean.name = "lalala";
         bean.no = new BigDecimal("321321");
-        System.out.println(BeanMapper.toMap(bean));
+        System.out.println(SlateBeanUtils.toMap(bean));
     }
 
     @Test
@@ -21,7 +21,7 @@ public class BeanMapperFromToMapTest {
         Map<String, Object> map = new HashMap<>();
         map.put("name", "lalala");
         map.put("no", new BigDecimal("321321"));
-        System.out.println(BeanMapper.fromMap(map, Bean.class));
+        System.out.println(SlateBeanUtils.fromMap(map, Bean.class));
     }
 
     private static class Bean {

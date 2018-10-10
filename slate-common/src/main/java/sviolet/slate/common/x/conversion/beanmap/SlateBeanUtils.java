@@ -10,13 +10,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BeanMapper {
+/**
+ * Bean工具
+ *
+ * @author S.Violet
+ */
+public class SlateBeanUtils {
 
     @SuppressWarnings("deprecation")
     private static final UnsafeSpinLock spinLock = new UnsafeSpinLock();
 
     private static volatile SpringObjenesis objenesis;
-    private static volatile MapperConverter converter;
+    private static volatile BeanPropConverter converter;
 
     private static final Map<String, BeanCopier> copiers = new ConcurrentHashMap<>(256);
 
@@ -34,7 +39,7 @@ public class BeanMapper {
             }
             copier.copy(from, to, getConverter());
         } catch (Exception e) {
-            throw new MappingException("BeanMapper: Error while copying " + copierName, e, from.getClass().getName(), to.getClass().getName(), null);
+            throw new MappingException("SlateBeanUtils: Error while copying " + copierName, e, from.getClass().getName(), to.getClass().getName(), null);
         }
     }
 
@@ -46,7 +51,7 @@ public class BeanMapper {
         try {
             to = getObjenesis().newInstance(toType, false);
         } catch (Exception e) {
-            throw new InstantiationException("BeanMapper: Error while " + toType.getName() + " instantiation", e, toType.getName());
+            throw new InstantiationException("SlateBeanUtils: Error while " + toType.getName() + " instantiation", e, toType.getName());
         }
         if (from == null) {
             return to;
@@ -66,7 +71,7 @@ public class BeanMapper {
                 toMap.put(String.valueOf(key), beanMap.get(key));
             }
         } catch (Exception e) {
-            throw new MappingException("BeanMapper: Error while mapping " + fromBean.getClass().getName() + " to Map", e, fromBean.getClass().getName(), "Map", null);
+            throw new MappingException("SlateBeanUtils: Error while mapping " + fromBean.getClass().getName() + " to Map", e, fromBean.getClass().getName(), "Map", null);
         }
     }
 
@@ -84,13 +89,13 @@ public class BeanMapper {
         try {
             beanMap = BeanMap.create(toBean);
         } catch (Exception e) {
-            throw new MappingException("BeanMapper: Error while mapping Map to " + toBean.getClass().getName(), e, "Map", toBean.getClass().getName(), null);
+            throw new MappingException("SlateBeanUtils: Error while mapping Map to " + toBean.getClass().getName(), e, "Map", toBean.getClass().getName(), null);
         }
         for (Object key : beanMap.keySet()) {
             try {
                 beanMap.put(key, fromMap.get(String.valueOf(key)));
             } catch (Exception e) {
-                throw new MappingException("BeanMapper: Error while mapping Map to " + toBean.getClass().getName() + ", putting \"" + key + "\" failed", e, "Map", toBean.getClass().getName(), String.valueOf(key));
+                throw new MappingException("SlateBeanUtils: Error while mapping Map to " + toBean.getClass().getName() + ", putting \"" + key + "\" failed", e, "Map", toBean.getClass().getName(), String.valueOf(key));
             }
         }
     }
@@ -103,7 +108,7 @@ public class BeanMapper {
         try {
             to = getObjenesis().newInstance(toType, false);
         } catch (Exception e) {
-            throw new InstantiationException("BeanMapper: Error while " + toType.getName() + " instantiation", e, toType.getName());
+            throw new InstantiationException("SlateBeanUtils: Error while " + toType.getName() + " instantiation", e, toType.getName());
         }
         if (fromMap == null || fromMap.size() == 0) {
             return to;
@@ -112,16 +117,16 @@ public class BeanMapper {
         return to;
     }
 
-    private static MapperConverter getConverter(){
+    private static BeanPropConverter getConverter(){
         if (converter == null) {
             try {
                 spinLock.lock();
                 if (converter == null) {
                     //spi loading
-                    converter = ThistleSpi.getLoader().loadService(MapperConverter.class);
+                    converter = ThistleSpi.getLoader().loadService(BeanPropConverter.class);
                     //default
                     if (converter == null) {
-                        converter = new MapperConverter() {
+                        converter = new BeanPropConverter() {
                             @Override
                             public Object convert(Object from, Class toType, Object setMethodName) {
                                 return from;

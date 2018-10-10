@@ -5,7 +5,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class BeanMapperCopyTest {
+public class SlateBeanUtilsCopyTest {
 
     @Test
     public void test(){
@@ -46,7 +46,7 @@ public class BeanMapperCopyTest {
         From from = new From();
         from.name = "lalala";
         from.num = new BigDecimal("321");
-        return BeanMapper.copy(from, To.class);
+        return SlateBeanUtils.copy(from, To.class);
     }
 
     public static class From {
