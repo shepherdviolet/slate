@@ -168,6 +168,15 @@ public class BeanMapper {
         private MappingException(String message, Throwable cause, String from, String to, String field) {
             super(message, cause);
         }
+        public String getFrom() {
+            return from;
+        }
+        public String getTo() {
+            return to;
+        }
+        public String getField() {
+            return field;
+        }
     }
 
 }
