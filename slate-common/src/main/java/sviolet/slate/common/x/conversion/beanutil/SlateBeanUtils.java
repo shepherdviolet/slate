@@ -47,12 +47,7 @@ public class SlateBeanUtils {
         if (toType == null) {
             return null;
         }
-        T to;
-        try {
-            to = getObjenesis().newInstance(toType, false);
-        } catch (Exception e) {
-            throw new InstantiationException("SlateBeanUtils: Error while " + toType.getName() + " instantiation", e, toType.getName());
-        }
+        T to = getObjenesis().newInstance(toType, false);
         if (from == null) {
             return to;
         }
@@ -104,12 +99,7 @@ public class SlateBeanUtils {
         if (toType == null) {
             return null;
         }
-        T to;
-        try {
-            to = getObjenesis().newInstance(toType, false);
-        } catch (Exception e) {
-            throw new InstantiationException("SlateBeanUtils: Error while " + toType.getName() + " instantiation", e, toType.getName());
-        }
+        T to = getObjenesis().newInstance(toType, false);
         if (fromMap == null || fromMap.size() == 0) {
             return to;
         }
@@ -153,17 +143,6 @@ public class SlateBeanUtils {
             }
         }
         return objenesis;
-    }
-
-    public static class InstantiationException extends RuntimeException {
-        private String beanType;
-        private InstantiationException(String message, Throwable cause, String beanType) {
-            super(message, cause);
-            this.beanType = beanType;
-        }
-        public String getBeanType() {
-            return beanType;
-        }
     }
 
     public static class MappingException extends RuntimeException {
