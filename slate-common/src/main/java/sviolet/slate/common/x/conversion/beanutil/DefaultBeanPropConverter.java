@@ -1,4 +1,4 @@
-package sviolet.slate.common.x.conversion.beanmap;
+package sviolet.slate.common.x.conversion.beanutil;
 
 public class DefaultBeanPropConverter implements BeanPropConverter {
 

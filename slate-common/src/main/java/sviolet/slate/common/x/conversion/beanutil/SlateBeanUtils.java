@@ -1,4 +1,4 @@
-package sviolet.slate.common.x.conversion.beanmap;
+package sviolet.slate.common.x.conversion.beanutil;
 
 import org.springframework.cglib.beans.BeanCopier;
 import org.springframework.cglib.beans.BeanMap;
