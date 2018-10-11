@@ -121,7 +121,7 @@ class BeanizationFactory {
 
     private String getClassNames(Class[] classes) {
         if (classes.length == 1) {
-            return classes[0].getName();
+            return " " + classes[0].getName();
         }
         StringBuilder stringBuilder = new StringBuilder();
         for (Class<?> clazz : classes) {
