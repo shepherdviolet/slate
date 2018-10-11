@@ -78,14 +78,15 @@ class BeanizationFactory {
             if (value == null) {
                 continue;
             }
+            Class<?> valueType = value.getClass();
             try {
                 boolean found = false;
                 for (Class<?> type : entry.getValue()) {
-                    if (type.isAssignableFrom(value.getClass())) {
+                    if (type.isAssignableFrom(valueType)) {
                         if (convert) {
                             value = converter.onConvert(BeanConverter.Cause.BEANIZATION, value, new Class[]{type});
                             if (value == null) {
-                                throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", can not cast \"" + entryKey + "\" from map to bean (maybe no PropMapper), map data:" + map, null, "java.util.Map", templateType.getName(), entryKey);
+                                throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", field \"" + entryKey + "\" convert failed (In PropMapper for " + valueType.getName() + " to " + type.getName() + "), map data:" + map, null, "java.util.Map", templateType.getName(), entryKey);
                             }
                         }
                         result.put(entryKey, value);
@@ -100,11 +101,11 @@ class BeanizationFactory {
                 if (convert) {
                     value = converter.onConvert(BeanConverter.Cause.BEANIZATION, value, entry.getValue());
                     if (value == null) {
-                        throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", can not cast \"" + entryKey + "\" from map to bean (maybe no PropMapper), map data:" + map, null, "java.util.Map", templateType.getName(), entryKey);
+                        throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", field \"" + entryKey + "\" convert failed (No PropMapper for " + valueType.getName() + " to" + getClassNames(entry.getValue()) + "), map data:" + map, null, "java.util.Map", templateType.getName(), entryKey);
                     }
                     result.put(entryKey, value);
                 } else {
-                    throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", can not cast \"" + entryKey + "\" from map to bean (maybe no PropMapper), map data:" + map, null, "java.util.Map", templateType.getName(), entryKey);
+                    throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", field \"" + entryKey + "\" convert failed (No PropMapper for " + valueType.getName() + " to" + getClassNames(entry.getValue()) + "), map data:" + map, null, "java.util.Map", templateType.getName(), entryKey);
                 }
             } catch (MappingRuntimeException e) {
                 //补上field名
@@ -112,10 +113,22 @@ class BeanizationFactory {
                 e.setFieldName(fieldName);
                 throw e;
             } catch (Exception e) {
-                throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", problem property \"" + entryKey + "\" (maybe no PropMapper), map data:" + map, e, "java.util.Map", templateType.getName(), entryKey);
+                throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", problem property \"" + entryKey + "\" (No PropMapper for " + valueType.getName() + " to" + getClassNames(entry.getValue()) + "), map data:" + map, e, "java.util.Map", templateType.getName(), entryKey);
             }
         }
         return result;
+    }
+
+    private String getClassNames(Class[] classes) {
+        if (classes.length == 1) {
+            return classes[0].getName();
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Class<?> clazz : classes) {
+            stringBuilder.append(" ");
+            stringBuilder.append(clazz.getSimpleName());
+        }
+        return stringBuilder.toString();
     }
 
 }
