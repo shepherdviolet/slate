@@ -6,18 +6,27 @@ import java.math.BigDecimal;
 
 public class SBUMapperBigDecimal2Long implements PropMapper {
 
+    private static final Class[] FROM = new Class[]{
+            BigDecimal.class,
+    };
+
+    private static final Class[] TO = new Class[]{
+            long.class,
+            Long.class,
+    };
+
     @Override
-    public Class<?> fromType() {
-        return BigDecimal.class;
+    public Class<?>[] fromType() {
+        return FROM;
     }
 
     @Override
-    public Class<?> toType() {
-        return Long.class;
+    public Class<?>[] toType() {
+        return TO;
     }
 
     @Override
-    public Object map(Object from) {
+    public Object map(Object from, Class<?> toType) {
         return ((BigDecimal)from).longValue();
     }
 
