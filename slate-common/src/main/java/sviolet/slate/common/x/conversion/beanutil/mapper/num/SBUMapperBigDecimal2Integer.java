@@ -1,10 +1,10 @@
-package sviolet.slate.common.x.conversion.beanutil.mapper;
+package sviolet.slate.common.x.conversion.beanutil.mapper.num;
 
 import sviolet.slate.common.x.conversion.beanutil.PropMapper;
 
 import java.math.BigDecimal;
 
-public class SBUMapperBigDecimal2double implements PropMapper {
+public class SBUMapperBigDecimal2Integer implements PropMapper {
 
     @Override
     public Class<?> fromType() {
@@ -13,12 +13,12 @@ public class SBUMapperBigDecimal2double implements PropMapper {
 
     @Override
     public Class<?> toType() {
-        return double.class;
+        return Integer.class;
     }
 
     @Override
     public Object map(Object from) {
-        return ((BigDecimal)from).doubleValue();
+        return ((BigDecimal)from).intValue();
     }
 
 }

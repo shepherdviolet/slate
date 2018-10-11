@@ -9,6 +9,7 @@ public class SlateBeanUtilsCopyTest {
 
     @Test
     public void test(){
+        System.setProperty("slate.beanutils.log", "true");
         System.setProperty("thistle.spi.loglv", "error");
         System.out.println(copyOnce());
     }
@@ -16,6 +17,7 @@ public class SlateBeanUtilsCopyTest {
     private static final AtomicInteger counter = new AtomicInteger(0);
 
     public static void main(String[] args) {
+        System.setProperty("slate.beanutils.log", "true");
         System.setProperty("thistle.spi.loglv", "error");
 
         for (int i = 0 ; i < 1000 ; i++) {
