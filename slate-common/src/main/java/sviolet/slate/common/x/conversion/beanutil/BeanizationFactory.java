@@ -65,7 +65,8 @@ class BeanizationFactory {
         }
         this.templateProperties = new HashMap<>(properties.size());
         for (Map.Entry<String, Set<Class>> entry : properties.entrySet()) {
-            this.templateProperties.put(entry.getKey(), (Class[]) entry.getValue().toArray());
+            Class[] classArray = new Class[entry.getValue().size()];
+            this.templateProperties.put(entry.getKey(), entry.getValue().toArray(classArray));
         }
     }
 

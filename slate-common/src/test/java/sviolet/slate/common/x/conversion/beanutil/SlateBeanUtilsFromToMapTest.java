@@ -10,6 +10,7 @@ public class SlateBeanUtilsFromToMapTest {
 
     @Test
     public void toMap(){
+        System.setProperty("thistle.spi.loglv", "error");
         Bean bean = new Bean();
         bean.name = "lalala";
         bean.no = new BigDecimal("321321");
@@ -18,10 +19,11 @@ public class SlateBeanUtilsFromToMapTest {
 
     @Test
     public void fromMap(){
+        System.setProperty("thistle.spi.loglv", "error");
         Map<String, Object> map = new HashMap<>();
         map.put("name", "lalala");
         map.put("no", new BigDecimal("321321"));
-        System.out.println(SlateBeanUtils.fromMap(map, Bean.class));
+        System.out.println(SlateBeanUtils.fromMap(map, Bean.class, true));
     }
 
     private static class Bean {
