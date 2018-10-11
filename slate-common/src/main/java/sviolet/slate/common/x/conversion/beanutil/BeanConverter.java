@@ -4,10 +4,13 @@ import org.springframework.cglib.core.Converter;
 import sviolet.thistle.util.conversion.BeanMethodNameUtils;
 
 /**
- * <p>ThistleSpi扩展接口</p>
+ * <p>SlateBeanUtils Bean工具 扩展点</p>
  *
  * <p>Bean参数类型转换器</p>
  *
+ * <p>实现:将对象类型转换为指定类型</p>
+ *
+ * @see SlateBeanUtils
  * @author S.Violet
  */
 public abstract class BeanConverter implements Converter {

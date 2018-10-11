@@ -1,5 +1,13 @@
 package sviolet.slate.common.x.monitor.txtimer;
 
+/**
+ * <p>TxTimer简单的交易耗时统计 扩展点</p>
+ *
+ * <p>实现:耗时统计/结果输出</p>
+ *
+ * @see TxTimer
+ * @author S.Violet
+ */
 public interface TxTimerProvider {
 
     /**
