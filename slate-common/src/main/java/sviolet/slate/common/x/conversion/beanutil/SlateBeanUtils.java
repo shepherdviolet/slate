@@ -24,6 +24,7 @@ public class SlateBeanUtils {
     private static volatile BeanPropConverter converter;
 
     private static final Map<String, BeanCopier> copiers = new ConcurrentHashMap<>(256);
+    private static final Map<String, BeanizationFactory> beanizationFactorys = new ConcurrentHashMap<>(256);
 
     /**
      * <p>JavaBean参数拷贝</p>
@@ -31,7 +32,7 @@ public class SlateBeanUtils {
      * <p>内置类型转换器, 可使用ThistleSpi扩展</p>
      * @param from 从这个JavaBean复制
      * @param to 复制到这个JavaBean
-     * @throws MappingException 拷贝出错(异常概率:中)
+     * @throws MappingRuntimeException 拷贝出错(异常概率:中)
      */
     public static void copy(Object from, Object to) {
         if (from == null || to == null) {
@@ -46,8 +47,10 @@ public class SlateBeanUtils {
                 copiers.put(copierName, copier);
             }
             copier.copy(from, to, getConverter());
+        } catch (MappingRuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            throw new MappingException("SlateBeanUtils: Error while copying " + copierName, e, from.getClass().getName(), to.getClass().getName(), null);
+            throw new MappingRuntimeException("SlateBeanUtils: Error while copying " + copierName, e, from.getClass().getName(), to.getClass().getName(), null);
         }
     }
 
@@ -57,7 +60,7 @@ public class SlateBeanUtils {
      * <p>内置类型转换器, 可使用ThistleSpi扩展</p>
      * @param from 从这个JavaBean复制
      * @param toType 目的JavaBean类型
-     * @throws MappingException 拷贝出错(异常概率:中)
+     * @throws MappingRuntimeException 拷贝出错(异常概率:中)
      */
     public static <T> T copy(Object from, Class<T> toType) {
         if (toType == null) {
@@ -78,7 +81,7 @@ public class SlateBeanUtils {
      * <p>无类型转换器, 因为Bean转Map不存在类型不匹配</p>
      * @param fromBean 从这个JavaBean复制
      * @param toMap 复制到这个Map
-     * @throws MappingException 转换出错(异常概率:低)
+     * @throws MappingRuntimeException 转换出错(异常概率:低)
      */
     public static void toMap(Object fromBean, Map<String, Object> toMap) {
         if (fromBean == null || toMap == null) {
@@ -90,7 +93,7 @@ public class SlateBeanUtils {
                 toMap.put(String.valueOf(key), beanMap.get(key));
             }
         } catch (Exception e) {
-            throw new MappingException("SlateBeanUtils: Error while mapping " + fromBean.getClass().getName() + " to Map", e, fromBean.getClass().getName(), "Map", null);
+            throw new MappingRuntimeException("SlateBeanUtils: Error while mapping " + fromBean.getClass().getName() + " to Map", e, fromBean.getClass().getName(), "java.util.Map", null);
         }
     }
 
@@ -99,7 +102,7 @@ public class SlateBeanUtils {
      * <p>一般不会抛出异常</p>
      * <p>无类型转换器, 因为Bean转Map不存在类型不匹配</p>
      * @param fromBean 从这个JavaBean复制
-     * @throws MappingException 转换出错(异常概率:低)
+     * @throws MappingRuntimeException 转换出错(异常概率:低)
      */
     public static Map<String, Object> toMap(Object fromBean) {
         Map<String, Object> map = new HashMap<>();
@@ -113,23 +116,27 @@ public class SlateBeanUtils {
      * <p>内置类型转换器, 可使用ThistleSpi扩展</p>
      * @param fromMap 从这个Map取值
      * @param toBean 复制到这个JavaBean
-     * @throws MappingException 转换出错(异常概率:高), Map中字段类型与Bean参数类型不匹配很容易抛出异常
+     * @param convert true:转换参数类型使之符合要求, false:不转换参数类型, 不符合就直接报错
+     * @throws MappingRuntimeException 转换出错(异常概率:高), Map中字段类型与Bean参数类型不匹配很容易抛出异常
      */
-    public static void fromMap(Map<String, Object> fromMap, Object toBean) {
+    public static void fromMap(Map<String, Object> fromMap, Object toBean, boolean convert) {
         if (fromMap == null || toBean == null) {
             return;
         }
+        fromMap = mapBeanization(fromMap, toBean.getClass(), convert);
         BeanMap beanMap;
         try {
             beanMap = BeanMap.create(toBean);
         } catch (Exception e) {
-            throw new MappingException("SlateBeanUtils: Error while mapping Map to " + toBean.getClass().getName(), e, "Map", toBean.getClass().getName(), null);
+            throw new MappingRuntimeException("SlateBeanUtils: Error while mapping Map to " + toBean.getClass().getName() + ", map data:" + fromMap,
+                    e, "java.util.Map", toBean.getClass().getName(), null);
         }
         for (Object key : beanMap.keySet()) {
             try {
                 beanMap.put(key, fromMap.get(String.valueOf(key)));
             } catch (Exception e) {
-                throw new MappingException("SlateBeanUtils: Error while mapping Map to " + toBean.getClass().getName() + ", putting \"" + key + "\" failed", e, "Map", toBean.getClass().getName(), String.valueOf(key));
+                throw new MappingRuntimeException("SlateBeanUtils: Error while mapping Map to " + toBean.getClass().getName() + ", putting \"" + key + "\" failed, map data:" + fromMap,
+                        e, "java.util.Map", toBean.getClass().getName(), String.valueOf(key));
             }
         }
     }
@@ -140,9 +147,10 @@ public class SlateBeanUtils {
      * <p>内置类型转换器, 可使用ThistleSpi扩展</p>
      * @param fromMap 从这个Map取值
      * @param toType 目的JavaBean类型
-     * @throws MappingException 转换出错(异常概率:高), Map中字段类型与Bean参数类型不匹配很容易抛出异常
+     * @param convert true:转换参数类型使之符合要求, false:不转换参数类型, 不符合就直接报错
+     * @throws MappingRuntimeException 转换出错(异常概率:高), Map中字段类型与Bean参数类型不匹配很容易抛出异常
      */
-    public static <T> T fromMap(Map<String, Object> fromMap, Class<T> toType) {
+    public static <T> T fromMap(Map<String, Object> fromMap, Class<T> toType, boolean convert) {
         if (toType == null) {
             return null;
         }
@@ -150,8 +158,37 @@ public class SlateBeanUtils {
         if (fromMap == null || fromMap.size() == 0) {
             return to;
         }
-        fromMap(fromMap, to);
+        fromMap(fromMap, to, convert);
         return to;
+    }
+
+    /**
+     * 用于Map转换为Bean前的预处理. 依据指定的JavaBean类型(templateType), 检查Map的参数类型是否符合要求, 若不符合要求,
+     * 则尝试进行类型转换使之符合要求, 若还是不符合要求, 则抛出异常.
+     * (SlateBeanUtils.fromMap方法内部已调用该方法, 在使用fromMap时无需手动调用该方法)
+     * @param map 需要进行参数矫正的Map
+     * @param templateType JavaBean类型
+     * @param convert true:转换参数类型使之符合要求, false:不转换参数类型, 不符合就直接报错
+     * @return 返回矫正后的Map(仅保留需要的参数, 且类型已经过转换)
+     * @throws MappingRuntimeException 矫正出错(异常概率:高), Map中字段类型与Bean参数类型不匹配很容易抛出异常
+     */
+    public static Map<String, Object> mapBeanization(Map<String, Object> map, Class<?> templateType, boolean convert){
+        if (map == null || map.size() <= 0 || templateType == null) {
+            return new HashMap<>();
+        }
+        String factoryName = templateType.getName();
+        try {
+            BeanizationFactory factory = beanizationFactorys.get(factoryName);
+            if (factory == null) {
+                factory = new BeanizationFactory(templateType, getConverter());
+                beanizationFactorys.put(factoryName, factory);
+            }
+            return factory.beanization(map, convert);
+        } catch (MappingRuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", map data:" + map, e, "java.util.Map", templateType.getName(), null);
+        }
     }
 
     private static BeanPropConverter getConverter(){
@@ -165,7 +202,7 @@ public class SlateBeanUtils {
                     if (converter == null) {
                         converter = new BeanPropConverter() {
                             @Override
-                            protected Object convert(Object from, Class toType) {
+                            protected Object onConvert(Type type, Object from, Class... toTypes) {
                                 return from;
                             }
                         };

@@ -8,7 +8,7 @@ package sviolet.slate.common.x.conversion.beanutil;
 public class DefaultBeanPropConverter extends BeanPropConverter {
 
     @Override
-    protected Object convert(Object from, Class toType) {
+    protected Object onConvert(Type type, Object from, Class... toTypes) {
         return from;
     }
 

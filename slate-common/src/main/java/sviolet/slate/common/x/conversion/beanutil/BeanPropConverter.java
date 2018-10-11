@@ -15,21 +15,27 @@ public abstract class BeanPropConverter implements Converter {
     @Override
     public final Object convert(Object from, Class toType, Object setMethodName) {
         try {
-            return convert(from, toType);
-        } catch (MappingException e) {
+            return onConvert(Type.COPY, from, new Class[]{toType});
+        } catch (MappingRuntimeException e) {
             //补上field名
             String fieldName = BeanMethodNameUtils.methodToField(String.valueOf(setMethodName));
-            e.setField(fieldName);
+            e.setFieldName(fieldName);
             throw e;
         }
     }
 
     /**
      * 实现类型转换
-     * @param from 参数
-     * @param toType 目的类型
+     * @param type 转换类型
+     * @param from 待转换参数
+     * @param toTypes 目的类型(符合其中的一个类型即可)
      * @return 转换后的参数
      */
-    protected abstract Object convert(Object from, Class toType);
+    protected abstract Object onConvert(Type type, Object from, Class[] toTypes);
+
+    public enum Type {
+        COPY,
+        BEANIZATION
+    }
 
 }
