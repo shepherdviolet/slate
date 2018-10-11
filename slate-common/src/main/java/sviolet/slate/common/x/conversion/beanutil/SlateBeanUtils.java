@@ -25,6 +25,13 @@ public class SlateBeanUtils {
 
     private static final Map<String, BeanCopier> copiers = new ConcurrentHashMap<>(256);
 
+    /**
+     * <p>JavaBean参数拷贝</p>
+     * <p>参数类型不匹配时一般不会抛出异常, 会跳过不匹配的参数</p>
+     * @param from 从这个JavaBean复制
+     * @param to 复制到这个JavaBean
+     * @throws MappingException 拷贝出错(异常概率:中)
+     */
     public static void copy(Object from, Object to) {
         if (from == null || to == null) {
             return;
@@ -43,6 +50,13 @@ public class SlateBeanUtils {
         }
     }
 
+    /**
+     * <p>JavaBean参数拷贝, 目的JavaBean自动实例化</p>
+     * <p>参数类型不匹配时一般不会抛出异常, 会跳过不匹配的参数</p>
+     * @param from 从这个JavaBean复制
+     * @param toType 目的JavaBean类型
+     * @throws MappingException 拷贝出错(异常概率:中)
+     */
     public static <T> T copy(Object from, Class<T> toType) {
         if (toType == null) {
             return null;
@@ -56,6 +70,13 @@ public class SlateBeanUtils {
         return to;
     }
 
+    /**
+     * <p>JavaBean转Map</p>
+     * <p>一般不会抛出异常</p>
+     * @param fromBean 从这个JavaBean复制
+     * @param toMap 复制到这个Map
+     * @throws MappingException 转换出错(异常概率:低)
+     */
     public static void toMap(Object fromBean, Map<String, Object> toMap) {
         if (fromBean == null || toMap == null) {
             return;
@@ -70,12 +91,24 @@ public class SlateBeanUtils {
         }
     }
 
+    /**
+     * <p>JavaBean转Map, 目的Map自动创建</p>
+     * <p>一般不会抛出异常</p>
+     * @param fromBean 从这个JavaBean复制
+     * @throws MappingException 转换出错(异常概率:低)
+     */
     public static Map<String, Object> toMap(Object fromBean) {
         Map<String, Object> map = new HashMap<>();
         toMap(fromBean, map);
         return map;
     }
 
+    /**
+     * <p>Map转JavaBean</p>
+     * @param fromMap 从这个Map取值
+     * @param toBean 复制到这个JavaBean
+     * @throws MappingException 转换出错(异常概率:高), Map中字段类型与Bean参数类型不匹配很容易抛出异常
+     */
     public static void fromMap(Map<String, Object> fromMap, Object toBean) {
         if (fromMap == null || toBean == null) {
             return;
@@ -95,6 +128,12 @@ public class SlateBeanUtils {
         }
     }
 
+    /**
+     * <p>Map转JavaBean</p>
+     * @param fromMap 从这个Map取值
+     * @param toType 目的JavaBean类型
+     * @throws MappingException 转换出错(异常概率:高), Map中字段类型与Bean参数类型不匹配很容易抛出异常
+     */
     public static <T> T fromMap(Map<String, Object> fromMap, Class<T> toType) {
         if (toType == null) {
             return null;
@@ -155,12 +194,22 @@ public class SlateBeanUtils {
             this.to = to;
             this.field = field != null ? field : "?";
         }
+        /**
+         * @return 源类型(类名)
+         */
         public String getFrom() {
             return from;
         }
+
+        /**
+         * @return 目的类型(类名)
+         */
         public String getTo() {
             return to;
         }
+        /**
+         * @return 转换异常的字段名(可能为?)
+         */
         public String getField() {
             return field;
         }
