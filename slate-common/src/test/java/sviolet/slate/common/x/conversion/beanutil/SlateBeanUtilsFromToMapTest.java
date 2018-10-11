@@ -14,7 +14,7 @@ public class SlateBeanUtilsFromToMapTest {
         System.setProperty("thistle.spi.loglv", "error");
         Bean bean = new Bean();
         bean.name = "lalala";
-        bean.no = 321321L;
+        bean.no = new BigDecimal("321.333");
         System.out.println(SlateBeanUtils.toMap(bean));
     }
 
@@ -24,23 +24,23 @@ public class SlateBeanUtilsFromToMapTest {
         System.setProperty("thistle.spi.loglv", "error");
         Map<String, Object> map = new HashMap<>();
         map.put("name", "lalala");
-        map.put("no", new BigDecimal("321321"));
+        map.put("no", 123.333);
         System.out.println(SlateBeanUtils.fromMap(map, Bean.class, true));
     }
 
     private static class Bean {
         private String name;
-        private Long no;
+        private BigDecimal no;
         public String getName() {
             return name;
         }
         public void setName(String name) {
             this.name = name;
         }
-        public Long getNo() {
+        public BigDecimal getNo() {
             return no;
         }
-        public void setNo(Long no) {
+        public void setNo(BigDecimal no) {
             this.no = no;
         }
         @Override

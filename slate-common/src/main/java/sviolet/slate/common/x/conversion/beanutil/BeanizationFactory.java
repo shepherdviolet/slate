@@ -6,6 +6,11 @@ import sviolet.thistle.util.judge.CheckUtils;
 import java.lang.reflect.Method;
 import java.util.*;
 
+/**
+ * Bean矫正器
+ *
+ * @author S.Violet
+ */
 class BeanizationFactory {
 
     private Class<?> templateType;
