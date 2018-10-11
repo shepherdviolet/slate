@@ -79,14 +79,19 @@ class BeanizationFactory {
                 continue;
             }
             try {
+                boolean found = false;
                 for (Class<?> type : entry.getValue()) {
                     if (type.isAssignableFrom(value.getClass())) {
                         if (convert) {
                             value = converter.onConvert(BeanPropConverter.Type.BEANIZATION, value, new Class[]{type});
                         }
                         result.put(entryKey, value);
-                        continue;
+                        found = true;
+                        break;
                     }
+                }
+                if (found) {
+                    continue;
                 }
                 //fallback
                 if (convert) {
