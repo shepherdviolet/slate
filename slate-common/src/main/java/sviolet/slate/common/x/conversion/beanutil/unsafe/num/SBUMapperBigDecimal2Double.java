@@ -1,27 +1,18 @@
-package sviolet.slate.common.x.conversion.beanutil.mapper.num;
+package sviolet.slate.common.x.conversion.beanutil.unsafe.num;
 
 import sviolet.slate.common.x.conversion.beanutil.PropMapper;
 
 import java.math.BigDecimal;
 
-public class SBUMapperAllNumber2String implements PropMapper {
+public class SBUMapperBigDecimal2Double implements PropMapper {
 
     private static final Class[] FROM = new Class[]{
-            int.class,
-            Integer.class,
-            long.class,
-            Long.class,
-            float.class,
-            Float.class,
-            double.class,
-            Double.class,
-            short.class,
-            Short.class,
             BigDecimal.class,
     };
 
     private static final Class[] TO = new Class[]{
-            String.class,
+            double.class,
+            Double.class,
     };
 
     @Override
@@ -36,7 +27,7 @@ public class SBUMapperAllNumber2String implements PropMapper {
 
     @Override
     public Object map(Object from, Class<?> toType) {
-        return String.valueOf(from);
+        return ((BigDecimal)from).doubleValue();
     }
 
 }
