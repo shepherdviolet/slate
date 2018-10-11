@@ -17,6 +17,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SlateBeanUtils {
 
+    static final boolean LOG_ENABLED;
+
+    static {
+        LOG_ENABLED = "true".equals(System.getProperty("slate.beanutils.log", "true"));
+    }
+
     @SuppressWarnings("deprecation")
     private static final UnsafeSpinLock spinLock = new UnsafeSpinLock();
 
@@ -202,7 +208,7 @@ public class SlateBeanUtils {
                     if (converter == null) {
                         converter = new BeanConverter() {
                             @Override
-                            protected Object onConvert(Type type, Object from, Class... toTypes) {
+                            protected Object onConvert(Cause cause, Object from, Class... toTypes) {
                                 return from;
                             }
                         };
