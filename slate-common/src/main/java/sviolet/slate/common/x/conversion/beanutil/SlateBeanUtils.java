@@ -28,6 +28,7 @@ public class SlateBeanUtils {
     /**
      * <p>JavaBean参数拷贝</p>
      * <p>参数类型不匹配时一般不会抛出异常, 会跳过不匹配的参数</p>
+     * <p>内置类型转换器, 可使用ThistleSpi扩展</p>
      * @param from 从这个JavaBean复制
      * @param to 复制到这个JavaBean
      * @throws MappingException 拷贝出错(异常概率:中)
@@ -53,6 +54,7 @@ public class SlateBeanUtils {
     /**
      * <p>JavaBean参数拷贝, 目的JavaBean自动实例化</p>
      * <p>参数类型不匹配时一般不会抛出异常, 会跳过不匹配的参数</p>
+     * <p>内置类型转换器, 可使用ThistleSpi扩展</p>
      * @param from 从这个JavaBean复制
      * @param toType 目的JavaBean类型
      * @throws MappingException 拷贝出错(异常概率:中)
@@ -73,6 +75,7 @@ public class SlateBeanUtils {
     /**
      * <p>JavaBean转Map</p>
      * <p>一般不会抛出异常</p>
+     * <p>无类型转换器, 因为Bean转Map不存在类型不匹配</p>
      * @param fromBean 从这个JavaBean复制
      * @param toMap 复制到这个Map
      * @throws MappingException 转换出错(异常概率:低)
@@ -94,6 +97,7 @@ public class SlateBeanUtils {
     /**
      * <p>JavaBean转Map, 目的Map自动创建</p>
      * <p>一般不会抛出异常</p>
+     * <p>无类型转换器, 因为Bean转Map不存在类型不匹配</p>
      * @param fromBean 从这个JavaBean复制
      * @throws MappingException 转换出错(异常概率:低)
      */
@@ -105,6 +109,8 @@ public class SlateBeanUtils {
 
     /**
      * <p>Map转JavaBean</p>
+     * <p>容易因为Map中字段类型与Bean参数类型不匹配抛出异常</p>
+     * <p>内置类型转换器, 可使用ThistleSpi扩展</p>
      * @param fromMap 从这个Map取值
      * @param toBean 复制到这个JavaBean
      * @throws MappingException 转换出错(异常概率:高), Map中字段类型与Bean参数类型不匹配很容易抛出异常
@@ -130,6 +136,8 @@ public class SlateBeanUtils {
 
     /**
      * <p>Map转JavaBean</p>
+     * <p>容易因为Map中字段类型与Bean参数类型不匹配抛出异常</p>
+     * <p>内置类型转换器, 可使用ThistleSpi扩展</p>
      * @param fromMap 从这个Map取值
      * @param toType 目的JavaBean类型
      * @throws MappingException 转换出错(异常概率:高), Map中字段类型与Bean参数类型不匹配很容易抛出异常
@@ -157,7 +165,7 @@ public class SlateBeanUtils {
                     if (converter == null) {
                         converter = new BeanPropConverter() {
                             @Override
-                            public Object convert(Object from, Class toType, Object setMethodName) {
+                            protected Object convert(Object from, Class toType) {
                                 return from;
                             }
                         };
@@ -182,37 +190,6 @@ public class SlateBeanUtils {
             }
         }
         return objenesis;
-    }
-
-    public static class MappingException extends RuntimeException {
-        private String from;
-        private String to;
-        private String field;
-        private MappingException(String message, Throwable cause, String from, String to, String field) {
-            super(message, cause);
-            this.from = from;
-            this.to = to;
-            this.field = field != null ? field : "?";
-        }
-        /**
-         * @return 源类型(类名)
-         */
-        public String getFrom() {
-            return from;
-        }
-
-        /**
-         * @return 目的类型(类名)
-         */
-        public String getTo() {
-            return to;
-        }
-        /**
-         * @return 转换异常的字段名(可能为?)
-         */
-        public String getField() {
-            return field;
-        }
     }
 
 }

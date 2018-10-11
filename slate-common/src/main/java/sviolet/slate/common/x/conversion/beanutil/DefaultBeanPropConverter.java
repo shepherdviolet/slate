@@ -1,9 +1,14 @@
 package sviolet.slate.common.x.conversion.beanutil;
 
-public class DefaultBeanPropConverter implements BeanPropConverter {
+/**
+ * <p>默认Bean参数类型转换器</p>
+ *
+ * @author S.Violet
+ */
+public class DefaultBeanPropConverter extends BeanPropConverter {
 
     @Override
-    public Object convert(Object from, Class toType, Object setMethodName) {
+    protected Object convert(Object from, Class toType) {
         return from;
     }
 
