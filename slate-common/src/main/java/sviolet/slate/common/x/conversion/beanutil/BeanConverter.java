@@ -10,7 +10,7 @@ import sviolet.thistle.util.conversion.BeanMethodNameUtils;
  *
  * @author S.Violet
  */
-public abstract class BeanPropConverter implements Converter {
+public abstract class BeanConverter implements Converter {
 
     @Override
     public final Object convert(Object from, Class toType, Object setMethodName) {

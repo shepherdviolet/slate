@@ -21,7 +21,7 @@ public class SlateBeanUtils {
     private static final UnsafeSpinLock spinLock = new UnsafeSpinLock();
 
     private static volatile SpringObjenesis objenesis;
-    private static volatile BeanPropConverter converter;
+    private static volatile BeanConverter converter;
 
     private static final Map<String, BeanCopier> copiers = new ConcurrentHashMap<>(256);
     private static final Map<String, BeanizationFactory> beanizationFactorys = new ConcurrentHashMap<>(256);
@@ -191,16 +191,16 @@ public class SlateBeanUtils {
         }
     }
 
-    private static BeanPropConverter getConverter(){
+    private static BeanConverter getConverter(){
         if (converter == null) {
             try {
                 spinLock.lock();
                 if (converter == null) {
                     //spi loading
-                    converter = ThistleSpi.getLoader().loadService(BeanPropConverter.class);
+                    converter = ThistleSpi.getLoader().loadService(BeanConverter.class);
                     //default
                     if (converter == null) {
-                        converter = new BeanPropConverter() {
+                        converter = new BeanConverter() {
                             @Override
                             protected Object onConvert(Type type, Object from, Class... toTypes) {
                                 return from;

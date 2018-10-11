@@ -9,11 +9,11 @@ import java.util.*;
 class BeanizationFactory {
 
     private Class<?> templateType;
-    private BeanPropConverter converter;
+    private BeanConverter converter;
 
     private Map<String, Class[]> templateProperties;
 
-    BeanizationFactory(Class<?> templateType, BeanPropConverter converter) {
+    BeanizationFactory(Class<?> templateType, BeanConverter converter) {
         this.templateType = templateType;
         this.converter = converter;
         init();
@@ -83,7 +83,7 @@ class BeanizationFactory {
                 for (Class<?> type : entry.getValue()) {
                     if (type.isAssignableFrom(value.getClass())) {
                         if (convert) {
-                            value = converter.onConvert(BeanPropConverter.Type.BEANIZATION, value, new Class[]{type});
+                            value = converter.onConvert(BeanConverter.Type.BEANIZATION, value, new Class[]{type});
                         }
                         result.put(entryKey, value);
                         found = true;
@@ -95,7 +95,7 @@ class BeanizationFactory {
                 }
                 //fallback
                 if (convert) {
-                    value = converter.onConvert(BeanPropConverter.Type.BEANIZATION, value, entry.getValue());
+                    value = converter.onConvert(BeanConverter.Type.BEANIZATION, value, entry.getValue());
                     result.put(entryKey, value);
                 } else {
                     throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", can not cast \"" + entryKey + "\" from map to bean, map data:" + map, null, "java.util.Map", templateType.getName(), entryKey);
