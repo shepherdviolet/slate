@@ -13,6 +13,53 @@
 * 内部采用CGLIB的BeanCopier和BeanMap实现
 * Bean转Bean Map转Bean 提供内置类型转换器, 处理类型不匹配的问题
 
+# 用法
+
+## Bean转Bean
+
+```text
+        From from = new From();
+        To to = SlateBeanUtils.copy(from, To.class);
+```
+
+```text
+        From from = new From();
+        To to = new To();
+        SlateBeanUtils.copy(from, to);
+```
+
+* 注意: copy方法较容易抛出MappingRuntimeException异常, 有需要可以捕获异常, 并用getFromType/getToType/getFieldName方法获得出问题的类型和参数名
+
+## Bean转Map
+
+```text
+        Bean bean = new Bean();
+        Map<String, Object> map = SlateBeanUtils.toMap(bean);
+```
+
+```text
+        Bean bean = new Bean();
+        Map<String, Object> map = new HashMap();
+        SlateBeanUtils.toMap(bean, map);
+```
+
+* toMap不容易抛出MappingRuntimeException异常
+
+## Map转Bean
+
+```text
+        Map<String, Object> map = new HashMap<>();
+        Bean bean = SlateBeanUtils.fromMap(map, Bean.class, true);
+```
+
+```text
+        Map<String, Object> map = new HashMap<>();
+        Bean bean = new Bean();
+        SlateBeanUtils.fromMap(map, bean, true);
+```
+
+* 注意: fromMap方法较容易抛出MappingRuntimeException异常, 有需要可以捕获异常, 并用getFromType/getToType/getFieldName方法获得出问题的类型和参数名
+
 # ThistleSpi扩展点
 
 ## 完全自定义实现类型转换逻辑(不推荐)
