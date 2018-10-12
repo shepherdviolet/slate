@@ -150,3 +150,8 @@
 > slate.txtimer.threshold.max=10000 打印周期内最大耗时超过该值的交易, 单位:毫秒<br>
 > slate.txtimer.threshold.min=1000 打印周期内最小耗时超过该值的交易, 单位:毫秒<br>
 > slate.txtimer.reportall.interval=60 全量日志报告输出间隔(周期), 单位:分钟, 2-∞, 默认∞(不输出全量日志)<br>
+
+# ThistleSpi扩展点
+
+* 扩展点接口:sviolet.slate.common.x.conversion.beanutil.BeanConverter
+* 参考:https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md
