@@ -2,9 +2,9 @@ package sviolet.slate.common.x.conversion.beanutil.safe.num;
 
 import sviolet.slate.common.x.conversion.beanutil.PropMapper;
 
-import java.math.BigDecimal;
+import java.math.BigInteger;
 
-public class SBUMapperAllNumber2BigDecimal implements PropMapper {
+public class SBUMapperLowlevelNum2Double implements PropMapper {
 
     private static final Class[] FROM = new Class[]{
             short.class,
@@ -15,12 +15,11 @@ public class SBUMapperAllNumber2BigDecimal implements PropMapper {
             Long.class,
             float.class,
             Float.class,
-            double.class,
-            Double.class,
     };
 
     private static final Class[] TO = new Class[]{
-            BigDecimal.class,
+            double.class,
+            Double.class,
     };
 
     @Override
@@ -35,7 +34,7 @@ public class SBUMapperAllNumber2BigDecimal implements PropMapper {
 
     @Override
     public Object map(Object from, Class<?> toType) {
-        return new BigDecimal(String.valueOf(from));
+        return Double.valueOf(String.valueOf(from));
     }
 
 }
