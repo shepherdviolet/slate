@@ -153,5 +153,5 @@
 
 # ThistleSpi扩展点
 
-* 扩展点接口:sviolet.slate.common.x.conversion.beanutil.BeanConverter
+* 扩展点接口:sviolet.slate.common.x.monitor.txtimer.TxTimerProvider
 * 参考:https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md
