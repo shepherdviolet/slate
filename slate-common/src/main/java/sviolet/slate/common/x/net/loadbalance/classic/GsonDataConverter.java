@@ -20,6 +20,7 @@
 package sviolet.slate.common.x.net.loadbalance.classic;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.thistle.util.conversion.ByteUtils;
@@ -31,11 +32,23 @@ import sviolet.thistle.util.conversion.ByteUtils;
  */
 public class GsonDataConverter implements DataConverter {
 
+    private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private Gson gson = new Gson();
+    private Gson gson;
 
     private String encode = "UTF-8";
+
+    public GsonDataConverter() {
+        this(DEFAULT_DATE_FORMAT);
+    }
+
+    public GsonDataConverter(String dateFormat) {
+        gson = new GsonBuilder()
+                .setDateFormat(dateFormat)
+                .create();
+    }
 
     @Override
     public byte[] convert(Object bean) throws Exception{
