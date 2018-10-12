@@ -17,6 +17,11 @@ public class SBUMapperLowlevelNum2Long implements PropMapper {
     };
 
     @Override
+    public Object map(Object from, Class<?> toType) {
+        return Long.valueOf(String.valueOf(from));
+    }
+
+    @Override
     public Class<?>[] fromType() {
         return FROM;
     }
@@ -24,11 +29,6 @@ public class SBUMapperLowlevelNum2Long implements PropMapper {
     @Override
     public Class<?>[] toType() {
         return TO;
-    }
-
-    @Override
-    public Object map(Object from, Class<?> toType) {
-        return Long.valueOf(String.valueOf(from));
     }
 
 }

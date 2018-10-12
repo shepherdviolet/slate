@@ -16,6 +16,11 @@ public class SBUMapperBigInteger2Short implements PropMapper {
     };
 
     @Override
+    public Object map(Object from, Class<?> toType) {
+        return ((BigInteger)from).shortValue();
+    }
+
+    @Override
     public Class<?>[] fromType() {
         return FROM;
     }
@@ -23,11 +28,6 @@ public class SBUMapperBigInteger2Short implements PropMapper {
     @Override
     public Class<?>[] toType() {
         return TO;
-    }
-
-    @Override
-    public Object map(Object from, Class<?> toType) {
-        return ((BigInteger)from).shortValue();
     }
 
 }

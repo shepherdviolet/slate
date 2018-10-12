@@ -14,6 +14,14 @@ package sviolet.slate.common.x.conversion.beanutil;
 public interface PropMapper {
 
     /**
+     * 类型转换, 将源类型的数据转换成目的类型
+     * @param from 源类型的对象
+     * @param toType 目的类型
+     * @return 目的类型的对象, 若转换失败, 可以抛出MappingRuntimeException异常或返回null
+     */
+    Object map(Object from, Class<?> toType);
+
+    /**
      * @return 处理的源类型
      */
     Class<?>[] fromType();
@@ -22,13 +30,5 @@ public interface PropMapper {
      * @return 处理的目的类型
      */
     Class<?>[] toType();
-
-    /**
-     * 类型转换, 将源类型的数据转换成目的类型
-     * @param from 源类型的对象
-     * @param toType 目的类型
-     * @return 目的类型的对象, 若转换失败, 可以抛出MappingRuntimeException异常或返回null
-     */
-    Object map(Object from, Class<?> toType);
 
 }

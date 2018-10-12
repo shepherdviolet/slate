@@ -27,6 +27,11 @@ public class SBUMapperAllNumber2String implements PropMapper {
     };
 
     @Override
+    public Object map(Object from, Class<?> toType) {
+        return String.valueOf(from);
+    }
+
+    @Override
     public Class<?>[] fromType() {
         return FROM;
     }
@@ -34,11 +39,6 @@ public class SBUMapperAllNumber2String implements PropMapper {
     @Override
     public Class<?>[] toType() {
         return TO;
-    }
-
-    @Override
-    public Object map(Object from, Class<?> toType) {
-        return String.valueOf(from);
     }
 
 }
