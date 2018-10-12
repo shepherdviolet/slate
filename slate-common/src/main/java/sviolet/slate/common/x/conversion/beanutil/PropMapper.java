@@ -9,6 +9,8 @@ import org.slf4j.Logger;
  *
  * <p>实现:指定接受的源类型和目的类型</p>
  *
+ * <p>使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md</p>
+ *
  * @see DefaultBeanConverter
  * @see SlateBeanUtils
  * @author S.Violet

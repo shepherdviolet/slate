@@ -10,6 +10,8 @@ import sviolet.thistle.util.conversion.BeanMethodNameUtils;
  *
  * <p>实现:将对象类型转换为指定类型</p>
  *
+ * <p>使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md</p>
+ *
  * @see SlateBeanUtils
  * @author S.Violet
  */

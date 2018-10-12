@@ -26,7 +26,11 @@ public class DefaultBeanConverter extends BeanConverter {
     }
 
     /**
-     * sviolet.slate.common.x.conversion.beanutil.BeanConverter>yourapp>application=sviolet.slate.common.x.conversion.beanutil.DefaultBeanConverter(logEnabled)
+     * 禁用默认类型转换器的日志 <br>
+     *
+     * sviolet.slate.common.x.conversion.beanutil.BeanConverter>yourapp>application=sviolet.slate.common.x.conversion.beanutil.DefaultBeanConverter(false) <br>
+     *
+     * 使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md
      *
      * @param logEnabled true/logEnabled:开启日志
      */

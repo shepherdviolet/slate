@@ -5,6 +5,8 @@ package sviolet.slate.common.x.monitor.txtimer;
  *
  * <p>实现:耗时统计/结果输出</p>
  *
+ * <p>使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md</p>
+ *
  * @see TxTimer
  * @author S.Violet
  */
