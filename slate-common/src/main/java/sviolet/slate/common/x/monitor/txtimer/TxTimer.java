@@ -41,7 +41,7 @@ public class TxTimer {
 
     private static final Logger logger = LoggerFactory.getLogger(TxTimer.class);
 
-    private static final TxTimerProvider provider;
+    private static final TxTimerProvider PROVIDER;
 
     static {
         //统计开关, 默认关闭
@@ -49,13 +49,13 @@ public class TxTimer {
             TxTimerProvider service = ThistleSpi.getLoader().loadService(TxTimerProvider.class);
             //再根据provider判断是否要启用
             if (service.enabled()) {
-                provider = service;
-                logger.info("TxTimer | TxTimer Enabled !!! implementation " + provider.getClass().getName());
+                PROVIDER = service;
+                logger.info("TxTimer | TxTimer Enabled !!! implementation " + PROVIDER.getClass().getName());
             } else {
-                provider = null;
+                PROVIDER = null;
             }
         } else {
-            provider = null;
+            PROVIDER = null;
         }
     }
 
@@ -75,8 +75,8 @@ public class TxTimer {
      * @param transactionName 交易名
      */
     public static void start(String groupName, String transactionName){
-        if (provider != null) {
-            provider.start(groupName, transactionName);
+        if (PROVIDER != null) {
+            PROVIDER.start(groupName, transactionName);
         }
     }
 
@@ -94,14 +94,14 @@ public class TxTimer {
      *
      */
     public static void stop(){
-        if (provider != null) {
-            provider.stop();
+        if (PROVIDER != null) {
+            PROVIDER.stop();
         }
     }
 
     public static TxTimerProvider getProvider(){
-        if (provider != null && provider.canBeGet()) {
-            return provider;
+        if (PROVIDER != null && PROVIDER.canBeGet()) {
+            return PROVIDER;
         }
         logger.error("TxTimer | Prohibit access to get TxTimerProvider, Null or Banned by TxTimerProvider.canBeGet()");
         return null;

@@ -24,13 +24,13 @@ public class SlateBeanUtils {
     }
 
     @SuppressWarnings("deprecation")
-    private static final UnsafeSpinLock spinLock = new UnsafeSpinLock();
+    private static final UnsafeSpinLock SPIN_LOCK = new UnsafeSpinLock();
 
     private static volatile SpringObjenesis objenesis;
     private static volatile BeanConverter converter;
 
-    private static final Map<String, BeanCopier> copiers = new ConcurrentHashMap<>(256);
-    private static final Map<String, BeanizationFactory> beanizationFactorys = new ConcurrentHashMap<>(256);
+    private static final Map<String, BeanCopier> COPIER = new ConcurrentHashMap<>(256);
+    private static final Map<String, BeanizationFactory> BEANIZATION_FACTORYS = new ConcurrentHashMap<>(256);
 
     /**
      * <p>JavaBean参数拷贝</p>
@@ -47,10 +47,10 @@ public class SlateBeanUtils {
 
         String copierName = from.getClass().getName() + "->" + to.getClass().getName();
         try {
-            BeanCopier copier = copiers.get(copierName);
+            BeanCopier copier = COPIER.get(copierName);
             if (copier == null) {
                 copier = BeanCopier.create(from.getClass(), to.getClass(), true);
-                copiers.put(copierName, copier);
+                COPIER.put(copierName, copier);
             }
             copier.copy(from, to, getConverter());
         } catch (MappingRuntimeException e) {
@@ -184,10 +184,10 @@ public class SlateBeanUtils {
         }
         String factoryName = templateType.getName();
         try {
-            BeanizationFactory factory = beanizationFactorys.get(factoryName);
+            BeanizationFactory factory = BEANIZATION_FACTORYS.get(factoryName);
             if (factory == null) {
                 factory = new BeanizationFactory(templateType, getConverter());
-                beanizationFactorys.put(factoryName, factory);
+                BEANIZATION_FACTORYS.put(factoryName, factory);
             }
             return factory.beanization(map, convert);
         } catch (MappingRuntimeException e) {
@@ -200,7 +200,7 @@ public class SlateBeanUtils {
     private static BeanConverter getConverter(){
         if (converter == null) {
             try {
-                spinLock.lock();
+                SPIN_LOCK.lock();
                 if (converter == null) {
                     //spi loading
                     converter = ThistleSpi.getLoader().loadService(BeanConverter.class);
@@ -215,7 +215,7 @@ public class SlateBeanUtils {
                     }
                 }
             } finally {
-                spinLock.unlock();
+                SPIN_LOCK.unlock();
             }
         }
         return converter;
@@ -224,12 +224,12 @@ public class SlateBeanUtils {
     private static SpringObjenesis getObjenesis(){
         if (objenesis == null) {
             try {
-                spinLock.lock();
+                SPIN_LOCK.lock();
                 if (objenesis == null) {
                     objenesis = new SpringObjenesis();
                 }
             } finally {
-                spinLock.unlock();
+                SPIN_LOCK.unlock();
             }
         }
         return objenesis;

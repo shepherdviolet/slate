@@ -1283,6 +1283,7 @@ public class MultiHostOkHttpClient {
      * 初始化OkHttpClient实例(复写本方法实现自定义的逻辑)
      * @return OkHttpClient实例
      */
+    @SuppressWarnings("deprecation")
     protected OkHttpClient createOkHttpClient(Settings settings){
 
         Dispatcher dispatcher = new Dispatcher();
