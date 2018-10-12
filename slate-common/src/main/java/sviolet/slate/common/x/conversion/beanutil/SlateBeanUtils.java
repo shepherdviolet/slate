@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Bean工具
+ * JavaBean转换工具
  *
  * @author S.Violet
  */
