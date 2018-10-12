@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static sviolet.slate.common.x.conversion.beanutil.SlateBeanUtils.LOG_ENABLED;
-
 /**
  * <p>默认Bean参数类型转换器</p>
  *
@@ -21,8 +19,24 @@ public class DefaultBeanConverter extends BeanConverter {
     private static final String LOG_PREFIX = "SlateBeanUtils | ";
 
     private Map<Class<?>, Map<Class<?>, PropMapper>> propMappers = new HashMap<>();
+    private boolean logEnabled;
 
     public DefaultBeanConverter() {
+        this("FALSE");
+    }
+
+    /**
+     * sviolet.slate.common.x.conversion.beanutil.BeanConverter>yourapp>application=sviolet.slate.common.x.conversion.beanutil.DefaultBeanConverter(logEnabled)
+     *
+     * @param logEnabled true/logEnabled:开启日志
+     */
+    public DefaultBeanConverter(String logEnabled) {
+        logEnabled = String.valueOf(logEnabled).toUpperCase();
+        this.logEnabled = "TRUE".equals(logEnabled) || "LOGENABLED".equals(logEnabled);
+        init();
+    }
+
+    private void init() {
         List<PropMapper> propMapperList = ThistleSpi.getLoader().loadPlugins(PropMapper.class);
         if (propMapperList == null) {
             return;
@@ -53,11 +67,11 @@ public class DefaultBeanConverter extends BeanConverter {
         PropMapper previous = mappers.get(toType);
         if (previous == null) {
             mappers.put(toType, mapper);
-            if (LOG_ENABLED) {
+            if (logEnabled) {
                 logger.info(LOG_PREFIX + "PropMapper Enabled from <" + fromType.getName() + "> to <" + toType.getName() + "> mapper <" + mapper.getClass().getName() + ">");
             }
         } else {
-            if (LOG_ENABLED) {
+            if (logEnabled) {
                 logger.info(LOG_PREFIX + "PropMapper Disabled from <" + fromType.getName() + "> to <" + toType.getName() + "> mapper <" + mapper.getClass().getName() + "> Overridden by a higher priority plugin " + previous.getClass().getName());
             }
         }
@@ -92,7 +106,7 @@ public class DefaultBeanConverter extends BeanConverter {
             if (mapper == null) {
                 return from;
             }
-            return mapper.map(from, fromType);
+            return mapper.map(from, fromType, logger, logEnabled);
         }
 
         //convert by cross mapper
@@ -100,7 +114,7 @@ public class DefaultBeanConverter extends BeanConverter {
         for (Class<?> toType : toTypes) {
             mapper = mappers.get(toType);
             if (mapper != null) {
-                return mapper.map(from, toType);
+                return mapper.map(from, toType, logger, logEnabled);
             }
         }
 

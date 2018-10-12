@@ -1,6 +1,8 @@
 package sviolet.slate.common.x.conversion.beanutil.safe.date;
 
+import org.slf4j.Logger;
 import sviolet.slate.common.x.conversion.beanutil.PropMapper;
+import sviolet.thistle.util.judge.CheckUtils;
 
 import java.text.SimpleDateFormat;
 
@@ -14,21 +16,26 @@ public class SBUMapperUtilDate2String implements PropMapper {
             String.class,
     };
 
+    private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
     private ThreadLocal<SimpleDateFormat> dateFormats = new ThreadLocal<>();
     private String dateFormat;
 
     public SBUMapperUtilDate2String() {
-        this("yyyy-MM-dd HH:mm:ss.SSS");
+        this(null);
     }
 
     public SBUMapperUtilDate2String(String dateFormat) {
+        //注意这个值可能为空
+        if (CheckUtils.isEmptyOrBlank(dateFormat)) {
+            dateFormat = DEFAULT_DATE_FORMAT;
+        }
         this.dateFormat = dateFormat;
         //pre check format
         dateFormats.set(new SimpleDateFormat(dateFormat));
     }
 
     @Override
-    public Object map(Object from, Class<?> toType) {
+    public Object map(Object from, Class<?> toType, Logger logger, boolean logEnabled) {
         SimpleDateFormat format = dateFormats.get();
         if (format == null) {
             format = new SimpleDateFormat(dateFormat);

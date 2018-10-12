@@ -1,5 +1,6 @@
 package sviolet.slate.common.x.conversion.beanutil.unsafe.num;
 
+import org.slf4j.Logger;
 import sviolet.slate.common.x.conversion.beanutil.PropMapper;
 
 import java.math.BigInteger;
@@ -16,7 +17,7 @@ public class SBUMapperBigInteger2Float implements PropMapper {
     };
 
     @Override
-    public Object map(Object from, Class<?> toType) {
+    public Object map(Object from, Class<?> toType, Logger logger, boolean logEnabled) {
         return ((BigInteger)from).floatValue();
     }
 

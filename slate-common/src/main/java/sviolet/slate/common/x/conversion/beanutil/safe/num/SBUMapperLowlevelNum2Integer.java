@@ -1,5 +1,6 @@
 package sviolet.slate.common.x.conversion.beanutil.safe.num;
 
+import org.slf4j.Logger;
 import sviolet.slate.common.x.conversion.beanutil.PropMapper;
 
 public class SBUMapperLowlevelNum2Integer implements PropMapper {
@@ -15,7 +16,7 @@ public class SBUMapperLowlevelNum2Integer implements PropMapper {
     };
 
     @Override
-    public Object map(Object from, Class<?> toType) {
+    public Object map(Object from, Class<?> toType, Logger logger, boolean logEnabled) {
         return Integer.valueOf(String.valueOf(from));
     }
 

@@ -1,5 +1,7 @@
 package sviolet.slate.common.x.conversion.beanutil;
 
+import org.slf4j.Logger;
+
 /**
  * <p>SlateBeanUtils Bean工具 扩展点</p>
  *
@@ -19,7 +21,7 @@ public interface PropMapper {
      * @param toType 目的类型
      * @return 目的类型的对象, 若转换失败, 可以抛出MappingRuntimeException异常或返回null
      */
-    Object map(Object from, Class<?> toType);
+    Object map(Object from, Class<?> toType, Logger logger, boolean logEnabled);
 
     /**
      * @return 处理的源类型

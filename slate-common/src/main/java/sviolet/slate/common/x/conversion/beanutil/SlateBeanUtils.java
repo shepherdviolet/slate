@@ -17,12 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SlateBeanUtils {
 
-    static final boolean LOG_ENABLED;
-
-    static {
-        LOG_ENABLED = "true".equals(System.getProperty("slate.beanutils.log", "true"));
-    }
-
     @SuppressWarnings("deprecation")
     private static final UnsafeSpinLock SPIN_LOCK = new UnsafeSpinLock();
 
