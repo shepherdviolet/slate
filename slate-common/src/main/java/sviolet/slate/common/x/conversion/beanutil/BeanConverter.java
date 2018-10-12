@@ -37,7 +37,14 @@ public abstract class BeanConverter implements Converter {
     protected abstract Object onConvert(Cause cause, Object from, Class[] toTypes);
 
     public enum Cause {
+        /**
+         * 由SlateBeanUtils.copy触发
+         */
         COPY,
+
+        /**
+         * 由SlateBeanUtils.fromMap和mapBeanization触发
+         */
         BEANIZATION
     }
 
