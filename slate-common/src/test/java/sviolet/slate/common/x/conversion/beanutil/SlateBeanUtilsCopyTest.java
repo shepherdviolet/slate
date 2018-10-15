@@ -14,36 +14,6 @@ public class SlateBeanUtilsCopyTest {
         System.out.println(copyOnce());
     }
 
-    private static final AtomicInteger counter = new AtomicInteger(0);
-
-    public static void main(String[] args) {
-        System.setProperty("slate.beanutils.log", "true");
-        System.setProperty("thistle.spi.loglv", "error");
-
-        for (int i = 0 ; i < 1000 ; i++) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(100L);
-                    } catch (InterruptedException ignored) {
-                    }
-                    long startTime = System.currentTimeMillis();
-                    while (System.currentTimeMillis() - startTime < 10000) {
-                        copyOnce();
-                        counter.incrementAndGet();
-                    }
-                }
-            }).start();
-        }
-
-        long startTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() - startTime < 11000) {
-            Thread.yield();
-        }
-        System.out.println(counter.get());
-    }
-
     private static To copyOnce() {
         From from = new From();
         from.name = "lalala";
@@ -90,6 +60,36 @@ public class SlateBeanUtilsCopyTest {
                     ", num=" + num +
                     '}';
         }
+    }
+
+    private static final AtomicInteger counter = new AtomicInteger(0);
+
+    public static void main(String[] args) {
+        System.setProperty("slate.beanutils.log", "true");
+        System.setProperty("thistle.spi.loglv", "error");
+
+        for (int i = 0 ; i < 1000 ; i++) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(100L);
+                    } catch (InterruptedException ignored) {
+                    }
+                    long startTime = System.currentTimeMillis();
+                    while (System.currentTimeMillis() - startTime < 10000) {
+                        copyOnce();
+                        counter.incrementAndGet();
+                    }
+                }
+            }).start();
+        }
+
+        long startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() - startTime < 11000) {
+            Thread.yield();
+        }
+        System.out.println(counter.get());
     }
 
 }
