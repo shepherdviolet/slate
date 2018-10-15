@@ -78,7 +78,7 @@ class BeanizationFactory {
         }
     }
 
-    Map<String, Object> beanization(Map<String, Object> map, boolean convert){
+    Map<String, Object> beanization(Map<String, Object> map, boolean convert, boolean throwExceptionIfFails){
         Map<String, Object> result = new HashMap<>(templateProperties.size());
         for (Map.Entry<String, Class[]> entry : templateProperties.entrySet()) {
             String entryKey = entry.getKey();
@@ -93,7 +93,7 @@ class BeanizationFactory {
                     if (type.isAssignableFrom(valueType)) {
                         if (convert) {
                             value = converter.onConvert(BeanConverter.Cause.BEANIZATION, value, new Class[]{type});
-                            if (value == null) {
+                            if (value == null && throwExceptionIfFails) {
                                 throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", field \"" + entryKey + "\" convert failed (In PropMapper for " + valueType.getName() + " to " + type.getName() + "), map data:" + map, null, "java.util.Map", templateType.getName(), entryKey);
                             }
                         }
@@ -108,20 +108,24 @@ class BeanizationFactory {
                 //fallback
                 if (convert) {
                     value = converter.onConvert(BeanConverter.Cause.BEANIZATION, value, entry.getValue());
-                    if (value == null) {
+                    if (value == null && throwExceptionIfFails) {
                         throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", field \"" + entryKey + "\" convert failed (No PropMapper for " + valueType.getName() + " to" + getClassNames(entry.getValue()) + "), map data:" + map, null, "java.util.Map", templateType.getName(), entryKey);
                     }
                     result.put(entryKey, value);
-                } else {
+                } else if (throwExceptionIfFails){
                     throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", field \"" + entryKey + "\" convert failed (No PropMapper for " + valueType.getName() + " to" + getClassNames(entry.getValue()) + "), map data:" + map, null, "java.util.Map", templateType.getName(), entryKey);
                 }
             } catch (MappingRuntimeException e) {
-                //补上field名
-                String fieldName = BeanMethodNameUtils.methodToField(entryKey);
-                e.setFieldName(fieldName);
-                throw e;
+                if (throwExceptionIfFails) {
+                    //补上field名
+                    String fieldName = BeanMethodNameUtils.methodToField(entryKey);
+                    e.setFieldName(fieldName);
+                    throw e;
+                }
             } catch (Exception e) {
-                throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", problem property \"" + entryKey + "\" (No PropMapper for " + valueType.getName() + " to" + getClassNames(entry.getValue()) + "), map data:" + map, e, "java.util.Map", templateType.getName(), entryKey);
+                if (throwExceptionIfFails) {
+                    throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", problem property \"" + entryKey + "\" (No PropMapper for " + valueType.getName() + " to" + getClassNames(entry.getValue()) + "), map data:" + map, e, "java.util.Map", templateType.getName(), entryKey);
+                }
             }
         }
         return result;
