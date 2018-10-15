@@ -100,6 +100,12 @@ sviolet.slate.common.x.conversion.beanutil.PropMapper>101007=sviolet.slate.commo
 
 # SlateBeanUtils: bean property mappers: safe date
 sviolet.slate.common.x.conversion.beanutil.PropMapper>102001=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2String(yyyy-MM-dd HH:mm:ss.SSS)
+sviolet.slate.common.x.conversion.beanutil.PropMapper>102002=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2SqlDate
+sviolet.slate.common.x.conversion.beanutil.PropMapper>102003=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2SqlTimestamp
+sviolet.slate.common.x.conversion.beanutil.PropMapper>102004=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2UtilDate
+sviolet.slate.common.x.conversion.beanutil.PropMapper>102005=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2SqlDate
+sviolet.slate.common.x.conversion.beanutil.PropMapper>102006=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2SqlTimestamp
+sviolet.slate.common.x.conversion.beanutil.PropMapper>102007=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2UtilDate
 ......
 ```
 
