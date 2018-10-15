@@ -11,11 +11,15 @@
 * 线程安全, 内置缓存提高性能
 * 浅复制, 只复制Bean和Map的第一层参数
 * 内部采用CGLIB的BeanCopier和BeanMap实现
-* Bean转Bean Map转Bean 提供内置类型转换器, 处理类型不匹配的问题
 
 # 用法
 
 ## Bean转Bean
+
+* 参数类型不匹配时一般不会抛出异常, 会跳过不匹配的参数(参数留空)
+* 内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展
+* throws MappingRuntimeException 异常概率:低, 触发原因: 拷贝器创建失败 / 拷贝过程出错, 可使用getFromType/getToType/getFieldName方法获得出问题的类型和参数名
+* throws ObjenesisException 异常概率:低, 触发原因: 目标Bean实例化失败
 
 ```text
         From from = new From();
@@ -28,9 +32,11 @@
         SlateBeanUtils.copy(from, to);
 ```
 
-* 注意: copy方法较容易抛出MappingRuntimeException异常, 有需要可以捕获异常, 并用getFromType/getToType/getFieldName方法获得出问题的类型和参数名
-
 ## Bean转Map
+
+* 一般不会抛出异常
+* 无内置类型转换器, 因为Bean转Map不存在类型不匹配的情况
+* throws MappingRuntimeException 异常概率:低, 触发原因: 映射器创建失败
 
 ```text
         Bean bean = new Bean();
@@ -43,22 +49,25 @@
         SlateBeanUtils.toMap(bean, map);
 ```
 
-* toMap不容易抛出MappingRuntimeException异常
-
 ## Map转Bean
+
+* 当Map中字段类型与Bean参数类型不匹配时会抛出异常(若设置throwExceptionIfFails为false, 则不会抛出异常, 失败的参数留空)
+* 内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展
+* `convert` true: 尝试转换参数类型使之符合要求, false: 不转换参数类型
+* `throwExceptionIfFails` true: 如果参数的类型不匹配或转换失败, 则抛出异常, false: 如果参数的类型不匹配或转换失败, 不会抛出异常, 失败的参数留空
+* throws MappingRuntimeException 异常概率:高, 触发原因: Map中字段类型与Bean参数类型不匹配(当throwExceptionIfFails=true) / 给目的Bean赋值时出错(当throwExceptionIfFails=true) / Bean映射器创建失败(无论throwExceptionIfFails为何值, 均抛异常)
+* throws ObjenesisException 异常概率:低, 触发原因: 目标Bean实例化失败
 
 ```text
         Map<String, Object> map = new HashMap<>();
-        Bean bean = SlateBeanUtils.fromMap(map, Bean.class, true);
+        Bean bean = SlateBeanUtils.fromMap(map, Bean.class, true, true);
 ```
 
 ```text
         Map<String, Object> map = new HashMap<>();
         Bean bean = new Bean();
-        SlateBeanUtils.fromMap(map, bean, true);
+        SlateBeanUtils.fromMap(map, bean, true, true);
 ```
-
-* 注意: fromMap方法较容易抛出MappingRuntimeException异常, 有需要可以捕获异常, 并用getFromType/getToType/getFieldName方法获得出问题的类型和参数名
 
 # ThistleSpi扩展点
 
