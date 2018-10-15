@@ -32,6 +32,7 @@ public class SlateBeanUtilsCopyTest {
         from.p5 = new HashMap<String, Object>(2);
         from.p5.put("m1", "v1");
         from.p5.put("m2", "v2");
+        from.p6 = 0x10;
         return SlateBeanUtils.copy(from, To.class);
     }
 
@@ -41,6 +42,7 @@ public class SlateBeanUtilsCopyTest {
         private BigDecimal p3;
         private List p4;
         private Map p5;
+        private char p6;
 
         public String getP1() {
             return p1;
@@ -80,6 +82,14 @@ public class SlateBeanUtilsCopyTest {
 
         public void setP5(Map<String, Object> p5) {
             this.p5 = p5;
+        }
+
+        public char getP6() {
+            return p6;
+        }
+
+        public void setP6(char p6) {
+            this.p6 = p6;
         }
     }
 
@@ -89,6 +99,7 @@ public class SlateBeanUtilsCopyTest {
         private BigDecimal p3;
         private List p4;
         private Map p5;
+        private char p6;
 
         public String getP1() {
             return p1;
@@ -128,6 +139,14 @@ public class SlateBeanUtilsCopyTest {
 
         public void setP5(Map<String, Object> p5) {
             this.p5 = p5;
+        }
+
+        public char getP6() {
+            return p6;
+        }
+
+        public void setP6(char p6) {
+            this.p6 = p6;
         }
 
         @Override
@@ -138,6 +157,7 @@ public class SlateBeanUtilsCopyTest {
                     ", p3=" + p3 +
                     ", p4=" + p4 +
                     ", p5=" + p5 +
+                    ", p6=" + p6 +
                     '}';
         }
     }
