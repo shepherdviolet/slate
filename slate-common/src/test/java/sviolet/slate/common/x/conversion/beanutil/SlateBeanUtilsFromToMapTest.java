@@ -32,7 +32,7 @@ public class SlateBeanUtilsFromToMapTest {
         map.put("p2", 123.333);
         map.put("p3", 321);
         map.put("p4", (char)0x41);
-        System.out.println(SlateBeanUtils.fromMap(map, Bean.class, true));
+        System.out.println(SlateBeanUtils.fromMap(map, Bean.class, true, true));
     }
 
     private static class Bean {
