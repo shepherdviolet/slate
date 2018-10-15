@@ -32,7 +32,7 @@ public class SlateBeanUtilsCopyTest {
         from.p5 = new HashMap<String, Object>(2);
         from.p5.put("m1", "v1");
         from.p5.put("m2", "v2");
-        from.p6 = 0x10;
+        from.p6 = 0x41;
         return SlateBeanUtils.copy(from, To.class);
     }
 
