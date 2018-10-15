@@ -25,11 +25,11 @@ public class SlateBeanUtilsCopyTest {
         from.p1 = "abc";
         from.p2 = 21;
         from.p3 = new BigDecimal("5656.222");
-        from.p4 = new ArrayList<String>(3);
+        from.p4 = new ArrayList<>(3);
         from.p4.add("wo1");
         from.p4.add("wo2");
         from.p4.add("wo3");
-        from.p5 = new HashMap<String, Object>(2);
+        from.p5 = new HashMap<>(2);
         from.p5.put("m1", "v1");
         from.p5.put("m2", "v2");
         from.p6 = 0x41;
@@ -40,8 +40,8 @@ public class SlateBeanUtilsCopyTest {
         private String p1;
         private int p2;
         private BigDecimal p3;
-        private List p4;
-        private Map p5;
+        private List<String> p4;
+        private Map<String, Object> p5;
         private char p6;
 
         public String getP1() {
@@ -97,8 +97,8 @@ public class SlateBeanUtilsCopyTest {
         private String p1;
         private int p2;
         private BigDecimal p3;
-        private List p4;
-        private Map p5;
+        private List<String> p4;
+        private Map<String, Object> p5;
         private char p6;
 
         public String getP1() {
