@@ -9,15 +9,10 @@ import java.math.BigInteger;
 public class SBUMapperAllNumber2String implements PropMapper {
 
     private static final Class[] FROM = new Class[]{
-            short.class,
             Short.class,
-            int.class,
             Integer.class,
-            long.class,
             Long.class,
-            float.class,
             Float.class,
-            double.class,
             Double.class,
             BigInteger.class,
             BigDecimal.class,

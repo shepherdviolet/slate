@@ -1,6 +1,7 @@
 package sviolet.slate.common.x.conversion.beanutil;
 
 import sviolet.thistle.util.conversion.BeanMethodNameUtils;
+import sviolet.thistle.util.conversion.PrimitiveUtils;
 import sviolet.thistle.util.judge.CheckUtils;
 
 import java.lang.reflect.Method;
@@ -43,6 +44,7 @@ class BeanizationFactory {
                 }
                 Class<?>[] paramTypes = method.getParameterTypes();
                 if (methodName.startsWith("set")) {
+                    //setter
                     if (paramTypes.length != 1) {
                         continue;
                     }
@@ -51,15 +53,16 @@ class BeanizationFactory {
                         classSet = new HashSet<>();
                         properties.put(fieldName, classSet);
                     }
-                    classSet.add(paramTypes[0]);
+                    classSet.add(PrimitiveUtils.toWrapperType(paramTypes[0]));
                 } else if (methodName.startsWith("get") || methodName.startsWith("is")) {
+                    //getter
                     if (paramTypes.length != 0) {
                         continue;
                     }
                     if (void.class.isAssignableFrom(method.getReturnType())) {
                         continue;
                     }
-                    definiteProperties.put(fieldName, method.getReturnType());
+                    definiteProperties.put(fieldName, PrimitiveUtils.toWrapperType(method.getReturnType()));
                 }
             }
         }

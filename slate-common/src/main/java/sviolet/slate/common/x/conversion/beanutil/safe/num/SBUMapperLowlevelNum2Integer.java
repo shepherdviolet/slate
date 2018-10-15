@@ -6,12 +6,10 @@ import sviolet.slate.common.x.conversion.beanutil.PropMapper;
 public class SBUMapperLowlevelNum2Integer implements PropMapper {
 
     private static final Class[] FROM = new Class[]{
-            short.class,
             Short.class,
     };
 
     private static final Class[] TO = new Class[]{
-            int.class,
             Integer.class,
     };
 

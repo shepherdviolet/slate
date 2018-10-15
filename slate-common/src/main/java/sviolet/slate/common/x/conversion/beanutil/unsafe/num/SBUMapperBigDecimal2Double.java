@@ -12,7 +12,6 @@ public class SBUMapperBigDecimal2Double implements PropMapper {
     };
 
     private static final Class[] TO = new Class[]{
-            double.class,
             Double.class,
     };
 

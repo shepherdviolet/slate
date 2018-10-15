@@ -8,15 +8,10 @@ import java.math.BigDecimal;
 public class SBUMapperAllNumber2BigDecimal implements PropMapper {
 
     private static final Class[] FROM = new Class[]{
-            short.class,
             Short.class,
-            int.class,
             Integer.class,
-            long.class,
             Long.class,
-            float.class,
             Float.class,
-            double.class,
             Double.class,
     };
 

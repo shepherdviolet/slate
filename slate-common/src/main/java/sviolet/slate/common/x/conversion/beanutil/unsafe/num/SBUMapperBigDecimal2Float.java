@@ -12,7 +12,6 @@ public class SBUMapperBigDecimal2Float implements PropMapper {
     };
 
     private static final Class[] TO = new Class[]{
-            float.class,
             Float.class,
     };
 

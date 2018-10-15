@@ -12,7 +12,6 @@ public class SBUMapperBigInteger2Short implements PropMapper {
     };
 
     private static final Class[] TO = new Class[]{
-            short.class,
             Short.class,
     };
 

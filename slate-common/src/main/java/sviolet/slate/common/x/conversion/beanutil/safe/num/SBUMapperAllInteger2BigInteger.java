@@ -8,11 +8,8 @@ import java.math.BigInteger;
 public class SBUMapperAllInteger2BigInteger implements PropMapper {
 
     private static final Class[] FROM = new Class[]{
-            short.class,
             Short.class,
-            int.class,
             Integer.class,
-            long.class,
             Long.class,
     };
 

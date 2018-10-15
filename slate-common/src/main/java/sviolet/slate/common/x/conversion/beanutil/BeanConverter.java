@@ -2,6 +2,7 @@ package sviolet.slate.common.x.conversion.beanutil;
 
 import org.springframework.cglib.core.Converter;
 import sviolet.thistle.util.conversion.BeanMethodNameUtils;
+import sviolet.thistle.util.conversion.PrimitiveUtils;
 
 /**
  * <p>SlateBeanUtils Bean工具 扩展点</p>
@@ -20,7 +21,7 @@ public abstract class BeanConverter implements Converter {
     @Override
     public final Object convert(Object from, Class toType, Object setMethodName) {
         try {
-            return onConvert(Cause.COPY, from, new Class[]{toType});
+            return onConvert(Cause.COPY, from, new Class[]{PrimitiveUtils.toWrapperType(toType)});
         } catch (MappingRuntimeException e) {
             //补上field名
             String fieldName = BeanMethodNameUtils.methodToField(String.valueOf(setMethodName));
