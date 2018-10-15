@@ -90,7 +90,7 @@ sviolet.slate.common.x.conversion.beanutil.PropMapper>101007=sviolet.slate.commo
 ......
 
 # SlateBeanUtils: bean property mappers: safe date
-sviolet.slate.common.x.conversion.beanutil.PropMapper>102001=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperUtilDate2String(yyyy-MM-dd HH:mm:ss.SSS)
+sviolet.slate.common.x.conversion.beanutil.PropMapper>102001=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2String(yyyy-MM-dd HH:mm:ss.SSS)
 ......
 ```
 
@@ -119,7 +119,7 @@ sviolet.slate.common.x.conversion.beanutil.PropMapper>201007=sviolet.slate.commo
 * 编辑文件:
 
 ```text
-sviolet.slate.common.x.conversion.beanutil.PropMapper>2001=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperUtilDate2String(yyyy-MM-dd HH:mm:ss)
+sviolet.slate.common.x.conversion.beanutil.PropMapper>2001=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2String(yyyy-MM-dd HH:mm:ss)
 ```
 
 * 注意优先级(示例中为`2001`)在同一个配置文件中不能重复, 且要比100000小(用来覆盖默认实现)

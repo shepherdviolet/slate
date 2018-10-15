@@ -6,10 +6,12 @@ import sviolet.thistle.util.judge.CheckUtils;
 
 import java.text.SimpleDateFormat;
 
-public class SBUMapperUtilDate2String implements PropMapper {
+public class SBUMapperAllDate2String implements PropMapper {
 
     private static final Class[] FROM = new Class[]{
             java.util.Date.class,
+            java.sql.Date.class,
+            java.sql.Timestamp.class
     };
 
     private static final Class[] TO = new Class[]{
@@ -20,11 +22,11 @@ public class SBUMapperUtilDate2String implements PropMapper {
     private ThreadLocal<SimpleDateFormat> dateFormats = new ThreadLocal<>();
     private String dateFormat;
 
-    public SBUMapperUtilDate2String() {
+    public SBUMapperAllDate2String() {
         this(null);
     }
 
-    public SBUMapperUtilDate2String(String dateFormat) {
+    public SBUMapperAllDate2String(String dateFormat) {
         //注意这个值可能为空
         if (CheckUtils.isEmptyOrBlank(dateFormat)) {
             dateFormat = DEFAULT_DATE_FORMAT;
