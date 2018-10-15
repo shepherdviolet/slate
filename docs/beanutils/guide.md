@@ -220,7 +220,7 @@ sviolet.slate.common.x.conversion.beanutil.PropMapper=template.conversion.beanut
 * 编辑文件:
 
 ```text
-sviolet.slate.common.x.conversion.beanutil.BeanConverter>yourapp>application=sviolet.slate.common.x.conversion.beanutil.DefaultBeanConverter(false)
+sviolet.slate.common.x.conversion.beanutil.BeanConverter>yourapp>application=sviolet.slate.common.x.conversion.beanutil.DefaultBeanConverter(logDisabled)
 ```
 
 * 其中, 服务优先级(示例中的application)的选用, 请参考ThistleSpi文档, https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md#%E5%A3%B0%E6%98%8E%E6%9C%8D%E5%8A%A1%E7%9A%84%E5%AE%9E%E7%8E%B0
