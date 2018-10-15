@@ -1,4 +1,4 @@
-# slate 11.0
+# slate 11.1
 * Java common library for spring framework (Java 7)
 * https://github.com/shepherdviolet/slate
 
@@ -12,23 +12,25 @@ repositories {
 }
 dependencies {
     // For spring boot
-    compile 'com.github.shepherdviolet:slate-springboot:11.0'
-    // For others
-    compile 'com.github.shepherdviolet:slate-common:11.0'
+    compile 'com.github.shepherdviolet:slate-springboot:11.1'
+    // For spring
+    compile 'com.github.shepherdviolet:slate-common:11.1'
 }
 
 ```
 
 ```maven
+    <!-- for spring boot -->
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-springboot</artifactId>
-        <version>11.0</version>
+        <version>11.1</version>
     </dependency>
+    <!-- for spring -->
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>11.0</version>
+        <version>11.1</version>
     </dependency>
 ```
 
