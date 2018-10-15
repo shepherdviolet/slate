@@ -92,7 +92,7 @@ public class DefaultBeanConverter extends BeanConverter {
         //fromType match one of toTypes, if yes we will return self when convert failed
         boolean typeMatch = false;
         for (Class<?> toType : toTypes) {
-            if (fromType.equals(toType)) {
+            if (toType.isAssignableFrom(fromType)) {
                 typeMatch = true;
                 break;
             }
