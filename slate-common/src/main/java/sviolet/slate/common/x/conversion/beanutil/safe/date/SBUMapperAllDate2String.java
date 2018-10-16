@@ -22,10 +22,6 @@ public class SBUMapperAllDate2String implements PropMapper {
     private ThreadLocal<SimpleDateFormat> dateFormats = new ThreadLocal<>();
     private String dateFormat;
 
-    public SBUMapperAllDate2String() {
-        this(null);
-    }
-
     public SBUMapperAllDate2String(String dateFormat) {
         //注意这个值可能为空
         if (CheckUtils.isEmptyOrBlank(dateFormat)) {

@@ -21,10 +21,6 @@ public class DefaultBeanConverter extends BeanConverter {
     private Map<Class<?>, Map<Class<?>, PropMapper>> propMappers = new HashMap<>();
     private boolean logEnabled;
 
-    public DefaultBeanConverter() {
-        this("FALSE");
-    }
-
     /**
      * 禁用默认类型转换器的日志 <br>
      *
