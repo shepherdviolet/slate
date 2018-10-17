@@ -39,9 +39,9 @@ public class ThistleSpiUtils {
         @Override
         public void onParseException(boolean parsingSysProp, String key, String value, Class<?> toType, String defValue, Properties properties, Exception e) {
             if (parsingSysProp) {
-                logger.warn("?" + ThistleSpi.LOG_PREFIX_LOADER + "WARNING: Error while parsing system property '-D" + key + "=" + value + "' to " + toType.getName(), e);
+                logger.warn("?" + ThistleSpi.LOG_PREFIX_LOADER + "WARNING: Error while parsing system property '-D" + key + "=" + value + "' to " + toType.getName() + ", try using '" + defValue + "'", e);
             } else {
-                logger.warn("?" + ThistleSpi.LOG_PREFIX_LOADER + "WARNING: Error while parsing constructor parameter '" + value + "' to " + toType.getName() +
+                logger.warn("?" + ThistleSpi.LOG_PREFIX_LOADER + "WARNING: Error while parsing constructor parameter '" + value + "' to " + toType.getName() + ", using default '" + defValue + "'" +
                         ", parameter key:" + key + ", definite in " + properties.get(ThistleSpi.PROPERTIES_URL), e);
             }
         }
