@@ -25,6 +25,7 @@ class Reporter {
 
     Reporter(DefaultTxTimerProvider provider) {
         this.provider = provider;
+        initMessagePool();
 
         //监听进程结束事件
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -56,7 +57,7 @@ class Reporter {
             }
             //等待报告输出间隔时间到
             long startTime = System.currentTimeMillis();
-            while (System.currentTimeMillis() - startTime < DefaultTxTimerConfig.reportIntervalMillis) {
+            while (System.currentTimeMillis() - startTime < provider.reportIntervalMillis) {
                 try {
                     Thread.sleep(MINUTE_MILLIS);
                 } catch (InterruptedException ignored) {
@@ -89,7 +90,7 @@ class Reporter {
         //报告结束事件(抹去秒数)
         long reportEndTime = currentTime / MINUTE_MILLIS * MINUTE_MILLIS;
         //报告起始时间(多减一分钟)
-        long reportStartTime = reportEndTime - DefaultTxTimerConfig.reportIntervalMillis - MINUTE_MILLIS;
+        long reportStartTime = reportEndTime - provider.reportIntervalMillis - MINUTE_MILLIS;
 
         //遍历groups
         Map<String, Group> groupsSnap = ConcurrentUtils.getSnapShot(provider.groups);
@@ -236,7 +237,11 @@ class Reporter {
 
     private String title;
     private int page = 1;
-    private List<String> messagePool = new ArrayList<>(DefaultTxTimerConfig.pageLines);
+    private List<String> messagePool;
+
+    private void initMessagePool(){
+        messagePool = new ArrayList<>(provider.pageLines);
+    }
 
     private void print(String title, String msg){
         //如果标题变化
@@ -250,7 +255,7 @@ class Reporter {
             //设置标题
             this.title = title;
         }
-        if (messagePool.size() >= DefaultTxTimerConfig.pageLines) {
+        if (messagePool.size() >= provider.pageLines) {
             flush();
         }
         messagePool.add(msg);

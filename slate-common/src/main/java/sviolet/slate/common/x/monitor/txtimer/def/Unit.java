@@ -7,6 +7,8 @@ import static sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider.
 
 class Unit {
 
+    private DefaultTxTimerProvider provider;
+
     //开始时间
     AtomicLong startTime = new AtomicLong(0);
     //时间商数(重要), 1.确定统计单元的版本, 2.判断是否需要翻篇, 3.判断是否更新, 4.竞争该值获得重置权
@@ -19,6 +21,10 @@ class Unit {
     AtomicLong maxElapse = new AtomicLong(Long.MIN_VALUE);
     //最小耗时
     AtomicLong minElapse = new AtomicLong(Long.MAX_VALUE);
+
+    Unit(DefaultTxTimerProvider provider) {
+        this.provider = provider;
+    }
 
     /**
      * 尝试翻篇
@@ -54,7 +60,7 @@ class Unit {
         //耗时累计
         totalElapse.addAndGet(elapse);
         //max elapse
-        for (int i = 0 ; i < DefaultTxTimerConfig.updateAttempts; i++) {
+        for (int i = 0 ; i < provider.updateAttempts; i++) {
             long previous = maxElapse.get();
             if (elapse > previous) {
                 if (maxElapse.compareAndSet(previous, elapse)) {
@@ -63,7 +69,7 @@ class Unit {
             }
         }
         //min elapse
-        for (int i = 0 ; i < DefaultTxTimerConfig.updateAttempts; i++) {
+        for (int i = 0 ; i < provider.updateAttempts; i++) {
             long previous = minElapse.get();
             if (elapse < previous) {
                 if (minElapse.compareAndSet(previous, elapse)) {

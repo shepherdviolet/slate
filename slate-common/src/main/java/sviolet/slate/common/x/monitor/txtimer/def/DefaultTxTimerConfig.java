@@ -11,12 +11,6 @@ import org.slf4j.LoggerFactory;
 public class DefaultTxTimerConfig {
 
     /**
-     * 启动后固定
-     * [基本设置]日志报告输出间隔(周期), 单位:分钟, [2-60], 默认5
-     */
-    static int reportInterval;
-    static int reportIntervalMillis;
-    /**
      * 可动态调整, 启动参数优先级大于动态配置<br>
      * [基本设置]全量日志报告输出间隔(周期), 单位:分钟, [2-∞], 默认∞(不输出全量日志)
      */
@@ -49,27 +43,6 @@ public class DefaultTxTimerConfig {
     static boolean lockThresholdMin = false;
     static boolean thresholdEnabled = false;
 
-    /**
-     * 启动后固定
-     * [调优设置]日志每次输出的最大行数, 大于该行数会分页, 默认20
-     */
-    static int pageLines;
-    /**
-     * 启动后固定
-     * [调优设置]内部Map的初始大小, 大于观测点数量为宜
-     */
-    static int mapInitCap;
-    /**
-     * 启动后固定
-     * [调优设置]StringHashLocks的锁数量
-     */
-    static int hashLockNum;
-    /**
-     * 启动后固定
-     * [调优设置]内部一些非锁更新操作的最大尝试次数
-     */
-    static int updateAttempts;
-
     /* ******************************************************************************************************************* */
 
     /**
@@ -84,7 +57,7 @@ public class DefaultTxTimerConfig {
         DefaultTxTimerConfig.reportAllInterval = reportAllInterval;
         reportAllIntervalMillis = reportAllInterval * 60L * 1000L;
         logger.info("TxTimer | Config: reportAllInterval change to " + reportAllInterval);
-        logger.info("TxTimer | Config: Now report all transaction every " + reportAllInterval + " minutes");
+        logger.info("TxTimer | Config: Now Full Report every " + reportAllInterval + " minutes");
     }
 
     /**
@@ -209,13 +182,6 @@ public class DefaultTxTimerConfig {
     private static final Logger logger = LoggerFactory.getLogger(DefaultTxTimerConfig.class);
 
     static {
-        reportInterval = getIntFromProperty("slate.txtimer.report.interval", 5);
-        if (reportInterval < 2 || reportInterval > 60) {
-            throw new IllegalArgumentException("-Dslate.txtimer.report.interval must >= 2 and <= 60 (minute)");
-        }
-        logger.info("TxTimer | Config: Report every " + reportInterval + " minutes");
-        reportIntervalMillis = reportInterval * 60 * 1000;
-
         reportAllInterval = getIntFromProperty("slate.txtimer.reportall.interval", Integer.MAX_VALUE);
         if (reportAllInterval < 2) {
             throw new IllegalArgumentException("-Dslate.txtimer.reportall.interval must >= 2 (minute)");
@@ -224,7 +190,7 @@ public class DefaultTxTimerConfig {
             lockReportAllInterval = true;
             reportAllIntervalMillis = reportAllInterval * 60L * 1000L;
             logger.debug("TxTimer | Config: reportAllInterval is locked by -Dslate.txtimer.reportall.interval=" + reportAllInterval);
-            logger.info("TxTimer | Config: Report all transaction every " + reportAllInterval + " minutes");
+            logger.info("TxTimer | Config: Full Report every " + reportAllInterval + " minutes");
         }
 
         thresholdAvg = getIntFromProperty("slate.txtimer.threshold.avg", Integer.MAX_VALUE);
@@ -246,11 +212,6 @@ public class DefaultTxTimerConfig {
             logger.debug("TxTimer | Config: thresholdMin is locked by -Dslate.txtimer.threshold.min=" + thresholdMin);
         }
         logger.info("TxTimer | Config: Report " + reportCondition());
-
-        pageLines = getIntFromProperty("slate.txtimer.pagelines", 20);
-        mapInitCap = getIntFromProperty("slate.txtimer.mapinitcap", 128);
-        hashLockNum = getIntFromProperty("slate.txtimer.hashlocknum", 16);
-        updateAttempts = getIntFromProperty("slate.txtimer.updateattemps", 10);
     }
 
     private static int getIntFromProperty(String key, int def) {
@@ -268,7 +229,7 @@ public class DefaultTxTimerConfig {
                     " || max >= " + (thresholdMax < Integer.MAX_VALUE ? thresholdMax : "∞") +
                     " || min >= " + (thresholdMin < Integer.MAX_VALUE ? thresholdMin : "∞");
         } else {
-            return "all";
+            return "all transactions (no filter)";
         }
     }
 

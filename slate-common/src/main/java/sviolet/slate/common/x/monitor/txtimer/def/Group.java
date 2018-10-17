@@ -9,10 +9,11 @@ class Group {
 
     private DefaultTxTimerProvider provider;
 
-    Map<String, Transaction> transactions = new ConcurrentHashMap<>(DefaultTxTimerConfig.mapInitCap);
+    Map<String, Transaction> transactions;
 
     Group(DefaultTxTimerProvider provider) {
         this.provider = provider;
+        transactions = new ConcurrentHashMap<>(provider.mapInitCap);
     }
 
     Transaction getTransaction(String transactionName){

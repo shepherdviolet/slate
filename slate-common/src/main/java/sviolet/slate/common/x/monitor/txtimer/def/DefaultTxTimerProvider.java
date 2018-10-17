@@ -1,10 +1,15 @@
 package sviolet.slate.common.x.monitor.txtimer.def;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sviolet.slate.common.x.common.thistlespi.ThistleSpiUtils;
 import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider;
+import sviolet.thistle.model.common.SysPropFirstProperties;
 import sviolet.thistle.model.concurrent.lock.UnsafeHashSpinLocks;
 import sviolet.thistle.model.concurrent.lock.UnsafeSpinLock;
 
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,6 +19,53 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author S.Violet
  */
 public class DefaultTxTimerProvider implements TxTimerProvider {
+
+    /**
+     * 启动后固定
+     * [基本设置]日志报告输出间隔(周期), 单位:分钟, [2-60], 默认5
+     */
+    int reportInterval;
+    int reportIntervalMillis;
+    /**
+     * 启动后固定
+     * [调优设置]日志每次输出的最大行数, 大于该行数会分页, 默认20
+     */
+    int pageLines;
+    /**
+     * 启动后固定
+     * [调优设置]内部Map的初始大小, 大于观测点数量为宜
+     */
+    int mapInitCap;
+    /**
+     * 启动后固定
+     * [调优设置]StringHashLocks的锁数量
+     */
+    int hashLockNum;
+    /**
+     * 启动后固定
+     * [调优设置]内部一些非锁更新操作的最大尝试次数
+     */
+    int updateAttempts;
+
+    private void intiProperties(Properties parameters) {
+        SysPropFirstProperties enhancedParameters = ThistleSpiUtils.wrapPropertiesBySysProp(parameters);
+
+        reportInterval = enhancedParameters.getInt("slate.txtimer.report.interval", 5);
+        if (reportInterval < 2 || reportInterval > 60) {
+            throw new IllegalArgumentException("slate.txtimer.report.interval must >= 2 and <= 60 (minute)");
+        }
+        logger.info("TxTimer | Config: Ordinary Report every " + reportInterval + " minutes");
+        reportIntervalMillis = reportInterval * 60 * 1000;
+
+        pageLines = enhancedParameters.getInt("slate.txtimer.pagelines", 20);
+        mapInitCap = enhancedParameters.getInt("slate.txtimer.mapinitcap", 128);
+        hashLockNum = enhancedParameters.getInt("slate.txtimer.hashlocknum", 16);
+        updateAttempts = enhancedParameters.getInt("slate.txtimer.updateattemps", 10);
+    }
+
+    /* ******************************************************************************************************** */
+
+    private static final Logger logger = LoggerFactory.getLogger(DefaultTxTimerProvider.class);
 
     //每分钟的毫秒数
     static final long MINUTE_MILLIS = 60L * 1000L;
@@ -27,10 +79,14 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
     AtomicInteger missingCount = new AtomicInteger(0);
 
     //锁
-    @SuppressWarnings("deprecation")
-    UnsafeHashSpinLocks locks = new UnsafeHashSpinLocks(DefaultTxTimerConfig.hashLockNum);
+    UnsafeHashSpinLocks locks;
     //日志输出器
     Reporter reporter = new Reporter(this);
+
+    public DefaultTxTimerProvider(Properties parameters) {
+        intiProperties(parameters);
+        locks = new UnsafeHashSpinLocks(hashLockNum);
+    }
 
     @Override
     public void start(String groupName, String transactionName) {
