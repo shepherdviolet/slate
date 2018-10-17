@@ -39,7 +39,7 @@ public class ThistleSpiUtils {
          */
         @Override
         public void onOverwrittenBySysProp(String sysPropKey, String sysPropValue, String propKey, String propValue, Object defValue, Properties properties) {
-            logger.info("?" + ThistleSpi.LOG_PREFIX_LOADER + "Constructor parameter '" + propKey + "' is overwritten by system property -D" + sysPropKey + "=" + sysPropValue + ", " + propValue + " -> " + sysPropValue);
+            logger.info("?" + ThistleSpi.LOG_PREFIX_LOADER + "Constructor parameter '" + propKey + "' is overwritten by system property '-D" + sysPropKey + "=" + sysPropValue + "', value " + propValue + " -> " + sysPropValue);
         }
 
         /**
