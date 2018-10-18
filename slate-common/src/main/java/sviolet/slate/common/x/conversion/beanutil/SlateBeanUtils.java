@@ -28,12 +28,12 @@ public class SlateBeanUtils {
     private static final Map<String, BeanizationFactory> BEANIZATION_FACTORYS = new ConcurrentHashMap<>(256);
 
     /**
-     * <p>浅克隆</p>
+     * <p>浅克隆, 只拷贝第一层参数</p>
      * <p>Bean参数拷贝, Bean -> Bean</p>
      * <p>参数类型不匹配时一般不会抛出异常, 会跳过不匹配的参数(参数留空)</p>
      * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展</p>
-     * @param from 从这个Bean复制
-     * @param to 复制到这个Bean
+     * @param from 从这个Bean复制(必须是个Bean, 无法复制Map/List对象)
+     * @param to 复制到这个Bean(必须是个Bean, 无法复制Map/List对象)
      * @throws MappingRuntimeException 异常概率:低, 触发原因: 拷贝器创建失败 / 拷贝过程出错
      */
     public static void beanToBean(Object from, Object to) {
@@ -57,12 +57,12 @@ public class SlateBeanUtils {
     }
 
     /**
-     * <p>浅克隆</p>
+     * <p>浅克隆, 只拷贝第一层参数</p>
      * <p>Bean参数拷贝, Bean -> Bean</p>
      * <p>参数类型不匹配时一般不会抛出异常, 会跳过不匹配的参数(参数留空)</p>
      * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展</p>
-     * @param from 从这个Bean复制
-     * @param toType 目的Bean类型
+     * @param from 从这个Bean复制(必须是个Bean, 无法复制Map/List对象)
+     * @param toType 目的Bean类型(必须是个Bean, 无法复制Map/List对象)
      * @throws MappingRuntimeException 异常概率:低, 触发原因: 拷贝器创建失败 / 拷贝过程出错
      * @throws ObjenesisException 异常概率:低, 触发原因: 目标Bean实例化失败
      */
@@ -80,11 +80,11 @@ public class SlateBeanUtils {
     }
 
     /**
-     * <p>浅克隆</p>
+     * <p>浅克隆, 只拷贝第一层参数</p>
      * <p>Bean转Map</p>
      * <p>一般不会抛出异常</p>
      * <p>无内置类型转换器, 因为Bean转Map不存在类型不匹配的情况</p>
-     * @param fromBean 从这个Bean复制
+     * @param fromBean 从这个Bean复制(必须是个Bean, 无法复制Map/List对象)
      * @param toMap 复制到这个Map
      * @throws MappingRuntimeException 异常概率:低, 触发原因: 映射器创建失败
      */
@@ -103,11 +103,11 @@ public class SlateBeanUtils {
     }
 
     /**
-     * <p>浅克隆</p>
+     * <p>浅克隆, 只拷贝第一层参数</p>
      * <p>Bean转Map</p>
      * <p>一般不会抛出异常</p>
      * <p>无内置类型转换器, 因为Bean转Map不存在类型不匹配的情况</p>
-     * @param fromBean 从这个Bean复制
+     * @param fromBean 从这个Bean复制(必须是个Bean, 无法复制Map/List对象)
      * @throws MappingRuntimeException 异常概率:低, 触发原因: 映射器创建失败
      */
     public static Map<String, Object> beanToMap(Object fromBean) {
@@ -117,12 +117,12 @@ public class SlateBeanUtils {
     }
 
     /**
-     * <p>浅克隆</p>
+     * <p>浅克隆, 只拷贝第一层参数</p>
      * <p>Map转Bean</p>
      * <p>当Map中字段类型与Bean参数类型不匹配时会抛出异常(若设置throwExceptionIfFails为false, 则不会抛出异常, 失败的参数留空)</p>
      * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展</p>
      * @param fromMap 从这个Map取值
-     * @param toBean 复制到这个Bean
+     * @param toBean 复制到这个Bean(必须是个Bean, 无法复制Map/List对象)
      * @param convert true: 尝试转换参数类型使之符合要求, false: 不转换参数类型
      * @param throwExceptionIfFails true: 如果参数的类型不匹配或转换失败, 则抛出异常, false: 如果参数的类型不匹配或转换失败, 不会抛出异常, 失败的参数留空
      * @throws MappingRuntimeException 异常概率:高, 触发原因: Map中字段类型与Bean参数类型不匹配(当throwExceptionIfFails=true) / 给目的Bean赋值时出错(当throwExceptionIfFails=true) / Bean映射器创建失败(无论throwExceptionIfFails为何值, 均抛异常)
@@ -152,12 +152,12 @@ public class SlateBeanUtils {
     }
 
     /**
-     * <p>浅克隆</p>
+     * <p>浅克隆, 只拷贝第一层参数</p>
      * <p>Map转Bean</p>
      * <p>当Map中字段类型与Bean参数类型不匹配时会抛出异常(若设置throwExceptionIfFails为false, 则不会抛出异常, 失败的参数留空)</p>
      * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展</p>
      * @param fromMap 从这个Map取值
-     * @param toType 目的Bean类型
+     * @param toType 目的Bean类型(必须是个Bean, 无法复制Map/List对象)
      * @param convert true: 尝试转换参数类型使之符合要求, false: 不转换参数类型
      * @param throwExceptionIfFails true: 如果参数的类型不匹配或转换失败, 则抛出异常, false: 如果参数的类型不匹配或转换失败, 不会抛出异常, 失败的参数留空
      * @throws MappingRuntimeException 异常概率:高, 触发原因: Map中字段类型与Bean参数类型不匹配(当throwExceptionIfFails=true) / 给目的Bean赋值时出错(当throwExceptionIfFails=true) / Bean映射器创建失败(无论throwExceptionIfFails为何值, 均抛异常)
@@ -176,12 +176,12 @@ public class SlateBeanUtils {
     }
 
     /**
-     * <p>特殊</p>
+     * <p>特殊, 只处理第一层参数</p>
      * <p>用于Map转换为Bean前的预处理. 依据指定的Bean类型(templateType), 检查Map的参数类型是否符合要求, 若不符合要求,
      * 则尝试进行类型转换, 若还是不符合, 则根据throwExceptionIfFails参数处理(true:抛出异常, false:从Map中剔除不匹配的参数).</p>
      * <p>(SlateBeanUtils.fromMap方法内部已调用该方法, 在使用fromMap时无需手动调用该方法)</p>
      * @param map 需要进行参数矫正的Map
-     * @param templateType Bean类型
+     * @param templateType Bean类型(必须是个Bean, 无法处理Map/List对象)
      * @param convert true:转换参数类型使之符合要求, false:不转换参数类型
      * @param throwExceptionIfFails true:如果参数的类型不匹配或转换失败, 则抛出异常, false:如果参数的类型不匹配或转换失败, 则从Map中剔除该参数
      * @return 返回矫正后的Map(仅保留需要的参数, 且类型已经过转换, 不匹配的参数会被剔除)
