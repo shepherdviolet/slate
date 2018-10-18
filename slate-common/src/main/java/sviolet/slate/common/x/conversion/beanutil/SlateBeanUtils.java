@@ -28,6 +28,7 @@ public class SlateBeanUtils {
     private static final Map<String, BeanizationFactory> BEANIZATION_FACTORYS = new ConcurrentHashMap<>(256);
 
     /**
+     * <p>浅克隆</p>
      * <p>Bean参数拷贝, Bean -> Bean</p>
      * <p>参数类型不匹配时一般不会抛出异常, 会跳过不匹配的参数(参数留空)</p>
      * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展</p>
@@ -56,6 +57,7 @@ public class SlateBeanUtils {
     }
 
     /**
+     * <p>浅克隆</p>
      * <p>Bean参数拷贝, Bean -> Bean</p>
      * <p>参数类型不匹配时一般不会抛出异常, 会跳过不匹配的参数(参数留空)</p>
      * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展</p>
@@ -78,6 +80,7 @@ public class SlateBeanUtils {
     }
 
     /**
+     * <p>浅克隆</p>
      * <p>Bean转Map</p>
      * <p>一般不会抛出异常</p>
      * <p>无内置类型转换器, 因为Bean转Map不存在类型不匹配的情况</p>
@@ -100,6 +103,7 @@ public class SlateBeanUtils {
     }
 
     /**
+     * <p>浅克隆</p>
      * <p>Bean转Map</p>
      * <p>一般不会抛出异常</p>
      * <p>无内置类型转换器, 因为Bean转Map不存在类型不匹配的情况</p>
@@ -113,6 +117,7 @@ public class SlateBeanUtils {
     }
 
     /**
+     * <p>浅克隆</p>
      * <p>Map转Bean</p>
      * <p>当Map中字段类型与Bean参数类型不匹配时会抛出异常(若设置throwExceptionIfFails为false, 则不会抛出异常, 失败的参数留空)</p>
      * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展</p>
@@ -147,6 +152,7 @@ public class SlateBeanUtils {
     }
 
     /**
+     * <p>浅克隆</p>
      * <p>Map转Bean</p>
      * <p>当Map中字段类型与Bean参数类型不匹配时会抛出异常(若设置throwExceptionIfFails为false, 则不会抛出异常, 失败的参数留空)</p>
      * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展</p>
@@ -170,9 +176,10 @@ public class SlateBeanUtils {
     }
 
     /**
-     * 用于Map转换为Bean前的预处理. 依据指定的Bean类型(templateType), 检查Map的参数类型是否符合要求, 若不符合要求,
-     * 则尝试进行类型转换, 若还是不符合, 则根据throwExceptionIfFails参数处理(true:抛出异常, false:从Map中剔除不匹配的参数).
-     * (SlateBeanUtils.fromMap方法内部已调用该方法, 在使用fromMap时无需手动调用该方法)
+     * <p>特殊</p>
+     * <p>用于Map转换为Bean前的预处理. 依据指定的Bean类型(templateType), 检查Map的参数类型是否符合要求, 若不符合要求,
+     * 则尝试进行类型转换, 若还是不符合, 则根据throwExceptionIfFails参数处理(true:抛出异常, false:从Map中剔除不匹配的参数).</p>
+     * <p>(SlateBeanUtils.fromMap方法内部已调用该方法, 在使用fromMap时无需手动调用该方法)</p>
      * @param map 需要进行参数矫正的Map
      * @param templateType Bean类型
      * @param convert true:转换参数类型使之符合要求, false:不转换参数类型
