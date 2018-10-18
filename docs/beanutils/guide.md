@@ -12,6 +12,10 @@
 * 浅复制, 只复制Bean和Map的第一层参数
 * 内部采用CGLIB的BeanCopier和BeanMap实现
 
+<br>
+<br>
+<br>
+
 # 用法
 
 ## Bean转Bean
@@ -69,6 +73,10 @@
         SlateBeanUtils.fromMap(map, bean, true, true);
 ```
 
+<br>
+<br>
+<br>
+
 # ThistleSpi扩展点
 
 * 使用扩展点之前, 请先阅读[服务加载指南](https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/service-loading.md)
@@ -77,6 +85,8 @@
 
 * 扩展点接口:sviolet.slate.common.x.conversion.beanutil.BeanConverter
 * 采用这种方式, 会使默认类型转换逻辑失效, 使PropMapper扩展点失效
+
+<br>
 
 ## 增加/删除类型转换器(推荐)
 
