@@ -21,7 +21,7 @@ public abstract class BeanConverter implements Converter {
     @Override
     public final Object convert(Object from, Class toType, Object setMethodName) {
         try {
-            return onConvert(Cause.COPY, from, new Class[]{PrimitiveUtils.toWrapperType(toType)});
+            return onConvert(Cause.BEAN_TO_BEAN, from, new Class[]{PrimitiveUtils.toWrapperType(toType)});
         } catch (MappingRuntimeException e) {
             //补上field名
             String fieldName = BeanMethodNameUtils.methodToField(String.valueOf(setMethodName));
@@ -41,9 +41,9 @@ public abstract class BeanConverter implements Converter {
 
     public enum Cause {
         /**
-         * 由SlateBeanUtils.copy触发
+         * 由SlateBeanUtils.beanToBean触发
          */
-        COPY,
+        BEAN_TO_BEAN,
 
         /**
          * 由SlateBeanUtils.fromMap和mapBeanization触发

@@ -35,7 +35,7 @@ public class SlateBeanUtils {
      * @param to 复制到这个Bean
      * @throws MappingRuntimeException 异常概率:低, 触发原因: 拷贝器创建失败 / 拷贝过程出错
      */
-    public static void copy(Object from, Object to) {
+    public static void beanToBean(Object from, Object to) {
         if (from == null || to == null) {
             return;
         }
@@ -51,7 +51,7 @@ public class SlateBeanUtils {
         } catch (MappingRuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new MappingRuntimeException("SlateBeanUtils: Error while copying " + copierName, e, from.getClass().getName(), to.getClass().getName(), null);
+            throw new MappingRuntimeException("SlateBeanUtils: Error while copying " + from.getClass().getName() + " to " + to.getClass().getName(), e, from.getClass().getName(), to.getClass().getName(), null);
         }
     }
 
@@ -64,7 +64,7 @@ public class SlateBeanUtils {
      * @throws MappingRuntimeException 异常概率:低, 触发原因: 拷贝器创建失败 / 拷贝过程出错
      * @throws ObjenesisException 异常概率:低, 触发原因: 目标Bean实例化失败
      */
-    public static <T> T copy(Object from, Class<T> toType) {
+    public static <T> T beanToBean(Object from, Class<T> toType) {
         if (toType == null) {
             return null;
         }
@@ -73,7 +73,7 @@ public class SlateBeanUtils {
             return to;
         }
 
-        copy(from, to);
+        beanToBean(from, to);
         return to;
     }
 
@@ -85,7 +85,7 @@ public class SlateBeanUtils {
      * @param toMap 复制到这个Map
      * @throws MappingRuntimeException 异常概率:低, 触发原因: 映射器创建失败
      */
-    public static void toMap(Object fromBean, Map<String, Object> toMap) {
+    public static void beanToMap(Object fromBean, Map<String, Object> toMap) {
         if (fromBean == null || toMap == null) {
             return;
         }
@@ -106,9 +106,9 @@ public class SlateBeanUtils {
      * @param fromBean 从这个Bean复制
      * @throws MappingRuntimeException 异常概率:低, 触发原因: 映射器创建失败
      */
-    public static Map<String, Object> toMap(Object fromBean) {
+    public static Map<String, Object> beanToMap(Object fromBean) {
         Map<String, Object> map = new HashMap<>();
-        toMap(fromBean, map);
+        beanToMap(fromBean, map);
         return map;
     }
 
@@ -122,7 +122,7 @@ public class SlateBeanUtils {
      * @param throwExceptionIfFails true: 如果参数的类型不匹配或转换失败, 则抛出异常, false: 如果参数的类型不匹配或转换失败, 不会抛出异常, 失败的参数留空
      * @throws MappingRuntimeException 异常概率:高, 触发原因: Map中字段类型与Bean参数类型不匹配(当throwExceptionIfFails=true) / 给目的Bean赋值时出错(当throwExceptionIfFails=true) / Bean映射器创建失败(无论throwExceptionIfFails为何值, 均抛异常)
      */
-    public static void fromMap(Map<String, Object> fromMap, Object toBean, boolean convert, boolean throwExceptionIfFails) {
+    public static void mapToBean(Map<String, Object> fromMap, Object toBean, boolean convert, boolean throwExceptionIfFails) {
         if (fromMap == null || toBean == null) {
             return;
         }
@@ -157,7 +157,7 @@ public class SlateBeanUtils {
      * @throws MappingRuntimeException 异常概率:高, 触发原因: Map中字段类型与Bean参数类型不匹配(当throwExceptionIfFails=true) / 给目的Bean赋值时出错(当throwExceptionIfFails=true) / Bean映射器创建失败(无论throwExceptionIfFails为何值, 均抛异常)
      * @throws ObjenesisException 异常概率:低, 触发原因: 目标Bean实例化失败
      */
-    public static <T> T fromMap(Map<String, Object> fromMap, Class<T> toType, boolean convert, boolean throwExceptionIfFails) {
+    public static <T> T mapToBean(Map<String, Object> fromMap, Class<T> toType, boolean convert, boolean throwExceptionIfFails) {
         if (toType == null) {
             return null;
         }
@@ -165,7 +165,7 @@ public class SlateBeanUtils {
         if (fromMap == null || fromMap.size() == 0) {
             return to;
         }
-        fromMap(fromMap, to, convert, throwExceptionIfFails);
+        mapToBean(fromMap, to, convert, throwExceptionIfFails);
         return to;
     }
 

@@ -19,7 +19,7 @@ public class SlateBeanUtilsFromToMapTest {
         bean.p2 = new BigDecimal("321.333");
         bean.p3 = 321;
         bean.p4 = 0x41;
-        System.out.println(SlateBeanUtils.toMap(bean));
+        System.out.println(SlateBeanUtils.beanToMap(bean));
     }
 
     @Test
@@ -32,7 +32,7 @@ public class SlateBeanUtilsFromToMapTest {
         map.put("p2", 123.333);
         map.put("p3", 321);
         map.put("p4", (char)0x41);
-        System.out.println(SlateBeanUtils.fromMap(map, Bean.class, true, true));
+        System.out.println(SlateBeanUtils.mapToBean(map, Bean.class, true, true));
     }
 
     private static class Bean {

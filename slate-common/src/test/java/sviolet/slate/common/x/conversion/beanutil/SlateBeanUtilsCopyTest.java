@@ -33,7 +33,7 @@ public class SlateBeanUtilsCopyTest {
         from.p5.put("m1", "v1");
         from.p5.put("m2", "v2");
         from.p6 = 0x41;
-        return SlateBeanUtils.copy(from, To.class);
+        return SlateBeanUtils.beanToBean(from, To.class);
     }
 
     public static class From {

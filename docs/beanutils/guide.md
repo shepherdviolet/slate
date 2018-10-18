@@ -27,13 +27,13 @@
 
 ```text
         From from = new From();
-        To to = SlateBeanUtils.copy(from, To.class);
+        To to = SlateBeanUtils.beanToBean(from, To.class);
 ```
 
 ```text
         From from = new From();
         To to = new To();
-        SlateBeanUtils.copy(from, to);
+        SlateBeanUtils.beanToBean(from, to);
 ```
 
 ## Bean转Map
@@ -44,13 +44,13 @@
 
 ```text
         Bean bean = new Bean();
-        Map<String, Object> map = SlateBeanUtils.toMap(bean);
+        Map<String, Object> map = SlateBeanUtils.beanToMap(bean);
 ```
 
 ```text
         Bean bean = new Bean();
         Map<String, Object> map = new HashMap();
-        SlateBeanUtils.toMap(bean, map);
+        SlateBeanUtils.beanToMap(bean, map);
 ```
 
 ## Map转Bean
@@ -64,13 +64,13 @@
 
 ```text
         Map<String, Object> map = new HashMap<>();
-        Bean bean = SlateBeanUtils.fromMap(map, Bean.class, true, true);
+        Bean bean = SlateBeanUtils.mapToBean(map, Bean.class, true, true);
 ```
 
 ```text
         Map<String, Object> map = new HashMap<>();
         Bean bean = new Bean();
-        SlateBeanUtils.fromMap(map, bean, true, true);
+        SlateBeanUtils.mapToBean(map, bean, true, true);
 ```
 
 <br>
