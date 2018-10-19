@@ -9,7 +9,6 @@
 ## 特点
 
 * 线程安全, 内置缓存提高性能
-* 浅复制, 只复制Bean和Map的第一层参数
 * 内部采用CGLIB的BeanCopier和BeanMap实现
 
 <br>
@@ -20,6 +19,7 @@
 
 ## Bean转Bean
 
+* 浅复制, 只复制Bean和Map的第一层参数
 * 参数类型不匹配时一般不会抛出异常, 会跳过不匹配的参数(参数留空)
 * 内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展
 * throws MappingRuntimeException 异常概率:低, 触发原因: 拷贝器创建失败 / 拷贝过程出错, 可使用getFromType/getToType/getFieldName方法获得出问题的类型和参数名
@@ -38,6 +38,7 @@
 
 ## Bean转Map
 
+* 浅复制, 只复制Bean和Map的第一层参数
 * 一般不会抛出异常
 * 无内置类型转换器, 因为Bean转Map不存在类型不匹配的情况
 * throws MappingRuntimeException 异常概率:低, 触发原因: 映射器创建失败
@@ -55,6 +56,7 @@
 
 ## Map转Bean
 
+* 浅复制, 只复制Bean和Map的第一层参数
 * 当Map中字段类型与Bean参数类型不匹配时会抛出异常(若设置throwExceptionIfFails为false, 则不会抛出异常, 失败的参数留空)
 * 内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展
 * `convert` true: 尝试转换参数类型使之符合要求, false: 不转换参数类型
@@ -117,20 +119,6 @@ sviolet.slate.common.x.conversion.beanutil.PropMapper>102005=sviolet.slate.commo
 sviolet.slate.common.x.conversion.beanutil.PropMapper>102006=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2SqlTimestamp
 sviolet.slate.common.x.conversion.beanutil.PropMapper>102007=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2UtilDate
 ......
-```
-
-* 另外优先级200000-299999为`不安全`的类型转换器保留, 默认`不启用`, 见包路径`sviolet.slate.common.x.conversion.beanutil.unsafe`
-* 如需启用, 请自行声明在`META-INF/thistle-spi/plugin.properties`中, 示例如下:
-
-```text
-# SlateBeanUtils: bean property mappers: unsafe num
-sviolet.slate.common.x.conversion.beanutil.PropMapper>201001=sviolet.slate.common.x.conversion.beanutil.unsafe.num.SBUMapperBigInteger2Integer
-sviolet.slate.common.x.conversion.beanutil.PropMapper>201002=sviolet.slate.common.x.conversion.beanutil.unsafe.num.SBUMapperBigInteger2Long
-sviolet.slate.common.x.conversion.beanutil.PropMapper>201003=sviolet.slate.common.x.conversion.beanutil.unsafe.num.SBUMapperBigInteger2Float
-sviolet.slate.common.x.conversion.beanutil.PropMapper>201004=sviolet.slate.common.x.conversion.beanutil.unsafe.num.SBUMapperBigInteger2Double
-sviolet.slate.common.x.conversion.beanutil.PropMapper>201005=sviolet.slate.common.x.conversion.beanutil.unsafe.num.SBUMapperBigInteger2Short
-sviolet.slate.common.x.conversion.beanutil.PropMapper>201006=sviolet.slate.common.x.conversion.beanutil.unsafe.num.SBUMapperBigDecimal2Float
-sviolet.slate.common.x.conversion.beanutil.PropMapper>201007=sviolet.slate.common.x.conversion.beanutil.unsafe.num.SBUMapperBigDecimal2Double
 ```
 
 * 优先级数字越小, 优先级越高. 遇到冲突时, 高优先级的插件生效.

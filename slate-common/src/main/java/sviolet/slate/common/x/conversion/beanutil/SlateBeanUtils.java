@@ -7,7 +7,9 @@ import org.springframework.objenesis.SpringObjenesis;
 import sviolet.thistle.model.concurrent.lock.UnsafeSpinLock;
 import sviolet.thistle.x.common.thistlespi.ThistleSpi;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -206,6 +208,88 @@ public class SlateBeanUtils {
         }
     }
 
+    /**
+     * <p>递归, 递归复制多层参数直到不可分割的类型</p>
+     * <p>Bean转Map</p>
+     * <p>一般不会抛出异常</p>
+     * <p>无内置类型转换器, 因为Bean转Map不存在类型不匹配的情况</p>
+     * @param fromBean 从这个Bean复制(必须是个Bean或Map, 无法复制List对象)
+     * @throws MappingRuntimeException 异常概率:低, 触发原因: 映射器创建失败
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> beanOrMapToMapRecursively(Object fromBean) {
+        return beanOrMapToMapRecursively(fromBean, null);
+    }
+
+    /**
+     * <p>递归, 递归复制多层参数直到不可分割的类型</p>
+     * <p>Bean转Map</p>
+     * <p>一般不会抛出异常</p>
+     * <p>无内置类型转换器, 因为Bean转Map不存在类型不匹配的情况</p>
+     * @param fromBean 从这个Bean复制(必须是个Bean或Map, 无法复制List对象)
+     * @param indivisibleJudger 默认请设null, 不可分割类型判定器, 判断一个对象是否是不可分割的
+     * @throws MappingRuntimeException 异常概率:低, 触发原因: 映射器创建失败
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> beanOrMapToMapRecursively(Object fromBean, IndivisibleJudger indivisibleJudger) {
+        if (fromBean == null) {
+            return new HashMap<>();
+        }
+        if (fromBean instanceof List) {
+            throw new MappingRuntimeException("SlateBeanUtils: Root node cannot be a list", null, fromBean.getClass().getName(), "java.util.Map", null);
+        }
+        if (indivisibleJudger == null) {
+            indivisibleJudger = INDIVISIBLE_JUDGER;
+        }
+        return (Map<String, Object>) beanOrMapToMapRecursivelyInner(fromBean, indivisibleJudger, "");
+    }
+
+    private static Object beanOrMapToMapRecursivelyInner(Object fromBean, IndivisibleJudger indivisibleJudger, String path) {
+        if (fromBean == null) {
+            return null;
+        }
+        if (fromBean instanceof List) {
+            List<?> fromList = (List) fromBean;
+            List<Object> toList = new ArrayList<>(fromList.size());
+            for (Object value : fromList) {
+                if (indivisibleJudger.isIndivisible(value)) {
+                    toList.add(value);
+                } else {
+                    toList.add(beanOrMapToMapRecursivelyInner(value, indivisibleJudger, path + "=>"));
+                }
+            }
+            return toList;
+        }
+        Map<?, ?> fromMap;
+        Map<String, Object> toMap;
+        try {
+            if (fromBean instanceof Map) {
+                fromMap = (Map<?, ?>) fromBean;
+            } else {
+                fromMap = BeanMap.create(fromBean);
+                //return bean if no properties
+                if (fromMap.size() <= 0) {
+                    return fromBean;
+                }
+            }
+            toMap = new HashMap<>(fromMap.size());
+            for (Object key : fromMap.keySet()) {
+                String keyStr = String.valueOf(key);
+                Object value = fromMap.get(key);
+                if (indivisibleJudger.isIndivisible(value)) {
+                    toMap.put(keyStr, value);
+                } else {
+                    toMap.put(keyStr, beanOrMapToMapRecursivelyInner(value, indivisibleJudger, path + "->" + key));
+                }
+            }
+        } catch (MappingRuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new MappingRuntimeException("SlateBeanUtils: Error while mapping " + fromBean.getClass().getName() + " to Map, recursively path:" + path, e, fromBean.getClass().getName(), "java.util.Map", null);
+        }
+        return toMap;
+    }
+
     private static BeanConverter getConverter(){
         if (converter == null) {
             try {
@@ -243,5 +327,12 @@ public class SlateBeanUtils {
         }
         return objenesis;
     }
+
+    private static IndivisibleJudger INDIVISIBLE_JUDGER = new IndivisibleJudger() {
+        @Override
+        protected boolean isIndivisibleCustom(Class type, Object obj) {
+            return false;
+        }
+    };
 
 }
