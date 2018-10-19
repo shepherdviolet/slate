@@ -3,11 +3,9 @@ package sviolet.slate.common.x.conversion.beanutil;
 import org.slf4j.Logger;
 
 /**
- * <p>SlateBeanUtils Bean工具 扩展点</p>
+ * <p>SlateBeanUtils 默认参数类型转换器DefaultBeanConverter的扩展点, 在BeanConverter未被替换实现时有效</p>
  *
- * <p>DefaultBeanConverter的扩展点, 在BeanConverter未被替换实现时有效</p>
- *
- * <p>实现:指定接受的源类型和目的类型</p>
+ * <p>实现:声明自身能处理什么类型的数据, 实现对应的类型转换逻辑</p>
  *
  * <p>使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md</p>
  *

@@ -25,6 +25,7 @@ public class SlateBeanUtils {
 
     private static volatile SpringObjenesis objenesis;
     private static volatile BeanConverter converter;
+    private static volatile IndivisibleJudge judger;
 
     private static final Map<String, BeanCopier> COPIER = new ConcurrentHashMap<>(256);
     private static final Map<String, BeanizationFactory> BEANIZATION_FACTORYS = new ConcurrentHashMap<>(256);
@@ -227,35 +228,34 @@ public class SlateBeanUtils {
      * <p>一般不会抛出异常</p>
      * <p>无内置类型转换器, 因为Bean转Map不存在类型不匹配的情况</p>
      * @param fromBean 从这个Bean复制(必须是个Bean或Map, 无法复制List对象)
-     * @param indivisibleJudger 默认请设null, 不可分割类型判定器, 判断一个对象是否是不可分割的
+     * @param extraIndivisibleTypes 默认请设null, 指定额外的不可分割的类型(当遍历到这个类型的对象, 直接保留在Map中不再拆解)
      * @throws MappingRuntimeException 异常概率:低, 触发原因: 映射器创建失败
      */
     @SuppressWarnings("unchecked")
-    public static Map<String, Object> beanOrMapToMapRecursively(Object fromBean, IndivisibleJudger indivisibleJudger) {
+    public static Map<String, Object> beanOrMapToMapRecursively(Object fromBean, Map<Class<?>, IndivisibleJudge.JudgeType> extraIndivisibleTypes) {
         if (fromBean == null) {
             return new HashMap<>();
         }
         if (fromBean instanceof List) {
             throw new MappingRuntimeException("SlateBeanUtils: Root node cannot be a list", null, fromBean.getClass().getName(), "java.util.Map", null);
         }
-        if (indivisibleJudger == null) {
-            indivisibleJudger = INDIVISIBLE_JUDGER;
-        }
-        return (Map<String, Object>) beanOrMapToMapRecursivelyInner(fromBean, indivisibleJudger, "");
+        return (Map<String, Object>) beanOrMapToMapRecursivelyInner(fromBean, extraIndivisibleTypes, "");
     }
 
-    private static Object beanOrMapToMapRecursivelyInner(Object fromBean, IndivisibleJudger indivisibleJudger, String path) {
+    private static Object beanOrMapToMapRecursivelyInner(Object fromBean, Map<Class<?>, IndivisibleJudge.JudgeType> extraIndivisibleTypes, String path) {
         if (fromBean == null) {
             return null;
         }
+        //handle list
         if (fromBean instanceof List) {
             List<?> fromList = (List) fromBean;
             List<Object> toList = new ArrayList<>(fromList.size());
             for (Object value : fromList) {
-                if (indivisibleJudger.isIndivisible(value)) {
+                //Recursive if it is not indivisible
+                if (getJudger().isIndivisible(value, extraIndivisibleTypes)) {
                     toList.add(value);
                 } else {
-                    toList.add(beanOrMapToMapRecursivelyInner(value, indivisibleJudger, path + "=>"));
+                    toList.add(beanOrMapToMapRecursivelyInner(value, extraIndivisibleTypes, path + "=>"));
                 }
             }
             return toList;
@@ -264,8 +264,10 @@ public class SlateBeanUtils {
         Map<String, Object> toMap;
         try {
             if (fromBean instanceof Map) {
+                //handle map
                 fromMap = (Map<?, ?>) fromBean;
             } else {
+                //handle bean
                 fromMap = BeanMap.create(fromBean);
                 //return bean if no properties
                 if (fromMap.size() <= 0) {
@@ -276,10 +278,11 @@ public class SlateBeanUtils {
             for (Object key : fromMap.keySet()) {
                 String keyStr = String.valueOf(key);
                 Object value = fromMap.get(key);
-                if (indivisibleJudger.isIndivisible(value)) {
+                //Recursive if it is not indivisible
+                if (getJudger().isIndivisible(value, extraIndivisibleTypes)) {
                     toMap.put(keyStr, value);
                 } else {
-                    toMap.put(keyStr, beanOrMapToMapRecursivelyInner(value, indivisibleJudger, path + "->" + key));
+                    toMap.put(keyStr, beanOrMapToMapRecursivelyInner(value, extraIndivisibleTypes, path + "->" + key));
                 }
             }
         } catch (MappingRuntimeException e) {
@@ -314,6 +317,25 @@ public class SlateBeanUtils {
         return converter;
     }
 
+    private static IndivisibleJudge getJudger(){
+        if (judger == null) {
+            try {
+                SPIN_LOCK.lock();
+                if (judger == null) {
+                    //spi loading
+                    judger = ThistleSpi.getLoader().loadService(IndivisibleJudge.class);
+                    //default
+                    if (judger == null) {
+                        judger = new DefaultIndivisibleJudge(null);
+                    }
+                }
+            } finally {
+                SPIN_LOCK.unlock();
+            }
+        }
+        return judger;
+    }
+
     private static SpringObjenesis getObjenesis(){
         if (objenesis == null) {
             try {
@@ -327,12 +349,5 @@ public class SlateBeanUtils {
         }
         return objenesis;
     }
-
-    private static IndivisibleJudger INDIVISIBLE_JUDGER = new IndivisibleJudger() {
-        @Override
-        protected boolean isIndivisibleCustom(Class type, Object obj) {
-            return false;
-        }
-    };
 
 }

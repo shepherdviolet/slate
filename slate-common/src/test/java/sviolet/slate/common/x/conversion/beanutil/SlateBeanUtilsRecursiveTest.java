@@ -95,7 +95,7 @@ public class SlateBeanUtilsRecursiveTest {
     public static class Card {
 
         private String no = "5465135464";
-        private float percent = 0.998f;
+        private Float percent = 0.998f;
         private Date date = new Date(new java.util.Date().getTime());
 
         public String getNo() {
