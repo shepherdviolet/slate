@@ -1,6 +1,7 @@
 package sviolet.slate.common.x.conversion.beanutil;
 
 import sviolet.thistle.util.conversion.PrimitiveUtils;
+import sviolet.thistle.x.common.thistlespi.ThistleSpi;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -16,7 +17,11 @@ public class DefaultIndivisibleJudge implements IndivisibleJudge {
     private Map<Class<?>, JudgeType> indivisibleTypes;
 
     public DefaultIndivisibleJudge(Properties parameter) {
-        if (parameter == null || parameter.size() <= 0) {
+        if (parameter == null) {
+            return;
+        }
+        String propertiesUrl = (String) parameter.remove(ThistleSpi.PROPERTIES_URL);
+        if (parameter.size() <= 0) {
             return;
         }
         indivisibleTypes = new LinkedHashMap<>(parameter.size());
@@ -24,12 +29,12 @@ public class DefaultIndivisibleJudge implements IndivisibleJudge {
         for (Object key : parameter.keySet()) {
             JudgeType judgeType = JudgeType.parse((String)parameter.get(key));
             if (judgeType == null) {
-                throw new RuntimeException("Invalid constructor parameter '" + key + "=" + parameter.get(key) + "', illegal JudgeType (value) should be isAssignableFrom or equals");
+                throw new RuntimeException("Invalid constructor parameter '" + key + "=" + parameter.get(key) + "', illegal JudgeType (value) should be isAssignableFrom or equals, properties url:" + propertiesUrl);
             }
             try {
                 indivisibleTypes.put(classLoader.loadClass((String)key), judgeType);
             } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Invalid constructor parameter '" + key + "=" + parameter.get(key) + "', class not found", e);
+                throw new RuntimeException("Invalid constructor parameter '" + key + "=" + parameter.get(key) + "', class not found, properties url:" + propertiesUrl, e);
             }
         }
     }
