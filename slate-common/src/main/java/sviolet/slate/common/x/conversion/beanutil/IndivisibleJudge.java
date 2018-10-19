@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * <p>SlateBeanUtils Bean工具的扩展点</p>
  *
- * <p>不可分割元素判断器</p>
+ * <p>不可分割类型判断器</p>
  *
  * <p>实现:判断一个元素是否不可分割, 用于beanOrMapToMapRecursively</p>
  *
@@ -36,13 +36,13 @@ public interface IndivisibleJudge {
         /**
          * 使用equals判断
          */
-        EQUAL;
+        EQUALS;
 
         public static JudgeType parse(String str) {
             if ("isAssignableFrom".equalsIgnoreCase(str)) {
                 return IS_ASSIGNABLE_FROM;
             } else if ("equals".equalsIgnoreCase(str)) {
-                return EQUAL;
+                return EQUALS;
             }
             return null;
         }

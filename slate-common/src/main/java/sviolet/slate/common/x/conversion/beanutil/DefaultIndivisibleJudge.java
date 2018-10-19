@@ -8,7 +8,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 /**
- * 默认的不可分割元素判断器
+ * 默认的不可分割类型判断器
  *
  * @author S.Violet
  */

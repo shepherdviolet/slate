@@ -75,11 +75,34 @@
         SlateBeanUtils.mapToBean(map, bean, true, true);
 ```
 
+## Bean转Map(递归深复制)
+
+* 递归, 递归复制多层参数直到`不可分割`的类型(可以额外指定`不可分割`的类型)
+* 一般不会抛出异常
+* 无内置类型转换器, 因为Bean转Map不存在类型不匹配的情况
+* `fromBean` 从这个Bean复制(必须是个Bean或Map, 无法复制List对象)
+* throws MappingRuntimeException 异常概率:低, 触发原因: 映射器创建失败
+
+```text
+    Bean bean = new Bean();
+    Map<String, Object> map = SlateBeanUtils.beanOrMapToMapRecursively(bean);
+```
+
+```text
+    Map<Class<?>, IndivisibleJudge.JudgeType> extraIndivisibleTypes = new HashMap<>();
+    //遇见BeanA时不再拆解
+    extraIndivisibleTypes.put(BeanA.class, IndivisibleJudge.JudgeType.EQUALS);
+    //遇见BeanB和它的子类时不再拆解
+    extraIndivisibleTypes.put(BeanB.class, IndivisibleJudge.JudgeType.IS_ASSIGNABLE_FROM);
+    Bean bean = new Bean();
+    Map<String, Object> map = SlateBeanUtils.beanOrMapToMapRecursively(bean);
+```
+
 <br>
 <br>
 <br>
 
-# ThistleSpi扩展点
+# ThistleSpi扩展点1: 类型转换
 
 * 使用扩展点之前, 请先阅读[服务加载指南](https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/service-loading.md)
 
@@ -237,3 +260,44 @@ sviolet.slate.common.x.conversion.beanutil.BeanConverter>yourapp>application=svi
 ```
 
 * 其中ID`yourapp`和优先级`application`的设置请参考[服务加载指南](https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/service-loading.md)
+
+<br>
+<br>
+<br>
+
+# ThistleSpi扩展点2: 不可分割类型判断
+
+* 使用扩展点之前, 请先阅读[服务加载指南](https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/service-loading.md)
+
+## 完全自定义实现不可分割类型判断器(不推荐)
+
+* 扩展点接口:sviolet.slate.common.x.conversion.beanutil.IndivisibleJudge
+
+<br>
+
+## 修改默认的不可分割类型
+
+* 创建定义文件`META-INF/thistle-spi/service.properties`, 并编辑
+  
+```text
+sviolet.slate.common.x.conversion.beanutil.IndivisibleJudge>yourapp>application=sviolet.slate.common.x.conversion.beanutil.DefaultIndivisibleJudge(beanutil.properties)
+```
+
+* 其中ID`yourapp`和优先级`application`的设置请参考[服务加载指南](https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/service-loading.md)
+* 在定义文件所在路径`META-INF/thistle-spi/`下创建目录`parameter/`, 然后在目录中创建配置文件`beanutil.properties`
+* 编辑配置文件: 
+
+```text
+sample.beanutil.BeanA=equals
+sample.beanutil.BeanB=isAssignableFrom
+```
+
+* 这样就设置了BeanA(不包含子类)和BeanB(包含子类)为不可分割类型
+* 最终目录结构如下: 
+
+```text
+    myproject/module1/src/main/resources/META-INF/thistle-spi/service.properties
+    myproject/module1/src/main/resources/META-INF/thistle-spi/parameter/beanutil.properties
+```
+
+* 注意, 这样设置会覆盖原有配置, 需要将原有的配置复制过来配置到生效的配置文件中
