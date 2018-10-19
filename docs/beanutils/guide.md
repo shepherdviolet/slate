@@ -300,4 +300,4 @@ sample.beanutil.BeanB=isAssignableFrom
     myproject/module1/src/main/resources/META-INF/thistle-spi/parameter/beanutil.properties
 ```
 
-* 注意, 这样设置会覆盖原有配置, 需要将原有的配置复制过来配置到生效的配置文件中
+* 注意, 这样设置会覆盖原有配置(如果其他开源库框架库也用相同方法设置了), 需要将原有的配置复制过来配置到生效的配置文件中
