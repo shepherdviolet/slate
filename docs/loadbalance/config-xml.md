@@ -94,7 +94,7 @@
 * gradle
 
 ```text
-//version替换为具体版本
+//version替换为具体版本, 另外需要依赖spring库
 dependencies {
     compile 'com.github.shepherdviolet:slate-common:version'
 }
@@ -103,7 +103,7 @@ dependencies {
 * gradle(最少依赖)
 
 ```text
-//version替换为具体版本
+//version替换为具体版本, 另外需要依赖spring库
 dependencies {
     compile ('com.github.shepherdviolet:slate-common:version') {
         transitive = false
@@ -119,7 +119,7 @@ dependencies {
 * maven
 
 ```maven
-    <!--version替换为具体版本-->
+    <!--version替换为具体版本, 另外需要依赖spring库-->
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
@@ -130,7 +130,7 @@ dependencies {
 * maven(最少依赖)
 
 ```maven
-    <!--version替换为具体版本-->
+    <!--version替换为具体版本, 另外需要依赖spring库-->
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
