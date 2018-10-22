@@ -5,8 +5,6 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:1.2.3"
 
     //optional
-    implementation "org.springframework:spring-core:$version_spring"
-    implementation "org.springframework:spring-beans:$version_spring"
     implementation "org.springframework:spring-context:$version_spring"
     implementation 'javax.servlet:javax.servlet-api:4.0.0'
     implementation 'com.squareup.okhttp3:okhttp:3.9.0'
