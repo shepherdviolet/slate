@@ -135,7 +135,7 @@ public class ApolloConfigChangeService {
 * gradle
 
 ```text
-//version替换为具体版本
+//version替换为具体版本, 另外需要依赖spring库
 dependencies {
     compile 'com.github.shepherdviolet:slate-springboot:version'
 }
@@ -144,7 +144,7 @@ dependencies {
 * gradle(最少依赖)
 
 ```text
-//version替换为具体版本
+//version替换为具体版本, 另外需要依赖spring库
 dependencies {
     compile ('com.github.shepherdviolet:slate-springboot:version') {
         transitive = false
@@ -156,6 +156,7 @@ dependencies {
         transitive = false
     }
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
+    compile 'com.google.code.gson:gson:2.8.1'
     compile 'ch.qos.logback:logback-classic:1.2.3'
 }
 ```
@@ -163,7 +164,7 @@ dependencies {
 * maven
 
 ```maven
-    <!--version替换为具体版本-->
+    <!--version替换为具体版本, 另外需要依赖spring库-->
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-springboot</artifactId>
@@ -174,7 +175,7 @@ dependencies {
 * maven(最少依赖)
 
 ```maven
-    <!--version替换为具体版本-->
+    <!--version替换为具体版本, 另外需要依赖spring库-->
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-springboot</artifactId>
@@ -212,6 +213,11 @@ dependencies {
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
         <version>3.9.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.8.1</version>
     </dependency>
     <dependency>
         <groupId>ch.qos.logback</groupId>
