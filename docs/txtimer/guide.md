@@ -157,3 +157,8 @@
 
 * 扩展点接口:sviolet.slate.common.x.monitor.txtimer.TxTimerProvider
 * 使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md
+
+## 修改默认实现的配置
+
+* 默认实现:sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider
+* 可以重新定义默认实现的配置, 具体请阅读文档: https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md
