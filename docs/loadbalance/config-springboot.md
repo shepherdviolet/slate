@@ -5,24 +5,24 @@
 * gradle
 
 ```text
-
-//依赖
+//version替换为具体版本
 dependencies {
-    compile 'com.github.shepherdviolet:slate-springboot:11.0'
+    compile 'com.github.shepherdviolet:slate-springboot:version'
 }
 ```
 
 * gradle(最少依赖)
 
 ```text
+//version替换为具体版本
 dependencies {
-    compile ('com.github.shepherdviolet:slate-springboot:11.0') {
+    compile ('com.github.shepherdviolet:slate-springboot:version') {
         transitive = false
     }
-    compile ('com.github.shepherdviolet:slate-common:11.0') {
+    compile ('com.github.shepherdviolet:slate-common:version') {
         transitive = false
     }
-    compile ('com.github.shepherdviolet:thistle:11.0') {
+    compile ('com.github.shepherdviolet:thistle:version') {
         transitive = false
     }
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
@@ -33,20 +33,22 @@ dependencies {
 * maven
 
 ```maven
+    <!--version替换为具体版本-->
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-springboot</artifactId>
-        <version>11.0</version>
+        <version>version</version>
     </dependency>
 ```
 
 * maven(最少依赖)
 
 ```maven
+    <!--version替换为具体版本-->
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-springboot</artifactId>
-        <version>11.0</version>
+        <version>version</version>
         <exclusions>
              <exclusion>
                  <groupId>*</groupId>
@@ -57,7 +59,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>11.0</version>
+        <version>version</version>
         <exclusions>
              <exclusion>
                  <groupId>*</groupId>
@@ -68,7 +70,7 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>thistle</artifactId>
-        <version>11.0</version>
+        <version>version</version>
         <exclusions>
              <exclusion>
                  <groupId>*</groupId>

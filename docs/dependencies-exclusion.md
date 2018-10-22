@@ -6,7 +6,7 @@
         mavenCentral()
     }
     dependencies {
-        compile ('com.github.shepherdviolet:slate-common:11.0') {
+        compile ('com.github.shepherdviolet:slate-common:version') {
             exclude group:'com.google.code.gson'
             exclude group:'org.bouncycastle'
             exclude group:'org.springframework'
@@ -15,7 +15,7 @@
             exclude group:'com.jcraft', module:'jsch'
             exclude group:'redis.clients'
         }
-        compile ('com.github.shepherdviolet:slate-springboot:11.0') {
+        compile ('com.github.shepherdviolet:slate-springboot:version') {
             exclude group:'org.springframework.boot'
             exclude group:'javax.servlet', module:'javax.servlet-api'
         }
@@ -26,7 +26,7 @@
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
-        <version>11.0</version>
+        <version>version</version>
         <exclusions>
              <exclusion>
                  <groupId>com.google.code.gson</groupId>
@@ -61,7 +61,7 @@
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-springboot</artifactId>
-        <version>11.0</version>
+        <version>version</version>
         <exclusions>
              <exclusion>
                  <groupId>org.springframework.boot</groupId>
@@ -74,3 +74,45 @@
         </exclusions>
     </dependency>
 ```
+
+# How to exclude all dependencies (optional)
+
+```gradle
+    repositories {
+    	//Slate in mavenCentral
+        mavenCentral()
+    }
+    dependencies {
+        compile ('com.github.shepherdviolet:slate-common:version') {
+            transitive = false
+        }
+        compile ('com.github.shepherdviolet:slate-springboot:version') {
+            transitive = false
+        }
+    }
+```
+
+```maven
+    <dependency>
+        <groupId>com.github.shepherdviolet</groupId>
+        <artifactId>slate-common</artifactId>
+        <version>version</version>
+        <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+        </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>com.github.shepherdviolet</groupId>
+        <artifactId>slate-springboot</artifactId>
+        <version>version</version>
+        <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+    </dependency>
+```
+
