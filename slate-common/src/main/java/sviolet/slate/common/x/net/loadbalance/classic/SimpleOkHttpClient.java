@@ -125,6 +125,15 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
         return super.toString() + " Inspect [ " + (inspectManager != null ? inspectManager : "No InspectManager") + " ]";
     }
 
+    /**
+     * 文本方式输出当前远端列表和状态
+     * @param prefix 文本前缀
+     * @return 远端列表和状态
+     */
+    public String printHostsStatus(String prefix){
+        return hostManager.printHostsStatus(prefix);
+    }
+
     // Settings ///////////////////////////////////////////////////////////////////////////////////
 
     /**

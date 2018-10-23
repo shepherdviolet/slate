@@ -47,13 +47,9 @@ public class HttpClientsConfig {
                 SimpleOkHttpClient client;
 
                 if (!CheckUtils.isEmptyOrBlank(entry.getValue().getHosts())) {
-                    logger.info("Slate HttpClients | hosts:" + entry.getValue().getHosts());
                     client = new SimpleOkHttpClient()
                             .setHosts(entry.getValue().getHosts());
                 } else {
-                    for (String host : entry.getValue().getHostList()) {
-                        logger.info("Slate HttpClients | host:" + host);
-                    }
                     client = new SimpleOkHttpClient()
                             .setHostArray(entry.getValue().getHostList());
                 }
@@ -73,6 +69,12 @@ public class HttpClientsConfig {
                         .setTag(entry.getKey())
                         .setTxTimerEnabled(entry.getValue().isTxTimerEnabled())
                 );
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Slate HttpClients | " + client);
+                } else if (logger.isInfoEnabled()) {
+                    logger.info(client.printHostsStatus("Slate HttpClients |"));
+                }
 
             }
 
