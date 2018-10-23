@@ -65,4 +65,8 @@ public class TelnetLoadBalanceInspector implements LoadBalanceInspector {
         return NetworkUtils.telnet(hostname, ip, timeout > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) timeout);
     }
 
+    @Override
+    public String toString() {
+        return "TelnetLoadBalanceInspector{}";
+    }
 }

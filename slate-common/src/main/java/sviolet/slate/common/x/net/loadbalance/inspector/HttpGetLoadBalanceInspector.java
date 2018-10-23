@@ -126,4 +126,12 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector {
     public void setVerboseLog(boolean verboseLog) {
         this.verboseLog = verboseLog;
     }
+
+    @Override
+    public String toString() {
+        return "HttpGetLoadBalanceInspector{" +
+                "urlSuffix='" + urlSuffix + '\'' +
+                ", verboseLog=" + verboseLog +
+                '}';
+    }
 }

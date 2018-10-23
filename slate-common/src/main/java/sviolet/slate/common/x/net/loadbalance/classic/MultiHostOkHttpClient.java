@@ -39,10 +39,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.*;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -184,144 +181,8 @@ public class MultiHostOkHttpClient {
     /**
      * <p>创建POST请求, 请求创建过程非线程安全, 请勿多线程操作同一个请求</p>
      *
-     * <p>同步请求:</p>
-     *
-     * <pre>
-     *
-     *  //返回byte[]类型的响应
-     *  try {
-     *      byte[] response = client.post("/post/json")
-     *              .urlParam("traceId", "000000001")
-     *              .body("hello world".getBytes())
-     *              .sendForBytes();
-     *  } catch (NoHostException e) {
-     *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-     *  } catch (RequestBuildException e) {
-     *      //在网络请求未发送前抛出的异常
-     *  } catch (IOException e) {
-     *      //网络异常
-     *  } catch (HttpRejectException e) {
-     *      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     *      //获得拒绝码 e.getResponseCode()
-     *      //获得拒绝信息 e.getResponseMessage()
-     *  }
-     *
-     *  //返回InputStream类型的响应
-     *  //注意:InputStream需要手动关闭(close)
-     *  try (InputStream inputStream = client.post("/post/json")
-     *          .body("hello world".getBytes())
-     *          .sendForInputStream()) {
-     *
-     *      inputStream......
-     *
-     *  } catch (NoHostException e) {
-     *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-     *  } catch (RequestBuildException e) {
-     *      //在网络请求未发送前抛出的异常
-     *  } catch (IOException e) {
-     *      //网络异常
-     *  } catch (HttpRejectException e) {
-     *      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     *      //获得拒绝码 e.getResponseCode()
-     *      //获得拒绝信息 e.getResponseMessage()
-     *  }
-     *
-     *  //返回ResponsePackage类型的响应
-     *  //注意:ResponsePackage需要手动关闭(close)
-     *  try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.post("/post/json")
-     *          .body("hello world".getBytes())
-     *          .send()) {
-     *
-     *      String response = responsePackage.body().string();
-     *
-     *  } catch (NoHostException e) {
-     *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-     *  } catch (RequestBuildException e) {
-     *      //在网络请求未发送前抛出的异常
-     *  } catch (IOException e) {
-     *      //网络异常
-     *  } catch (HttpRejectException e) {
-     *      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     *      //获得拒绝码 e.getResponseCode()
-     *      //获得拒绝信息 e.getResponseMessage()
-     *  }
-     *
-     * </pre>
-     *
-     * <p>异步请求:</p>
-     *
-     * <pre>
-     *
-     *  //返回byte[]类型的响应
-     *  client.post("/post/json")
-     *          .urlParam("traceId", "000000001")
-     *          .body("hello world".getBytes())
-     *          .enqueue(new MultiHostOkHttpClient.BytesCallback() {
-     *              public void onSucceed(byte[] body) {
-     *                  ......
-     *              }
-     *              protected void onErrorBeforeSend(Exception e) {
-     *                  //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-     *                  //RequestBuildException: 在网络请求未发送前抛出的异常
-     *              }
-     *              protected void onErrorAfterSend(Exception e) {
-     *                  //IOException: 网络异常
-     *                  //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     *                  //获得拒绝码 e.getResponseCode()
-     *                  //获得拒绝信息 e.getResponseMessage()
-     *                  //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
-     *              }
-     *          });
-     *
-     *  //返回InputStream类型的响应
-     *  //当autoClose=true时, onSucceed方法回调结束后, 输入流会被自动关闭, 无需手动调用close方法
-     *  //当autoClose=false时, onSucceed方法回调结束后, 输入流不会自动关闭, 需要手动调用InputStream.close()关闭, 注意!!!
-     *  client.post("/post/json")
-     *          .urlParam("traceId", "000000001")
-     *          .body("hello world".getBytes())
-     *          //.autoClose(false)//默认为true
-     *          .enqueue(new MultiHostOkHttpClient.InputStreamCallback() {
-     *              public void onSucceed(InputStream inputStream) throws Exception {
-     *                  ......
-     *              }
-     *              protected void onErrorBeforeSend(Exception e) {
-     *                  //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-     *                  //RequestBuildException: 在网络请求未发送前抛出的异常
-     *              }
-     *              protected void onErrorAfterSend(Exception e) {
-     *                  //IOException: 网络异常
-     *                  //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     *                  //获得拒绝码 e.getResponseCode()
-     *                  //获得拒绝信息 e.getResponseMessage()
-     *                  //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
-     *              }
-     *          });
-     *
-     *  //返回ResponsePackage类型的响应
-     *  //当autoClose=true时, onSucceed方法回调结束后, ResponsePackage会被自动关闭, 无需手动调用close方法
-     *  //当autoClose=false时, onSucceed方法回调结束后, ResponsePackage不会自动关闭, 需要手动调用ResponsePackage.close()关闭, 注意!!!
-     *  client.post("/post/json")
-     *          .urlParam("traceId", "000000001")
-     *          .body("hello world".getBytes())
-     *          //.autoClose(false)//默认为true
-     *          .enqueue(new MultiHostOkHttpClient.ResponsePackageCallback() {
-     *              public void onSucceed(MultiHostOkHttpClient.ResponsePackage responsePackage) throws Exception {
-     *                  ......
-     *              }
-     *              protected void onErrorBeforeSend(Exception e) {
-     *                  //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-     *                  //RequestBuildException: 在网络请求未发送前抛出的异常
-     *              }
-     *              protected void onErrorAfterSend(Exception e) {
-     *                  //IOException: 网络异常
-     *                  //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     *                  //获得拒绝码 e.getResponseCode()
-     *                  //获得拒绝信息 e.getResponseMessage()
-     *                  //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
-     *              }
-     *          });
-     *
-     * </pre>
+     * <p>https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-sync.md</p>
+     * <p>https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-async.md</p>
      *
      * @param urlSuffix 请求的url后缀, 例如/user/add.json
      */
@@ -332,146 +193,8 @@ public class MultiHostOkHttpClient {
     /**
      * <p>创建GET请求, 请求创建过程非线程安全, 请勿多线程操作同一个请求</p>
      *
-     * <p>同步请求:</p>
-     *
-     * <pre>
-     *
-     *  //返回byte[]类型的响应
-     *  try {
-     *      byte[] response = client.get("/get/json")
-     *              .urlParam("name", "000000001")
-     *              .urlParam("key", "000000001")
-     *              .sendForBytes();
-     *  } catch (NoHostException e) {
-     *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-     *  } catch (RequestBuildException e) {
-     *      //在网络请求未发送前抛出的异常
-     *  } catch (IOException e) {
-     *      //网络异常
-     *  } catch (HttpRejectException e) {
-     *      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     *      //获得拒绝码 e.getResponseCode()
-     *      //获得拒绝信息 e.getResponseMessage()
-     *  }
-     *
-     *  //返回InputStream类型的响应
-     *  //注意:InputStream需要手动关闭(close)
-     *  try (InputStream inputStream = client.get("/get/json")
-     *          .urlParam("name", "000000001")
-     *          .urlParam("key", "000000001")
-     *          .sendForInputStream()) {
-     *
-     *      inputStream......
-     *
-     *  } catch (NoHostException e) {
-     *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-     *  } catch (RequestBuildException e) {
-     *      //在网络请求未发送前抛出的异常
-     *  } catch (IOException e) {
-     *      //网络异常
-     *  } catch (HttpRejectException e) {
-     *      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     *      //获得拒绝码 e.getResponseCode()
-     *      //获得拒绝信息 e.getResponseMessage()
-     *  }
-     *
-     *  //返回ResponsePackage类型的响应
-     *  //注意:ResponsePackage需要手动关闭(close)
-     *  try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.get("/get/json")
-     *          .urlParam("name", "000000001")
-     *          .urlParam("key", "000000001")
-     *          .send()) {
-     *
-     *      String response = responsePackage.body().string();
-     *
-     *  } catch (NoHostException e) {
-     *      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-     *  } catch (RequestBuildException e) {
-     *      //在网络请求未发送前抛出的异常
-     *  } catch (IOException e) {
-     *      //网络异常
-     *  } catch (HttpRejectException e) {
-     *      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     *      //获得拒绝码 e.getResponseCode()
-     *      //获得拒绝信息 e.getResponseMessage()
-     *  }
-     *
-     * </pre>
-     *
-     * <p>异步请求:</p>
-     *
-     * <pre>
-     *
-     *  //返回byte[]类型的响应
-     *  client.get("/get/json")
-     *          .urlParam("name", "000000001")
-     *          .urlParam("key", "000000001")
-     *          .enqueue(new MultiHostOkHttpClient.BytesCallback() {
-     *              public void onSucceed(byte[] body) {
-     *                  ......
-     *              }
-     *              protected void onErrorBeforeSend(Exception e) {
-     *                  //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-     *                  //RequestBuildException: 在网络请求未发送前抛出的异常
-     *              }
-     *              protected void onErrorAfterSend(Exception e) {
-     *                  //IOException: 网络异常
-     *                  //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     *                  //获得拒绝码 e.getResponseCode()
-     *                  //获得拒绝信息 e.getResponseMessage()
-     *                  //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
-     *              }
-     *          });
-     *
-     *  //返回InputStream类型的响应
-     *  //当autoClose=true时, onSucceed方法回调结束后, 输入流会被自动关闭, 无需手动调用close方法
-     *  //当autoClose=false时, onSucceed方法回调结束后, 输入流不会自动关闭, 需要手动调用InputStream.close()关闭, 注意!!!
-     *  client.get("/get/json")
-     *          .urlParam("name", "000000001")
-     *          .urlParam("key", "000000001")
-     *          //.autoClose(false)//默认为true
-     *          .enqueue(new MultiHostOkHttpClient.InputStreamCallback() {
-     *              public void onSucceed(InputStream inputStream) throws Exception {
-     *                  ......
-     *              }
-     *              protected void onErrorBeforeSend(Exception e) {
-     *                  //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-     *                  //RequestBuildException: 在网络请求未发送前抛出的异常
-     *              }
-     *              protected void onErrorAfterSend(Exception e) {
-     *                  //IOException: 网络异常
-     *                  //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     *                  //获得拒绝码 e.getResponseCode()
-     *                  //获得拒绝信息 e.getResponseMessage()
-     *                  //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
-     *              }
-     *          });
-     *
-     *  //返回ResponsePackage类型的响应
-     *  //当autoClose=true时, onSucceed方法回调结束后, ResponsePackage会被自动关闭, 无需手动调用close方法
-     *  //当autoClose=false时, onSucceed方法回调结束后, ResponsePackage不会自动关闭, 需要手动调用ResponsePackage.close()关闭, 注意!!!
-     *  client.get("/get/json")
-     *          .urlParam("name", "000000001")
-     *          .urlParam("key", "000000001")
-     *          //.autoClose(false)//默认为true
-     *          .enqueue(new MultiHostOkHttpClient.ResponsePackageCallback() {
-     *              public void onSucceed(MultiHostOkHttpClient.ResponsePackage responsePackage) throws Exception {
-     *                  ......
-     *              }
-     *              protected void onErrorBeforeSend(Exception e) {
-     *                  //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
-     *                  //RequestBuildException: 在网络请求未发送前抛出的异常
-     *              }
-     *              protected void onErrorAfterSend(Exception e) {
-     *                  //IOException: 网络异常
-     *                  //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
-     *                  //获得拒绝码 e.getResponseCode()
-     *                  //获得拒绝信息 e.getResponseMessage()
-     *                  //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
-     *              }
-     *          });
-     *
-     * </pre>
+     * <p>https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-sync.md</p>
+     * <p>https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-async.md</p>
      *
      * @param urlSuffix 请求的url后缀, 例如/user/add.json
      */
@@ -841,15 +564,19 @@ public class MultiHostOkHttpClient {
         @Override
         public String toString() {
             return "Request{" +
-                    "clientReference=" + clientReference +
-                    ", urlSuffix='" + urlSuffix + '\'' +
+                    "urlSuffix='" + urlSuffix + '\'' +
                     ", isPost=" + isPost +
                     ", headers=" + headers +
                     ", urlParams=" + urlParams +
-                    ", body(hex)=" + ByteUtils.bytesToHex(body) +
+                    ", body=" + ByteUtils.bytesToHex(body) +
+                    ", formBody=" + formBody +
+                    ", beanBody=" + beanBody +
+                    ", passiveBlockDuration=" + passiveBlockDuration +
+                    ", mediaType='" + mediaType + '\'' +
+                    ", encode='" + encode + '\'' +
+                    ", dataConverter=" + dataConverter +
                     '}';
         }
-
     }
 
     private ResponsePackage requestSend(Request request) throws NoHostException, RequestBuildException, HttpRejectException, IOException {
@@ -1495,6 +1222,13 @@ public class MultiHostOkHttpClient {
         return response.isSuccessful();
     }
 
+    @Override
+    public String toString() {
+        return settings.tag + "HttpClient Info: Hosts [" +
+                (hostManager != null ? hostManager.printHostsStatus(null) : " No HostManager") +
+                " ] Settings [ " + settings + " ]";
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 配置 //////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1532,6 +1266,28 @@ public class MultiHostOkHttpClient {
         private Settings(){
         }
 
+        @Override
+        public String toString() {
+            return "passiveBlockDuration=" + passiveBlockDuration +
+                    ", recoveryCoefficient=" + recoveryCoefficient +
+                    ", maxIdleConnections=" + maxIdleConnections +
+                    ", maxThreads=" + maxThreads +
+                    ", maxThreadsPerHost=" + maxThreadsPerHost +
+                    ", connectTimeout=" + connectTimeout +
+                    ", writeTimeout=" + writeTimeout +
+                    ", readTimeout=" + readTimeout +
+                    ", maxReadLength=" + maxReadLength +
+                    ", headers=" + headers +
+                    ", mediaType='" + mediaType + '\'' +
+                    ", encode='" + encode + '\'' +
+                    ", verboseLog=" + verboseLog +
+                    ", cookieJar=" + cookieJar +
+                    ", proxy=" + proxy +
+                    ", dns=" + dns +
+                    ", sslSocketFactory=" + sslSocketFactory +
+                    ", dataConverter=" + dataConverter +
+                    ", httpCodeNeedBlock=" + httpCodeNeedBlock;
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

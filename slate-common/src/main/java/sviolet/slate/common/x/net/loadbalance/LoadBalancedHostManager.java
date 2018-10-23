@@ -221,17 +221,16 @@ public class LoadBalancedHostManager {
         StringBuilder stringBuilder = new StringBuilder(prefix != null ? prefix : "");
 
         if (hostArray.length <= 0){
-            stringBuilder.append(" [No host]");
+            stringBuilder.append(" No host");
             return stringBuilder.toString();
         }
 
         long currentTimeMillis = System.currentTimeMillis();
 
         for (Host host : hostArray){
-            stringBuilder.append(" [");
+            stringBuilder.append(" ");
             stringBuilder.append(host.getUrl());
-            stringBuilder.append("] ");
-            stringBuilder.append(!host.isBlocked(currentTimeMillis));
+            stringBuilder.append(host.isBlocked(currentTimeMillis) ? "(bad)" : "(ok)");
         }
         return stringBuilder.toString();
     }
@@ -281,7 +280,7 @@ public class LoadBalancedHostManager {
         hostIndexMap = newHostIndexMap;
 
         if (logger.isInfoEnabled()) {
-            logger.info(printHostsStatus(tag + "New hosts set:"));
+            logger.info(printHostsStatus(tag + "Set new hosts:"));
         }
     }
 

@@ -156,6 +156,15 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "inspectors=" + inspectors +
+                ", inspectInterval=" + inspectInterval +
+                ", inspectTimeout=" + inspectTimeout +
+                ", blockDuration=" + blockDuration +
+                ", verboseLog=" + verboseLog;
+    }
+
     /**
      * 关闭探测器(关闭调度线程)
      */
@@ -225,7 +234,7 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
                     }
                     //打印当前远端状态
                     if (verboseLog && logger.isDebugEnabled()) {
-                        logger.debug(hostManager.printHostsStatus(tag + "Host status (before inspect):"));
+                        logger.debug(hostManager.printHostsStatus(tag + "Hosts status (before inspect):"));
                     }
                     //探测所有远端
                     for (LoadBalancedHostManager.Host host : hostArray){
