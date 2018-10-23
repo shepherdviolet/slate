@@ -122,7 +122,7 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
 
     @Override
     public String toString() {
-        return super.toString() + " Inspect [ " + (inspectManager != null ? inspectManager : "No InspectManager") + " ]";
+        return super.toString() + (inspectManager != null ? " Inspect [ " + inspectManager + " ]" : "");
     }
 
     /**

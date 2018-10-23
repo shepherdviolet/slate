@@ -210,6 +210,11 @@ public class LoadBalancedHostManager {
         return status;
     }
 
+    @Override
+    public String toString() {
+        return printHostsStatus(null);
+    }
+
     /**
      * 文本方式输出当前远端列表和状态
      * @param prefix 文本前缀

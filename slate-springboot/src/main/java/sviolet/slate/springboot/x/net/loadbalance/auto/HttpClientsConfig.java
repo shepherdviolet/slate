@@ -39,10 +39,10 @@ public class HttpClientsConfig {
             for (Map.Entry<String, HttpClientProperties> entry : slateProperties.getHttpclients().entrySet()) {
 
                 logger.info("Slate HttpClients | -------------------------------------------------------------");
-                logger.info("Slate HttpClients | Creating HttpClient, tag: " + entry.getKey());
+                logger.info("Slate HttpClients | Creating " + entry.getKey());
 
                 if (entry.getValue() == null) {
-                    logger.warn("Slate HttpClients | tag " + entry.getKey() + " has no properties, skip creating");
+                    logger.warn("Slate HttpClients | " + entry.getKey() + " has no properties, skip");
                 }
 
                 SimpleOkHttpClient client = (SimpleOkHttpClient) new SimpleOkHttpClient()
@@ -70,7 +70,7 @@ public class HttpClientsConfig {
                 );
 
                 if (logger.isInfoEnabled()) {
-                    logger.info("Slate HttpClients | " + client);
+                    logger.info("Slate HttpClients | Created " + client.printHostsStatus("Hosts [") + " ] " + client);
                 }
 
             }

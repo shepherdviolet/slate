@@ -1224,9 +1224,8 @@ public class MultiHostOkHttpClient {
 
     @Override
     public String toString() {
-        return settings.tag + "HttpClient Info: Hosts [" +
-                (hostManager != null ? hostManager.printHostsStatus(null) : " No HostManager") +
-                " ] Settings [ " + settings + " ]";
+        return (hostManager != null ? hostManager.printHostsStatus("Hosts [") + " ] " : "") +
+                "Settings [ " + settings + " ]";
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
