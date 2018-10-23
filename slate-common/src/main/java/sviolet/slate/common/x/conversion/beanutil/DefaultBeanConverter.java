@@ -2,6 +2,7 @@ package sviolet.slate.common.x.conversion.beanutil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sviolet.thistle.util.judge.CheckUtils;
 import sviolet.thistle.x.common.thistlespi.ThistleSpi;
 
 import java.util.HashMap;
@@ -14,6 +15,8 @@ import java.util.Map;
  * @author S.Violet
  */
 public class DefaultBeanConverter extends BeanConverter {
+
+    private static final String LOG_PROPERTY = "slate.beanutils.log";
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultBeanConverter.class);
     private static final String LOG_PREFIX = "SlateBeanUtils | ";
@@ -31,8 +34,13 @@ public class DefaultBeanConverter extends BeanConverter {
      * @param logEnabled true/logEnabled:开启日志
      */
     public DefaultBeanConverter(String logEnabled) {
-        logEnabled = String.valueOf(logEnabled).toUpperCase();
-        this.logEnabled = "TRUE".equals(logEnabled) || "LOGENABLED".equals(logEnabled);
+        String logProperty = System.getProperty(LOG_PROPERTY, null);
+        if (CheckUtils.isEmptyOrBlank(logProperty)) {
+            logEnabled = String.valueOf(logEnabled);
+            this.logEnabled = "TRUE".equalsIgnoreCase(logEnabled) || "LOGENABLED".equalsIgnoreCase(logEnabled);
+        } else {
+            this.logEnabled = "TRUE".equalsIgnoreCase(logProperty) || "LOGENABLED".equalsIgnoreCase(logProperty);
+        }
         init();
     }
 

@@ -14,10 +14,11 @@ public class SlateBeanUtilsCopyTest {
 
     @Test
     public void test() throws InterruptedException {
-        System.out.println(EnvironmentUtils.PID);
-        System.setProperty("slate.beanutils.log", "true");
+//        System.out.println(EnvironmentUtils.PID);
+        System.setProperty("slate.beanutils.log", "false");
         System.setProperty("thistle.spi.loglv", "error");
-        System.out.println(copyOnce());
+        String result = String.valueOf(copyOnce());
+//        System.out.println(result);
     }
 
     private static To copyOnce() {

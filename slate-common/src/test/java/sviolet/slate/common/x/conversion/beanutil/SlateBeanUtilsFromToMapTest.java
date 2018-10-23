@@ -11,28 +11,30 @@ public class SlateBeanUtilsFromToMapTest {
 
     @Test
     public void toMap(){
-        System.out.println(EnvironmentUtils.PID);
-        System.setProperty("slate.beanutils.log", "true");
+//        System.out.println(EnvironmentUtils.PID);
+        System.setProperty("slate.beanutils.log", "false");
         System.setProperty("thistle.spi.loglv", "error");
         Bean bean = new Bean();
         bean.p1 = "lalala";
         bean.p2 = new BigDecimal("321.333");
         bean.p3 = 321;
         bean.p4 = 0x41;
-        System.out.println(SlateBeanUtils.beanToMap(bean));
+        String result = String.valueOf(SlateBeanUtils.beanToMap(bean));
+//        System.out.println(result);
     }
 
     @Test
     public void fromMap() throws InterruptedException {
-        System.out.println(EnvironmentUtils.PID);
-        System.setProperty("slate.beanutils.log", "true");
+//        System.out.println(EnvironmentUtils.PID);
+        System.setProperty("slate.beanutils.log", "false");
         System.setProperty("thistle.spi.loglv", "error");
         Map<String, Object> map = new HashMap<>();
         map.put("p1", "lalala");
         map.put("p2", 123.333);
         map.put("p3", 321);
         map.put("p4", (char)0x41);
-        System.out.println(SlateBeanUtils.mapToBean(map, Bean.class, true, true));
+        String result = String.valueOf(SlateBeanUtils.mapToBean(map, Bean.class, true, true));
+//        System.out.println(result);
     }
 
     private static class Bean {

@@ -5,6 +5,8 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -96,7 +98,15 @@ public class SlateBeanUtilsRecursiveTest {
 
         private String no = "5465135464";
         private Float percent = 0.998f;
-        private Date date = new Date(new java.util.Date().getTime());
+        private Date date;
+
+        public Card() {
+            try {
+                date = new Date(new SimpleDateFormat("yyyy-MM-dd").parse("2018-10-19").getTime());
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         public String getNo() {
             return no;
