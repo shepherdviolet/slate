@@ -1,7 +1,7 @@
 package sviolet.slate.springboot.auto;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import sviolet.slate.springboot.modelx.loadbalance.auto.HttpClientProperties;
+import sviolet.slate.springboot.x.net.loadbalance.auto.HttpClientProperties;
 
 import java.util.Map;
 

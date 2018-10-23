@@ -1,4 +1,4 @@
-package sviolet.slate.springboot.modelx.loadbalance.auto;
+package sviolet.slate.springboot.x.net.loadbalance.auto;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;

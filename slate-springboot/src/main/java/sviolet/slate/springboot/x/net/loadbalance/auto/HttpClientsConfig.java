@@ -1,4 +1,4 @@
-package sviolet.slate.springboot.modelx.loadbalance.auto;
+package sviolet.slate.springboot.x.net.loadbalance.auto;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
