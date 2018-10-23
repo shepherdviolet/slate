@@ -206,6 +206,7 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     }
 
     /**
+     * [可运行时修改]
      * 设置客户端的标识
      * @param tag 标识
      */
@@ -221,12 +222,18 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     }
 
     /**
-     * 将主动探测器从TELNET型修改为HTTP GET型, 运行时修改该参数无效!
-     * @param urlSuffix 探测页面URL(例如:http://127.0.0.1:8080/health, 则在此处设置/health)
+     * [无法运行时修改]
+     * 将主动探测器从TELNET型修改为HTTP-GET型
+     * @param urlSuffix 探测页面URL(例如:http://127.0.0.1:8080/health, 则在此处设置/health), 设置为+telnet+则使用默认的TELNET型
      */
     public SimpleOkHttpClient setHttpGetInspector(String urlSuffix) {
-        this.httpGetInspectorUrlSuffix = urlSuffix;
-        this.httpGetInspectorEnabled = true;
+        if ("+telnet+".equals(urlSuffix)) {
+            this.httpGetInspectorUrlSuffix = null;
+            this.httpGetInspectorEnabled = false;
+        } else {
+            this.httpGetInspectorUrlSuffix = urlSuffix;
+            this.httpGetInspectorEnabled = true;
+        }
         return this;
     }
 
