@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class LoadBalancedHostManager {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
-    private String tag = "";
+    private String tag = "Slate LoadBalance | ";
 
     private AtomicInteger mainCounter = new AtomicInteger(0);
     private AtomicInteger refugeCounter = new AtomicInteger(0);
@@ -186,7 +186,7 @@ public class LoadBalancedHostManager {
      * @param tag 标识
      */
     public LoadBalancedHostManager setTag(String tag) {
-        this.tag = tag != null ? tag + "> " : "";
+        this.tag = tag != null ? "Slate LoadBalance | " + tag + "> " : "Slate LoadBalance | ";
         return this;
     }
 

@@ -38,20 +38,20 @@ public class HttpClientsConfig {
 
             for (Map.Entry<String, HttpClientProperties> entry : slateProperties.getHttpclients().entrySet()) {
 
-                logger.info("Slate HttpClients | creating http client with tag:" + entry.getKey());
+                logger.info("Slate HttpClients | -------------------------------------------------------------");
+                logger.info("Slate HttpClients | Creating HttpClient, tag: " + entry.getKey());
 
                 if (entry.getValue() == null) {
                     logger.warn("Slate HttpClients | tag " + entry.getKey() + " has no properties, skip creating");
                 }
 
-                SimpleOkHttpClient client;
+                SimpleOkHttpClient client = (SimpleOkHttpClient) new SimpleOkHttpClient()
+                        .setTag(entry.getKey());
 
                 if (!CheckUtils.isEmptyOrBlank(entry.getValue().getHosts())) {
-                    client = new SimpleOkHttpClient()
-                            .setHosts(entry.getValue().getHosts());
+                    client.setHosts(entry.getValue().getHosts());
                 } else {
-                    client = new SimpleOkHttpClient()
-                            .setHostArray(entry.getValue().getHostList());
+                    client.setHostArray(entry.getValue().getHostList());
                 }
 
                 clients.put(entry.getKey(), (SimpleOkHttpClient) client
@@ -66,14 +66,11 @@ public class HttpClientsConfig {
                         .setRecoveryCoefficient(entry.getValue().getRecoveryCoefficient())
                         .setVerboseLog(entry.getValue().isVerboseLog())
                         .setDataConverter(new GsonDataConverter())
-                        .setTag(entry.getKey())
                         .setTxTimerEnabled(entry.getValue().isTxTimerEnabled())
                 );
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Slate HttpClients | " + client);
-                } else if (logger.isInfoEnabled()) {
-                    logger.info(client.printHostsStatus("Slate HttpClients |"));
+                if (logger.isInfoEnabled()) {
+                    logger.info("Slate HttpClients | " + client);
                 }
 
             }
@@ -92,7 +89,7 @@ public class HttpClientsConfig {
     public SimpleOkHttpClient httpClient(HttpClients httpClients){
         if (httpClients.size() == 1) {
             for (String tag : httpClients.tags()) {
-                logger.debug("Slate HttpClients | only one instance, you can get instance by @Autowired SimpleOkHttpClient");
+                logger.info("Slate HttpClients | Only one instance, you can get instance by @Autowired SimpleOkHttpClient");
                 return httpClients.get(tag);
             }
         }
