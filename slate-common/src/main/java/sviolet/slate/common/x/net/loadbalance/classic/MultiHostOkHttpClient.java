@@ -1626,6 +1626,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * 打印更多的日志, 默认关闭
      * @param verboseLog true:打印更多的调试日志, 默认关闭
      */
@@ -1635,6 +1636,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * 打印更多的日志, 细粒度配置, 默认全打印, 当verboseLog=true时该参数生效<br>
      *
      * VERBOSE_LOG_CONFIG_ALL:{@value VERBOSE_LOG_CONFIG_ALL}<br>
@@ -1651,6 +1653,7 @@ public class MultiHostOkHttpClient {
     }
 
     /**
+     * [可运行时修改]
      * 日志打印细粒度配置, 默认全打印<br>
      *
      * LOG_CONFIG_ALL:{@value LOG_CONFIG_ALL}<br>
@@ -1666,7 +1669,7 @@ public class MultiHostOkHttpClient {
 
     /**
      * [可运行时修改]
-     * 最大闲置连接数. 客户端会保持与服务端的连接, 保持数量由此设置决定, 直到闲置超过5分钟. 默认
+     * 最大闲置连接数. 客户端会保持与服务端的连接, 保持数量由此设置决定, 直到闲置超过5分钟. 默认16
      * @param maxIdleConnections 最大闲置连接数, 默认16
      */
     public MultiHostOkHttpClient setMaxIdleConnections(int maxIdleConnections) {
@@ -1766,6 +1769,16 @@ public class MultiHostOkHttpClient {
 
     /**
      * [可运行时修改]
+     * 设置阻断后的恢复期系数, 修复期时长 = blockDuration * recoveryCoefficient, 设置1则无恢复期
+     * @param recoveryCoefficient 阻断后的恢复期系数, >= 1
+     */
+    public MultiHostOkHttpClient setRecoveryCoefficient(int recoveryCoefficient) {
+        settings.recoveryCoefficient = recoveryCoefficient;
+        return this;
+    }
+
+    /**
+     * [可运行时修改]
      * CookieJar
      * @param cookieJar CookieJar
      */
@@ -1844,34 +1857,6 @@ public class MultiHostOkHttpClient {
 
     /**
      * [可运行时修改]
-     * 当HTTP返回码为指定返回码时, 阻断后端
-     * @param codes 指定需要阻断的返回码, 例如:403,404
-     */
-    public MultiHostOkHttpClient setHttpCodeNeedBlock(String codes) {
-        try {
-            String[] codeArray = codes.split(",");
-            Set<Integer> newSet = new HashSet<>(8);
-            for (String code : codeArray) {
-                newSet.add(Integer.parseInt(code));
-            }
-            settings.httpCodeNeedBlock = newSet;
-        } catch (Throwable t) {
-            throw new RuntimeException("Invalid httpCodeNeedBlock " + codes, t);
-        }
-        return this;
-    }
-
-    /**
-     * 设置阻断后的恢复期系数, 修复期时长 = blockDuration * recoveryCoefficient, 设置1则无恢复期
-     * @param recoveryCoefficient 阻断后的恢复期系数, >= 1
-     */
-    public MultiHostOkHttpClient setRecoveryCoefficient(int recoveryCoefficient) {
-        settings.recoveryCoefficient = recoveryCoefficient;
-        return this;
-    }
-
-    /**
-     * [可运行时修改]
      * <p>[配置]数据转换器, 用于将beanBody设置的JavaBean转换为byte[], 和将返回报文byte[]转换为JavaBean</p>
      */
     public MultiHostOkHttpClient setDataConverter(DataConverter dataConverter) {
@@ -1885,6 +1870,29 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setTag(String tag) {
         settings.tag = tag != null ? "Slate HttpClient | " + tag + "> " : "Slate HttpClient | ";
+        return this;
+    }
+
+    /**
+     * [可运行时修改]
+     * 当HTTP返回码为指定返回码时, 阻断后端
+     * @param codes 指定需要阻断的返回码, 例如:403,404
+     */
+    public MultiHostOkHttpClient setHttpCodeNeedBlock(String codes) {
+        if (CheckUtils.isEmptyOrBlank(codes)) {
+            settings.httpCodeNeedBlock = new HashSet<>(8);
+            return this;
+        }
+        try {
+            String[] codeArray = codes.split(",");
+            Set<Integer> newSet = new HashSet<>(8);
+            for (String code : codeArray) {
+                newSet.add(Integer.parseInt(code));
+            }
+            settings.httpCodeNeedBlock = newSet;
+        } catch (Throwable t) {
+            throw new RuntimeException("Invalid httpCodeNeedBlock " + codes, t);
+        }
         return this;
     }
 
