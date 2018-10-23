@@ -90,6 +90,12 @@ public class DefaultTxTimerProvider implements TxTimerProvider {
 
     @Override
     public void start(String groupName, String transactionName) {
+        if (groupName == null) {
+            groupName = "<null>";
+        }
+        if (transactionName == null) {
+            transactionName = "<null>";
+        }
         //从ThreadLocal获取上下文, 若存在则不正常
         Record record = this.record.get();
         if (record != null) {
