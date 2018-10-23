@@ -1,4 +1,4 @@
-# Http请求客户端调用方法(异步GET/POST)
+# HttpClient调用方法(异步GET/POST)
 
 * 关于URL地址
 

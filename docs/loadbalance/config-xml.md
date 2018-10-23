@@ -1,4 +1,4 @@
-# Http请求客户端配置方法(XML)
+# HttpClient配置方法(XML)
 
 * `Maven/Gradle依赖配置`在本文最后
 
