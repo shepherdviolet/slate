@@ -200,21 +200,26 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
                 LoadBalancedHostManager.Host[] hostArray;
                 List<LoadBalanceInspector> inspectors;
                 while (!closed){
+                    //间隔
+                    try {
+                        Thread.sleep(inspectInterval);
+                    } catch (InterruptedException ignored) {
+                    }
                     //持有当前的hostManager
                     hostManager = LoadBalancedInspectManager.this.hostManager;
                     inspectors = LoadBalancedInspectManager.this.inspectors;
                     //检查是否配置
                     if (hostManager == null || inspectors == null){
-                        if (logger.isWarnEnabled()) {
-                            logger.warn(tag + "Dispatch: no hostManager or inspectors, skip inspect");
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(tag + "Dispatch: no hostManager or inspectors, skip inspect");
                         }
                         continue;
                     }
                     //获取远端列表
                     hostArray = hostManager.getHostArray();
                     if (hostArray.length <= 0){
-                        if (logger.isWarnEnabled()) {
-                            logger.warn(tag + "Dispatch: hostArray is empty, skip inspect");
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(tag + "Dispatch: hostArray is empty, skip inspect");
                         }
                         continue;
                     }
@@ -225,11 +230,6 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
                     //探测所有远端
                     for (LoadBalancedHostManager.Host host : hostArray){
                         inspect(host);
-                    }
-                    //间隔
-                    try {
-                        Thread.sleep(inspectInterval);
-                    } catch (InterruptedException ignored) {
                     }
                 }
                 if (logger.isDebugEnabled()) {
@@ -252,8 +252,8 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
                 //持有探测器
                 List<LoadBalanceInspector> inspectors = LoadBalancedInspectManager.this.inspectors;
                 if (inspectors == null){
-                    if (logger.isWarnEnabled()) {
-                        logger.warn(tag + "Inspect: no inspectors, skip inspect");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(tag + "Inspect: no inspectors, skip inspect");
                     }
                     return;
                 }
