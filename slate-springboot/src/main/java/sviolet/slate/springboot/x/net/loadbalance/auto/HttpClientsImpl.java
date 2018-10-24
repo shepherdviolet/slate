@@ -1,23 +1,63 @@
 package sviolet.slate.springboot.x.net.loadbalance.auto;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * SimpleOkHttpClient集合
+ *
+ * @author S.Violet
+ */
 class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, DisposableBean {
 
-    private Map<String, SimpleOkHttpClient>  clients;
+    private static final Logger logger = LoggerFactory.getLogger(HttpClientsImpl.class);
 
-    HttpClientsImpl(Map<String, SimpleOkHttpClient> clients) {
-        if (clients == null) {
-            throw new IllegalArgumentException("clients is null");
+    private volatile Map<String, SimpleOkHttpClient> clients = new HashMap<>(16);
+    private volatile Map<String, HttpClientProperties> propertiesMap;
+
+    HttpClientsImpl(Map<String, HttpClientProperties> propertiesMap) {
+        //properties
+        if (propertiesMap == null) {
+            propertiesMap = new HashMap<>(0);
         }
-        this.clients = clients;
+        this.propertiesMap = propertiesMap;
+
+        //create clients
+        for (Map.Entry<String, HttpClientProperties> entry : propertiesMap.entrySet()) {
+
+            String tag = entry.getKey();
+
+            logger.info("Slate HttpClients | -------------------------------------------------------------");
+            logger.info("Slate HttpClients | Creating " + tag);
+
+            HttpClientProperties properties = entry.getValue();
+            if (properties == null) {
+                logger.warn("Slate HttpClients | " + tag + " has no properties, skip");
+                continue;
+            }
+
+            SimpleOkHttpClient client = HttpClientCreator.create(tag, properties);
+            clients.put(tag, client);
+
+            if (logger.isInfoEnabled()) {
+                logger.info("Slate HttpClients | Created " + client);
+            }
+
+        }
+    }
+
+    @Override
+    public void update(String config) {
+
     }
 
     @Override
@@ -37,6 +77,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     @Override
     public void close() throws IOException {
+        Map<String, SimpleOkHttpClient>  clients = this.clients;
         for (Map.Entry<String, SimpleOkHttpClient> entry : clients.entrySet()) {
             entry.getValue().close();
         }
@@ -44,6 +85,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     @Override
     public void destroy() throws Exception {
+        Map<String, SimpleOkHttpClient>  clients = this.clients;
         for (Map.Entry<String, SimpleOkHttpClient> entry : clients.entrySet()) {
             entry.getValue().destroy();
         }
@@ -51,6 +93,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        Map<String, SimpleOkHttpClient>  clients = this.clients;
         for (Map.Entry<String, SimpleOkHttpClient> entry : clients.entrySet()) {
             entry.getValue().afterPropertiesSet();
         }
