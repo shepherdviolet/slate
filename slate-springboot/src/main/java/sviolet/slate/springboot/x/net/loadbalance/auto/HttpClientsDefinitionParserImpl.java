@@ -2,9 +2,7 @@ package sviolet.slate.springboot.x.net.loadbalance.auto;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
@@ -12,9 +10,7 @@ import java.util.Map;
  *
  * @author S.Violet
  */
-public class HttpClientsDefinitionParserImpl implements HttpClientsDefinitionParser {
-
-    private static final Type TYPE = new TypeToken<Map<String, HttpClientProperties>>(){}.getType();
+class HttpClientsDefinitionParserImpl implements HttpClientsDefinitionParser {
 
     private Gson gson = new GsonBuilder().create();
 
@@ -25,7 +21,20 @@ public class HttpClientsDefinitionParserImpl implements HttpClientsDefinitionPar
      */
     @Override
     public Map<String, HttpClientProperties> parse(String definition) throws Exception {
-        return gson.fromJson(definition, TYPE);
+//        @SuppressWarnings("unchecked")
+//        Map<String, Object> from = gson.fromJson(definition, Map.class);
+//        Map<String, HttpClientProperties> to = new HashMap<>(from.size());
+//
+//        for (Map.Entry<String, Object> entry : from.entrySet()) {
+//
+//            String hosts = String.valueOf(from.get("hosts"));
+//            if (hosts != null) {
+//
+//            }
+//
+//        }
+
+        return null;
     }
 
 }

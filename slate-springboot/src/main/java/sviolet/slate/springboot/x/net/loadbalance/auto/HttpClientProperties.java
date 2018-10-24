@@ -1,5 +1,6 @@
 package sviolet.slate.springboot.x.net.loadbalance.auto;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -314,5 +315,32 @@ public class HttpClientProperties {
 
     public void setTxTimerEnabled(boolean txTimerEnabled) {
         this.txTimerEnabled = txTimerEnabled;
+    }
+
+    @Override
+    public String toString() {
+        return "HttpClientProperties{" +
+                "hosts='" + hosts + '\'' +
+                ", hostList=" + Arrays.toString(hostList) +
+                ", initiativeInspectInterval=" + initiativeInspectInterval +
+                ", returnNullIfAllBlocked=" + returnNullIfAllBlocked +
+                ", httpGetInspectorUrlSuffix='" + httpGetInspectorUrlSuffix + '\'' +
+                ", inspectorVerboseLog=" + inspectorVerboseLog +
+                ", passiveBlockDuration=" + passiveBlockDuration +
+                ", mediaType='" + mediaType + '\'' +
+                ", encode='" + encode + '\'' +
+                ", headers=" + headers +
+                ", recoveryCoefficient=" + recoveryCoefficient +
+                ", maxIdleConnections=" + maxIdleConnections +
+                ", maxThreads=" + maxThreads +
+                ", maxThreadsPerHost=" + maxThreadsPerHost +
+                ", connectTimeout=" + connectTimeout +
+                ", writeTimeout=" + writeTimeout +
+                ", readTimeout=" + readTimeout +
+                ", maxReadLength=" + maxReadLength +
+                ", httpCodeNeedBlock='" + httpCodeNeedBlock + '\'' +
+                ", verboseLog=" + verboseLog +
+                ", txTimerEnabled=" + txTimerEnabled +
+                '}';
     }
 }
