@@ -169,6 +169,16 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
 
     /**
      * [可运行时修改]
+     * 如果设置为false(默认), 当所有远端都被阻断时, nextHost方法返回一个后端.
+     * 如果设置为true, 当所有远端都被阻断时, nextHost方法返回null.
+     */
+    public SimpleOkHttpClient setReturnNullIfAllBlocked(boolean returnNullIfAllBlocked) {
+        hostManager.setReturnNullIfAllBlocked(returnNullIfAllBlocked);
+        return this;
+    }
+
+    /**
+     * [可运行时修改]
      * 将主动探测器从TELNET型修改为HTTP-GET型
      * @param urlSuffix 探测页面URL(例如:http://127.0.0.1:8080/health, 则在此处设置/health), 设置为+telnet+则使用默认的TELNET型
      */
@@ -190,16 +200,6 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     public MultiHostOkHttpClient setVerboseLog(boolean verboseLog) {
         super.setVerboseLog(verboseLog);
         inspectManager.setVerboseLog(verboseLog);
-        return this;
-    }
-
-    /**
-     * [可运行时修改]
-     * 如果设置为false(默认), 当所有远端都被阻断时, nextHost方法返回一个后端.
-     * 如果设置为true, 当所有远端都被阻断时, nextHost方法返回null.
-     */
-    public MultiHostOkHttpClient setReturnNullIfAllBlocked(boolean returnNullIfAllBlocked) {
-        hostManager.setReturnNullIfAllBlocked(returnNullIfAllBlocked);
         return this;
     }
 
