@@ -7,7 +7,7 @@ import sviolet.thistle.util.judge.CheckUtils;
 /**
  * HttpClientCreator
  *
- * @author S.Violet 
+ * @author S.Violet
  */
 class HttpClientCreator {
 
@@ -33,6 +33,7 @@ class HttpClientCreator {
                 .setInitiativeInspectInterval(properties.getInitiativeInspectInterval())
                 .setReturnNullIfAllBlocked(properties.isReturnNullIfAllBlocked())
                 .setHttpGetInspector(properties.getHttpGetInspectorUrlSuffix())
+                .setInspectorVerboseLog(properties.isInspectorVerboseLog())
                 .setPassiveBlockDuration(properties.getPassiveBlockDuration())
                 .setMediaType(properties.getMediaType())
                 .setEncode(properties.getEncode())

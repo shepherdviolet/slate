@@ -50,6 +50,12 @@ public class HttpClientProperties {
 
     /**
      * [可运行时修改]
+     * 主动探测器打印更多的日志, 默认关闭
+     */
+    private boolean inspectorVerboseLog = false;
+
+    /**
+     * [可运行时修改]
      * <p>设置被动检测到网络故障时阻断后端的时间</p>
      *
      * <p>当请求服务端时, 发生特定的异常或返回特定的响应码(MultiHostOkHttpClient.needBlock方法决定), 客户端会将该
@@ -180,6 +186,14 @@ public class HttpClientProperties {
 
     public void setHttpGetInspectorUrlSuffix(String httpGetInspectorUrlSuffix) {
         this.httpGetInspectorUrlSuffix = httpGetInspectorUrlSuffix;
+    }
+
+    public boolean isInspectorVerboseLog() {
+        return inspectorVerboseLog;
+    }
+
+    public void setInspectorVerboseLog(boolean inspectorVerboseLog) {
+        this.inspectorVerboseLog = inspectorVerboseLog;
     }
 
     public long getPassiveBlockDuration() {
