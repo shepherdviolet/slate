@@ -6,7 +6,8 @@ import sviolet.slate.springboot.x.net.loadbalance.auto.HttpClientProperties;
 import java.util.Map;
 
 /**
- * Slate自动配置参数
+ * <p>Slate配置</p>
+ * <p>配置前缀: slate</p>
  *
  * @author S.Violet
  */

@@ -5,7 +5,7 @@ import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
 import java.util.Set;
 
 /**
- * 使用slate.httpclients自动配置的Http请求客户端集合
+ * 使用slate.httpclients自动配置的SimpleOkHttpClient集合
  */
 public interface HttpClients {
 

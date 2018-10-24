@@ -3,8 +3,8 @@ package sviolet.slate.springboot.x.net.loadbalance.auto;
 import java.util.Map;
 
 /**
+ * <p>HttpClients配置: 自动配置SimpleOkHttpClient</p>
  * <p>配置前缀: slate.httpclients</p>
- * <p>自动配置: SimpleOkHttpClient</p>
  *
  * @author S.Violet
  */
