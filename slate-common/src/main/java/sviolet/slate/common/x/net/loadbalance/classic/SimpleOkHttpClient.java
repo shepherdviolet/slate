@@ -168,6 +168,20 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     }
 
     /**
+     * [可运行时修改]
+     * 将主动探测器从TELNET型修改为HTTP-GET型
+     * @param urlSuffix 探测页面URL(例如:http://127.0.0.1:8080/health, 则在此处设置/health), 设置为+telnet+则使用默认的TELNET型
+     */
+    public SimpleOkHttpClient setHttpGetInspector(String urlSuffix) {
+        if ("+telnet+".equals(urlSuffix)) {
+            inspectManager.setInspector(new TelnetLoadBalanceInspector());
+        } else {
+            inspectManager.setInspector(new HttpGetLoadBalanceInspector(urlSuffix, inspectManager.getInspectTimeout()));
+        }
+        return this;
+    }
+
+    /**
      * [线程安全/异步生效/可运行时修改]
      * 打印更多的日志, 默认关闭
      * @param verboseLog true:打印更多的调试日志, 默认关闭
@@ -199,20 +213,6 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
         super.setTag(tag);
         hostManager.setTag(tag);
         inspectManager.setTag(tag);
-        return this;
-    }
-
-    /**
-     * [可运行时修改]
-     * 将主动探测器从TELNET型修改为HTTP-GET型
-     * @param urlSuffix 探测页面URL(例如:http://127.0.0.1:8080/health, 则在此处设置/health), 设置为+telnet+则使用默认的TELNET型
-     */
-    public SimpleOkHttpClient setHttpGetInspector(String urlSuffix) {
-        if ("+telnet+".equals(urlSuffix)) {
-            inspectManager.setInspector(new TelnetLoadBalanceInspector());
-        } else {
-            inspectManager.setInspector(new HttpGetLoadBalanceInspector(urlSuffix, inspectManager.getInspectTimeout()));
-        }
         return this;
     }
 
