@@ -26,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.slate.common.x.net.loadbalance.LoadBalanceInspector;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author S.Violet
  */
-public class HttpGetLoadBalanceInspector implements LoadBalanceInspector {
+public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closeable {
 
     private static final int HTTP_SUCCESS = 200;
     private static final long DEFAULT_TIMEOUT = 2000L;
@@ -94,6 +96,16 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector {
         return false;
     }
 
+    @Override
+    public void close() throws IOException {
+        try {
+            client.dispatcher().executorService().shutdown();
+            client.connectionPool().evictAll();
+            client.cache().close();
+        } catch (Exception ignore) {
+        }
+    }
+
     /**
      * [可运行时修改(不建议频繁修改)]
      * 设置单次探测网络超时时间(必须), 建议为LoadBalancedInspectManager.setInspectInterval设置值的1/4
@@ -134,4 +146,5 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector {
                 ", verboseLog=" + verboseLog +
                 '}';
     }
+
 }
