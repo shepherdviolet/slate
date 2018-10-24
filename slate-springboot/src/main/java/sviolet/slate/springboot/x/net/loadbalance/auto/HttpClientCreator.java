@@ -4,6 +4,11 @@ import sviolet.slate.common.x.net.loadbalance.classic.GsonDataConverter;
 import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
 import sviolet.thistle.util.judge.CheckUtils;
 
+/**
+ * HttpClientCreator
+ *
+ * @author S.Violet 
+ */
 class HttpClientCreator {
 
     /**

@@ -9,8 +9,8 @@ import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
 import sviolet.slate.springboot.auto.SlateProperties;
 
 /**
- * slate.httpclients
- * 自动配置SimpleOkHttpClient(多个)
+ * <p>HttpClients配置: 自动配置SimpleOkHttpClient</p>
+ * <p>配置前缀: slate.httpclients</p>
  *
  * @author S.Violet
  */
@@ -20,15 +20,24 @@ public class HttpClientsConfig {
     private static final Logger logger = LoggerFactory.getLogger(HttpClientsConfig.class);
 
     /**
-     * 自动配置SimpleOkHttpClient(多个)
+     * 自动配置HttpClients
      *
      * 只配置一个客户端, 且上下文中也没有手动创建的SimpleOkHttpClient时, 可以用@Autowired SimpleOkHttpClient直接获得客户端实例,
      * 否则要通过@Autowired HttpClients获得客户端集合
      */
     @Bean("slate.springboot.HttpClients")
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    public HttpClients httpClients(SlateProperties slateProperties){
-        return new HttpClientsImpl(slateProperties.getHttpclients());
+    public HttpClients httpClients(SlateProperties slateProperties, HttpClientsDefinitionParser httpClientsDefinitionParser){
+        return new HttpClientsImpl(slateProperties.getHttpclients(), httpClientsDefinitionParser);
+    }
+
+    /**
+     * 将定义文本解析为HttpClients配置
+     */
+    @Bean("slate.springboot.HttpClientsDefinitionParser")
+    @ConditionalOnMissingBean
+    public HttpClientsDefinitionParser httpClientsDefinitionParser(){
+        return new HttpClientsDefinitionParserImpl();
     }
 
     /**

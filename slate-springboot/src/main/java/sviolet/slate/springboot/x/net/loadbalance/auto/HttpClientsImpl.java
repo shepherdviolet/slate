@@ -24,12 +24,21 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
     private volatile Map<String, SimpleOkHttpClient> clients = new HashMap<>(16);
     private volatile Map<String, HttpClientProperties> propertiesMap;
 
-    HttpClientsImpl(Map<String, HttpClientProperties> propertiesMap) {
-        //properties
+    private HttpClientsDefinitionParser definitionParser;
+
+    HttpClientsImpl(Map<String, HttpClientProperties> propertiesMap, HttpClientsDefinitionParser definitionParser) {
+
+        //init properties
         if (propertiesMap == null) {
             propertiesMap = new HashMap<>(0);
         }
         this.propertiesMap = propertiesMap;
+
+        //definition parser
+        if (definitionParser == null) {
+            definitionParser = new HttpClientsDefinitionParserImpl();
+        }
+        this.definitionParser = definitionParser;
 
         //create clients
         for (Map.Entry<String, HttpClientProperties> entry : propertiesMap.entrySet()) {
@@ -56,7 +65,8 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
     }
 
     @Override
-    public void update(String config) {
+    public void update(String definition) throws Exception {
+        Map<String, HttpClientProperties> newPropertiesMap = definitionParser.parse(definition);
 
     }
 
