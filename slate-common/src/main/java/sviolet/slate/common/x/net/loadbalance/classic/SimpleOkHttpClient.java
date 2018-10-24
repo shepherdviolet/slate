@@ -24,6 +24,7 @@ import org.springframework.beans.factory.InitializingBean;
 import sviolet.slate.common.x.net.loadbalance.LoadBalancedHostManager;
 import sviolet.slate.common.x.net.loadbalance.LoadBalancedInspectManager;
 import sviolet.slate.common.x.net.loadbalance.inspector.HttpGetLoadBalanceInspector;
+import sviolet.slate.common.x.net.loadbalance.inspector.TelnetLoadBalanceInspector;
 import sviolet.thistle.util.common.CloseableUtils;
 
 import java.io.Closeable;
@@ -60,7 +61,7 @@ import java.io.Closeable;
  *
  *  <bean id="simpleOkHttpClient" class="sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient">
  *      <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
- *      <property name="initiativeInspectInterval" value="10000"/>
+ *      <property name="initiativeInspectInterval" value="5000"/>
  *      <property name="maxThreads" value="200"/>
  *      <property name="maxThreadsPerHost" value="200"/>
  *      <property name="passiveBlockDuration" value="6000"/>
@@ -79,27 +80,24 @@ import java.io.Closeable;
 public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeable, InitializingBean, DisposableBean {
 
     private LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
-    private LoadBalancedInspectManager inspectManager;
+    private LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager(false).setHostManager(hostManager);
 
-    private long initiativeInspectInterval = LoadBalancedInspectManager.DEFAULT_INSPECT_INTERVAL;
-    private boolean httpGetInspectorEnabled = false;
-    private String httpGetInspectorUrlSuffix;
-    private boolean verboseLog = false;
-    private String tag = "";
+    public SimpleOkHttpClient() {
+        super.setHostManager(hostManager);
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        //host manager
-        super.setHostManager(hostManager);
-        //inspect manager
-        inspectManager = new LoadBalancedInspectManager()
-                .setHostManager(hostManager)
-                .setInspectInterval(initiativeInspectInterval)
-                .setVerboseLog(verboseLog)
-                .setTag(tag);
-        if (httpGetInspectorEnabled) {
-            inspectManager.setInspector(new HttpGetLoadBalanceInspector(httpGetInspectorUrlSuffix, initiativeInspectInterval / 4));
-        }
+        start();
+    }
+
+    /**
+     * <p>手动开始主动探测器</p>
+     * <p>若SimpleOkHttpClient在Spring中注册为Bean, 则无需调用此方法, 主动探测器会在Spring启动后自动开始.</p>
+     * <p>若SimpleOkHttpClient没有被注册为Bean(直接new出来的), 则需要调用此方法开始主动探测器. </p>
+     */
+    public void start() {
+        inspectManager.start();
     }
 
     @Override
@@ -165,10 +163,7 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
      * @param initiativeInspectInterval 检测间隔ms, > 0 , 建议 > 5000
      */
     public SimpleOkHttpClient setInitiativeInspectInterval(long initiativeInspectInterval) {
-        this.initiativeInspectInterval = initiativeInspectInterval;
-        if (inspectManager != null) {
-            inspectManager.setInspectInterval(initiativeInspectInterval);
-        }
+        inspectManager.setInspectInterval(initiativeInspectInterval);
         return this;
     }
 
@@ -180,10 +175,7 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     @Override
     public MultiHostOkHttpClient setVerboseLog(boolean verboseLog) {
         super.setVerboseLog(verboseLog);
-        this.verboseLog = verboseLog;
-        if (inspectManager != null) {
-            inspectManager.setVerboseLog(verboseLog);
-        }
+        inspectManager.setVerboseLog(verboseLog);
         return this;
     }
 
@@ -206,25 +198,20 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
     public MultiHostOkHttpClient setTag(String tag) {
         super.setTag(tag);
         hostManager.setTag(tag);
-        this.tag = tag;
-        if (inspectManager != null) {
-            inspectManager.setTag(tag);
-        }
+        inspectManager.setTag(tag);
         return this;
     }
 
     /**
-     * [无法运行时修改]
+     * [可运行时修改]
      * 将主动探测器从TELNET型修改为HTTP-GET型
      * @param urlSuffix 探测页面URL(例如:http://127.0.0.1:8080/health, 则在此处设置/health), 设置为+telnet+则使用默认的TELNET型
      */
     public SimpleOkHttpClient setHttpGetInspector(String urlSuffix) {
         if ("+telnet+".equals(urlSuffix)) {
-            this.httpGetInspectorUrlSuffix = null;
-            this.httpGetInspectorEnabled = false;
+            inspectManager.setInspector(new TelnetLoadBalanceInspector());
         } else {
-            this.httpGetInspectorUrlSuffix = urlSuffix;
-            this.httpGetInspectorEnabled = true;
+            inspectManager.setInspector(new HttpGetLoadBalanceInspector(urlSuffix, inspectManager.getInspectTimeout()));
         }
         return this;
     }

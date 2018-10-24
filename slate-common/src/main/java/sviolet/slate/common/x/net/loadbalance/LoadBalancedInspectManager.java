@@ -22,6 +22,7 @@ package sviolet.slate.common.x.net.loadbalance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.slate.common.x.net.loadbalance.inspector.TelnetLoadBalanceInspector;
+import sviolet.thistle.util.common.CloseableUtils;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
 import sviolet.thistle.util.lifecycle.CloseableManageUtils;
 
@@ -29,6 +30,7 @@ import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * <p>均衡负载--网络状态探测管理器</p>
@@ -68,8 +70,9 @@ public class LoadBalancedInspectManager implements Closeable {
     private String tag = "Slate LoadBalance | ";
 
     private LoadBalancedHostManager hostManager;
-    private List<LoadBalanceInspector> inspectors = new ArrayList<>(1);
+    private volatile List<LoadBalanceInspector> inspectors = new ArrayList<>(1);
 
+    private AtomicBoolean started = new AtomicBoolean(false);
     private volatile boolean closed = false;
     private boolean verboseLog = false;
 
@@ -80,13 +83,52 @@ public class LoadBalancedInspectManager implements Closeable {
     private ExecutorService dispatchThreadPool = ThreadPoolExecutorUtils.createFixed(1, "Slate-LBInspect-Dispatch-%d");
     private ExecutorService inspectThreadPool = ThreadPoolExecutorUtils.createCached(0, Integer.MAX_VALUE, 60, "Slate-LBInspect-Inspect-%d");
 
+    /**
+     * 自动开始探测(无需调用start()方法手动开启)
+     */
     public LoadBalancedInspectManager() {
+        this(true);
+    }
+
+    /**
+     * @param autoStart true:自动开始探测(无需调用start()方法手动开启) false:不自动开始探测(需要调用start()方法手动开启)
+     */
+    public LoadBalancedInspectManager(boolean autoStart) {
         //默认telnet探测器
         inspectors.add(new TelnetLoadBalanceInspector());
-        //开始探测
-        dispatchStart();
         //注册到管理器, 便于集中销毁
         CloseableManageUtils.register(this);
+        //自动开始
+        if (autoStart) {
+            start();
+        }
+    }
+
+    /**
+     * 若构造方法autoStart=false时, 需要手动调用该方法开始探测
+     */
+    public void start(){
+        if (started.compareAndSet(false, true)) {
+            //开始探测
+            dispatchStart();
+        }
+    }
+
+    /**
+     * 关闭探测器(关闭调度线程)
+     */
+    @Override
+    public void close() {
+        closed = true;
+        try {
+            dispatchThreadPool.shutdownNow();
+        } catch (Throwable ignore){
+        }
+        try {
+            inspectThreadPool.shutdownNow();
+        } catch (Throwable ignore){
+        }
+        logger.info(tag + "Closed:" + this);
     }
 
     /**
@@ -106,7 +148,11 @@ public class LoadBalancedInspectManager implements Closeable {
     public LoadBalancedInspectManager setInspector(LoadBalanceInspector inspector){
         List<LoadBalanceInspector> newInspectors = new ArrayList<>(1);
         newInspectors.add(inspector);
+        List<LoadBalanceInspector> oldInspectors = this.inspectors;
         this.inspectors = newInspectors;
+        for (LoadBalanceInspector oldInspector : oldInspectors) {
+            CloseableUtils.closeIfCloseable(oldInspector);
+        }
         return this;
     }
 
@@ -116,7 +162,11 @@ public class LoadBalancedInspectManager implements Closeable {
      * @param inspectors 探测器
      */
     public LoadBalancedInspectManager setInspectors(List<LoadBalanceInspector> inspectors) {
+        List<LoadBalanceInspector> oldInspectors = this.inspectors;
         this.inspectors = inspectors;
+        for (LoadBalanceInspector oldInspector : oldInspectors) {
+            CloseableUtils.closeIfCloseable(oldInspector);
+        }
         return this;
     }
 
@@ -164,21 +214,16 @@ public class LoadBalancedInspectManager implements Closeable {
                 ", verboseLog=" + verboseLog;
     }
 
-    /**
-     * 关闭探测器(关闭调度线程)
-     */
-    @Override
-    public void close() {
-        closed = true;
-        try {
-            dispatchThreadPool.shutdownNow();
-        } catch (Throwable ignore){
-        }
-        try {
-            inspectThreadPool.shutdownNow();
-        } catch (Throwable ignore){
-        }
-        logger.info(tag + "Closed:" + this);
+    public long getInspectInterval() {
+        return inspectInterval;
+    }
+
+    public long getInspectTimeout() {
+        return inspectTimeout;
+    }
+
+    public long getBlockDuration() {
+        return blockDuration;
     }
 
     protected boolean isBlockIfInspectorError(){
@@ -210,11 +255,10 @@ public class LoadBalancedInspectManager implements Closeable {
                     }
                     //持有当前的hostManager
                     hostManager = LoadBalancedInspectManager.this.hostManager;
-                    inspectors = LoadBalancedInspectManager.this.inspectors;
                     //检查是否配置
-                    if (hostManager == null || inspectors == null){
+                    if (hostManager == null){
                         if (logger.isDebugEnabled()) {
-                            logger.debug(tag + "Dispatch: no hostManager or inspectors, skip inspect");
+                            logger.debug(tag + "Dispatch: no hostManager, skip inspect");
                         }
                         continue;
                     }

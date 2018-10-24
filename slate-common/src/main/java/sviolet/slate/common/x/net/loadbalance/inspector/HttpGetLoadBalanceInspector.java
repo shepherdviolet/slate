@@ -25,6 +25,7 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.slate.common.x.net.loadbalance.LoadBalanceInspector;
+import sviolet.thistle.util.common.CloseableUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -43,8 +44,10 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closea
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     private volatile OkHttpClient client;
-    private volatile String urlSuffix;
+    private String urlSuffix;
     private boolean verboseLog = false;
+
+    private volatile boolean closed = false;
 
     public HttpGetLoadBalanceInspector() {
         this("", DEFAULT_TIMEOUT);
@@ -61,6 +64,10 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closea
 
     @Override
     public boolean inspect(String url, long timeout) {
+        if (closed) {
+            //被销毁的探测器始终返回探测成功
+            return true;
+        }
         //组装request
         Request request;
         Response response = null;
@@ -73,6 +80,7 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closea
             if (logger.isErrorEnabled()){
                 logger.error("Inspect: invalid url " + url, t);
             }
+            //探测的URL异常视为后端异常
             return false;
         }
         //GET请求
@@ -86,18 +94,18 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closea
                 logger.warn("Inspect: error, url " + url, t);
             }
         } finally {
-            if (response != null){
-                try {
-                    response.close();
-                } catch (Exception ignored){
-                }
-            }
+            CloseableUtils.closeQuiet(response);
+        }
+        if (closed) {
+            //被销毁的探测器始终返回探测成功
+            return true;
         }
         return false;
     }
 
     @Override
     public void close() throws IOException {
+        closed = true;
         try {
             client.dispatcher().executorService().shutdown();
             client.connectionPool().evictAll();
