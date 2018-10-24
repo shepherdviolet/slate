@@ -3,14 +3,13 @@ package sviolet.slate.springboot.x.net.loadbalance.auto;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
-import sviolet.thistle.entity.common.Destroyable;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-class HttpClientsImpl implements HttpClients, Closeable, Destroyable, InitializingBean, DisposableBean {
+class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, DisposableBean {
 
     private Map<String, SimpleOkHttpClient>  clients;
 
@@ -54,13 +53,6 @@ class HttpClientsImpl implements HttpClients, Closeable, Destroyable, Initializi
     public void afterPropertiesSet() throws Exception {
         for (Map.Entry<String, SimpleOkHttpClient> entry : clients.entrySet()) {
             entry.getValue().afterPropertiesSet();
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        for (Map.Entry<String, SimpleOkHttpClient> entry : clients.entrySet()) {
-            entry.getValue().onDestroy();
         }
     }
 

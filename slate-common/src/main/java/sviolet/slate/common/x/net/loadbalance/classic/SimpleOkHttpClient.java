@@ -24,7 +24,7 @@ import org.springframework.beans.factory.InitializingBean;
 import sviolet.slate.common.x.net.loadbalance.LoadBalancedHostManager;
 import sviolet.slate.common.x.net.loadbalance.LoadBalancedInspectManager;
 import sviolet.slate.common.x.net.loadbalance.inspector.HttpGetLoadBalanceInspector;
-import sviolet.thistle.entity.common.Destroyable;
+import sviolet.thistle.util.common.CloseableUtils;
 
 import java.io.Closeable;
 
@@ -76,7 +76,7 @@ import java.io.Closeable;
  * @see MultiHostOkHttpClient
  *
  */
-public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeable, Destroyable, InitializingBean, DisposableBean {
+public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeable, InitializingBean, DisposableBean {
 
     private LoadBalancedHostManager hostManager = new LoadBalancedHostManager();
     private LoadBalancedInspectManager inspectManager;
@@ -104,15 +104,7 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
 
     @Override
     public void close() {
-        try {
-            inspectManager.close();
-        } catch (Exception ignore) {
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        close();
+        CloseableUtils.closeQuiet(inspectManager);
     }
 
     @Override

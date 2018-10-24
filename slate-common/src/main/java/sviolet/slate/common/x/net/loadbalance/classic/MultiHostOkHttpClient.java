@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import sviolet.slate.common.x.net.loadbalance.LoadBalancedHostManager;
 import sviolet.slate.common.x.monitor.txtimer.noref.NoRefTxTimer;
 import sviolet.slate.common.x.monitor.txtimer.noref.NoRefTxTimerFactory;
-import sviolet.thistle.entity.common.Destroyable;
 import sviolet.thistle.util.common.CloseableUtils;
 import sviolet.thistle.util.conversion.ByteUtils;
 import sviolet.thistle.util.judge.CheckUtils;
@@ -1296,7 +1295,7 @@ public class MultiHostOkHttpClient {
     /**
      * 响应包
      */
-    public static class ResponsePackage implements Closeable, Destroyable {
+    public static class ResponsePackage implements Closeable {
 
         private int code;
         private String message;
@@ -1341,15 +1340,7 @@ public class MultiHostOkHttpClient {
 
         @Override
         public void close(){
-            try {
-                body.close();
-            } catch (Exception ignore) {
-            }
-        }
-
-        @Override
-        public void onDestroy() {
-            close();
+            CloseableUtils.closeQuiet(body);
         }
     }
 

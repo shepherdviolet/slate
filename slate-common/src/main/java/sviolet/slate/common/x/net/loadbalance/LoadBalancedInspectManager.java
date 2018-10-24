@@ -22,9 +22,8 @@ package sviolet.slate.common.x.net.loadbalance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.slate.common.x.net.loadbalance.inspector.TelnetLoadBalanceInspector;
-import sviolet.thistle.entity.common.Destroyable;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
-import sviolet.thistle.util.lifecycle.DestroyableManageUtils;
+import sviolet.thistle.util.lifecycle.CloseableManageUtils;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -61,7 +60,7 @@ import java.util.concurrent.ExecutorService;
  *
  * @author S.Violet
  */
-public class LoadBalancedInspectManager implements Closeable, Destroyable {
+public class LoadBalancedInspectManager implements Closeable {
 
     public static final long DEFAULT_INSPECT_INTERVAL = 5000L;
 
@@ -87,7 +86,7 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
         //开始探测
         dispatchStart();
         //注册到管理器, 便于集中销毁
-        DestroyableManageUtils.register(this);
+        CloseableManageUtils.register(this);
     }
 
     /**
@@ -169,12 +168,7 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
      * 关闭探测器(关闭调度线程)
      */
     @Override
-    public void close(){
-        onDestroy();
-    }
-
-    @Override
-    public void onDestroy() {
+    public void close() {
         closed = true;
         try {
             dispatchThreadPool.shutdownNow();
@@ -184,7 +178,7 @@ public class LoadBalancedInspectManager implements Closeable, Destroyable {
             inspectThreadPool.shutdownNow();
         } catch (Throwable ignore){
         }
-        logger.info(tag + "Destroyed:" + this);
+        logger.info(tag + "Closed:" + this);
     }
 
     protected boolean isBlockIfInspectorError(){

@@ -22,7 +22,7 @@ package sviolet.slate.common.util.common;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
-import sviolet.thistle.util.lifecycle.DestroyableManageUtils;
+import sviolet.thistle.util.lifecycle.CloseableManageUtils;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -32,7 +32,7 @@ import javax.servlet.ServletContextListener;
  *
  * <p>
  *     Slate库统一Servlet监听器<br>
- *     1.销毁所有在DestroyableManageUtils注册的Destroyable实例<br>
+ *     1.销毁所有在CloseableManageUtils注册的Closeable实例<br>
  *     2.销毁所有由ThreadPoolExecutorUtils创建的Executor<br>
  * </p>
  *
@@ -80,7 +80,7 @@ public class SlateServletContextListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         logger.info("SlateServletContextListener destroy");
-        DestroyableManageUtils.destroyAll();
+        CloseableManageUtils.closeAll();
         ThreadPoolExecutorUtils.shutdownNowAll();
     }
 
