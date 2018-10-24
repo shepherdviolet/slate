@@ -70,7 +70,7 @@ public class HttpClientsConfig {
                 );
 
                 if (logger.isInfoEnabled()) {
-                    logger.info("Slate HttpClients | Created " + client.printHostsStatus("Hosts [") + " ] " + client);
+                    logger.info("Slate HttpClients | Created " + client);
                 }
 
             }
