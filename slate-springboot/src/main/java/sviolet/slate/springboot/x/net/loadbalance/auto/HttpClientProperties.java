@@ -36,21 +36,17 @@ public class HttpClientProperties {
 
     /**
      * [可运行时修改]
-     * 最大请求线程数(仅异步请求时有效)
+     * 如果设置为false(默认), 当所有远端都被阻断时, nextHost方法返回一个后端.
+     * 如果设置为true, 当所有远端都被阻断时, nextHost方法返回null.
      */
-    private int maxThreads = 200;
+    private boolean returnNullIfAllBlocked = false;
 
     /**
      * [可运行时修改]
-     * 对应每个后端的最大请求线程数(仅异步请求时有效)
+     * 将主动探测器从默认的TELNET型修改为HTTP-GET型
+     * urlSuffix 探测页面URL(例如:http://127.0.0.1:8080/health, 则在此处设置/health), 设置为+telnet+则使用默认的TELNET型
      */
-    private int maxThreadsPerHost = 200;
-
-    /**
-     * [可运行时修改]
-     * 最大闲置连接数. 客户端会保持与服务端的连接, 保持数量由此设置决定, 直到闲置超过5分钟. 默认16
-     */
-    private int maxIdleConnections = 16;
+    private String httpGetInspectorUrlSuffix = "+telnet+";
 
     /**
      * [可运行时修改]
@@ -60,6 +56,48 @@ public class HttpClientProperties {
      * 后端服务器的IP/PORT标记为暂不可用状态, 阻断时长就是不可用的时长, 建议比主动探测器的探测间隔大.</p>
      */
     private long passiveBlockDuration = 6000L;
+
+    /**
+     * [可运行时修改]
+     * 设置MediaType
+     */
+    private String mediaType = "application/json;charset=utf-8";
+
+    /**
+     * [可运行时修改]
+     * 设置编码
+     */
+    private String encode = "utf-8";
+
+    /**
+     * [可运行时修改]
+     * 设置HTTP请求头参数
+     */
+    private Map<String, String> headers;
+
+    /**
+     * [可运行时修改]
+     * 设置阻断后的恢复期系数, 修复期时长 = blockDuration * recoveryCoefficient, 设置1则无恢复期
+     */
+    private int recoveryCoefficient = 10;
+
+    /**
+     * [可运行时修改]
+     * 最大闲置连接数. 客户端会保持与服务端的连接, 保持数量由此设置决定, 直到闲置超过5分钟. 默认16
+     */
+    private int maxIdleConnections = 16;
+
+    /**
+     * [可运行时修改]
+     * 最大请求线程数(仅异步请求时有效)
+     */
+    private int maxThreads = 200;
+
+    /**
+     * [可运行时修改]
+     * 对应每个后端的最大请求线程数(仅异步请求时有效)
+     */
+    private int maxThreadsPerHost = 200;
 
     /**
      * [可运行时修改]
@@ -87,21 +125,10 @@ public class HttpClientProperties {
 
     /**
      * [可运行时修改]
-     * 设置MediaType
+     * 当HTTP返回码为指定返回码时, 阻断后端
+     * codes 指定需要阻断的返回码, 例如:403,404
      */
-    private String mediaType = "application/json;charset=utf-8";
-
-    /**
-     * [可运行时修改]
-     * 设置编码
-     */
-    private String encode = "utf-8";
-
-    /**
-     * [可运行时修改]
-     * 设置HTTP请求头参数
-     */
-    private Map<String, String> headers;
+    private String httpCodeNeedBlock;
 
     /**
      * [可运行时修改]
@@ -111,36 +138,9 @@ public class HttpClientProperties {
 
     /**
      * [可运行时修改]
-     * 如果设置为false(默认), 当所有远端都被阻断时, nextHost方法返回一个后端.
-     * 如果设置为true, 当所有远端都被阻断时, nextHost方法返回null.
-     */
-    private boolean returnNullIfAllBlocked = false;
-
-    /**
-     * [可运行时修改]
-     * 设置阻断后的恢复期系数, 修复期时长 = blockDuration * recoveryCoefficient, 设置1则无恢复期
-     */
-    private int recoveryCoefficient = 10;
-
-    /**
-     * [可运行时修改]
-     * 当HTTP返回码为指定返回码时, 阻断后端
-     * codes 指定需要阻断的返回码, 例如:403,404
-     */
-    private String httpCodeNeedBlock;
-
-    /**
-     * [可运行时修改]
      * 启用/禁用TxTimer统计请求耗时(暂时只支持同步方式), 默认禁用
      */
     private boolean txTimerEnabled = false;
-
-    /**
-     * [可运行时修改]
-     * 将主动探测器从默认的TELNET型修改为HTTP-GET型
-     * urlSuffix 探测页面URL(例如:http://127.0.0.1:8080/health, 则在此处设置/health), 设置为+telnet+则使用默认的TELNET型
-     */
-    private String httpGetInspectorUrlSuffix = "+telnet+";
 
     public String getHosts() {
         return hosts;
@@ -166,62 +166,6 @@ public class HttpClientProperties {
         this.initiativeInspectInterval = initiativeInspectInterval;
     }
 
-    public int getMaxThreads() {
-        return maxThreads;
-    }
-
-    public void setMaxThreads(int maxThreads) {
-        this.maxThreads = maxThreads;
-    }
-
-    public int getMaxThreadsPerHost() {
-        return maxThreadsPerHost;
-    }
-
-    public void setMaxThreadsPerHost(int maxThreadsPerHost) {
-        this.maxThreadsPerHost = maxThreadsPerHost;
-    }
-
-    public long getPassiveBlockDuration() {
-        return passiveBlockDuration;
-    }
-
-    public void setPassiveBlockDuration(long passiveBlockDuration) {
-        this.passiveBlockDuration = passiveBlockDuration;
-    }
-
-    public long getConnectTimeout() {
-        return connectTimeout;
-    }
-
-    public void setConnectTimeout(long connectTimeout) {
-        this.connectTimeout = connectTimeout;
-    }
-
-    public long getWriteTimeout() {
-        return writeTimeout;
-    }
-
-    public void setWriteTimeout(long writeTimeout) {
-        this.writeTimeout = writeTimeout;
-    }
-
-    public long getReadTimeout() {
-        return readTimeout;
-    }
-
-    public void setReadTimeout(long readTimeout) {
-        this.readTimeout = readTimeout;
-    }
-
-    public boolean isVerboseLog() {
-        return verboseLog;
-    }
-
-    public void setVerboseLog(boolean verboseLog) {
-        this.verboseLog = verboseLog;
-    }
-
     public boolean isReturnNullIfAllBlocked() {
         return returnNullIfAllBlocked;
     }
@@ -230,36 +174,20 @@ public class HttpClientProperties {
         this.returnNullIfAllBlocked = returnNullIfAllBlocked;
     }
 
-    public int getRecoveryCoefficient() {
-        return recoveryCoefficient;
+    public String getHttpGetInspectorUrlSuffix() {
+        return httpGetInspectorUrlSuffix;
     }
 
-    public void setRecoveryCoefficient(int recoveryCoefficient) {
-        this.recoveryCoefficient = recoveryCoefficient;
+    public void setHttpGetInspectorUrlSuffix(String httpGetInspectorUrlSuffix) {
+        this.httpGetInspectorUrlSuffix = httpGetInspectorUrlSuffix;
     }
 
-    public boolean isTxTimerEnabled() {
-        return txTimerEnabled;
+    public long getPassiveBlockDuration() {
+        return passiveBlockDuration;
     }
 
-    public void setTxTimerEnabled(boolean txTimerEnabled) {
-        this.txTimerEnabled = txTimerEnabled;
-    }
-
-    public int getMaxIdleConnections() {
-        return maxIdleConnections;
-    }
-
-    public void setMaxIdleConnections(int maxIdleConnections) {
-        this.maxIdleConnections = maxIdleConnections;
-    }
-
-    public long getMaxReadLength() {
-        return maxReadLength;
-    }
-
-    public void setMaxReadLength(long maxReadLength) {
-        this.maxReadLength = maxReadLength;
+    public void setPassiveBlockDuration(long passiveBlockDuration) {
+        this.passiveBlockDuration = passiveBlockDuration;
     }
 
     public String getMediaType() {
@@ -286,12 +214,68 @@ public class HttpClientProperties {
         this.headers = headers;
     }
 
-    public String getHttpGetInspectorUrlSuffix() {
-        return httpGetInspectorUrlSuffix;
+    public int getRecoveryCoefficient() {
+        return recoveryCoefficient;
     }
 
-    public void setHttpGetInspectorUrlSuffix(String httpGetInspectorUrlSuffix) {
-        this.httpGetInspectorUrlSuffix = httpGetInspectorUrlSuffix;
+    public void setRecoveryCoefficient(int recoveryCoefficient) {
+        this.recoveryCoefficient = recoveryCoefficient;
+    }
+
+    public int getMaxIdleConnections() {
+        return maxIdleConnections;
+    }
+
+    public void setMaxIdleConnections(int maxIdleConnections) {
+        this.maxIdleConnections = maxIdleConnections;
+    }
+
+    public int getMaxThreads() {
+        return maxThreads;
+    }
+
+    public void setMaxThreads(int maxThreads) {
+        this.maxThreads = maxThreads;
+    }
+
+    public int getMaxThreadsPerHost() {
+        return maxThreadsPerHost;
+    }
+
+    public void setMaxThreadsPerHost(int maxThreadsPerHost) {
+        this.maxThreadsPerHost = maxThreadsPerHost;
+    }
+
+    public long getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public void setConnectTimeout(long connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    public long getWriteTimeout() {
+        return writeTimeout;
+    }
+
+    public void setWriteTimeout(long writeTimeout) {
+        this.writeTimeout = writeTimeout;
+    }
+
+    public long getReadTimeout() {
+        return readTimeout;
+    }
+
+    public void setReadTimeout(long readTimeout) {
+        this.readTimeout = readTimeout;
+    }
+
+    public long getMaxReadLength() {
+        return maxReadLength;
+    }
+
+    public void setMaxReadLength(long maxReadLength) {
+        this.maxReadLength = maxReadLength;
     }
 
     public String getHttpCodeNeedBlock() {
@@ -302,4 +286,19 @@ public class HttpClientProperties {
         this.httpCodeNeedBlock = httpCodeNeedBlock;
     }
 
+    public boolean isVerboseLog() {
+        return verboseLog;
+    }
+
+    public void setVerboseLog(boolean verboseLog) {
+        this.verboseLog = verboseLog;
+    }
+
+    public boolean isTxTimerEnabled() {
+        return txTimerEnabled;
+    }
+
+    public void setTxTimerEnabled(boolean txTimerEnabled) {
+        this.txTimerEnabled = txTimerEnabled;
+    }
 }

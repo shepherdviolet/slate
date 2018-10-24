@@ -1618,43 +1618,11 @@ public class MultiHostOkHttpClient {
 
     /**
      * [可运行时修改]
-     * 打印更多的日志, 默认关闭
-     * @param verboseLog true:打印更多的调试日志, 默认关闭
+     * 设置阻断后的恢复期系数, 修复期时长 = blockDuration * recoveryCoefficient, 设置1则无恢复期
+     * @param recoveryCoefficient 阻断后的恢复期系数, >= 1
      */
-    public MultiHostOkHttpClient setVerboseLog(boolean verboseLog) {
-        settings.verboseLog = verboseLog;
-        return this;
-    }
-
-    /**
-     * [可运行时修改]
-     * 打印更多的日志, 细粒度配置, 默认全打印, 当verboseLog=true时该参数生效<br>
-     *
-     * VERBOSE_LOG_CONFIG_ALL:{@value VERBOSE_LOG_CONFIG_ALL}<br>
-     * VERBOSE_LOG_CONFIG_REQUEST_INPUTS:{@value VERBOSE_LOG_CONFIG_REQUEST_INPUTS}<br>
-     * VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY:{@value VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY}<br>
-     * VERBOSE_LOG_CONFIG_RAW_URL:{@value VERBOSE_LOG_CONFIG_RAW_URL}<br>
-     * VERBOSE_LOG_CONFIG_RESPONSE_CODE:{@value VERBOSE_LOG_CONFIG_RESPONSE_CODE}<br>
-     *
-     * @param verboseLogConfig 详细配置
-     */
-    public MultiHostOkHttpClient setVerboseLogConfig(int verboseLogConfig) {
-        settings.verboseLogConfig = verboseLogConfig;
-        return this;
-    }
-
-    /**
-     * [可运行时修改]
-     * 日志打印细粒度配置, 默认全打印<br>
-     *
-     * LOG_CONFIG_ALL:{@value LOG_CONFIG_ALL}<br>
-     * LOG_CONFIG_REAL_URL:{@value LOG_CONFIG_REAL_URL}<br>
-     * LOG_CONFIG_BLOCK:{@value LOG_CONFIG_BLOCK}<br>
-     *
-     * @param logConfig 详细配置
-     */
-    public MultiHostOkHttpClient setLogConfig(int logConfig) {
-        settings.logConfig = logConfig;
+    public MultiHostOkHttpClient setRecoveryCoefficient(int recoveryCoefficient) {
+        settings.recoveryCoefficient = recoveryCoefficient;
         return this;
     }
 
@@ -1760,16 +1728,6 @@ public class MultiHostOkHttpClient {
 
     /**
      * [可运行时修改]
-     * 设置阻断后的恢复期系数, 修复期时长 = blockDuration * recoveryCoefficient, 设置1则无恢复期
-     * @param recoveryCoefficient 阻断后的恢复期系数, >= 1
-     */
-    public MultiHostOkHttpClient setRecoveryCoefficient(int recoveryCoefficient) {
-        settings.recoveryCoefficient = recoveryCoefficient;
-        return this;
-    }
-
-    /**
-     * [可运行时修改]
      * CookieJar
      * @param cookieJar CookieJar
      */
@@ -1856,15 +1814,6 @@ public class MultiHostOkHttpClient {
     }
 
     /**
-     * 设置客户端的标识
-     * @param tag 标识
-     */
-    public MultiHostOkHttpClient setTag(String tag) {
-        settings.tag = tag != null ? "Slate HttpClient | " + tag + "> " : "Slate HttpClient | ";
-        return this;
-    }
-
-    /**
      * [可运行时修改]
      * 当HTTP返回码为指定返回码时, 阻断后端
      * @param codes 指定需要阻断的返回码, 例如:403,404
@@ -1897,6 +1846,57 @@ public class MultiHostOkHttpClient {
         } else if (!enabled){
             txTimer = null;
         }
+        return this;
+    }
+
+    /**
+     * 设置客户端的标识
+     * @param tag 标识
+     */
+    public MultiHostOkHttpClient setTag(String tag) {
+        settings.tag = tag != null ? "Slate HttpClient | " + tag + "> " : "Slate HttpClient | ";
+        return this;
+    }
+
+    /**
+     * [可运行时修改]
+     * 打印更多的日志, 默认关闭
+     * @param verboseLog true:打印更多的调试日志, 默认关闭
+     */
+    public MultiHostOkHttpClient setVerboseLog(boolean verboseLog) {
+        settings.verboseLog = verboseLog;
+        return this;
+    }
+
+    /**
+     * [可运行时修改]
+     * 打印更多的日志, 细粒度配置, 默认全打印, 当verboseLog=true时该参数生效<br>
+     *
+     * VERBOSE_LOG_CONFIG_ALL:{@value VERBOSE_LOG_CONFIG_ALL}<br>
+     * VERBOSE_LOG_CONFIG_REQUEST_INPUTS:{@value VERBOSE_LOG_CONFIG_REQUEST_INPUTS}<br>
+     * VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY:{@value VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY}<br>
+     * VERBOSE_LOG_CONFIG_RAW_URL:{@value VERBOSE_LOG_CONFIG_RAW_URL}<br>
+     * VERBOSE_LOG_CONFIG_RESPONSE_CODE:{@value VERBOSE_LOG_CONFIG_RESPONSE_CODE}<br>
+     *
+     * @param verboseLogConfig 详细配置
+     */
+    public MultiHostOkHttpClient setVerboseLogConfig(int verboseLogConfig) {
+        settings.verboseLogConfig = verboseLogConfig;
+        return this;
+    }
+
+    /**
+     * [可运行时修改]
+     * 日志打印细粒度配置, 默认全打印<br>
+     *
+     * LOG_CONFIG_ALL:{@value LOG_CONFIG_ALL}<br>
+     * LOG_CONFIG_REAL_URL:{@value LOG_CONFIG_REAL_URL}<br>
+     * LOG_CONFIG_BLOCK:{@value LOG_CONFIG_BLOCK}<br>
+     *
+     * @param logConfig 详细配置
+     */
+    public MultiHostOkHttpClient setLogConfig(int logConfig) {
+        settings.logConfig = logConfig;
         return this;
     }
 

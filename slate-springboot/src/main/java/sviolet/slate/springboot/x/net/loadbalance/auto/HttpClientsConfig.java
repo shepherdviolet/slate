@@ -38,36 +38,19 @@ public class HttpClientsConfig {
 
             for (Map.Entry<String, HttpClientProperties> entry : slateProperties.getHttpclients().entrySet()) {
 
+                String tag = entry.getKey();
+
                 logger.info("Slate HttpClients | -------------------------------------------------------------");
-                logger.info("Slate HttpClients | Creating " + entry.getKey());
+                logger.info("Slate HttpClients | Creating " + tag);
 
-                if (entry.getValue() == null) {
-                    logger.warn("Slate HttpClients | " + entry.getKey() + " has no properties, skip");
+                HttpClientProperties properties = entry.getValue();
+                if (properties == null) {
+                    logger.warn("Slate HttpClients | " + tag + " has no properties, skip");
+                    continue;
                 }
 
-                SimpleOkHttpClient client = (SimpleOkHttpClient) new SimpleOkHttpClient()
-                        .setTag(entry.getKey());
-
-                if (!CheckUtils.isEmptyOrBlank(entry.getValue().getHosts())) {
-                    client.setHosts(entry.getValue().getHosts());
-                } else {
-                    client.setHostArray(entry.getValue().getHostList());
-                }
-
-                clients.put(entry.getKey(), (SimpleOkHttpClient) client
-                        .setInitiativeInspectInterval(entry.getValue().getInitiativeInspectInterval())
-                        .setReturnNullIfAllBlocked(entry.getValue().isReturnNullIfAllBlocked())
-                        .setMaxThreads(entry.getValue().getMaxThreads())
-                        .setMaxThreadsPerHost(entry.getValue().getMaxThreadsPerHost())
-                        .setPassiveBlockDuration(entry.getValue().getPassiveBlockDuration())
-                        .setConnectTimeout(entry.getValue().getConnectTimeout())
-                        .setWriteTimeout(entry.getValue().getWriteTimeout())
-                        .setReadTimeout(entry.getValue().getReadTimeout())
-                        .setRecoveryCoefficient(entry.getValue().getRecoveryCoefficient())
-                        .setVerboseLog(entry.getValue().isVerboseLog())
-                        .setDataConverter(new GsonDataConverter())
-                        .setTxTimerEnabled(entry.getValue().isTxTimerEnabled())
-                );
+                SimpleOkHttpClient client = HttpClientCreator.create(tag, properties);
+                clients.put(tag, client);
 
                 if (logger.isInfoEnabled()) {
                     logger.info("Slate HttpClients | Created " + client);
