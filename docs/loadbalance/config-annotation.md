@@ -7,6 +7,8 @@
 * `LoadBalancedInspectManager需要配置@Bean(destroyMethod = "close")`
 
 ```text
+@Configuration
+public class MyConfiguration {
 
     /**
      * 后端管理器
@@ -54,7 +56,8 @@
                 .setVerboseLog(true)
                 .setTxTimerEnabled(false);
     }
-    
+
+}
 ```
 
 # 简化版配置(推荐)
@@ -66,26 +69,31 @@
 * 实现了DisposableBean, 在Spring容器中会自动销毁<br>
 
 ```text
-@Value("${http.client.hosts}")
-private String hosts;
+@Configuration
+public class MyConfiguration {
 
-@Bean
-public SimpleOkHttpClient simpleOkHttpClient() {
-    return (SimpleOkHttpClient) new SimpleOkHttpClient()
-            .setHosts(hosts)
-            .setInitiativeInspectInterval(5000L)
-            .setMaxIdleConnections(20)
-            .setMaxThreads(200)//仅在异步方式有效, 同步无限制
-            .setMaxThreadsPerHost(200)//仅在异步方式有效, 同步无限制
-            .setPassiveBlockDuration(30000L)//被动阻断时间建议与所有超时时间加起来接近
-            .setConnectTimeout(3000L)
-            .setWriteTimeout(10000L)
-            .setReadTimeout(10000L)
-            //.setDataConverter(new GsonDataConverter())
-            //.setHttpGetInspector("/health")
-            //.setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)
-            .setVerboseLog(true)
-            .setTxTimerEnabled(false);
+    @Value("${http.client.hosts}")
+    private String hosts;
+    
+    @Bean
+    public SimpleOkHttpClient simpleOkHttpClient() {
+        return (SimpleOkHttpClient) new SimpleOkHttpClient()
+                .setHosts(hosts)
+                .setInitiativeInspectInterval(5000L)
+                .setMaxIdleConnections(20)
+                .setMaxThreads(200)//仅在异步方式有效, 同步无限制
+                .setMaxThreadsPerHost(200)//仅在异步方式有效, 同步无限制
+                .setPassiveBlockDuration(30000L)//被动阻断时间建议与所有超时时间加起来接近
+                .setConnectTimeout(3000L)
+                .setWriteTimeout(10000L)
+                .setReadTimeout(10000L)
+                //.setDataConverter(new GsonDataConverter())
+                //.setHttpGetInspector("/health")
+                //.setVerboseLogConfig(MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_RAW_URL|MultiHostOkHttpClient.VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)
+                .setVerboseLog(true)
+                .setTxTimerEnabled(false);
+    }
+
 }
 ```
 
@@ -101,12 +109,19 @@ public SimpleOkHttpClient simpleOkHttpClient() {
 @Component
 public class HttpClientConfigChangeListener {
 
-    @Autowired
     private SimpleOkHttpClient simpleOkHttpClient;
+    
+    /**
+     * 使用构造注入, 保证在setter操作时simpleOkHttpClient已经注入
+     */
+    @Autowired
+    public HttpClientConfigChangeListener(SimpleOkHttpClient simpleOkHttpClient) {
+        this.simpleOkHttpClient = simpleOkHttpClient;
+    }
 
     @Value("${http.client.hosts:}")
     public void setHosts(String hosts) {
-        if (simpleOkHttpClient != null && !CheckUtils.isEmptyOrBlank(hosts)) {
+        if (!CheckUtils.isEmptyOrBlank(hosts)) {
             simpleOkHttpClient.setHosts(hosts);
         }
     }
@@ -123,8 +138,15 @@ public class ApolloConfigChangeService {
     @ApolloConfig
     private Config apolloConfig;
 
-    @Autowired
     private SimpleOkHttpClient simpleOkHttpClient;
+    
+    /**
+     * 使用构造注入, 保证在setter操作时simpleOkHttpClient已经注入
+     */
+    @Autowired
+    public ApolloConfigChangeService(SimpleOkHttpClient simpleOkHttpClient) {
+        this.simpleOkHttpClient = simpleOkHttpClient;
+    }
 
     @ApolloConfigChangeListener
     private void onHttpClientChanged(ConfigChangeEvent configChangeEvent){

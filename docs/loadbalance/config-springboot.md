@@ -60,18 +60,29 @@ slate:
 * YML只配置了一个客户端时, 可以直接获得SimpleOkHttpClient
 
 ```text
-@Autowired
-private SimpleOkHttpClient simpleOkHttpClient;
+    private SimpleOkHttpClient simpleOkHttpClient;
+    
+    /**
+     * 使用构造注入, 保证在操作时simpleOkHttpClient已经注入
+     */
+    @Autowired
+    public Constructor(SimpleOkHttpClient simpleOkHttpClient) {
+        this.simpleOkHttpClient = simpleOkHttpClient;
+    }
 ```
 
 * YML配置了多个客户端时, 需要从HttpClients对象中获得
 
 ```text
-private SimpleOkHttpClient client1;
-
-@Autowired
-public void client1(HttpClients httpClients) {
-    client1 = httpClients.get("client1");
+    private SimpleOkHttpClient client1;
+    
+    /**
+     * 使用构造注入, 保证在操作时simpleOkHttpClient已经注入
+     */
+    @Autowired
+    public Constructor(HttpClients httpClients) {
+        this.client1 = httpClients.get("cliente1");
+    }
 }
 ```
 
@@ -85,14 +96,17 @@ public class HttpClientConfigChangeListener {
 
     private SimpleOkHttpClient client1;
     
+    /**
+     * 使用构造注入, 保证在操作时simpleOkHttpClient已经注入
+     */
     @Autowired
-    public void client1(HttpClients httpClients) {
-        client1 = httpClients.get("client1");
+    public HttpClientConfigChangeListener(HttpClients httpClients) {
+        this.client1 = httpClients.get("cliente1");
     }
 
     @Value("${http.client1.hosts:}")
     public void setHosts(String hosts) {
-        if (client1 != null && !CheckUtils.isEmptyOrBlank(hosts)) {
+        if (!CheckUtils.isEmptyOrBlank(hosts)) {
             client1.setHosts(hosts);
         }
     }
@@ -111,9 +125,12 @@ public class ApolloConfigChangeService {
 
     private SimpleOkHttpClient client1;
     
+    /**
+     * 使用构造注入, 保证在操作时simpleOkHttpClient已经注入
+     */
     @Autowired
-    public void client1(HttpClients httpClients) {
-        client1 = httpClients.get("client1");
+    public ApolloConfigChangeService(HttpClients httpClients) {
+        this.client1 = httpClients.get("cliente1");
     }
 
     @ApolloConfigChangeListener
