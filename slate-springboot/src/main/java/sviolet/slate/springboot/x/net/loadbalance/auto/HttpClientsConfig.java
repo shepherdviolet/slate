@@ -49,7 +49,7 @@ public class HttpClientsConfig {
     public SimpleOkHttpClient httpClient(HttpClients httpClients){
         if (httpClients.size() == 1) {
             for (String tag : httpClients.tags()) {
-                logger.info("Slate HttpClients | Only one instance, you can get instance by @Autowired SimpleOkHttpClient");
+                logger.info("HttpClients | Only one instance, you can get instance by @Autowired SimpleOkHttpClient");
                 return httpClients.get(tag);
             }
         }

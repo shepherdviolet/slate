@@ -49,8 +49,10 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class LoadBalancedHostManager {
 
+    private static final String LOG_PREFIX = "LoadBalance | ";
+
     private Logger logger = LoggerFactory.getLogger(getClass());
-    private String tag = "Slate LoadBalance | ";
+    private String tag = LOG_PREFIX;
 
     private AtomicInteger mainCounter = new AtomicInteger(0);
     private AtomicInteger refugeCounter = new AtomicInteger(0);
@@ -186,7 +188,7 @@ public class LoadBalancedHostManager {
      * @param tag 标识
      */
     public LoadBalancedHostManager setTag(String tag) {
-        this.tag = tag != null ? "Slate LoadBalance | " + tag + "> " : "Slate LoadBalance | ";
+        this.tag = tag != null ? LOG_PREFIX + tag + "> " : LOG_PREFIX;
         return this;
     }
 

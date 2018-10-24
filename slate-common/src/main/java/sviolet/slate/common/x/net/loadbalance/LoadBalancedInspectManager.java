@@ -66,8 +66,10 @@ public class LoadBalancedInspectManager implements Closeable {
 
     public static final long DEFAULT_INSPECT_INTERVAL = 5000L;
 
+    private static final String LOG_PREFIX = "LoadBalance | ";
+
     private Logger logger = LoggerFactory.getLogger(getClass());
-    private String tag = "Slate LoadBalance | ";
+    private String tag = LOG_PREFIX;
 
     private LoadBalancedHostManager hostManager;
     private volatile List<LoadBalanceInspector> inspectors = new ArrayList<>(1);
@@ -201,7 +203,7 @@ public class LoadBalancedInspectManager implements Closeable {
      * @param tag 标识
      */
     public LoadBalancedInspectManager setTag(String tag) {
-        this.tag = tag != null ? "Slate LoadBalance | " + tag + "> " : "Slate LoadBalance | ";
+        this.tag = tag != null ? LOG_PREFIX + tag + "> " : LOG_PREFIX;
         return this;
     }
 

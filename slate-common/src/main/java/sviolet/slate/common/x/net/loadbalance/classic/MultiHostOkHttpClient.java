@@ -154,6 +154,8 @@ public class MultiHostOkHttpClient {
                                                         VERBOSE_LOG_CONFIG_RAW_URL |
                                                         VERBOSE_LOG_CONFIG_RESPONSE_CODE;
 
+    private static final String LOG_PREFIX = "HttpClient | ";
+
     private static final long PASSIVE_BLOCK_DURATION = 30000L;
     private static final String MEDIA_TYPE = "application/json;charset=utf-8";
     private static final String ENCODE = "utf-8";
@@ -1257,7 +1259,7 @@ public class MultiHostOkHttpClient {
         private Dns dns;
         private SSLSocketFactory sslSocketFactory;
         private DataConverter dataConverter;
-        private String tag = "Slate HttpClient | ";
+        private String tag = LOG_PREFIX;
 
         private Set<Integer> httpCodeNeedBlock = new HashSet<>(8);
 
@@ -1854,7 +1856,7 @@ public class MultiHostOkHttpClient {
      * @param tag 标识
      */
     public MultiHostOkHttpClient setTag(String tag) {
-        settings.tag = tag != null ? "Slate HttpClient | " + tag + "> " : "Slate HttpClient | ";
+        settings.tag = tag != null ? LOG_PREFIX + tag + "> " : LOG_PREFIX;
         return this;
     }
 

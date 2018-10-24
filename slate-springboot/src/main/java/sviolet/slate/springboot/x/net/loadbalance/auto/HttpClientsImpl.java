@@ -45,12 +45,12 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
             String tag = entry.getKey();
 
-            logger.info("Slate HttpClients | -------------------------------------------------------------");
-            logger.info("Slate HttpClients | Creating " + tag);
+            logger.info("HttpClients | -------------------------------------------------------------");
+            logger.info("HttpClients | Creating " + tag);
 
             HttpClientProperties properties = entry.getValue();
             if (properties == null) {
-                logger.warn("Slate HttpClients | " + tag + " has no properties, skip");
+                logger.warn("HttpClients | " + tag + " has no properties, skip");
                 continue;
             }
 
@@ -58,7 +58,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
             clients.put(tag, client);
 
             if (logger.isInfoEnabled()) {
-                logger.info("Slate HttpClients | Created " + client);
+                logger.info("HttpClients | Created " + client);
             }
 
         }
