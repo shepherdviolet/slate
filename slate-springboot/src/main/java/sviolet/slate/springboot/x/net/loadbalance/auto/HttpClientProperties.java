@@ -134,7 +134,7 @@ public class HttpClientProperties {
      * [可运行时修改]
      * 打印更多的日志, 默认关闭
      */
-    private boolean verboseLog = true;
+    private boolean verboseLog = false;
 
     /**
      * [可运行时修改]

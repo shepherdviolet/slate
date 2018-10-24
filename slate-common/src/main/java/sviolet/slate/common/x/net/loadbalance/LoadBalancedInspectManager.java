@@ -312,7 +312,7 @@ public class LoadBalancedInspectManager implements Closeable {
                      * 尽量处理掉所有异常, 如果抛出异常, 视为探测失败, 阻断远端
                      */
                     try {
-                        if (!inspector.inspect(host.getUrl(), inspectTimeout)) {
+                        if (!inspector.inspect(host.getUrl(), inspectTimeout, verboseLog)) {
                             block = true;
                             break;
                         }

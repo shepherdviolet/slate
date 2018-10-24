@@ -45,7 +45,6 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closea
 
     private volatile OkHttpClient client;
     private String urlSuffix;
-    private boolean verboseLog = false;
 
     private volatile boolean closed = false;
 
@@ -63,7 +62,7 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closea
     }
 
     @Override
-    public boolean inspect(String url, long timeout) {
+    public boolean inspect(String url, long timeout, boolean verboseLog) {
         if (closed) {
             //被销毁的探测器始终返回探测成功
             return true;
@@ -140,19 +139,10 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closea
         this.urlSuffix = urlSuffix;
     }
 
-    /**
-     * 是否输出调试日志
-     */
-    public void setVerboseLog(boolean verboseLog) {
-        this.verboseLog = verboseLog;
-    }
-
     @Override
     public String toString() {
         return "HttpGetLoadBalanceInspector{" +
-                "urlSuffix='" + urlSuffix + '\'' +
-                ", verboseLog=" + verboseLog +
-                '}';
+                "urlSuffix=" + urlSuffix + '}';
     }
 
 }
