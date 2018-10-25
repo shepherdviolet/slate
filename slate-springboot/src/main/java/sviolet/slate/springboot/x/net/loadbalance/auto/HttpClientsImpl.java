@@ -47,7 +47,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
             HttpClientProperties properties = entry.getValue();
             if (properties == null) {
-                logger.warn("HttpClients | " + tag + " Has no properties, skip creation");
+                logger.warn("HttpClients | " + tag + "> Has no properties, skip creation");
                 continue;
             }
 
@@ -55,7 +55,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
             clients.put(tag, client);
 
             if (logger.isInfoEnabled()) {
-                logger.info("HttpClients | " + tag + " Created " + client);
+                logger.info("HttpClients | " + tag + "> Created " + client);
             }
 
         }
@@ -124,6 +124,9 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                 for (String key : keys) {
                     //check
                     if (key == null || !key.startsWith(OVERRIDE_PREFIX) || key.length() <= OVERRIDE_PREFIX.length()) {
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("HttpClients SettingsOverride | Skip key " + key);
+                        }
                         continue;
                     }
                     //get tag and property key
