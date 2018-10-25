@@ -2,6 +2,10 @@
 
 * `Maven/Gradle依赖配置`在本文最后
 
+<br>
+<br>
+<br>
+
 # 简化版配置(推荐)
 
 * SimpleOkHttpClient继承了MultiHostOkHttpClient, 同时封装了LoadBalancedHostManager和LoadBalancedInspectManager, 简化了配置, 免去了配置三个Bean的麻烦
@@ -40,6 +44,10 @@ public class MyConfiguration {
 
 }
 ```
+
+<br>
+<br>
+<br>
 
 # 标准配置(不推荐)
 
@@ -97,6 +105,10 @@ public class MyConfiguration {
 }
 ```
 
+<br>
+<br>
+<br>
+
 # 运行时调整配置
 
 ```text
@@ -131,6 +143,10 @@ public class MyComponent {
 
 }
 ```
+
+<br>
+<br>
+<br>
 
 # 使用Apollo配置中心实时调整配置
 
