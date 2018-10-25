@@ -137,8 +137,8 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                     }
 
                     //Get value
-                    String value = settings.getProperty(key);
-                    String previousValue = previousOverrideSettings.getProperty(key);
+                    String value = settings.getValue(key);
+                    String previousValue = previousOverrideSettings.getValue(key);
 
                     //Record setting, we should take a copy of OverrideSettings, prevent data changes
                     relatedSettings.put(key, value);
