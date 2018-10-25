@@ -5,8 +5,6 @@
 # YML配置(推荐)
 
 * 在application.yml/application-profile.yml中增加配置
-* `maxThreads` / `maxThreadsPerHost` 配置仅在异步方式有效, 同步无限制
-* `passiveBlockDuration`被动阻断时间建议与所有超时时间加起来接近
 
 ```yaml
 slate:
@@ -16,27 +14,23 @@ slate:
         - http://127.0.0.1:8081
         - http://127.0.0.1:8082
       initiativeInspectInterval: 5000
-      maxIdleConnections: 16
-      maxThreads: 256
-      maxThreadsPerHost: 256
       passiveBlockDuration: 30000
       connectTimeout: 3000
       writeTimeout: 10000
       readTimeout: 10000
+      maxReadLength: 10485760
       verboseLog: true
-      txTimerEnabled: false
+      txTimerEnabled: true
     client2:
       hosts: http://127.0.0.1:8083,http://127.0.0.1:8084
       initiativeInspectInterval: 5000
-      maxIdleConnections: 16
-      maxThreads: 256
-      maxThreadsPerHost: 256
       passiveBlockDuration: 30000
       connectTimeout: 3000
       writeTimeout: 10000
       readTimeout: 10000
+      maxReadLength: 10485760
       verboseLog: true
-      txTimerEnabled: false
+      txTimerEnabled: true
 ```
 
 * 以上文为例, 配置了client1和client2两个HTTP请求客户端
@@ -44,18 +38,68 @@ slate:
 * client2有两个主机http://127.0.0.1:8083和http://127.0.0.1:8084
 * hosts配置的优先级比hostList高, 同时配置时只有hosts生效
 * 健康主动探测间隔(initiativeInspectInterval)为5000ms
-* 异步方式最大线程数(maxThreads)为256
-* 异步方式每个后端最大线程数(maxThreadsPerHost)为256
 * 健康被动探测阻断时长(passiveBlockDuration)为30000ms
 * connectTimeout/writeTimeout/readTimeout分别为连接/写/读超时时间, 单位ms
+* maxReadLength数据最大读取长度, 单位字节
 * verboseLog为true时会输出更多日志
-* 禁用TxTimer对请求耗时的统计(目前只支持同步方式)
+* 启用TxTimer对请求耗时的统计(目前只支持同步方式)
+
+# YML中所提供的全部配置说明
+
+```yaml
+slate:
+  httpclients:
+    client1:
+      # 后端列表
+      hosts: http://127.0.0.1:8083,http://127.0.0.1:8084
+      # 健康主动探测间隔, 单位ms
+      initiativeInspectInterval: 5000
+      # true: 当所有后端都被阻断时不发送请求(抛异常), false: 当所有后端都被阻断时随机发送请求
+      returnNullIfAllBlocked: false
+      # 启用HTTP Get方式进行主动健康探测, URL为http://127.0.0.1:8083/health和http://127.0.0.1:8084/health, (设置+telnet+改回TELNET发NGSHI)
+      httpGetInspectorUrlSuffix: /health
+      # 主动探测器打印更多日志
+      inspectorVerboseLog: false
+      # 健康被动探测阻断时长, 单位ms
+      passiveBlockDuration: 30000
+      # mediaType
+      mediaType: application/json;charset=utf-8
+      # 编码
+      encode: utf-8
+      # Http请求头
+      headers: 
+        User-Agent: SlateHttpClient
+        Referer: http://github.com
+      # 阻断后的恢复期系数, 恢复期时长 = blockDuration * recoveryCoefficient, 设置1则无恢复期
+      recoveryCoefficient: 10
+      # 最大闲置连接数. 客户端会保持与服务端的连接, 保持数量由此设置决定, 直到闲置超过5分钟. 默认16
+      maxIdleConnections: 16
+      # 异步方式最大线程数, 配置仅在异步方式有效, 同步无限制
+      maxThreads: 256
+      # 异步方式每个后端最大线程数, 配置仅在异步方式有效, 同步无限制
+      maxThreadsPerHost: 256
+      # 连接超时时间, 单位ms
+      connectTimeout: 3000
+      # 写超时时间, 单位ms
+      writeTimeout: 10000
+      # 读超时时间, 单位ms
+      readTimeout: 10000
+      # 数据最大读取长度, 单位字节
+      maxReadLength: 10485760
+      # 当后端HTTP返回码为400或500时阻断后端
+      httpCodeNeedBlock: 400,500
+      # true时会输出更多日志
+      verboseLog: false
+      # true启用TxTimer对请求耗时的统计(目前只支持同步方式)
+      txTimerEnabled: false
+```
 
 # 手动配置
 
 * 除了YML配置方式, 也可以手动配置, 参考:https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-annotation.md
+* 注意: 有一部分配置未在YML中提供, 必须通过手动配置(例如: 设置CookieJar, 设置Proxy)
 
-# 注入
+# 获得HttpClient
 
 * YML只配置了一个客户端时, 可以直接获得SimpleOkHttpClient
 
@@ -88,60 +132,86 @@ slate:
 
 # 使用Apollo配置中心实时调整配置
 
-* 方法1: @Value注解在方法上, 每次参数变化都会调用该方法, 以此实时改变参数
+* 确保Apollo配置启用, 并配置正确的namespace
 
 ```text
-@Component
-public class HttpClientConfigChangeListener {
+@EnableApolloConfig(
+        {"application", "it.common"}
+)
+@SpringBootApplication
+public class BootApplication {
+}
+```
 
-    private SimpleOkHttpClient client1;
-    
-    /**
-     * 使用构造注入, 保证在操作时simpleOkHttpClient已经注入
-     */
+* 添加一个配置类, 监听Apollo配置变化并实时调整HttpClient的配置(甚至能够新增客户端)
+
+```text
+@Configuration
+public class HttpClientsApolloConfig {
+
+    private HttpClients httpClients;
+
+    //构造注入确保第一时间获得实例
     @Autowired
-    public HttpClientConfigChangeListener(HttpClients httpClients) {
-        this.client1 = httpClients.get("cliente1");
+    public HttpClientsApolloConfig(HttpClients httpClients) {
+        this.httpClients = httpClients;
     }
 
-    @Value("${http.client1.hosts:}")
-    public void setHosts(String hosts) {
-        if (!CheckUtils.isEmptyOrBlank(hosts)) {
-            client1.setHosts(hosts);
+    //获得Apollo配置实例, 注意配置正确的namespace
+    @ApolloConfig("application")
+    private Config config;
+
+    //监听Apollo配置变化
+    @ApolloConfigChangeListener("application")
+    private void onApolloConfigChanged(ConfigChangeEvent configChangeEvent){
+        //实时调整HttpClient配置
+        httpClients.settingsOverride(new ApolloOverrideSettings(config));
+    }
+
+    //将Apollo配置包装为OverrideSettings
+    private static class ApolloOverrideSettings implements HttpClients.OverrideSettings {
+
+        private Config config;
+
+        private ApolloOverrideSettings(Config config) {
+            //持有Apollo配置
+            this.config = config;
         }
+
+        @Override
+        public Set<String> getKeys() {
+            //获取所有配置key
+            return config.getPropertyNames();
+        }
+
+        @Override
+        public String getValue(String key) {
+            //根据key返回配置value, 不存在返回null
+            return config.getProperty(key, null);
+        }
+
     }
 
 }
 ```
 
-* 方法2: Apollo配置变化监听器
+* 在Apollo配置中心添加配置并发布, 应用端的HttpClient配置就会实时调整
+* key格式: slate.httpclients.`客户端标识`.`配置名`
+* 例如: 修改client2的hosts为http://127.0.0.1:8083,http://127.0.0.1:8084
 
 ```text
-@Component
-public class ApolloConfigChangeService {
-
-    @ApolloConfig
-    private Config apolloConfig;
-
-    private SimpleOkHttpClient client1;
-    
-    /**
-     * 使用构造注入, 保证在操作时simpleOkHttpClient已经注入
-     */
-    @Autowired
-    public ApolloConfigChangeService(HttpClients httpClients) {
-        this.client1 = httpClients.get("cliente1");
-    }
-
-    @ApolloConfigChangeListener
-    private void onHttpClientChanged(ConfigChangeEvent configChangeEvent){
-        if (configChangeEvent.isChanged("http.client1.hosts")){
-            client1.setHosts(apolloConfig.getProperty("http.client1.hosts", ""));
-        }
-    }
-
-}
+slate.httpclients.client2.hosts=http://127.0.0.1:8083,http://127.0.0.1:8084
 ```
+
+* 例如: 给client1添加两个Http请求头 (键值对格式:https://github.com/shepherdviolet/thistle/blob/master/docs/kvencoder/guide.md)
+
+```text
+slate.httpclients.client1.headers=User-Agent=SlateHttpClient,Referer=http://github.com
+```
+
+* 如果`客户端标识`(tag)是新增的, 应用端会实时创建一个新的HttpClient实例
+* 在日志中搜索`HttpClients`关键字可以观察到配置实时调整的情况
+* 另外, 启动参数中按这样的格式配置, 重启应用后也能有效
 
 <br>
 <br>
