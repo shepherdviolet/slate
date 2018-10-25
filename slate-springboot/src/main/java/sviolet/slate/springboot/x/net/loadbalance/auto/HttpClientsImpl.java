@@ -29,7 +29,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     private Map<String, SimpleOkHttpClient> clients = new HashMap<>(16);
 
-    private OverrideSettings previousOverrideSettings = new EmptyOverrideSettings();
+    private OverrideSettings previousOverrideSettings = new MapBasedOverrideSettings(new HashMap<String, String>(0));
     private AtomicReference<OverrideSettings> newOverrideSettings = new AtomicReference<>(null);
     private ExecutorService overrideThreadPool = ThreadPoolExecutorUtils.createLazy(60, "Slate-HttpClients-override-%d");
 
@@ -51,11 +51,15 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                 continue;
             }
 
+            if (logger.isDebugEnabled()) {
+                logger.debug("HttpClients | " + tag + "> Creating with properties: " + properties);
+            }
+
             SimpleOkHttpClient client = HttpClientCreator.create(tag, properties);
             clients.put(tag, client);
 
             if (logger.isInfoEnabled()) {
-                logger.info("HttpClients | " + tag + "> Created " + client);
+                logger.info("HttpClients | " + tag + "> Created HttpClient: " + client);
             }
 
         }
@@ -121,15 +125,24 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                     continue;
                 }
                 Set<SimpleOkHttpClient> changedClients = new HashSet<>();
+                Map<String, String> relatedSettings = new HashMap<>();
                 for (String key : keys) {
-                    //check
+                    //Check if relevant
                     if (key == null || !key.startsWith(OVERRIDE_PREFIX) || key.length() <= OVERRIDE_PREFIX.length()) {
                         if (logger.isTraceEnabled()) {
-                            logger.trace("HttpClients SettingsOverride | Skip key " + key);
+                            logger.trace("HttpClients SettingsOverride | Skip key '" + key + "', not start with " + OVERRIDE_PREFIX);
                         }
                         continue;
                     }
-                    //get tag and property key
+
+                    //Get value
+                    String value = settings.getProperty(key);
+                    String previousValue = previousOverrideSettings.getProperty(key);
+
+                    //Record setting, we should take a copy of OverrideSettings, prevent data changes
+                    relatedSettings.put(key, value);
+
+                    //Get tag and property key
                     int tagEnd = key.indexOf('.', OVERRIDE_PREFIX.length());
                     if (tagEnd <= 0 || tagEnd == key.length() - 1) {
                         logger.error("HttpClients SettingsOverride | Illegal key '" + key + "', The correct format is '" + OVERRIDE_PREFIX + "tag.property=value', skip key");
@@ -137,15 +150,15 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                     }
                     String tag = key.substring(OVERRIDE_PREFIX.length(), tagEnd);
                     String property = key.substring(tagEnd + 1, key.length());
-                    //get client
+
+                    //Get client
                     SimpleOkHttpClient client = clients.get(tag);
+
+                    //Check if changed
                     if (client == null) {
                         logger.error("HttpClients SettingsOverride | No HttpClient named " + tag + ", skip key '" + key + "'");
                         continue;
                     }
-                    //get value
-                    String value = settings.getProperty(key);
-                    String previousValue = previousOverrideSettings.getProperty(key);
                     if (value == null) {
                         logger.warn("HttpClients SettingsOverride | The new value of '" + key + "' is null, " + property + " of " + tag + " stay the same");
                         continue;
@@ -156,34 +169,25 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                         }
                         continue;
                     }
-                    //change setting
+
+                    //Change setting
                     HttpClientCreator.settingsOverride(client, tag, property, value);
-                    //record changed
+
+                    //Record changed
                     changedClients.add(client);
                 }
 
-                //print changed
+                //Print changed
                 if (logger.isInfoEnabled()) {
                     for (SimpleOkHttpClient client : changedClients) {
-                        logger.info("HttpClients SettingsOverride | " + client.getTag() +  "> Adjusted " + client);
+                        logger.info("HttpClients SettingsOverride | " + client.getTag() +  "> Adjusted HttpClient: " + client);
                     }
                 }
 
-                //set previous
-                previousOverrideSettings = settings;
+                //Set previous, we should take a copy of OverrideSettings, prevent data changes
+                previousOverrideSettings = new MapBasedOverrideSettings(relatedSettings);
             }
         }
     };
-
-    private static class EmptyOverrideSettings implements OverrideSettings {
-        @Override
-        public Set<String> getKeys() {
-            return new HashSet<>(0);
-        }
-        @Override
-        public String getProperty(String key) {
-            return null;
-        }
-    }
 
 }

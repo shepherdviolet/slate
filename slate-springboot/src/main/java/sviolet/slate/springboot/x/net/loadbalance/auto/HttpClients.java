@@ -2,6 +2,8 @@ package sviolet.slate.springboot.x.net.loadbalance.auto;
 
 import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -41,6 +43,32 @@ public interface HttpClients {
         Set<String> getKeys();
 
         String getProperty(String key);
+
+    }
+
+    /**
+     * 基于Map实现的外部配置
+     */
+    class MapBasedOverrideSettings implements OverrideSettings {
+
+        private Map<String, String> map;
+
+        public MapBasedOverrideSettings(Map<String, String> map) {
+            if (map == null) {
+                map = new HashMap<>(0);
+            }
+            this.map = map;
+        }
+
+        @Override
+        public Set<String> getKeys() {
+            return map.keySet();
+        }
+
+        @Override
+        public String getProperty(String key) {
+            return map.get(key);
+        }
 
     }
 
