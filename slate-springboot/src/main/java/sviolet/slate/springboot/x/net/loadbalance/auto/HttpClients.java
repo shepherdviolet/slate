@@ -28,10 +28,20 @@ public interface HttpClients {
     Set<String> tags();
 
     /**
-     * 按配置数据所描述的信息调整集合中的客户端及参数, 可以增减客户端实例, 调整客户端参数
-     * @param config 配置数据(描述客户端及参数)
-     * @throws Exception 更新失败
+     * 使用外部配置覆盖客户端的配置
+     * @param overrideSettings 外部配置
      */
-    void update(String config) throws Exception;
+    void settingsOverride(OverrideSettings overrideSettings);
+
+    /**
+     * 外部配置
+     */
+    interface OverrideSettings {
+
+        Set<String> getKeys();
+
+        String getProperty(String key);
+
+    }
 
 }

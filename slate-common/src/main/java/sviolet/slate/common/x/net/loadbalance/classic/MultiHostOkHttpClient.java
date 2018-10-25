@@ -1223,6 +1223,10 @@ public class MultiHostOkHttpClient {
         return response.isSuccessful();
     }
 
+    public String getTag(){
+        return settings.rawTag;
+    }
+
     @Override
     public String toString() {
         return (hostManager != null ? hostManager.printHostsStatus("Hosts [") + " ] " : "") +
@@ -1260,6 +1264,7 @@ public class MultiHostOkHttpClient {
         private SSLSocketFactory sslSocketFactory;
         private DataConverter dataConverter;
         private String tag = LOG_PREFIX;
+        private String rawTag = "";
 
         private Set<Integer> httpCodeNeedBlock = new HashSet<>(8);
 
@@ -1884,6 +1889,7 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setTag(String tag) {
         settings.tag = tag != null ? LOG_PREFIX + tag + "> " : LOG_PREFIX;
+        settings.rawTag = tag;
         return this;
     }
 

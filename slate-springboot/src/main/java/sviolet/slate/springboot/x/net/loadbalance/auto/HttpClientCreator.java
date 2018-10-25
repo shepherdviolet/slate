@@ -1,7 +1,10 @@
 package sviolet.slate.springboot.x.net.loadbalance.auto;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sviolet.slate.common.x.net.loadbalance.classic.GsonDataConverter;
 import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
+import sviolet.thistle.util.conversion.SimpleKeyValueEncoder;
 import sviolet.thistle.util.judge.CheckUtils;
 
 /**
@@ -10,6 +13,8 @@ import sviolet.thistle.util.judge.CheckUtils;
  * @author S.Violet
  */
 class HttpClientCreator {
+
+    private static final Logger logger = LoggerFactory.getLogger(HttpClientCreator.class);
 
     /**
      * 根据tag和配置创建一个HttpClient
@@ -52,8 +57,90 @@ class HttpClientCreator {
                 .setDataConverter(new GsonDataConverter());
     }
 
-    static SimpleOkHttpClient recreate(SimpleOkHttpClient client, HttpClientProperties oldProperties, HttpClientProperties newProperties){
-        return null;
+    /**
+     * 覆盖客户端的配置
+     * @param client 客户端
+     * @param tag 客户端tag
+     * @param property 客户端参数名
+     * @param value 新参数值
+     */
+    static void settingsOverride(SimpleOkHttpClient client, String tag, String property, String value){
+        if (logger.isInfoEnabled()) {
+            logger.info("HttpClients SettingsOverride | Trying to change " + property + " of " + tag + " to '" + value + "'");
+        }
+        try {
+            switch (property) {
+                case "hosts":
+                    client.setHosts(value);
+                    break;
+                case "httpGetInspectorUrlSuffix":
+                    client.setHttpGetInspector(value);
+                    break;
+                case "mediaType":
+                    client.setMediaType(value);
+                    break;
+                case "encode":
+                    client.setEncode(value);
+                    break;
+                case "httpCodeNeedBlock":
+                    client.setEncode(value);
+                    break;
+                case "initiativeInspectInterval":
+                    client.setInitiativeInspectInterval(Long.parseLong(value));
+                    break;
+                case "returnNullIfAllBlocked":
+                    client.setReturnNullIfAllBlocked(Boolean.parseBoolean(value));
+                    break;
+                case "inspectorVerboseLog":
+                    client.setInspectorVerboseLog(Boolean.parseBoolean(value));
+                    break;
+                case "passiveBlockDuration":
+                    client.setPassiveBlockDuration(Long.parseLong(value));
+                    break;
+                case "headers":
+                    client.setHeaders(SimpleKeyValueEncoder.decode(value));
+                    break;
+                case "recoveryCoefficient":
+                    client.setRecoveryCoefficient(Integer.parseInt(value));
+                    break;
+                case "maxIdleConnections":
+                    client.setMaxIdleConnections(Integer.parseInt(value));
+                    break;
+                case "maxThreads":
+                    client.setMaxThreads(Integer.parseInt(value));
+                    break;
+                case "maxThreadsPerHost":
+                    client.setMaxThreadsPerHost(Integer.parseInt(value));
+                    break;
+                case "connectTimeout":
+                    client.setConnectTimeout(Long.parseLong(value));
+                    break;
+                case "writeTimeout":
+                    client.setWriteTimeout(Long.parseLong(value));
+                    break;
+                case "readTimeout":
+                    client.setReadTimeout(Long.parseLong(value));
+                    break;
+                case "maxReadLength":
+                    client.setMaxReadLength(Long.parseLong(value));
+                    break;
+                case "verboseLog":
+                    client.setVerboseLog(Boolean.parseBoolean(value));
+                    break;
+                case "txTimerEnabled":
+                    client.setTxTimerEnabled(Boolean.parseBoolean(value));
+                    break;
+                default:
+                    logger.error("HttpClients SettingsOverride | Error while changing " + property + " of " + tag + " to '" + value + "', No overridable setting named '" + property + "'");
+                    break;
+            }
+        } catch (NumberFormatException e) {
+            logger.error("HttpClients SettingsOverride | Error while changing " + property + " of " + tag + " to '" + value + "', number format failed", e);
+        } catch (SimpleKeyValueEncoder.DecodeException e) {
+            logger.error("HttpClients SettingsOverride | Error while changing " + property + " of " + tag + " to '" + value + "', illegal key-value format, see github.com/shepherdviolet/thistle/blob/master/docs/kvencoder/guide.md", e);
+        } catch (Exception e) {
+            logger.error("HttpClients SettingsOverride | Error while changing " + property + " of " + tag + " to '" + value + "'", e);
+        }
     }
 
 }

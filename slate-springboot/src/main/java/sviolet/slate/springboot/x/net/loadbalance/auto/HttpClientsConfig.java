@@ -27,17 +27,8 @@ public class HttpClientsConfig {
      */
     @Bean("slate.springboot.HttpClients")
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    public HttpClients httpClients(SlateProperties slateProperties, HttpClientsDefinitionParser httpClientsDefinitionParser){
-        return new HttpClientsImpl(slateProperties.getHttpclients(), httpClientsDefinitionParser);
-    }
-
-    /**
-     * 将定义文本解析为HttpClients配置
-     */
-    @Bean("slate.springboot.HttpClientsDefinitionParser")
-    @ConditionalOnMissingBean
-    public HttpClientsDefinitionParser httpClientsDefinitionParser(){
-        return new HttpClientsDefinitionParserImpl();
+    public HttpClients httpClients(SlateProperties slateProperties){
+        return new HttpClientsImpl(slateProperties.getHttpclients());
     }
 
     /**
