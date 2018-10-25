@@ -6,10 +6,10 @@
 
 * SimpleOkHttpClient继承了MultiHostOkHttpClient, 同时封装了LoadBalancedHostManager和LoadBalancedInspectManager, 简化了配置, 免去了配置三个Bean的麻烦
 * 配置被简化, 如需高度定制, 请使用LoadBalancedHostManager + LoadBalancedInspectManager + MultiHostOkHttpClient
-* 内置的LoadBalancedInspectManager采用TELNET方式探测后端, 可以改为HttpGet方式<br>
-* 屏蔽了setHostManager()方法, 调用会抛出异常<br>
-* 实现了DisposableBean, 在Spring容器中会自动销毁<br>
-* 若SimpleOkHttpClient在Spring中注册为Bean, 主动探测器会在Spring启动后自动开始. 否则需要手动调用SimpleOkHttpClient.start()方法开始主动探测<br>
+* 内置的LoadBalancedInspectManager采用TELNET方式探测后端, 可以改为HttpGet方式
+* 屏蔽了setHostManager()方法, 调用会抛出异常
+* 实现了DisposableBean, 在Spring容器中会自动销毁
+* 若SimpleOkHttpClient在Spring中注册为Bean, 主动探测器会在Spring启动后自动开始. 否则需要手动调用SimpleOkHttpClient.start()方法开始主动探测
 
 ```text
 @Configuration
@@ -33,6 +33,8 @@ public class MyConfiguration {
                 .setMaxReadLength(10L * 1024L * 1024L)//数据最大读取长度, 单位字节
                 .setDataConverter(new GsonDataConverter())//设置数据转换器
                 .setVerboseLog(true)//为true时会输出更多日志
+                //.setVerboseLogConfig(0x00000110)//微调输出的日志内容(详见源码)
+                //.setHttpGetInspector("/health")//启用HTTP Get方式进行主动健康探测, URL为http://127.0.0.1:8083/health和http://127.0.0.1:8084/health, (设置+telnet+改回TELNET方式)
                 .setTxTimerEnabled(true);//启用TxTimer对请求耗时的统计(目前只支持同步方式)
     }
 
@@ -69,7 +71,7 @@ public class MyConfiguration {
     @Bean(destroyMethod = "close")
     public LoadBalancedInspectManager loadBalancedInspectManager(LoadBalancedHostManager loadBalancedHostManager) {
         return new LoadBalancedInspectManager()
-                //.setInspector(new HttpGetLoadBalanceInspector("/health", 1000L))//改用HttpGet方式, 探测URL为/health, 超时时间建议为主动探测间隔的四分之一
+                //.setInspector(new HttpGetLoadBalanceInspector("/health", 1000L))//启用HTTP Get方式进行主动健康探测, URL为http://127.0.0.1:8083/health和http://127.0.0.1:8084/health, 超时时间建议为主动探测间隔的四分之一
                 .setHostManager(loadBalancedHostManager)//持有LoadBalancedHostManager
                 .setInspectInterval(5000L);//主动探测间隔    
     }

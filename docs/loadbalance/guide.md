@@ -29,7 +29,3 @@ Slate 11.X 后该客户端的包路径从sviolet.slate.common.modelx.loadbalance
 
 * [同步发送请求](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-sync.md)
 * [同步发送请求](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-async.md)
-
-# 其他
-
-* [参数说明](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/properties.md)
