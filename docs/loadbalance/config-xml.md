@@ -2,6 +2,10 @@
 
 * `Maven/Gradle依赖配置`在本文最后
 
+<br>
+<br>
+<br>
+
 # 简化版配置(推荐)
 
 * SimpleOkHttpClient继承了MultiHostOkHttpClient, 同时封装了LoadBalancedHostManager和LoadBalancedInspectManager, 简化了配置, 免去了配置三个Bean的麻烦
@@ -27,6 +31,10 @@
         <!--<property name="httpGetInspector" ref="/health"/> 启用HTTP Get方式进行主动健康探测, URL为http://127.0.0.1:8083/health和http://127.0.0.1:8084/health, (设置+telnet+改回TELNET方式)-->
     </bean>
 ```
+
+<br>
+<br>
+<br>
 
 # 标准配置(不推荐)
 
@@ -64,6 +72,10 @@
     </bean>
     
 ```
+
+<br>
+<br>
+<br>
 
 # 使用Apollo配置中心实时调整配置
 

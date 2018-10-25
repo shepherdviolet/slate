@@ -2,6 +2,10 @@
 
 * `Maven/Gradle依赖配置`在本文最后
 
+<br>
+<br>
+<br>
+
 # YML配置(推荐)
 
 * 在application.yml/application-profile.yml中增加配置
@@ -10,9 +14,7 @@
 slate:
   httpclients:
     client1:
-      hostList:
-        - http://127.0.0.1:8081
-        - http://127.0.0.1:8082
+      hosts: http://127.0.0.1:8081,http://127.0.0.1:8082
       initiativeInspectInterval: 5000
       passiveBlockDuration: 30000
       connectTimeout: 3000
@@ -22,7 +24,9 @@ slate:
       verboseLog: true
       txTimerEnabled: true
     client2:
-      hosts: http://127.0.0.1:8083,http://127.0.0.1:8084
+      hostList:
+        - http://127.0.0.1:8083
+        - http://127.0.0.1:8084
       initiativeInspectInterval: 5000
       passiveBlockDuration: 30000
       connectTimeout: 3000
@@ -94,10 +98,18 @@ slate:
       txTimerEnabled: false
 ```
 
+<br>
+<br>
+<br>
+
 # 手动配置
 
-* 除了YML配置方式, 也可以手动配置, 参考:https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-annotation.md
+* 除了用YML配置, 也可以进行手动配置, 参考https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-annotation.md
 * 注意: 有一部分配置未在YML中提供, 必须通过手动配置(例如: 设置CookieJar, 设置Proxy等)
+
+<br>
+<br>
+<br>
 
 # 获得HttpClient
 
@@ -129,6 +141,10 @@ slate:
     }
 }
 ```
+
+<br>
+<br>
+<br>
 
 # 运行时调整配置
 
@@ -164,6 +180,31 @@ public class MyComponent {
 
 }
 ```
+
+<br>
+<br>
+<br>
+
+# 使用启动参数调整配置
+
+* HttpClients支持用启动参数调整配置, 但必须重启应用才会生效
+* 启动参数格式: -Dslate.httpclients.`客户端标识`.`配置名`=`配置值`
+
+* 例如: 修改client2的hosts为http://127.0.0.1:8083,http://127.0.0.1:8084
+
+> -Dslate.httpclients.client2.hosts=http://127.0.0.1:8083,http://127.0.0.1:8084<br>
+
+* 例如: 给client1添加两个Http请求头 (键值对格式:https://github.com/shepherdviolet/thistle/blob/master/docs/kvencoder/guide.md)
+
+> slate.httpclients.client1.headers=User-Agent=SlateHttpClient,Referer=http://github.com<br>
+
+* 其他说明
+
+> 如果`客户端标识`是新增的, 应用会创建一个新的HttpClient实例<br>
+
+<br>
+<br>
+<br>
 
 # 使用Apollo配置中心实时调整配置
 
@@ -231,22 +272,22 @@ public class HttpClientsApolloConfig {
 ```
 
 * 在Apollo配置中心添加配置并发布, 应用端的HttpClient配置就会实时调整
-* key格式: slate.httpclients.`客户端标识`.`配置名`
+* Key格式: slate.httpclients.`客户端标识`.`配置名`
+
 * 例如: 修改client2的hosts为http://127.0.0.1:8083,http://127.0.0.1:8084
 
-```text
-slate.httpclients.client2.hosts=http://127.0.0.1:8083,http://127.0.0.1:8084
-```
+> Key: `slate.httpclients.client2.hosts`<br>
+> Value: `http://127.0.0.1:8083,http://127.0.0.1:8084`<br>
 
 * 例如: 给client1添加两个Http请求头 (键值对格式:https://github.com/shepherdviolet/thistle/blob/master/docs/kvencoder/guide.md)
 
-```text
-slate.httpclients.client1.headers=User-Agent=SlateHttpClient,Referer=http://github.com
-```
+> Key: `slate.httpclients.client1.headers`<br>
+> Value: `User-Agent=SlateHttpClient,Referer=http://github.com`<br>
 
-* 如果`客户端标识`(tag)是新增的, 应用端会实时创建一个新的HttpClient实例
-* 在日志中搜索`HttpClients`关键字可以观察到配置实时调整的情况
-* 另外, 启动参数中按这样的格式配置, 重启应用后也能有效
+* 其他说明
+
+> 如果`客户端标识`是新增的, 应用端会实时创建一个新的HttpClient实例<br>
+> 在日志中搜索`HttpClients`关键字可以观察到配置实时调整的情况<br>
 
 <br>
 <br>
