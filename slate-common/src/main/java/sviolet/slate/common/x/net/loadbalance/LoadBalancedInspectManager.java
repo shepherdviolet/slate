@@ -175,11 +175,11 @@ public class LoadBalancedInspectManager implements Closeable {
     /**
      * [可运行时修改]
      * 设置探测间隔
-     * @param inspectInterval 检测间隔ms, > 0 , 建议 > 5000
+     * @param inspectInterval 检测间隔ms, 必须 > 1000 , 建议 > 5000
      */
     public LoadBalancedInspectManager setInspectInterval(long inspectInterval) {
-        if (inspectInterval <= 0){
-            throw new IllegalArgumentException("inspectInterval must > 0 (usually > 5000)");
+        if (inspectInterval < 1000){
+            inspectInterval = 1000;
         }
         //探测间隔
         this.inspectInterval = inspectInterval;

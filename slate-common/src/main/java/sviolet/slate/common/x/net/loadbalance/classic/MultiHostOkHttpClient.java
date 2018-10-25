@@ -1584,6 +1584,9 @@ public class MultiHostOkHttpClient {
      * @param passiveBlockDuration 阻断时长ms
      */
     public MultiHostOkHttpClient setPassiveBlockDuration(long passiveBlockDuration) {
+        if (passiveBlockDuration < 0) {
+            passiveBlockDuration = 0;
+        }
         settings.passiveBlockDuration = passiveBlockDuration;
         return this;
     }
@@ -1624,6 +1627,9 @@ public class MultiHostOkHttpClient {
      * @param recoveryCoefficient 阻断后的恢复期系数, >= 1
      */
     public MultiHostOkHttpClient setRecoveryCoefficient(int recoveryCoefficient) {
+        if (recoveryCoefficient < 1) {
+            recoveryCoefficient = 1;
+        }
         settings.recoveryCoefficient = recoveryCoefficient;
         return this;
     }
@@ -1634,6 +1640,9 @@ public class MultiHostOkHttpClient {
      * @param maxIdleConnections 最大闲置连接数, 默认16
      */
     public MultiHostOkHttpClient setMaxIdleConnections(int maxIdleConnections) {
+        if (maxIdleConnections < 0) {
+            maxIdleConnections = 0;
+        }
         try {
             settingsSpinLock.lock();
             settings.maxIdleConnections = maxIdleConnections;
@@ -1649,6 +1658,9 @@ public class MultiHostOkHttpClient {
      * @param maxThreads 最大请求线程数, 默认64
      */
     public MultiHostOkHttpClient setMaxThreads(int maxThreads) {
+        if (maxThreads < 1) {
+            maxThreads = 1;
+        }
         try {
             settingsSpinLock.lock();
             settings.maxThreads = maxThreads;
@@ -1664,6 +1676,9 @@ public class MultiHostOkHttpClient {
      * @param maxThreadsPerHost 对应每个后端的最大请求线程数, 默认64
      */
     public MultiHostOkHttpClient setMaxThreadsPerHost(int maxThreadsPerHost) {
+        if (maxThreadsPerHost < 1) {
+            maxThreadsPerHost = 1;
+        }
         try {
             settingsSpinLock.lock();
             settings.maxThreadsPerHost = maxThreadsPerHost;
@@ -1679,6 +1694,9 @@ public class MultiHostOkHttpClient {
      * @param connectTimeout 连接超时ms
      */
     public MultiHostOkHttpClient setConnectTimeout(long connectTimeout) {
+        if (connectTimeout < 0) {
+            connectTimeout = 0;
+        }
         try {
             settingsSpinLock.lock();
             settings.connectTimeout = connectTimeout;
@@ -1694,6 +1712,9 @@ public class MultiHostOkHttpClient {
      * @param writeTimeout 写数据超时ms
      */
     public MultiHostOkHttpClient setWriteTimeout(long writeTimeout) {
+        if (writeTimeout < 0) {
+            writeTimeout = 0;
+        }
         try {
             settingsSpinLock.lock();
             settings.writeTimeout = writeTimeout;
@@ -1709,6 +1730,9 @@ public class MultiHostOkHttpClient {
      * @param readTimeout 读数据超时ms
      */
     public MultiHostOkHttpClient setReadTimeout(long readTimeout) {
+        if (readTimeout < 0) {
+            readTimeout = 0;
+        }
         try {
             settingsSpinLock.lock();
             settings.readTimeout = readTimeout;
@@ -1724,6 +1748,9 @@ public class MultiHostOkHttpClient {
      * @param maxReadLength 设置最大读取数据长度, 单位bytes
      */
     public MultiHostOkHttpClient setMaxReadLength(long maxReadLength){
+        if (maxReadLength < 1024) {
+            maxReadLength = 1024;
+        }
         settings.maxReadLength = maxReadLength;
         return this;
     }
