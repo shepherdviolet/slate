@@ -165,7 +165,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                 //print changed
                 if (logger.isInfoEnabled()) {
                     for (SimpleOkHttpClient client : changedClients) {
-                        logger.info("HttpClients SettingsOverride | " + client.getTag() +  " Adjusted " + client);
+                        logger.info("HttpClients SettingsOverride | " + client.getTag() +  "> Adjusted " + client);
                     }
                 }
 
