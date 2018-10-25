@@ -57,12 +57,12 @@ public class HttpClientProperties {
 
     /**
      * [可运行时修改]
-     * <p>设置被动检测到网络故障时阻断后端的时间</p>
+     * <p>设置被动检测到网络故障时阻断后端的时间, 单位ms</p>
      *
      * <p>当请求服务端时, 发生特定的异常或返回特定的响应码(MultiHostOkHttpClient.needBlock方法决定), 客户端会将该
      * 后端服务器的IP/PORT标记为暂不可用状态, 阻断时长就是不可用的时长, 建议比主动探测器的探测间隔大.</p>
      */
-    private long passiveBlockDuration = 6000L;
+    private long passiveBlockDuration = 30000L;
 
     /**
      * [可运行时修改]
@@ -98,13 +98,13 @@ public class HttpClientProperties {
      * [可运行时修改]
      * 最大请求线程数(仅异步请求时有效)
      */
-    private int maxThreads = 200;
+    private int maxThreads = 256;
 
     /**
      * [可运行时修改]
      * 对应每个后端的最大请求线程数(仅异步请求时有效)
      */
-    private int maxThreadsPerHost = 200;
+    private int maxThreadsPerHost = 256;
 
     /**
      * [可运行时修改]

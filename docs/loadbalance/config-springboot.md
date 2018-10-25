@@ -16,9 +16,9 @@ slate:
         - http://127.0.0.1:8081
         - http://127.0.0.1:8082
       initiativeInspectInterval: 5000
-      maxIdleConnections: 20
-      maxThreads: 200
-      maxThreadsPerHost: 200
+      maxIdleConnections: 16
+      maxThreads: 256
+      maxThreadsPerHost: 256
       passiveBlockDuration: 30000
       connectTimeout: 3000
       writeTimeout: 10000
@@ -28,9 +28,9 @@ slate:
     client2:
       hosts: http://127.0.0.1:8083,http://127.0.0.1:8084
       initiativeInspectInterval: 5000
-      maxIdleConnections: 20
-      maxThreads: 200
-      maxThreadsPerHost: 200
+      maxIdleConnections: 16
+      maxThreads: 256
+      maxThreadsPerHost: 256
       passiveBlockDuration: 30000
       connectTimeout: 3000
       writeTimeout: 10000
@@ -44,9 +44,9 @@ slate:
 * client2有两个主机http://127.0.0.1:8083和http://127.0.0.1:8084
 * hosts配置的优先级比hostList高, 同时配置时只有hosts生效
 * 健康主动探测间隔(initiativeInspectInterval)为5000ms
-* 异步方式最大线程数(maxThreads)为200
-* 异步方式每个后端最大线程数(maxThreadsPerHost)为200
-* 健康被动探测阻断时长(passiveBlockDuration)为6000ms
+* 异步方式最大线程数(maxThreads)为256
+* 异步方式每个后端最大线程数(maxThreadsPerHost)为256
+* 健康被动探测阻断时长(passiveBlockDuration)为30000ms
 * connectTimeout/writeTimeout/readTimeout分别为连接/写/读超时时间, 单位ms
 * verboseLog为true时会输出更多日志
 * 禁用TxTimer对请求耗时的统计(目前只支持同步方式)

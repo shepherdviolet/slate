@@ -46,9 +46,9 @@ import java.io.Closeable;
  *      SimpleOkHttpClient client = new SimpleOkHttpClient()
  *              .setHosts("http://127.0.0.1:8081,http://127.0.0.1:8082")
  *              .setInitiativeInspectInterval(5000L)
- *              .setMaxThreads(200)
- *              .setMaxThreadsPerHost(200)
- *              .setPassiveBlockDuration(6000L)
+ *              .setMaxThreads(256)
+ *              .setMaxThreadsPerHost(256)
+ *              .setPassiveBlockDuration(30000L)
  *              .setConnectTimeout(3000L)
  *              .setWriteTimeout(10000L)
  *              .setReadTimeout(10000L);
@@ -62,9 +62,9 @@ import java.io.Closeable;
  *  <bean id="simpleOkHttpClient" class="sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient">
  *      <property name="hosts" value="http://127.0.0.1:8081,http://127.0.0.1:8082"/>
  *      <property name="initiativeInspectInterval" value="5000"/>
- *      <property name="maxThreads" value="200"/>
- *      <property name="maxThreadsPerHost" value="200"/>
- *      <property name="passiveBlockDuration" value="6000"/>
+ *      <property name="maxThreads" value="256"/>
+ *      <property name="maxThreadsPerHost" value="256"/>
+ *      <property name="passiveBlockDuration" value="30000"/>
  *      <property name="connectTimeout" value="3000"/>
  *      <property name="writeTimeout" value="10000"/>
  *      <property name="readTimeout" value="10000"/>

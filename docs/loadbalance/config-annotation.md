@@ -44,9 +44,9 @@ public class MyConfiguration {
     public MultiHostOkHttpClient multiHostOkHttpClient(LoadBalancedHostManager loadBalancedHostManager) {
         return new MultiHostOkHttpClient()
                 .setHostManager(loadBalancedHostManager)
-                .setMaxIdleConnections(20)
-                .setMaxThreads(200)//仅在异步方式有效, 同步无限制
-                .setMaxThreadsPerHost(200)//仅在异步方式有效, 同步无限制
+                .setMaxIdleConnections(16)
+                .setMaxThreads(256)//仅在异步方式有效, 同步无限制
+                .setMaxThreadsPerHost(256)//仅在异步方式有效, 同步无限制
                 .setPassiveBlockDuration(30000L)//被动阻断时间建议与所有超时时间加起来接近
                 .setConnectTimeout(3000L)
                 .setWriteTimeout(10000L)
@@ -80,9 +80,9 @@ public class MyConfiguration {
         return (SimpleOkHttpClient) new SimpleOkHttpClient()
                 .setHosts(hosts)
                 .setInitiativeInspectInterval(5000L)
-                .setMaxIdleConnections(20)
-                .setMaxThreads(200)//仅在异步方式有效, 同步无限制
-                .setMaxThreadsPerHost(200)//仅在异步方式有效, 同步无限制
+                .setMaxIdleConnections(16)
+                .setMaxThreads(256)//仅在异步方式有效, 同步无限制
+                .setMaxThreadsPerHost(256)//仅在异步方式有效, 同步无限制
                 .setPassiveBlockDuration(30000L)//被动阻断时间建议与所有超时时间加起来接近
                 .setConnectTimeout(3000L)
                 .setWriteTimeout(10000L)

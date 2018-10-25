@@ -62,8 +62,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  *      MultiHostOkHttpClient client = new MultiHostOkHttpClient()
  *              .setHostManager(hostManager)
- *              .setMaxThreads(200)
- *              .setMaxThreadsPerHost(200)
+ *              .setMaxThreads(256)
+ *              .setMaxThreadsPerHost(256)
  *              .setPassiveBlockDuration(30000L)
  *              .setConnectTimeout(3000L)
  *              .setWriteTimeout(10000L)
@@ -86,8 +86,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  *  <bean id="multiHostOkHttpClient" class="sviolet.slate.common.x.net.loadbalance.classic.MultiHostOkHttpClient">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
- *      <property name="maxThreads" value="200"/>
- *      <property name="maxThreadsPerHost" value="200"/>
+ *      <property name="maxThreads" value="256"/>
+ *      <property name="maxThreadsPerHost" value="256"/>
  *      <property name="passiveBlockDuration" value="30000"/>
  *      <property name="connectTimeout" value="3000"/>
  *      <property name="writeTimeout" value="10000"/>
@@ -112,8 +112,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  *  <bean id="multiHostOkHttpClient" class="sviolet.slate.common.x.net.loadbalance.classic.MultiHostOkHttpClient">
  *      <property name="hostManager" ref="loadBalancedHostManager"/>
- *      <property name="maxThreads" value="200"/>
- *      <property name="maxThreadsPerHost" value="200"/>
+ *      <property name="maxThreads" value="256"/>
+ *      <property name="maxThreadsPerHost" value="256"/>
  *      <property name="passiveBlockDuration" value="30000"/>
  *      <property name="connectTimeout" value="3000"/>
  *      <property name="writeTimeout" value="10000"/>
@@ -1252,8 +1252,8 @@ public class MultiHostOkHttpClient {
         private int recoveryCoefficient = 10;
 
         private int maxIdleConnections = 16;
-        private int maxThreads = 64;
-        private int maxThreadsPerHost = 64;
+        private int maxThreads = 256;
+        private int maxThreadsPerHost = 256;
         private long connectTimeout = 3000L;
         private long writeTimeout = 10000L;
         private long readTimeout = 10000L;
@@ -1660,7 +1660,7 @@ public class MultiHostOkHttpClient {
     /**
      * [可运行时修改]
      * 最大请求线程数(仅异步请求时有效)
-     * @param maxThreads 最大请求线程数, 默认64
+     * @param maxThreads 最大请求线程数, 默认256
      */
     public MultiHostOkHttpClient setMaxThreads(int maxThreads) {
         if (maxThreads < 1) {
@@ -1678,7 +1678,7 @@ public class MultiHostOkHttpClient {
     /**
      * [可运行时修改]
      * 对应每个后端的最大请求线程数(仅异步请求时有效)
-     * @param maxThreadsPerHost 对应每个后端的最大请求线程数, 默认64
+     * @param maxThreadsPerHost 对应每个后端的最大请求线程数, 默认256
      */
     public MultiHostOkHttpClient setMaxThreadsPerHost(int maxThreadsPerHost) {
         if (maxThreadsPerHost < 1) {
