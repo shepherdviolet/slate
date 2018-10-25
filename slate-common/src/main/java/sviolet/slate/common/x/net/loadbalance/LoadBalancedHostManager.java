@@ -106,6 +106,7 @@ public class LoadBalancedHostManager {
     private AtomicReference<List<String>> newSettings = new AtomicReference<>(null);
 
     private volatile boolean initialized = false;
+    private volatile boolean updating = false;
     private AtomicBoolean initLock = new AtomicBoolean(false);
 
     /**
@@ -223,6 +224,10 @@ public class LoadBalancedHostManager {
      * @return 远端列表和状态
      */
     public String printHostsStatus(String prefix){
+        if (updating || newSettings.get() != null) {
+            return " Hosts updating";
+        }
+
         Host[] hostArray = this.hostArray;
 
         StringBuilder stringBuilder = new StringBuilder(prefix != null ? prefix : "");
@@ -249,14 +254,21 @@ public class LoadBalancedHostManager {
     private Runnable settingInstallTask = new Runnable() {
         @Override
         public void run() {
+            boolean updated = false;
             List<String> newSettings;
             while ((newSettings = LoadBalancedHostManager.this.newSettings.getAndSet(null)) != null){
                 settingInstall(newSettings);
+                updated = true;
+            }
+            if (updated && logger.isInfoEnabled()) {
+                logger.info(printHostsStatus(tag + "Set new hosts:"));
             }
         }
     };
 
     private void settingInstall(List<String> newSettings) {
+        updating = true;
+
         Host[] hostArray = LoadBalancedHostManager.this.hostArray;
 
         int newSize = newSettings.size();
@@ -286,9 +298,7 @@ public class LoadBalancedHostManager {
         LoadBalancedHostManager.this.hostArray = newHostArray;
         hostIndexMap = newHostIndexMap;
 
-        if (logger.isInfoEnabled()) {
-            logger.info(printHostsStatus(tag + "Set new hosts:"));
-        }
+        updating = false;
     }
 
     public static class Host {
