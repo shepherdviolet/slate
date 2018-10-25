@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -27,7 +28,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     private static final Logger logger = LoggerFactory.getLogger(HttpClientsImpl.class);
 
-    private Map<String, SimpleOkHttpClient> clients = new HashMap<>(16);
+    private Map<String, SimpleOkHttpClient> clients = new ConcurrentHashMap<>(16);
 
     private OverrideSettings previousOverrideSettings = new MapBasedOverrideSettings(new HashMap<String, String>(0));
     private AtomicReference<OverrideSettings> newOverrideSettings = new AtomicReference<>(null);
@@ -154,11 +155,14 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                     //Get client
                     SimpleOkHttpClient client = clients.get(tag);
 
-                    //Check if changed
+                    //Check if new
                     if (client == null) {
-                        logger.error("HttpClients SettingsOverride | No HttpClient named " + tag + ", skip key '" + key + "'");
-                        continue;
+                        client = HttpClientCreator.create(tag, new HttpClientProperties());
+                        clients.put(tag, client);
+                        logger.info("HttpClients SettingsOverride | " + tag + "> Create new HttpClient with default properties, because no HttpClient named " + tag + " before");
                     }
+
+                    //Check if changed
                     if (value == null) {
                         logger.warn("HttpClients SettingsOverride | The new value of '" + key + "' is null, " + property + " of " + tag + " stay the same");
                         continue;
