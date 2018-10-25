@@ -194,9 +194,9 @@ public class MyComponent {
 
 > -Dslate.httpclients.client2.hosts=http://127.0.0.1:8083,http://127.0.0.1:8084<br>
 
-* 例如: 给client1添加两个Http请求头 (键值对格式:https://github.com/shepherdviolet/thistle/blob/master/docs/kvencoder/guide.md)
+* 例如: 给client1添加两个Http请求头 [键值对格式](https://github.com/shepherdviolet/thistle/blob/master/docs/kvencoder/guide.md)
 
-> slate.httpclients.client1.headers=User-Agent=SlateHttpClient,Referer=http://github.com<br>
+> -Dslate.httpclients.client1.headers=User-Agent=SlateHttpClient,Referer=http://github.com<br>
 
 * 其他说明
 
@@ -279,7 +279,7 @@ public class HttpClientsApolloConfig {
 > Key: `slate.httpclients.client2.hosts`<br>
 > Value: `http://127.0.0.1:8083,http://127.0.0.1:8084`<br>
 
-* 例如: 给client1添加两个Http请求头 (键值对格式:https://github.com/shepherdviolet/thistle/blob/master/docs/kvencoder/guide.md)
+* 例如: 给client1添加两个Http请求头 [键值对格式](https://github.com/shepherdviolet/thistle/blob/master/docs/kvencoder/guide.md)
 
 > Key: `slate.httpclients.client1.headers`<br>
 > Value: `User-Agent=SlateHttpClient,Referer=http://github.com`<br>
