@@ -44,7 +44,7 @@ slate:
 * verboseLog为true时会输出更多日志
 * 启用TxTimer对请求耗时的统计(目前只支持同步方式)
 
-# YML中所提供的全部配置说明
+### YML中所提供的全部配置说明
 
 ```yaml
 slate:
@@ -97,7 +97,7 @@ slate:
 # 手动配置
 
 * 除了YML配置方式, 也可以手动配置, 参考:https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-annotation.md
-* 注意: 有一部分配置未在YML中提供, 必须通过手动配置(例如: 设置CookieJar, 设置Proxy)
+* 注意: 有一部分配置未在YML中提供, 必须通过手动配置(例如: 设置CookieJar, 设置Proxy等)
 
 # 获得HttpClient
 
@@ -127,6 +127,41 @@ slate:
     public Constructor(HttpClients httpClients) {
         this.client1 = httpClients.get("cliente1");
     }
+}
+```
+
+# 运行时调整配置
+
+```text
+为了复杂的服务端场景, SimpleOkHttpClient/MultiHostOkHttpClient
+所有的配置均可以在运行时调整, 所有Set方法均为线程安全, 但有些配置的调整是异步生效的(不保证在执行set方法时生效).
+```
+
+```text
+@Component
+public class MyComponent {
+
+    private SimpleOkHttpClient simpleOkHttpClient;
+    
+    /**
+     * 使用构造注入, 保证在setter操作时simpleOkHttpClient已经注入
+     */
+    @Autowired
+    public HttpClientConfigChangeListener(SimpleOkHttpClient simpleOkHttpClient) {
+        this.simpleOkHttpClient = simpleOkHttpClient;
+    }
+
+    /**
+     * 示例, 运行时调整SimpleOkHttpClient的配置, 准实时生效
+     * 更多配置请看SimpleOkHttpClient和MultiHostOkHttpClient类的方法注释
+     */
+    public void changeSettings(......) {
+        simpleOkHttpClient
+                .setHosts(......)
+                .setProxy(......)
+                .setSSLSocketFactory(......);
+    }
+
 }
 ```
 
