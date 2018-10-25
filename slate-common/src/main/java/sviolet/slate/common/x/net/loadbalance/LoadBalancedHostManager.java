@@ -225,7 +225,7 @@ public class LoadBalancedHostManager {
      */
     public String printHostsStatus(String prefix){
         if (updating || newSettings.get() != null) {
-            return " Hosts updating";
+            return (prefix != null ? prefix : "") + " Hosts updating";
         }
 
         Host[] hostArray = this.hostArray;
