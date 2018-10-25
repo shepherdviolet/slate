@@ -1,4 +1,4 @@
-# Slate 11.2
+# Slate 11.3
 * Comprehensive Java library for spring framework (Java7+)
 * https://github.com/shepherdviolet/slate
 
