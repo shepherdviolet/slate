@@ -163,6 +163,9 @@ public class LoadBalancedHostManager {
             if (!initLock.get() && initLock.compareAndSet(false, true)) {
                 settingInstall(hosts);
                 initialized = true;
+                if (logger.isInfoEnabled()) {
+                    logger.info(printHostsStatus(tag + "Set hosts:"));
+                }
                 return this;
             } else {
                 Thread.yield();
