@@ -222,6 +222,15 @@ public class BootApplication {
 * 添加一个配置类, 监听Apollo配置变化并实时调整HttpClient的配置(甚至能够新增客户端)
 
 ```text
+import com.ctrip.framework.apollo.Config;
+import com.ctrip.framework.apollo.model.ConfigChangeEvent;
+import com.ctrip.framework.apollo.spring.annotation.ApolloConfig;
+import com.ctrip.framework.apollo.spring.annotation.ApolloConfigChangeListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import sviolet.slate.springboot.x.net.loadbalance.auto.HttpClients;
+import java.util.Set;
+
 @Configuration
 public class HttpClientsApolloConfig {
 
