@@ -4,9 +4,7 @@
 * 支持被动/主动方式探测后端是否可用, 自动选择可用的后端发送请求
 * 支持同步/异步方式请求
 
-```text
-Slate 11.X 版本后该客户端的包路径从sviolet.slate.common.modelx.loadbalance调整为sviolet.slate.common.x.net.loadbalance
-```
+> Slate 11.X 版本后该客户端的包路径从sviolet.slate.common.modelx.loadbalance调整为sviolet.slate.common.x.net.loadbalance <br>
 
 # 设计思路
 
