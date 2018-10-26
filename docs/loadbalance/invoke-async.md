@@ -4,16 +4,21 @@
 
 > 以本文档中的代码为例 <br>
 > http://127.0.0.1:8081 和 http://127.0.0.1:8082 是两台应用服务器, 我们要向他们请求数据, 请求的URL后缀为 /user/update.json <br>
-> 配置LoadBalancedHostManager的hosts参数为 http://127.0.0.1:8081,http://127.0.0.1:8082 <br>
+> 配置SimpleOkHttpClient或LoadBalancedHostManager的hosts参数为 http://127.0.0.1:8081,http://127.0.0.1:8082 <br>
 > 调用客户端发送请求 multiHostOkHttpClient.get("/user/update.json").send() <br>
 > 程序会自动选择一个应用服务器, 然后将应用服务器的地址与URL后缀拼接 <br>
 > 最终的请求地址为 http://127.0.0.1:8081/user/update.json 或 http://127.0.0.1:8082/user/update.json <br>
 
-* 注意
+* 建议
 
 > 异步方式通常在终端应用使用(安卓客户端等), 便于UI交互 <br>
 > 异步方式的等待队列长度无限, 并发数通过`maxThreads` / `maxThreadsPerHost`配置决定 <br>
 > 用于服务端时, 建议使用同步方式, 并自行实现线程隔离/线程数限制/等待队列限制等 <br>
+
+* 特别注意
+
+> 切勿在发送请求前调整客户端配置, 很多配置是异步生效的(例如: 在发送前使用setHosts方法设置后端地址, 最终请求还是会发往老地址!!!). 
+> 更不能将一个客户端用于发往不同的服务方集群(它们提供不同的服务), 会导致严重的错发现象. 必须严格按照一个服务方集群对应一个客户端实例的方式使用.
 
 ### POST
 
