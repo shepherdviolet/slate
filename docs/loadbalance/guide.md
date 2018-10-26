@@ -4,14 +4,15 @@
 * 支持被动/主动方式探测后端是否可用, 自动选择可用的后端发送请求
 * 支持同步/异步方式请求
 
-> Slate 11.X 版本后该客户端的包路径从sviolet.slate.common.modelx.loadbalance调整为sviolet.slate.common.x.net.loadbalance <br>
+> Slate 11.X 版本后该客户端的包路径从sviolet.slate.common.modelx.loadbalance调整为sviolet.slate.common.x.net.loadbalance
 
 # 设计思路
 
-> 在分布式架构中, 为了消除热点, 服务方会以集群方式提供服务. <br>
-> 对外提供接口时, 通常有运营商/硬件负载(F5)/软件负载(Nginx/Apache等)提供负载均衡, 即请求方向唯一的域名发送请求, 负载均衡负责将流量分配给服务集群. <br>
-> 对内部系统提供接口时, 通常不会使用可靠的硬件负载均衡设备, 软负载(Nginx)也存在宕机的风险, 简单的域名映射无法探知后端状态, 当服务方集群中的部分机器停机或故障时, 会导致大量的请求失败. <br>
-> 本HttpClient就是为了内部系统访问设计的, 在请求方实现负载均衡, 平均分配流量, 并提供探知后端状态的能力, 尽可能地将请求向健康的服务器发送. <br>
+> 在分布式架构中, 为了消除热点, 服务方会以集群方式提供服务. 
+> 对外提供接口时, 通常有运营商/硬件负载(F5)/软件负载(Nginx/Apache等)提供负载均衡, 即请求方向唯一的域名发送请求, 负载均衡负责将流量分配给服务集群. 
+> 对内部系统提供接口时, 通常不会使用可靠的硬件负载均衡设备, 软负载(Nginx)也存在宕机的风险, 简单的域名映射无法探知后端状态, 
+> 当服务方集群中的部分机器停机或故障时, 会导致大量的请求失败. 
+> 本HttpClient就是为了内部系统访问设计的, 在请求方实现负载均衡, 平均分配流量, 并提供探知后端状态的能力, 尽可能地将请求向健康的服务器发送.
 
 # 关于阻断机制
 
@@ -25,15 +26,18 @@
 
 # 配置客户端
 
-> 注意: 每个HttpClient实例必须对应一个服务方集群(它们提供相同的服务), 不同的服务方集群应该配置不同的HttpClient实例与之对应. <br>
-> 例如, 请求方系统需要向 A系统(150.1.1.1,155.1.1.2) / B系统(150.1.2.1,150.1.2.2) 发送请求 <br>
-> 则需要配置两个客户端: clientA(http://150.1.1.1:8080,http://155.1.1.2:8080) / ClientB(http://150.1.2.1:8080,http://155.1.2.2:8080) <br>
+> 注意: 每个HttpClient实例必须对应一个服务方集群(它们提供相同的服务), 不同的服务方集群应该配置不同的HttpClient实例与之对应. 
+> 例如, 请求方系统需要向 A系统(150.1.1.1,155.1.1.2) / B系统(150.1.2.1,150.1.2.2) 发送请求, 
+> 则需要配置两个客户端: clientA(http://150.1.1.1:8080,http://155.1.1.2:8080) / ClientB(http://150.1.2.1:8080,http://155.1.2.2:8080)
 
 * [Spring XML配置](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-xml.md)
 * [Spring 注解配置](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-annotation.md)
 * [SpringBoot YML自动配置](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-springboot.md)
 
 # 调用客户端
+
+> 注意: 切勿在发送请求前调整客户端配置, 很多配置是异步生效的(例如: 在发送前使用setHosts方法设置后端地址, 最终请求还是会发往老地址!!!). 
+> 更不能将一个客户端用于发往不同的服务方集群(它们提供不同的服务), 会导致严重的错发现象. 必须严格按照一个服务方集群对应一个客户端实例的方式使用.
 
 * [同步发送请求](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-sync.md)
 * [异步发送请求](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-async.md)
