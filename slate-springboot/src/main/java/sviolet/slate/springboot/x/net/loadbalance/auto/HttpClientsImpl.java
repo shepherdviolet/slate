@@ -27,6 +27,11 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
     public static final String OVERRIDE_PREFIX = "slate.httpclients.";
 
     private static final Logger logger = LoggerFactory.getLogger(HttpClientsImpl.class);
+    private static final boolean NOTICE_LOG_ENABLED;
+
+    static {
+        NOTICE_LOG_ENABLED = "true".equals(System.getProperty("slate.httpclientsconf.notice", "true"));
+    }
 
     private Map<String, SimpleOkHttpClient> clients = new ConcurrentHashMap<>(16);
 
@@ -68,7 +73,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     @Override
     public void settingsOverride(OverrideSettings overrideSettings) {
-        if (overrideSettings == null) {
+        if (NOTICE_LOG_ENABLED && overrideSettings == null) {
             logger.warn("HttpClients SettingsOverride | overrideSettings is null, skip override");
             return;
         }
@@ -79,7 +84,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
     @Override
     public SimpleOkHttpClient get(String key) {
         SimpleOkHttpClient client = clients.get(key);
-        if (client == null) {
+        if (NOTICE_LOG_ENABLED && client == null) {
             logger.warn("HttpClients | No HttpClient named " + key + ", return null");
         }
         return client;
@@ -125,7 +130,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
             OverrideSettings settings;
             while ((settings = newOverrideSettings.getAndSet(null)) != null) {
                 Set<String> keys = settings.getKeys();
-                if (keys == null || keys.isEmpty()) {
+                if (NOTICE_LOG_ENABLED && keys == null || keys.isEmpty()) {
                     logger.warn("HttpClients SettingsOverride | overrideSettings.getKeys() return null or empty, skip override");
                     continue;
                 }
@@ -134,7 +139,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                 for (String key : keys) {
                     //Check if relevant
                     if (key == null || !key.startsWith(OVERRIDE_PREFIX) || key.length() <= OVERRIDE_PREFIX.length()) {
-                        if (logger.isTraceEnabled()) {
+                        if (NOTICE_LOG_ENABLED && logger.isTraceEnabled()) {
                             logger.trace("HttpClients SettingsOverride | Skip key '" + key + "', not start with " + OVERRIDE_PREFIX);
                         }
                         continue;
