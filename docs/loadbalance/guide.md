@@ -29,3 +29,20 @@ Slate 11.X 后该客户端的包路径从sviolet.slate.common.modelx.loadbalance
 
 * [同步发送请求](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-sync.md)
 * [同步发送请求](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-async.md)
+
+# 关于日志
+
+### 常规日志
+
+* SLF4J日志包路径: `sviolet.slate.common.x.net.loadbalance`
+* 推荐日志级别: `INFO`
+* 日志关键字: `HttpClient` / `LoadBalance`
+* 包含: 请求/响应日志, Hosts变化日志, 主动探测日志, 被动阻断日志等
+* 另外, 建议将`sviolet.slate.common.x.net.loadbalance.LoadBalancedInspectManager`日志输出到单独文件中(主动探测日志)
+
+### SpringBoot自动配置日志
+
+* SLF4J日志包路径: `sviolet.slate.springboot.x.net.loadbalance`
+* 推荐日志级别: `INFO`
+* 日志关键字: `HttpClients`
+* 包含: 客户端自动配置日志, 客户端配置实时调整日志等

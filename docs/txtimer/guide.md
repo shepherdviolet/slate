@@ -16,7 +16,9 @@
 
 ### 日志
 
-* 日志前缀:`TxTimer`
+* SLF4J日志包路径: `sviolet.slate.common.x.monitor.txtimer.def`
+* 推荐日志级别: `INFO`
+* 日志关键字: `TxTimer`
 * [日志样例](https://github.com/shepherdviolet/slate/blob/master/docs/txtimer/log-sample.md)
 
 # 记录耗时
