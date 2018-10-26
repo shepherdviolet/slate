@@ -78,7 +78,11 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     @Override
     public SimpleOkHttpClient get(String key) {
-        return clients.get(key);
+        SimpleOkHttpClient client = clients.get(key);
+        if (client == null) {
+            logger.warn("HttpClients | No HttpClient named " + key + ", return null");
+        }
+        return client;
     }
 
     @Override
