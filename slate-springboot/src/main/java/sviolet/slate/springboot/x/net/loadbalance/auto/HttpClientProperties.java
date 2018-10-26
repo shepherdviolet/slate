@@ -80,7 +80,7 @@ public class HttpClientProperties {
      * [可运行时修改]
      * 设置HTTP请求头参数
      */
-    private Map<String, String> headers;
+    private String headers;
 
     /**
      * [可运行时修改]
@@ -221,11 +221,11 @@ public class HttpClientProperties {
         this.encode = encode;
     }
 
-    public Map<String, String> getHeaders() {
+    public String getHeaders() {
         return headers;
     }
 
-    public void setHeaders(Map<String, String> headers) {
+    public void setHeaders(String headers) {
         this.headers = headers;
     }
 

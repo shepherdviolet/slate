@@ -7,6 +7,8 @@ import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
 import sviolet.thistle.util.conversion.SimpleKeyValueEncoder;
 import sviolet.thistle.util.judge.CheckUtils;
 
+import java.util.Map;
+
 /**
  * HttpClientCreator
  *
@@ -33,6 +35,15 @@ class HttpClientCreator {
             client.setHostArray(properties.getHostList());
         }
 
+        Map<String, String> headers = null;
+        if (!CheckUtils.isEmptyOrBlank(properties.getHeaders())) {
+            try {
+                headers = SimpleKeyValueEncoder.decode(properties.getHeaders());
+            } catch (SimpleKeyValueEncoder.DecodeException e) {
+                throw new RuntimeException("HttpClients | Error while parsing headers '" + properties.getHeaders() + "' to Map, illegal key-value format, see github.com/shepherdviolet/thistle/blob/master/docs/kvencoder/guide.md", e);
+            }
+        }
+
         //properties
         return (SimpleOkHttpClient) client
                 .setInitiativeInspectInterval(properties.getInitiativeInspectInterval())
@@ -42,7 +53,7 @@ class HttpClientCreator {
                 .setPassiveBlockDuration(properties.getPassiveBlockDuration())
                 .setMediaType(properties.getMediaType())
                 .setEncode(properties.getEncode())
-                .setHeaders(properties.getHeaders())
+                .setHeaders(headers)
                 .setRecoveryCoefficient(properties.getRecoveryCoefficient())
                 .setMaxIdleConnections(properties.getMaxIdleConnections())
                 .setMaxThreads(properties.getMaxThreads())

@@ -70,10 +70,8 @@ slate:
       mediaType: application/json;charset=utf-8
       # 编码
       encode: utf-8
-      # Http请求头
-      headers: 
-        User-Agent: SlateHttpClient
-        Referer: http://github.com
+      # Http请求头, 键值对格式参考: https://github.com/shepherdviolet/thistle/blob/master/docs/kvencoder/guide.md
+      headers: User-Agent=SlateHttpClient,Referer=http://github.com
       # 阻断后的恢复期系数, 恢复期时长 = blockDuration * recoveryCoefficient, 设置1则无恢复期
       recoveryCoefficient: 10
       # 最大闲置连接数. 客户端会保持与服务端的连接, 保持数量由此设置决定, 直到闲置超过5分钟. 默认16
