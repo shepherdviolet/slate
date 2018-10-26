@@ -77,6 +77,92 @@
 <br>
 <br>
 
+# 运行时调整配置
+
+```text
+为了复杂的服务端场景, SimpleOkHttpClient/MultiHostOkHttpClient所有的配置均可以在运行时调整, set系列方法均为线程安全. 
+但是要注意, 有些配置的调整是异步生效的(例如setHosts), 即不保证在执行set方法的同时生效. 
+因此, 当用户需要调整客户端配置时, 程序必须主动调用set系列方法调整配置, 而不是等到客户端发送请求之前被动调用. 
+如果在发送请求之前才调整配置, 客户端很可能会使用老配置发起请求!!!
+正确的方式应该是: 开发一个管理平台, 在前端设置新参数时, 后端立刻调用客户端的set系列方法调整配置; 使用Apollo配置中心, 
+监听配置发生变化时, 立刻调用客户端的set系列方法调整配置. 
+```
+
+```text
+public class MyHttpTransport implements InitializingBean {
+
+    private SimpleOkHttpClient simpleOkHttpClient;
+    
+    public void setSimpleOkHttpClient(SimpleOkHttpClient simpleOkHttpClient) {
+        this.simpleOkHttpClient = simpleOkHttpClient;
+    }
+
+    /**
+     * 示例1:
+     * 在管理平台设置新参数时, 调用SimpleOkHttpClient的set系列方法调整客户端的配置
+     * 更多配置请看SimpleOkHttpClient和MultiHostOkHttpClient类的方法注释
+     */
+    public void setHosts(......) {
+        if (simpleOkHttpClient != null) {
+            simpleOkHttpClient.setHosts(......);
+        }
+    }
+    
+    /**
+     * 示例2:
+     * 可以在afterPropertiesSet方法中, 给客户端添加代理/SSL连接工厂等高级配置
+     * 更多配置请看SimpleOkHttpClient和MultiHostOkHttpClient类的方法注释
+     */
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        simpleOkHttpClient
+                .setProxy(......)
+                .setSSLSocketFactory(......);
+    }
+
+}
+```
+
+* 错误示范, 请勿模仿!!!
+
+```text
+    @Value("${hosts:}")
+    private String hosts;
+
+    /**
+     * 错误示范, 请勿模仿!!! 错误示范, 请勿模仿!!! 错误示范, 请勿模仿!!! 
+     * 在发送请求前, 才被动地设置最新的hosts, 客户端最终会使用旧的hosts发送请求, 新的hosts不生效!!!
+     */
+    public byte[] send(byte[] request) {
+        client.setHosts("http://127.0.0.1:8080");//错误点
+        return client.post("/post/json")
+                .body(request)
+                .sendForBytes();
+    }
+```
+
+* 错误示范, 请勿模仿!!!
+
+```text
+    /**
+     * 错误示范, 请勿模仿!!! 错误示范, 请勿模仿!!! 错误示范, 请勿模仿!!! 
+     * 一个客户端用于向不同的后端服务发送请求, 后端地址在请求时才指定. 
+     * 这种方式有严重的问题, 不仅仅是发送请求时无法使用到刚设置的后端地址, 而且在多线程环境下会把希望发往A的请求发往B/C/D...!!!
+     * 本请求客户端的设计思路是, 一个客户端对应一个服务集群, 内部负载均衡逻辑会将请求发往合适的主机. 不同的服务集群应该配置
+     * 多个客户端与之对应.
+     */
+    public byte[] send(String hosts, byte[] request) {
+        client.setHosts(hosts);//错误点
+        return client.post("/post/json")
+                .body(request)
+                .sendForBytes();
+    }
+```
+
+<br>
+<br>
+<br>
+
 # 使用Apollo配置中心实时调整配置
 
 * Apollo配置中心新版本能实时更新XML属性和@Value注解中的${...}参数
