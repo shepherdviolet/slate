@@ -166,10 +166,15 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
                     //Check if new
                     if (client == null) {
-                        client = HttpClientCreator.create(tag, new HttpClientProperties());
-                        client.start();
-                        clients.put(tag, client);
-                        logger.info("HttpClients SettingsOverride | " + tag + "> Create new HttpClient with default properties, because no HttpClient named " + tag + " before");
+                        try {
+                            client = HttpClientCreator.create(tag, new HttpClientProperties());
+                            client.start();
+                            clients.put(tag, client);
+                            logger.info("HttpClients SettingsOverride | " + tag + "> Create new HttpClient with default properties, because no HttpClient named " + tag + " before");
+                        } catch (Exception e) {
+                            logger.debug("HttpClients SettingsOverride | Error while creating new HttpClient named " + tag + ", skip key " + key, e);
+                            continue;
+                        }
                     }
 
                     //Check if changed
