@@ -38,7 +38,7 @@ public abstract class InterfaceInstSelector implements ImportSelector {
     @Override
     public final String[] selectImports(AnnotationMetadata importingClassMetadata) {
         /*
-         * 此处用静态变量持有注解参数, 原因见InterfaceInstantiationConfiguration
+         * 此处用静态变量持有注解参数, 原因见InterfaceInstConfig
          */
         AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(getEnableAnnotationType().getName(), false));
         if (annotationAttributes != null) {
