@@ -75,7 +75,7 @@ public class LoadBalancedInspectManager implements Closeable {
     private volatile List<LoadBalanceInspector> inspectors = new ArrayList<>(1);
 
     private AtomicBoolean started = new AtomicBoolean(false);
-    private volatile boolean closed = false;
+    private AtomicBoolean closed = new AtomicBoolean(false);
     private boolean verboseLog = false;
 
     private long inspectInterval = DEFAULT_INSPECT_INTERVAL;
@@ -121,7 +121,9 @@ public class LoadBalancedInspectManager implements Closeable {
      */
     @Override
     public void close() {
-        closed = true;
+        if (!closed.compareAndSet(false, true)) {
+            return;
+        }
         try {
             dispatchThreadPool.shutdownNow();
         } catch (Throwable ignore){
@@ -249,7 +251,7 @@ public class LoadBalancedInspectManager implements Closeable {
                 LoadBalancedHostManager hostManager;
                 LoadBalancedHostManager.Host[] hostArray;
                 List<LoadBalanceInspector> inspectors;
-                while (!closed){
+                while (!closed.get()){
                     //间隔
                     try {
                         Thread.sleep(inspectInterval);
