@@ -26,10 +26,9 @@ import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.classreading.MetadataReader;
@@ -150,16 +149,14 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
                         //类
                         final Class clazz = Class.forName(className);
 
-                        //FactoryBean的构造参数
-                        ConstructorArgumentValues constructorArgumentValues = new ConstructorArgumentValues();
-                        constructorArgumentValues.addIndexedArgumentValue(0, clazz);
-                        constructorArgumentValues.addIndexedArgumentValue(1, interfaceInstantiator);
-
                         //Bean定义
-                        RootBeanDefinition rootBeanDefinition = new RootBeanDefinition(InterfaceInstFactoryBean4.class, constructorArgumentValues, null);
+                        BeanDefinition newBeanDefinition = BeanDefinitionBuilder.rootBeanDefinition(InterfaceInstFactoryBean4.class)
+                                .addConstructorArgValue(clazz)
+                                .addConstructorArgValue(interfaceInstantiator)
+                                .getBeanDefinition();
 
                         //注册Bean定义
-                        registry.registerBeanDefinition(beanName, rootBeanDefinition);
+                        registry.registerBeanDefinition(beanName, newBeanDefinition);
 
                         //记录类名
                         processedClasses.add(className);
