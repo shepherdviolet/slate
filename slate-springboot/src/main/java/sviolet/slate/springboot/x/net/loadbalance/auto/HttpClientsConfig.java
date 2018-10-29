@@ -25,7 +25,7 @@ public class HttpClientsConfig {
      * 只配置一个客户端, 且上下文中也没有手动创建的SimpleOkHttpClient时, 可以用@Autowired SimpleOkHttpClient直接获得客户端实例,
      * 否则要通过@Autowired HttpClients获得客户端集合
      */
-    @Bean("slate.springboot.HttpClients")
+    @Bean("slate.springboot.httpClients")
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public HttpClients httpClients(SlateProperties slateProperties){
         return new HttpClientsImpl(slateProperties.getHttpclients());
@@ -35,7 +35,7 @@ public class HttpClientsConfig {
      * 只配置一个客户端, 且上下文中也没有手动创建的SimpleOkHttpClient时, 可以用@Autowired SimpleOkHttpClient直接获得客户端实例,
      * 否则要通过@Autowired HttpClients获得客户端集合
      */
-    @Bean("slate.springboot.SimpleOkHttpClient")
+    @Bean("slate.springboot.simpleOkHttpClient")
     @ConditionalOnMissingBean
     public SimpleOkHttpClient httpClient(HttpClients httpClients){
         if (httpClients.size() == 1) {

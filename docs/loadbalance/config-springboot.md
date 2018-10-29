@@ -117,20 +117,6 @@ slate:
 
 # 获得HttpClient
 
-* YML只配置了一个客户端时, 可以直接获得SimpleOkHttpClient
-
-```text
-    private SimpleOkHttpClient simpleOkHttpClient;
-    
-    /**
-     * 使用构造注入, 保证在操作时simpleOkHttpClient已经注入
-     */
-    @Autowired
-    public Constructor(SimpleOkHttpClient simpleOkHttpClient) {
-        this.simpleOkHttpClient = simpleOkHttpClient;
-    }
-```
-
 * YML配置了多个客户端时, 需要从HttpClients对象中获得
 
 ```text
@@ -144,6 +130,20 @@ slate:
         this.client1 = httpClients.get("cliente1");
     }
 }
+```
+
+* YML只配置了一个客户端时, 可以直接获得SimpleOkHttpClient
+
+```text
+    private SimpleOkHttpClient simpleOkHttpClient;
+    
+    /**
+     * 使用构造注入, 保证在操作时simpleOkHttpClient已经注入
+     */
+    @Autowired
+    public Constructor(SimpleOkHttpClient simpleOkHttpClient) {
+        this.simpleOkHttpClient = simpleOkHttpClient;
+    }
 ```
 
 <br>
