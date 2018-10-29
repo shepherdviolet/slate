@@ -132,7 +132,7 @@ public class LoadBalancedInspectManager implements Closeable {
             inspectThreadPool.shutdownNow();
         } catch (Throwable ignore){
         }
-        logger.info(tag + "Closed:" + this);
+        logger.info(tag + "Closed: " + this);
     }
 
     /**
