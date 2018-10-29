@@ -30,6 +30,8 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.Ordered;
+import org.springframework.core.PriorityOrdered;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
@@ -50,7 +52,7 @@ import java.util.function.Supplier;
  * @since 1.8
  * @author S.Violet
  */
-class InterfaceInstBeanDefRegistry5 implements BeanDefinitionRegistryPostProcessor {
+class InterfaceInstBeanDefRegistry5 implements BeanDefinitionRegistryPostProcessor, PriorityOrdered {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -192,6 +194,12 @@ class InterfaceInstBeanDefRegistry5 implements BeanDefinitionRegistryPostProcess
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         //do nothing
+    }
+
+    @Override
+    public int getOrder() {
+        //register interface beans before others
+        return Ordered.HIGHEST_PRECEDENCE;
     }
 
 }
