@@ -1,9 +1,9 @@
-package sviolet.slate.common.bean.factory;
+package sviolet.slate.common.spring.bean;
 
 import org.springframework.beans.factory.FactoryBean;
 
 /**
- * 用于将已经实例化好的Bean对象注册到spring context中
+ * [FactoryBean]用于将已经实例化好的Bean对象注册到spring context中
  *
  * @author S.Violet
  */
