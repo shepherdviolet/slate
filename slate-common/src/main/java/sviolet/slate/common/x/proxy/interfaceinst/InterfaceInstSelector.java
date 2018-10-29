@@ -24,7 +24,7 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -33,7 +33,7 @@ import java.util.List;
  */
 public abstract class InterfaceInstSelector implements ImportSelector {
 
-    static List<AnnotationAttributes> annotationAttributesList = new ArrayList<>(8);
+    static List<AnnotationAttributes> annotationAttributesList = new LinkedList<>();
 
     @Override
     public final String[] selectImports(AnnotationMetadata importingClassMetadata) {
