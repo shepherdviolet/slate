@@ -115,15 +115,15 @@ slate:
 <br>
 <br>
 
-# 获得HttpClient
+# 获得客户端实例
 
-* YML配置了多个客户端时, 需要从HttpClients对象中获得
+* 获得所有客户端(包括运行时动态添加的)
 
 ```text
     private SimpleOkHttpClient client1;
     
     /**
-     * 使用构造注入, 保证在操作时simpleOkHttpClient已经注入
+     * 使用构造注入, 保证在操作时HttpClients已经注入
      */
     @Autowired
     public Constructor(HttpClients httpClients) {
@@ -132,17 +132,16 @@ slate:
 }
 ```
 
-* YML只配置了一个客户端时, 可以直接获得SimpleOkHttpClient
+* 注解注入
 
 ```text
-    private SimpleOkHttpClient simpleOkHttpClient;
+
+    @HttpClient("client1")
+    private SimpleOkHttpClient client1;
     
-    /**
-     * 使用构造注入, 保证在操作时simpleOkHttpClient已经注入
-     */
-    @Autowired
-    public Constructor(SimpleOkHttpClient simpleOkHttpClient) {
-        this.simpleOkHttpClient = simpleOkHttpClient;
+    @HttpClient("client2")
+    public void setClient2(SimpleOkHttpClient client2) {
+        // ......
     }
 ```
 
