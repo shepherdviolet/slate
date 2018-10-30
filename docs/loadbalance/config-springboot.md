@@ -136,7 +136,6 @@ slate:
 * 注意, 无法用@Autowired注解获得客户端
 
 ```text
-
     @HttpClient("client1")
     private SimpleOkHttpClient client1;
     
