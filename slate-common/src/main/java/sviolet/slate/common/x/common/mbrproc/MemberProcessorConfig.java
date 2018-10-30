@@ -17,27 +17,33 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.x.common.custautowired;
+package sviolet.slate.common.x.common.mbrproc;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 
 /**
- * <p>配置类</p>
+ * <p>SpringBean成员处理器核心配置</p>
+ *
+ * <p>
+ * 说明:<br>
+ * 1.用于对SpringContext中所有的Bean成员(Field/Method)进行处理, 处理时机为Bean装配阶段(BeanPostProcessor)<br>
+ * 2.可以实现Bean成员的自定义注入/变换/代理替换等<br>
+ * 3.该注解允许多次声明, 声明不同的处理器处理不同的注解
+ * </p>
  *
  * @author S.Violet
  */
 @Configuration
-public class CustomAutowiredConfig {
+public class MemberProcessorConfig {
 
-    @Bean("slate.common.customAutowiredBeanPostProcessor")
+    @Bean("slate.common.memberProcessorBeanPostProcessor")
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    public static BeanPostProcessor customAutowiredBeanPostProcessor(){
-        return new CustomAutowiredBeanPostProcessor(CustomAutowiredSelector.annotationAttributesList);
+    public static BeanPostProcessor memberProcessorBeanPostProcessor(){
+        return new MemberProcessorBeanPostProcessor(MemberProcessorSelector.annotationAttributesList);
     }
 
 }

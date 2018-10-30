@@ -17,15 +17,12 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.x.common.custautowired;
+package sviolet.slate.common.x.common.mbrproc;
 
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
-import sviolet.slate.common.x.proxy.interfaceinst.InterfaceInstConfig;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,7 +31,7 @@ import java.util.List;
  *
  * @author S.Violet
  */
-public abstract class CustomAutowiredSelector implements ImportSelector {
+public class MemberProcessorSelector implements ImportSelector {
 
     static List<AnnotationAttributes> annotationAttributesList = new LinkedList<>();
 
@@ -43,12 +40,12 @@ public abstract class CustomAutowiredSelector implements ImportSelector {
         /*
          * 此处用静态变量持有注解参数, 原因同InterfaceInstConfig
          */
-        AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableCustomAutowired.class.getName(), false));
+        AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableMemberProcessor.class.getName(), false));
         if (annotationAttributes != null) {
             annotationAttributesList.add(annotationAttributes);
         }
         //指定配置类
-        return new String[]{CustomAutowiredConfig.class.getName()};
+        return new String[]{MemberProcessorConfig.class.getName()};
     }
 
 }
