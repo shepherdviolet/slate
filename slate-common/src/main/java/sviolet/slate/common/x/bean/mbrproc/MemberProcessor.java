@@ -1,4 +1,4 @@
-package sviolet.slate.common.x.common.mbrproc;
+package sviolet.slate.common.x.bean.mbrproc;
 
 import org.springframework.context.ApplicationContext;
 

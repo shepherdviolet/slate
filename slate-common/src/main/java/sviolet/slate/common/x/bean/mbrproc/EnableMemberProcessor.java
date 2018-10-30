@@ -17,7 +17,7 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.x.common.mbrproc;
+package sviolet.slate.common.x.bean.mbrproc;
 
 import org.springframework.context.annotation.Import;
 
