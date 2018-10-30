@@ -1,11 +1,8 @@
 package sviolet.slate.springboot.x.net.loadbalance.auto;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
+import sviolet.slate.common.x.bean.mbrproc.EnableMemberProcessor;
 import sviolet.slate.springboot.auto.SlateProperties;
 
 /**
@@ -15,36 +12,26 @@ import sviolet.slate.springboot.auto.SlateProperties;
  * @author S.Violet
  */
 @Configuration
+@EnableMemberProcessor(HttpClientMemberProcessor.class)//开启@HttpClient注解注入
 public class HttpClientsConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(HttpClientsConfig.class);
+    public static final String HTTP_CLIENTS_NAME = "slate.springboot.httpClients";
 
     /**
-     * 自动配置HttpClients
+     * <p>自动配置HttpClients</p>
+     * <p>我们可以用如下方式获得所有客户端(包括运行时动态添加的):</p>
      *
-     * 只配置一个客户端, 且上下文中也没有手动创建的SimpleOkHttpClient时, 可以用@Autowired SimpleOkHttpClient直接获得客户端实例,
-     * 否则要通过@Autowired HttpClients获得客户端集合
+     * <pre>
+     *     private SimpleOkHttpClient client;
+     *     <code>@Autowired</code>
+     *     public Constructor(HttpClients httpClients) {
+     *         this.client = httpClients.get("tagname");
+     *     };
+     * </pre>
      */
-    @Bean("slate.springboot.httpClients")
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    public HttpClients httpClients(SlateProperties slateProperties){
+    @Bean(HTTP_CLIENTS_NAME)
+    public HttpClients httpClientsContainer(SlateProperties slateProperties){
         return new HttpClientsImpl(slateProperties.getHttpclients());
-    }
-
-    /**
-     * 只配置一个客户端, 且上下文中也没有手动创建的SimpleOkHttpClient时, 可以用@Autowired SimpleOkHttpClient直接获得客户端实例,
-     * 否则要通过@Autowired HttpClients获得客户端集合
-     */
-    @Bean("slate.springboot.simpleOkHttpClient")
-    @ConditionalOnMissingBean
-    public SimpleOkHttpClient httpClient(HttpClients httpClients){
-        if (httpClients.size() == 1) {
-            for (String tag : httpClients.tags()) {
-                logger.info("HttpClients | Only one instance, you can get instance by @Autowired SimpleOkHttpClient");
-                return httpClients.get(tag);
-            }
-        }
-        return null;
     }
 
 }

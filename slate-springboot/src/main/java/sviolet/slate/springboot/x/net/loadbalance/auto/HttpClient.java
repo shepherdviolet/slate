@@ -17,25 +17,29 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.x.common.custautowired;
-
-import org.springframework.context.annotation.Import;
+package sviolet.slate.springboot.x.net.loadbalance.auto;
 
 import java.lang.annotation.*;
 
 /**
- * <p>自定义Autowired</p>
+ * <p>HttpClient注入专用注解</p>
  *
  * @author S.Violet
  */
-@Target(ElementType.TYPE)
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({CustomAutowiredSelector.class})
-public @interface EnableCustomAutowired {
+public @interface HttpClient {
 
-    Class<? extends Annotation> annotation();
+    /**
+     * 客户端标识(tag)
+     */
+    String value();
 
-    Class<? extends CustomAutowiredProcessor> processor();
+    /**
+     * true: 不存在指定的客户端会抛出异常
+     * false: 不存在指定的客户端则不注入
+     */
+    boolean required() default true;
 
 }
