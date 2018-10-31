@@ -237,12 +237,12 @@ public class SlateBeanUtils {
             return new HashMap<>();
         }
         if (fromBean instanceof List) {
-            throw new MappingRuntimeException("SlateBeanUtils: Root node cannot be a list", null, fromBean.getClass().getName(), "java.util.Map", null);
+            throw new MappingRuntimeException("SlateBeanUtils: Root node cannot be a list, data:" + String.valueOf(fromBean), null, fromBean.getClass().getName(), "java.util.Map", null);
         }
-        return (Map<String, Object>) beanOrMapToMapRecursivelyInner(fromBean, extraIndivisibleTypes, "");
+        return (Map<String, Object>) beanOrMapToMapRecursivelyInner(fromBean, fromBean, extraIndivisibleTypes, "");
     }
 
-    private static Object beanOrMapToMapRecursivelyInner(Object fromBean, Map<Class<?>, IndivisibleJudge.JudgeType> extraIndivisibleTypes, String path) {
+    private static Object beanOrMapToMapRecursivelyInner(Object root, Object fromBean, Map<Class<?>, IndivisibleJudge.JudgeType> extraIndivisibleTypes, String path) {
         if (fromBean == null) {
             return null;
         }
@@ -255,7 +255,7 @@ public class SlateBeanUtils {
                 if (getJudger().isIndivisible(value, extraIndivisibleTypes)) {
                     toList.add(value);
                 } else {
-                    toList.add(beanOrMapToMapRecursivelyInner(value, extraIndivisibleTypes, path + "=>"));
+                    toList.add(beanOrMapToMapRecursivelyInner(root, value, extraIndivisibleTypes, path + "=>"));
                 }
             }
             return toList;
@@ -282,13 +282,13 @@ public class SlateBeanUtils {
                 if (getJudger().isIndivisible(value, extraIndivisibleTypes)) {
                     toMap.put(keyStr, value);
                 } else {
-                    toMap.put(keyStr, beanOrMapToMapRecursivelyInner(value, extraIndivisibleTypes, path + "->" + key));
+                    toMap.put(keyStr, beanOrMapToMapRecursivelyInner(root, value, extraIndivisibleTypes, path + "->" + key));
                 }
             }
         } catch (MappingRuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new MappingRuntimeException("SlateBeanUtils: Error while mapping " + fromBean.getClass().getName() + " to Map, recursively path:" + path, e, fromBean.getClass().getName(), "java.util.Map", null);
+            throw new MappingRuntimeException("SlateBeanUtils: Error while mapping " + root.getClass().getName() + " (root) to Map, recursively path:" + path + ", problematic element type " + fromBean.getClass().getName(), e, root.getClass().getName(), "java.util.Map", null);
         }
         return toMap;
     }
