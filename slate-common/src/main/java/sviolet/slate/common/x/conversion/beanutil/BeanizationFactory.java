@@ -114,6 +114,8 @@ class BeanizationFactory {
                     result.put(entryKey, value);
                 } else if (throwExceptionIfFails){
                     throw new MappingRuntimeException("SlateBeanUtils: Error while pre-mapping (check and conversion) Map to " + templateType.getName() + ", field \"" + entryKey + "\" convert failed (No PropMapper for " + valueType.getName() + " to" + getClassNames(entry.getValue()) + "), map data:" + map, null, "java.util.Map", templateType.getName(), entryKey);
+                } else {
+                    result.put(entryKey, null);
                 }
             } catch (MappingRuntimeException e) {
                 if (throwExceptionIfFails) {
