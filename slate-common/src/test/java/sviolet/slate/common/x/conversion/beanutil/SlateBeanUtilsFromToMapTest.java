@@ -1,10 +1,11 @@
 package sviolet.slate.common.x.conversion.beanutil;
 
 import org.junit.Test;
-import sviolet.thistle.util.common.EnvironmentUtils;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SlateBeanUtilsFromToMapTest {
@@ -33,6 +34,8 @@ public class SlateBeanUtilsFromToMapTest {
         map.put("p2", 123.333);
         map.put("p3", 321);
         map.put("p4", (char)0x41);
+        map.put("p5", new ArrayList<Object>(){{add(new Bean()); add(new Bean());}});
+        map.put("p6", new HashMap<String, Object>(){{put("a", new Bean()); put("b", new Bean());}});
         String result = String.valueOf(SlateBeanUtils.mapToBean(map, Bean.class, true, true));
 //        System.out.println(result);
     }
@@ -42,6 +45,8 @@ public class SlateBeanUtilsFromToMapTest {
         private BigDecimal p2;
         private int p3;
         private char p4;
+        private List<Bean> p5;
+        private Map<String, Bean> p6;
 
         public String getP1() {
             return p1;
@@ -75,6 +80,22 @@ public class SlateBeanUtilsFromToMapTest {
             this.p4 = p4;
         }
 
+        public List<Bean> getP5() {
+            return p5;
+        }
+
+        public void setP5(List<Bean> p5) {
+            this.p5 = p5;
+        }
+
+        public Map<String, Bean> getP6() {
+            return p6;
+        }
+
+        public void setP6(Map<String, Bean> p6) {
+            this.p6 = p6;
+        }
+
         @Override
         public String toString() {
             return "Bean{" +
@@ -82,6 +103,8 @@ public class SlateBeanUtilsFromToMapTest {
                     ", p2=" + p2 +
                     ", p3=" + p3 +
                     ", p4=" + p4 +
+                    ", p5=" + p5 +
+                    ", p6=" + p6 +
                     '}';
         }
     }

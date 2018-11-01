@@ -288,7 +288,8 @@ public class SlateBeanUtils {
         } catch (MappingRuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new MappingRuntimeException("SlateBeanUtils: Error while mapping " + root.getClass().getName() + " (root) to Map, recursively path:" + path + ", problematic element type " + fromBean.getClass().getName(), e, root.getClass().getName(), "java.util.Map", null);
+            throw new MappingRuntimeException("SlateBeanUtils: Error while mapping " + root.getClass().getName() + " to Map (" + fromBean.getClass().getName() +
+                    " to Map), recursively path:" + path, e, root.getClass().getName(), "java.util.Map", null);
         }
         return toMap;
     }
