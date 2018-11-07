@@ -121,34 +121,34 @@
 
 ### 默认提供的转换器
 
-* 默认提供的类型转换器优先级为100000-199999, 默认`启用`无需声明
+* 默认提供的类型转换器优先级为1, 默认`启用`无需声明
 * 其声明在slate-common包的`META-INF/thistle-spi/plugin.properties`中, 节选部分内容:
 
 ```text
 # SlateBeanUtils: bean property mappers: safe num
-sviolet.slate.common.x.conversion.beanutil.PropMapper>101001=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperAllNumber2String
-sviolet.slate.common.x.conversion.beanutil.PropMapper>101002=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperAllNumber2BigDecimal
-sviolet.slate.common.x.conversion.beanutil.PropMapper>101003=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperAllInteger2BigInteger
-sviolet.slate.common.x.conversion.beanutil.PropMapper>101004=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Double
-sviolet.slate.common.x.conversion.beanutil.PropMapper>101005=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Float
-sviolet.slate.common.x.conversion.beanutil.PropMapper>101006=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Long
-sviolet.slate.common.x.conversion.beanutil.PropMapper>101007=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Integer
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperAllNumber2String
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperAllNumber2BigDecimal
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperAllInteger2BigInteger
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Double
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Float
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Long
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Integer
 ......
 
 # SlateBeanUtils: bean property mappers: safe date
-sviolet.slate.common.x.conversion.beanutil.PropMapper>102001=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2String(yyyy-MM-dd HH:mm:ss.SSS)
-sviolet.slate.common.x.conversion.beanutil.PropMapper>102002=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2SqlDate
-sviolet.slate.common.x.conversion.beanutil.PropMapper>102003=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2SqlTimestamp
-sviolet.slate.common.x.conversion.beanutil.PropMapper>102004=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2UtilDate
-sviolet.slate.common.x.conversion.beanutil.PropMapper>102005=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2SqlDate
-sviolet.slate.common.x.conversion.beanutil.PropMapper>102006=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2SqlTimestamp
-sviolet.slate.common.x.conversion.beanutil.PropMapper>102007=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2UtilDate
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2String(yyyy-MM-dd HH:mm:ss.SSS)
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2SqlDate
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2SqlTimestamp
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2UtilDate
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2SqlDate
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2SqlTimestamp
+sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2UtilDate
 ......
 ```
 
 * 优先级数字越小, 优先级越高. 遇到冲突时, 高优先级的插件生效.
-* 如果自定义实现的类型转换器需要覆盖默认实现, 优先级请小于100000
-* 同一个配置文件中, 优先级不要重复!!!
+* 如果自定义实现的类型转换器需要覆盖默认实现, 优先级请小于等于0
+* 同一个配置文件中, 优先级允许重复(thistle 11.5+)
 
 ### 调整日期格式(Date->String)
 
@@ -157,10 +157,10 @@ sviolet.slate.common.x.conversion.beanutil.PropMapper>102007=sviolet.slate.commo
 * 编辑文件:
 
 ```text
-sviolet.slate.common.x.conversion.beanutil.PropMapper>2001=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2String(yyyy-MM-dd HH:mm:ss)
+sviolet.slate.common.x.conversion.beanutil.PropMapper>0=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2String(yyyy-MM-dd HH:mm:ss)
 ```
 
-* 注意优先级(示例中为`2001`)在同一个配置文件中不能重复, 且要比100000小(用来覆盖默认实现)
+* 注意优先级(示例中为`0`)要比1小(用来覆盖默认实现)
 
 ### 增加类型转换器
 
@@ -230,7 +230,7 @@ public class SBUMapperAllNumber2String implements PropMapper {
 * 编辑文件:
 
 ```text
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1001=template.conversion.beanutil.num.SBUMapperXxx2Xxx
+sviolet.slate.common.x.conversion.beanutil.PropMapper>0=template.conversion.beanutil.num.SBUMapperXxx2Xxx
 ```
 
 * 上述示例新增了一个类型转换器, 优先级1001, 若与默认转换器冲突, 该自定义转换器生效
