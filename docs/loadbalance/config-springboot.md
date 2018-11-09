@@ -2,11 +2,71 @@
 
 * `Maven/Gradle依赖配置`在本文最后
 
-* 特别注意
+# `注意 | WARNING`
 
-> 每个HttpClient实例必须对应一个服务方集群(它们提供相同的服务), 不同的服务方集群应该配置不同的HttpClient实例与之对应. 
-> 例如, 请求方系统需要向 A系统(150.1.1.1,155.1.1.2) / B系统(150.1.2.1,150.1.2.2) 发送请求, 
-> 则需要配置两个客户端: clientA(http://150.1.1.1:8080,http://155.1.1.2:8080) / ClientB(http://150.1.2.1:8080,http://155.1.2.2:8080)
+```text
+一个客户端实例对应一个服务端集群, 若要向不同的服务端集群发送请求, 必须创建多个客户端实例. 例如, 客户端需要向 A系统(150.1.1.1,155.1.1.2) 
+和 B系统(150.1.2.1,150.1.2.2) 发送请求, 则需要配置两个客户端: ClientA (150.1.1.1,155.1.1.2) 和 ClientB (150.1.2.1,155.1.2.2). 
+使用ClientA向A系统发送请求, 使用ClientB向B系统发送请求. 
+严禁将一个客户端用于请求不同的服务方集群, 这会导致请求被发往错误的服务端!!!
+A client corresponds to a server cluster. You should use different client instances to send requests to different server 
+clusters. For example, we need to send requests to system A (150.1.1.1, 155.1.1.2) and system B (150.1.2.1, 150.1.2.2), 
+we need to create two clients: client A (150.1.1.1, 155.1.1.2) and client B (150.1.2.1, 155.1.2.2). Use client A to send 
+requests to system A and client B to send requests to system B.
+It is strictly forbidden to requesting different service clusters by one client instance, the request will be sent to the 
+wrong host!!!
+```
+
+```text
+    /**
+     * 错误示范, 请勿模仿!!!
+     * 一个客户端用于向不同的后端服务发送请求, 后端地址在请求时才指定. 这种方式有严重的问题, 不仅仅是发送请求时无法使用到刚设置
+     * 的后端地址, 而且在多线程环境下会把请求发到错误的服务端. 
+     * Error demonstration, please do not imitate !!!
+     * If a client is used to send requests to different host clusters (which provide different services), and you want 
+     * to specify the host address before request, This is a big mistake ! The new hosts you set cannot take effect 
+     * immediately, and requests will be send to the wrong host! 
+     */
+    public byte[] send(String hosts, byte[] request) {
+        client.setHosts(hosts);//错误 Wrong !!!
+        return client.post("/post/json")
+                .body(request)
+                .sendForBytes();
+    }
+```
+
+```text
+客户端所有配置均可以在运行时调整, set系列方法均为线程安全. 但是, 配置的调整是异步生效的, 即不会在执行set方法的同时生效. 
+例如, 在发送请求前修改服务端地址(hosts), 请求仍然会被发往老的服务端地址. 
+正确的方式是: 开发一个控制台, 在控制台中调整参数时, 调用客户端的set系列方法调整配置; 使用Apollo配置中心, 监听到配置发生变化时, 
+调用客户端的set系列方法调整配置. 
+错误的方式是: 在每次发送请求前调用set系列方法调整配置. 
+All configuration of the client can be adjusted at runtime, and all the setter methods are thread safe. However, the 
+configuration will be applied asynchronously, that is, they do not take effect at the same time as the set method is invoked.
+For example, modify the server address (hosts) before sending the request, the request will still be sent to the old address.
+The correct way is: develop a console, invoke the client's setter method while adjusting configuration in console; Use a 
+configuration center like the Apollo, monitoring configuration changes, invoke the client's setter method while the 
+configuration changed.
+The wrong way is: to invoke the setter method (adjust configurations) before sending the request.
+```
+
+```text
+    @Value("${hosts:}")
+    private String hosts;
+
+    /**
+     * 错误示范, 请勿模仿!!!
+     * 在发送请求前, 才被动地设置最新的hosts, 客户端最终会使用旧的hosts发送请求, 新的hosts不生效!!!
+     * Error demonstration, please do not imitate !!!
+     * If you invoke the setHosts method to set the hosts before requesting, the request will still be sent to the old hosts !
+     */
+    public byte[] send(byte[] request) {
+        client.setHosts("http://127.0.0.1:8080");//错误 Wrong !!!
+        return client.post("/post/json")
+                .body(request)
+                .sendForBytes();
+    }
+```
 
 <br>
 <br>
@@ -152,12 +212,11 @@ slate:
 # 运行时调整配置
 
 ```text
-为了复杂的服务端场景, SimpleOkHttpClient/MultiHostOkHttpClient所有的配置均可以在运行时调整, set系列方法均为线程安全. 
-但是要注意, 有些配置的调整是异步生效的(例如setHosts), 即不保证在执行set方法的同时生效. 
-因此, 当用户需要调整客户端配置时, 程序必须主动调用set系列方法调整配置, 而不是等到客户端发送请求之前被动调用. 
-如果在发送请求之前才调整配置, 客户端很可能会使用老配置发起请求!!!
-正确的方式应该是: 开发一个管理平台, 在前端设置新参数时, 后端立刻调用客户端的set系列方法调整配置; 使用Apollo配置中心, 
-监听配置发生变化时, 立刻调用客户端的set系列方法调整配置. 
+客户端所有配置均可以在运行时调整, set系列方法均为线程安全. 但是, 配置的调整是异步生效的, 即不会在执行set方法的同时生效. 
+例如, 在发送请求前修改服务端地址(hosts), 请求仍然会被发往老的服务端地址. 
+正确的方式是: 开发一个控制台, 在控制台中调整参数时, 调用客户端的set系列方法调整配置; 使用Apollo配置中心, 监听到配置发生变化时, 
+调用客户端的set系列方法调整配置. 
+错误的方式是: 在每次发送请求前调用set系列方法调整配置. 
 ```
 
 ```text
@@ -196,42 +255,6 @@ public class MyHttpTransport implements InitializingBean {
     }
 
 }
-```
-
-* 错误示范, 请勿模仿!!!
-
-```text
-    @Value("${hosts:}")
-    private String hosts;
-
-    /**
-     * 错误示范, 请勿模仿!!! 错误示范, 请勿模仿!!! 错误示范, 请勿模仿!!! 
-     * 在发送请求前, 才被动地设置最新的hosts, 客户端最终会使用旧的hosts发送请求, 新的hosts不生效!!!
-     */
-    public byte[] send(byte[] request) {
-        client.setHosts("http://127.0.0.1:8080");//错误点
-        return client.post("/post/json")
-                .body(request)
-                .sendForBytes();
-    }
-```
-
-* 错误示范, 请勿模仿!!!
-
-```text
-    /**
-     * 错误示范, 请勿模仿!!! 错误示范, 请勿模仿!!! 错误示范, 请勿模仿!!! 
-     * 一个客户端用于向不同的后端服务发送请求, 后端地址在请求时才指定. 
-     * 这种方式有严重的问题, 不仅仅是发送请求时无法使用到刚设置的后端地址, 而且在多线程环境下会把希望发往A的请求发往B/C/D...!!!
-     * 本请求客户端的设计思路是, 一个客户端对应一个服务集群, 内部负载均衡逻辑会将请求发往合适的主机. 不同的服务集群应该配置
-     * 多个客户端与之对应.
-     */
-    public byte[] send(String hosts, byte[] request) {
-        client.setHosts(hosts);//错误点
-        return client.post("/post/json")
-                .body(request)
-                .sendForBytes();
-    }
 ```
 
 <br>
