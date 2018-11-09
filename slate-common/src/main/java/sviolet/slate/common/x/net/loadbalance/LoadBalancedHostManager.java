@@ -50,6 +50,12 @@ import java.util.concurrent.atomic.AtomicReference;
 public class LoadBalancedHostManager {
 
     private static final String LOG_PREFIX = "LoadBalance | ";
+    private static final long WARNING_THRESHOLD = 4L;
+    private static final boolean WARNING_DISABLED;
+
+    static {
+        WARNING_DISABLED = "true".equals(System.getProperty("slate.loadbalance.warndisabled", "false"));
+    }
 
     private Logger logger = LoggerFactory.getLogger(getClass());
     private String tag = LOG_PREFIX;
@@ -62,11 +68,15 @@ public class LoadBalancedHostManager {
 
     private boolean returnNullIfAllBlocked = false;
 
+    private ThreadLocal<Long> hostChangeTime = new ThreadLocal<>();
+
     /**
      * [线程安全的]
      * @return 获取一个远端
      */
     public Host nextHost(){
+
+        check();
 
         Host[] hostArray = this.hostArray;
 
@@ -96,6 +106,33 @@ public class LoadBalancedHostManager {
 
         return returnNullIfAllBlocked ? null : hostArray[mainCount];
 
+    }
+
+    private void check() {
+        if (WARNING_DISABLED) {
+            return;
+        }
+        Long previousHostChangeTime = hostChangeTime.get();
+        if (previousHostChangeTime != null) {
+            if (System.currentTimeMillis() - previousHostChangeTime < WARNING_THRESHOLD && logger.isErrorEnabled()) {
+                logger.error(LOG_PREFIX + "ERROR at " + getCallerInfo() + "!!! DO NOT set the hosts before requesting! Because the new hosts will " +
+                        "not take effect immediately! It will send the request to the old hosts! See doc: " +
+                        "https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/guide.md");
+            }
+        }
+    }
+
+    private String getCallerInfo() {
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        boolean found = false;
+        for (StackTraceElement element : stackTraceElements) {
+            if (element.getClassName().startsWith("sviolet.slate.common.x.net.loadbalance")) {
+                found = true;
+            } else if (found) {
+                return element.getClassName() + "#" + element.getMethodName();
+            }
+        }
+        return "";
     }
 
     /*****************************************************************************************************************
@@ -174,6 +211,9 @@ public class LoadBalancedHostManager {
 
         newSettings.set(hosts);
         settingThreadPool.execute(settingInstallTask);
+
+        //record host change time
+        hostChangeTime.set(System.currentTimeMillis());
         return this;
     }
 
