@@ -10,14 +10,14 @@
             exclude group:'com.google.code.gson'
             exclude group:'org.bouncycastle'
             exclude group:'org.springframework'
-            exclude group:'javax.servlet', module:'javax.servlet-api'
+            exclude group:'javax.servlet'
             exclude group:'com.squareup.okhttp3'
             exclude group:'com.jcraft', module:'jsch'
             exclude group:'redis.clients'
         }
         compile ('com.github.shepherdviolet:slate-springboot:version') {
             exclude group:'org.springframework.boot'
-            exclude group:'javax.servlet', module:'javax.servlet-api'
+            exclude group:'javax.servlet'
         }
     }
 ```
@@ -42,7 +42,7 @@
              </exclusion>
              <exclusion>
                  <groupId>javax.servlet</groupId>
-                 <artifactId>javax.servlet-api</artifactId>
+                 <artifactId>*</artifactId>
              </exclusion>
              <exclusion>
                  <groupId>com.squareup.okhttp3</groupId>
@@ -69,7 +69,7 @@
              </exclusion>
              <exclusion>
                  <groupId>javax.servlet</groupId>
-                 <artifactId>javax.servlet-api</artifactId>
+                 <artifactId>*</artifactId>
              </exclusion>
         </exclusions>
     </dependency>
