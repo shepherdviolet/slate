@@ -8,8 +8,7 @@ dependencies {
     implementation "org.springframework:spring-context:$version_spring"
     implementation "javax.servlet:javax.servlet-api:$version_servlet"
     implementation "com.squareup.okhttp3:okhttp:$version_okhttp"
-    implementation "com.jcraft:jsch:$version_jsch"
-    implementation "redis.clients:jedis:$version_jedis"
+    implementation "com.google.code.gson:gson:$version_gson"
 
     //test
     testImplementation "junit:junit:$version_junit"
