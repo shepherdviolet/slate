@@ -1,4 +1,23 @@
-package sviolet.slate.springboot.x.net.loadbalance.auto;
+/*
+ * Copyright (C) 2015-2018 S.Violet
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project GitHub: https://github.com/shepherdviolet/slate
+ * Email: shepherdviolet@163.com
+ */
+
+package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +58,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
     private AtomicReference<OverrideSettings> newOverrideSettings = new AtomicReference<>(null);
     private ExecutorService overrideThreadPool = ThreadPoolExecutorUtils.createLazy(60, "Slate-HttpClients-override-%d");
 
-    HttpClientsImpl(Map<String, HttpClientProperties> initProperties) {
+    HttpClientsImpl(Map<String, HttpClientsProperties> initProperties) {
 
         //init properties
         if (initProperties == null) {
@@ -47,11 +66,11 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
         }
 
         //create client
-        for (Map.Entry<String, HttpClientProperties> entry : initProperties.entrySet()) {
+        for (Map.Entry<String, HttpClientsProperties> entry : initProperties.entrySet()) {
 
             String tag = entry.getKey();
 
-            HttpClientProperties properties = entry.getValue();
+            HttpClientsProperties properties = entry.getValue();
             if (properties == null) {
                 logger.warn("HttpClients | " + tag + "> Has no properties, skip creation");
                 continue;
@@ -167,7 +186,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                     //Check if new
                     if (client == null) {
                         try {
-                            client = HttpClientCreator.create(tag, new HttpClientProperties());
+                            client = HttpClientCreator.create(tag, new HttpClientsProperties());
                             client.start();
                             clients.put(tag, client);
                             logger.info("HttpClients SettingsOverride | " + tag + "> Create new HttpClient with default properties, because no HttpClient named " + tag + " before");

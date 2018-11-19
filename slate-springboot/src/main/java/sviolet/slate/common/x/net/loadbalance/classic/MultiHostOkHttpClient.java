@@ -22,9 +22,9 @@ package sviolet.slate.common.x.net.loadbalance.classic;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.slate.common.x.net.loadbalance.LoadBalancedHostManager;
 import sviolet.slate.common.x.monitor.txtimer.noref.NoRefTxTimer;
 import sviolet.slate.common.x.monitor.txtimer.noref.NoRefTxTimerFactory;
+import sviolet.slate.common.x.net.loadbalance.LoadBalancedHostManager;
 import sviolet.thistle.util.common.CloseableUtils;
 import sviolet.thistle.util.conversion.ByteUtils;
 import sviolet.thistle.util.judge.CheckUtils;
@@ -38,7 +38,10 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -1363,7 +1366,7 @@ public class MultiHostOkHttpClient {
         /**
          * <p>请求成功</p>
          *
-         * <p>注意: ResponsePackage实例是需要关闭的(close), 但我们提供autoClose配置, 详见{@link MultiHostOkHttpClient.Request#autoClose(boolean)}</p>
+         * <p>注意: ResponsePackage实例是需要关闭的(close), 但我们提供autoClose配置, 详见{@link Request#autoClose(boolean)}</p>
          *
          * <p>
          * 当autoClose=true时, onSucceed方法回调结束后, ResponsePackage/InputStream会被自动关闭, 无需手动调用close方法. 适用于
@@ -1459,7 +1462,7 @@ public class MultiHostOkHttpClient {
         /**
          * <p>请求成功</p>
          *
-         * <p>注意: InputStream实例是需要关闭的(close), 但我们提供autoClose配置, 详见{@link MultiHostOkHttpClient.Request#autoClose(boolean)}</p>
+         * <p>注意: InputStream实例是需要关闭的(close), 但我们提供autoClose配置, 详见{@link Request#autoClose(boolean)}</p>
          *
          * <p>
          * 当autoClose=true时, onSucceed方法回调结束后, ResponsePackage/InputStream会被自动关闭, 无需手动调用close方法. 适用于

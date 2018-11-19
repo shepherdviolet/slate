@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-sviolet.slate.springboot.auto.SlateAutoConfiguration
+sviolet.slate.common.x.net.loadbalance.springboot.autoconfig.HttpClientsConfig

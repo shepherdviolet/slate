@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 S.Violet
+ * Copyright (C) 2015-2018 S.Violet
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,35 +20,18 @@
 package sviolet.slate.common.x.net.loadbalance.classic;
 
 /**
- * Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
+ * 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
  *
  * @author S.Violet
  */
-public class HttpRejectException extends Exception {
+public class RequestBuildException extends Exception {
 
-    private int code;
-    private String message;
-
-    public HttpRejectException(int code, String message) {
-        super("Http rejected, code:" + code + ", message:" + message);
-        this.code = code;
-        this.message = message;
+    public RequestBuildException(String message) {
+        super(message);
     }
 
-    /**
-     * HTTP响应码
-     * @return HTTP响应码
-     */
-    public int getResponseCode() {
-        return code;
-    }
-
-    /**
-     * HTTP响应信息
-     * @return HTTP响应信息
-     */
-    public String getResponseMessage(){
-        return message;
+    public RequestBuildException(String message, Throwable cause) {
+        super(message, cause);
     }
 
 }

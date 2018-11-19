@@ -2,12 +2,11 @@
 dependencies {
     //required
     compile project(':slate-common') { group project_group_id; version project_version }
-    compile "ch.qos.logback:logback-classic:$version_logback"
+    compile "com.squareup.okhttp3:okhttp:$version_okhttp"
+    compile "com.google.code.gson:gson:$version_gson"
 
     //optional
-    compile "org.springframework.boot:spring-boot:$version_spring_boot", optional
     compile "org.springframework.boot:spring-boot-autoconfigure:$version_spring_boot", optional
-    compile "javax.servlet:javax.servlet-api:$version_servlet", optional
 
     //compileOnly
 //    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$version_spring_boot"

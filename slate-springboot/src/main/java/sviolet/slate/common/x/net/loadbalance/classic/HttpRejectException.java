@@ -17,29 +17,38 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.springboot.x.net.loadbalance.auto;
-
-import java.lang.annotation.*;
+package sviolet.slate.common.x.net.loadbalance.classic;
 
 /**
- * <p>HttpClient注入专用注解</p>
+ * Http请求拒绝异常(网络请求发送后的异常, HTTP响应码不为2XX)
  *
  * @author S.Violet
  */
-@Target({ElementType.FIELD, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface HttpClient {
+public class HttpRejectException extends Exception {
+
+    private int code;
+    private String message;
+
+    public HttpRejectException(int code, String message) {
+        super("Http rejected, code:" + code + ", message:" + message);
+        this.code = code;
+        this.message = message;
+    }
 
     /**
-     * 客户端标识(tag)
+     * HTTP响应码
+     * @return HTTP响应码
      */
-    String value();
+    public int getResponseCode() {
+        return code;
+    }
 
     /**
-     * true: 不存在指定的客户端会抛出异常
-     * false: 不存在指定的客户端则不注入
+     * HTTP响应信息
+     * @return HTTP响应信息
      */
-    boolean required() default true;
+    public String getResponseMessage(){
+        return message;
+    }
 
 }

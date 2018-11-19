@@ -311,7 +311,7 @@ import com.ctrip.framework.apollo.spring.annotation.ApolloConfig;
 import com.ctrip.framework.apollo.spring.annotation.ApolloConfigChangeListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import sviolet.slate.springboot.x.net.loadbalance.auto.HttpClients;
+import sviolet.slate.common.x.net.loadbalance.springboot.autoconfig.HttpClients;
 import java.util.Set;
 
 @Configuration

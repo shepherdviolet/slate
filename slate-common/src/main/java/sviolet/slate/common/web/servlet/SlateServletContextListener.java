@@ -17,7 +17,7 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.util.common;
+package sviolet.slate.common.web.servlet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ import javax.servlet.ServletContextListener;
  * <pre>{@code
  *  <web-app ......>
  *      <listener>
- *          <listener-class>sviolet.slate.common.util.common.SlateServletContextListener</listener-class>
+ *          <listener-class>sviolet.slate.common.web.servlet.SlateServletContextListener</listener-class>
  *      </listener>
  *      <listener>
  *          ......

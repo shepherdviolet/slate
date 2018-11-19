@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 S.Violet
+ * Copyright (C) 2015-2018 S.Violet
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,9 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.x.net.loadbalance.classic;
-
 /**
- * 请求初始化异常(通常是网络请求发送前的异常, 准备阶段异常)
+ * webapp相关组件
  *
  * @author S.Violet
  */
-public class RequestBuildException extends Exception {
-
-    public RequestBuildException(String message) {
-        super(message);
-    }
-
-    public RequestBuildException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-}
+package sviolet.slate.common.web;

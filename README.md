@@ -44,38 +44,3 @@ dependencies {
 ```
 
 * [Dependencies exclusion](https://github.com/shepherdviolet/slate/blob/master/docs/dependencies-exclusion.md)
-
-# Register SlateServletContextListener (optional)
-
-### Spring Boot: Automatically
-
-* It will be registered automatically, if you add dependency `com.github.shepherdviolet:slate-springboot:version`
-
-> compile `com.github.shepherdviolet:slate-springboot:version`
-
-### Spring Boot: Register in class manually
-
-```gradle
-    @Configuration
-    public class AppConf {
-        @Bean
-        public ServletContextListener slateServletContextListener() {
-            return new SlateServletContextListener();
-        }
-        ......
-    }
-```
-
-### Spring MVC: Register in web.xml manually
-
-```gradle
-    <web-app ......>
-        <listener>
-            <listener-class>sviolet.slate.common.util.common.SlateServletContextListener</listener-class>
-        </listener>
-        <listener>
-            ......
-        </listener>
-        ......
-    </web-app>
-```

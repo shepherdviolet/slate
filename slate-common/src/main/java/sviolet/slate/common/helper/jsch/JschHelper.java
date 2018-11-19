@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Project GitHub: https://github.com/shepherdviolet/khaki
+ * Project GitHub: https://github.com/shepherdviolet/slate
  * Email: shepherdviolet@163.com
  */
 
