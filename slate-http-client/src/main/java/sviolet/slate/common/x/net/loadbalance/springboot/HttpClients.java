@@ -31,7 +31,7 @@ import java.util.Set;
  */
 public interface HttpClients {
 
-    String HTTP_CLIENTS_NAME = "slate.springboot.httpClients";
+    String HTTP_CLIENTS_NAME = "slate.httpclient.httpClients";
 
     /**
      * 获取Http请求客户端

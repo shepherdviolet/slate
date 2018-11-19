@@ -120,7 +120,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 
 ### SpringBoot自动配置日志
 
-* SLF4J日志包路径: `sviolet.slate.springboot.x.net.loadbalance`
+* SLF4J日志包路径: `sviolet.slate.common.x.net.loadbalance`
 * 推荐日志级别: `INFO`
 * 日志关键字: `HttpClients`
 * 包含: 客户端自动配置日志, 客户端配置实时调整日志等

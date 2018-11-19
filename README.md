@@ -2,14 +2,21 @@
 * Comprehensive Java library for spring framework (Java7+)
 * https://github.com/shepherdviolet/slate
 
-# Contents
+# slate-common
+
+> Core of slate
+
+* [InterfaceInstantiation | Interface instantiation tool, supporting proxy](https://github.com/shepherdviolet/slate/blob/master/docs/interfaceinst/guide.md)
+* [SlateBeanUtils | Bean to Bean / Bean to Map Conversion tool](https://github.com/shepherdviolet/slate/blob/master/docs/beanutils/guide.md)
+* [TxTimer | Simple transaction elapse statistics tool](https://github.com/shepherdviolet/slate/blob/master/docs/txtimer/guide.md)
+* [Helpers | Helper of third party libraries](https://github.com/shepherdviolet/slate/tree/develop/slate-common/src/main/java/sviolet/slate/common/helper)
+* [Various utils | Various utils are here](https://github.com/shepherdviolet/slate/tree/develop/slate-common/src/main/java/sviolet/slate/common/util)
+
+# slate-http-client
+
+> Http client
 
 * [MultiHostOkHttpClient | HTTP client supporting load balancing](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/guide.md)
-* [InterfaceInstantiation | Interface instantiation tool, supporting proxy](https://github.com/shepherdviolet/slate/blob/master/docs/interfaceinst/guide.md)
-* [SlateBeanUtils | Bean to Bean / Bean to Map Convertion tool](https://github.com/shepherdviolet/slate/blob/master/docs/beanutils/guide.md)
-* [TxTimer | Simple transaction elapse statistics tool](https://github.com/shepherdviolet/slate/blob/master/docs/txtimer/guide.md)
-* [Utils | Other utils are here](https://github.com/shepherdviolet/slate/tree/develop/slate-common/src/main/java/sviolet/slate/common/util)
-* SLF4J logger support for [ThistleSpi](https://github.com/shepherdviolet/thistle)
 
 # Import dependencies from maven repository
 
@@ -20,25 +27,25 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    // For spring boot
-    compile 'com.github.shepherdviolet:slate-springboot:version'
-    // For spring
+    // slate-common
     compile 'com.github.shepherdviolet:slate-common:version'
+    // slate-http-client
+    compile 'com.github.shepherdviolet:slate-http-client:version'
 }
 
 ```
 
 ```maven
-    <!-- for spring boot -->
-    <dependency>
-        <groupId>com.github.shepherdviolet</groupId>
-        <artifactId>slate-springboot</artifactId>
-        <version>version</version>
-    </dependency>
-    <!-- for spring -->
+    <!-- slate-common -->
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
+        <version>version</version>
+    </dependency>
+    <!-- slate-http-client -->
+    <dependency>
+        <groupId>com.github.shepherdviolet</groupId>
+        <artifactId>slate-http-client</artifactId>
         <version>version</version>
     </dependency>
 ```

@@ -7,17 +7,10 @@
     }
     dependencies {
         compile ('com.github.shepherdviolet:slate-common:version') {
-            exclude group:'com.google.code.gson'
-            exclude group:'org.bouncycastle'
-            exclude group:'org.springframework'
-            exclude group:'javax.servlet'
-            exclude group:'com.squareup.okhttp3'
-            exclude group:'com.jcraft', module:'jsch'
-            exclude group:'redis.clients'
         }
-        compile ('com.github.shepherdviolet:slate-springboot:version') {
-            exclude group:'org.springframework.boot'
-            exclude group:'javax.servlet'
+        compile ('com.github.shepherdviolet:slate-http-client:version') {
+            exclude group:'com.google.code.gson'
+            exclude group:'com.squareup.okhttp3'
         }
     }
 ```
@@ -28,47 +21,19 @@
         <artifactId>slate-common</artifactId>
         <version>version</version>
         <exclusions>
+        </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>com.github.shepherdviolet</groupId>
+        <artifactId>slate-http-client</artifactId>
+        <version>version</version>
+        <exclusions>
              <exclusion>
                  <groupId>com.google.code.gson</groupId>
                  <artifactId>*</artifactId>
              </exclusion>
              <exclusion>
-                 <groupId>org.bouncycastle</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-             <exclusion>
-                 <groupId>org.springframework</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-             <exclusion>
-                 <groupId>javax.servlet</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-             <exclusion>
                  <groupId>com.squareup.okhttp3</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-             <exclusion>
-                 <groupId>com.jcraft</groupId>
-                 <artifactId>jsch</artifactId>
-             </exclusion>
-             <exclusion>
-                 <groupId>redis.clients</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-        </exclusions>
-    </dependency>
-    <dependency>
-        <groupId>com.github.shepherdviolet</groupId>
-        <artifactId>slate-springboot</artifactId>
-        <version>version</version>
-        <exclusions>
-             <exclusion>
-                 <groupId>org.springframework.boot</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-             <exclusion>
-                 <groupId>javax.servlet</groupId>
                  <artifactId>*</artifactId>
              </exclusion>
         </exclusions>
@@ -86,7 +51,7 @@
         compile ('com.github.shepherdviolet:slate-common:version') {
             transitive = false
         }
-        compile ('com.github.shepherdviolet:slate-springboot:version') {
+        compile ('com.github.shepherdviolet:slate-http-client:version') {
             transitive = false
         }
     }
@@ -106,7 +71,7 @@
     </dependency>
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
-        <artifactId>slate-springboot</artifactId>
+        <artifactId>slate-http-client</artifactId>
         <version>version</version>
         <exclusions>
              <exclusion>

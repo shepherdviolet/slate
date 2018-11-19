@@ -227,23 +227,7 @@ public class MyHttpTransport implements InitializingBean {
 ```text
 //version替换为具体版本, 另外需要依赖spring库
 dependencies {
-    compile 'com.github.shepherdviolet:slate-common:version'
-}
-```
-
-* gradle(最少依赖)
-
-```text
-//version替换为具体版本, 另外需要依赖spring库
-dependencies {
-    compile ('com.github.shepherdviolet:slate-common:version') {
-        transitive = false
-    }
-    compile ('com.github.shepherdviolet:thistle:version') {
-        transitive = false
-    }
-    compile 'com.squareup.okhttp3:okhttp:3.9.0'
-    compile 'ch.qos.logback:logback-classic:1.2.3'
+    compile 'com.github.shepherdviolet:slate-http-client:version'
 }
 ```
 
@@ -253,45 +237,7 @@ dependencies {
     <!--version替换为具体版本, 另外需要依赖spring库-->
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
-        <artifactId>slate-common</artifactId>
+        <artifactId>slate-http-client</artifactId>
         <version>version</version>
-    </dependency>
-```
-
-* maven(最少依赖)
-
-```maven
-    <!--version替换为具体版本, 另外需要依赖spring库-->
-    <dependency>
-        <groupId>com.github.shepherdviolet</groupId>
-        <artifactId>slate-common</artifactId>
-        <version>version</version>
-        <exclusions>
-             <exclusion>
-                 <groupId>*</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-        </exclusions>
-    </dependency>
-    <dependency>
-        <groupId>com.github.shepherdviolet</groupId>
-        <artifactId>thistle</artifactId>
-        <version>version</version>
-        <exclusions>
-             <exclusion>
-                 <groupId>*</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-        </exclusions>
-    </dependency>
-    <dependency>
-        <groupId>com.squareup.okhttp3</groupId>
-        <artifactId>okhttp</artifactId>
-        <version>3.9.0</version>
-    </dependency>
-    <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.2.3</version>
     </dependency>
 ```
