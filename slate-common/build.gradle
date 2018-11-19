@@ -1,14 +1,19 @@
 
 dependencies {
     //required
-    compile "com.github.shepherdviolet:thistle:$version_thistle"
-    implementation "ch.qos.logback:logback-classic:$version_logback"
+    compile "com.github.shepherdviolet:thistle-common:$version_thistle"
+    compile "com.github.shepherdviolet:thistle-with-slf4j:$version_thistle"
+    compile "com.squareup.okhttp3:okhttp:$version_okhttp"
+    compile "com.google.code.gson:gson:$version_gson"
+
+    //compile only
+    compileOnly "javax.servlet:javax.servlet-api:$version_servlet"
 
     //optional
-    implementation "org.springframework:spring-context:$version_spring"
-    implementation "javax.servlet:javax.servlet-api:$version_servlet"
-    implementation "com.squareup.okhttp3:okhttp:$version_okhttp"
-    implementation "com.google.code.gson:gson:$version_gson"
+    compile "ch.qos.logback:logback-classic:$version_logback", optional
+    compile "org.springframework:spring-context:$version_spring", optional
+    compile "com.jcraft:jsch:$version_jsch", optional
+    compile "redis.clients:jedis:$version_jedis", optional
 
     //test
     testImplementation "junit:junit:$version_junit"

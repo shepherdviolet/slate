@@ -20,7 +20,7 @@
 package sviolet.slate.common.x.net.loadbalance;
 
 import ch.qos.logback.classic.Level;
-import sviolet.slate.common.x.helper.logback.LogbackHelper;
+import sviolet.slate.common.helper.logback.LogbackHelper;
 
 import java.util.ArrayList;
 import java.util.List;

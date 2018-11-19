@@ -32,7 +32,7 @@ buildscript {
 
     //构建脚本依赖
     dependencies {
-
+        classpath "com.netflix.nebula:gradle-extra-configurations-plugin:$version_nebula"
     }
 
 }
@@ -42,6 +42,7 @@ buildscript {
 allprojects {
 
 	apply plugin: 'java'
+    apply plugin: 'nebula.optional-base'
 
 	group project_group_id
 	version project_version

@@ -21,6 +21,9 @@ package sviolet.slate.common.x.helper.jsch;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
+import sviolet.slate.common.helper.jsch.JschHelper;
+import sviolet.slate.common.helper.jsch.sftp.JschSftpCommand;
+import sviolet.slate.common.helper.jsch.sftp.JschSftpHelper;
 
 import java.util.Vector;
 
