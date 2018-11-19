@@ -1,2 +1,2 @@
 include ':slate-common'
-include ':slate-springboot'
+include ':slate-http-client'
