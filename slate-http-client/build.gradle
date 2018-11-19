@@ -7,7 +7,7 @@ dependencies {
 
     //optional
     compile "org.springframework.boot:spring-boot-autoconfigure:$version_spring_boot", optional
-    compile "com.ctrip.framework.apollo:apollo-client:$version_apollo"
+    compile "com.ctrip.framework.apollo:apollo-client:$version_apollo", optional
 
     //compileOnly
 //    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$version_spring_boot"
