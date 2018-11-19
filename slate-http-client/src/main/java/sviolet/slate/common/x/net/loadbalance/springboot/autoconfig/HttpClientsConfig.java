@@ -23,6 +23,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import sviolet.slate.common.x.bean.mbrproc.EnableMemberProcessor;
+import sviolet.slate.common.x.net.loadbalance.springboot.autowired.HttpClientMemberProcessor;
+import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
 
 /**
  * <p>HttpClients配置: 自动配置SimpleOkHttpClient</p>
@@ -34,8 +36,6 @@ import sviolet.slate.common.x.bean.mbrproc.EnableMemberProcessor;
 @EnableConfigurationProperties(SlateProperties.class)
 @EnableMemberProcessor(HttpClientMemberProcessor.class)//开启@HttpClient注解注入
 public class HttpClientsConfig {
-
-    public static final String HTTP_CLIENTS_NAME = "slate.springboot.httpClients";
 
     /**
      * <p>自动配置HttpClients</p>
@@ -49,7 +49,7 @@ public class HttpClientsConfig {
      *     };
      * </pre>
      */
-    @Bean(HTTP_CLIENTS_NAME)
+    @Bean(HttpClients.HTTP_CLIENTS_NAME)
     public HttpClients httpClientsContainer(SlateProperties slateProperties){
         return new HttpClientsImpl(slateProperties.getHttpclients());
     }

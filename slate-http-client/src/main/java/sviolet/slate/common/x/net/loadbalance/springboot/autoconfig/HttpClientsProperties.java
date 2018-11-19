@@ -20,7 +20,6 @@
 package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
 
 import java.util.Arrays;
-import java.util.Map;
 
 /**
  * <p>HttpClients配置: 自动配置SimpleOkHttpClient</p>
@@ -28,7 +27,7 @@ import java.util.Map;
  *
  * @author S.Violet
  */
-public class HttpClientsProperties {
+class HttpClientsProperties {
 
     /**
      * [可运行时修改]

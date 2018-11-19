@@ -17,29 +17,19 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
-
-import java.lang.annotation.*;
+package sviolet.slate.common.x.net.loadbalance.springboot.autowired;
 
 /**
- * <p>HttpClient注入专用注解</p>
- *
- * @author S.Violet
+ * <code>@HttpClient注解用法错误异常</code>
  */
-@Target({ElementType.FIELD, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface HttpClient {
+public class IllegalHttpClientAnnotationException extends RuntimeException {
 
-    /**
-     * 客户端标识(tag)
-     */
-    String value();
+    public IllegalHttpClientAnnotationException(String message) {
+        super(message);
+    }
 
-    /**
-     * true: 不存在指定的客户端会抛出异常
-     * false: 不存在指定的客户端则不注入
-     */
-    boolean required() default true;
+    public IllegalHttpClientAnnotationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

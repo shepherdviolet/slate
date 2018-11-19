@@ -30,7 +30,7 @@ import java.util.Map;
  * @author S.Violet
  */
 @ConfigurationProperties(prefix = "slate")
-public class SlateProperties {
+class SlateProperties {
 
     /**
      * slate.httpclients

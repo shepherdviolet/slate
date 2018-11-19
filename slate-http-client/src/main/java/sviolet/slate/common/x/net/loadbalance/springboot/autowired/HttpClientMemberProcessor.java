@@ -17,12 +17,13 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
+package sviolet.slate.common.x.net.loadbalance.springboot.autowired;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.ReflectionUtils;
 import sviolet.slate.common.x.bean.mbrproc.MemberProcessor;
 import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
+import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -78,7 +79,7 @@ public class HttpClientMemberProcessor implements MemberProcessor<HttpClient> {
         if (httpClients == null) {
             synchronized (this) {
                 if (httpClients == null) {
-                    httpClients = applicationContext.getBean(HttpClientsConfig.HTTP_CLIENTS_NAME, HttpClients.class);
+                    httpClients = applicationContext.getBean(HttpClients.HTTP_CLIENTS_NAME, HttpClients.class);
                 }
             }
         }

@@ -17,7 +17,7 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
+package sviolet.slate.common.x.net.loadbalance.springboot;
 
 import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
 
@@ -30,6 +30,8 @@ import java.util.Set;
  * <p>配置前缀: slate.httpclients</p>
  */
 public interface HttpClients {
+
+    String HTTP_CLIENTS_NAME = "slate.springboot.httpClients";
 
     /**
      * 获取Http请求客户端
@@ -107,7 +109,7 @@ public interface HttpClients {
      *  }
      * </pre>
      */
-    public interface OverrideSettings {
+    interface OverrideSettings {
 
         /**
          * <p>返回需要调整的配置清单, 格式如下:</p>
@@ -129,7 +131,7 @@ public interface HttpClients {
     /**
      * 基于Map实现的覆盖配置
      */
-    public static class MapBasedOverrideSettings implements OverrideSettings {
+    class MapBasedOverrideSettings implements OverrideSettings {
 
         private Map<String, String> map;
 

@@ -17,19 +17,29 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
+package sviolet.slate.common.x.net.loadbalance.springboot.autowired;
+
+import java.lang.annotation.*;
 
 /**
- * 请求客户端未定义异常
+ * <p>HttpClient注入专用注解</p>
+ *
+ * @author S.Violet
  */
-public class NoSuchHttpClientDefinitionException extends RuntimeException {
+@Target({ElementType.FIELD, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface HttpClient {
 
-    public NoSuchHttpClientDefinitionException(String message) {
-        super(message);
-    }
+    /**
+     * 客户端标识(tag)
+     */
+    String value();
 
-    public NoSuchHttpClientDefinitionException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    /**
+     * true: 不存在指定的客户端会抛出异常
+     * false: 不存在指定的客户端则不注入
+     */
+    boolean required() default true;
 
 }

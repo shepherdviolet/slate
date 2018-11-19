@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
+import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
 
 import java.io.Closeable;

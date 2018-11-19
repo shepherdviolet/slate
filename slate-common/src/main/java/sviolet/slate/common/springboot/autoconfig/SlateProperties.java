@@ -28,6 +28,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author S.Violet
  */
 @ConfigurationProperties(prefix = "slate")
-public class SlateProperties {
+class SlateProperties {
 
 }

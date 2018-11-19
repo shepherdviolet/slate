@@ -17,18 +17,18 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
+package sviolet.slate.common.x.net.loadbalance.springboot.autowired;
 
 /**
- * <code>@HttpClient注解用法错误异常</code>
+ * 请求客户端未定义异常
  */
-public class IllegalHttpClientAnnotationException extends RuntimeException {
+public class NoSuchHttpClientDefinitionException extends RuntimeException {
 
-    public IllegalHttpClientAnnotationException(String message) {
+    public NoSuchHttpClientDefinitionException(String message) {
         super(message);
     }
 
-    public IllegalHttpClientAnnotationException(String message, Throwable cause) {
+    public NoSuchHttpClientDefinitionException(String message, Throwable cause) {
         super(message, cause);
     }
 
