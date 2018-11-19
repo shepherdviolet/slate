@@ -21,7 +21,7 @@ package sviolet.slate.common.x.monitor.txtimer.def;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.slate.common.x.common.thistlespi.ThistleSpiUtils;
+import sviolet.thistle.x.common.thistlespi.ThistleSpiUtils;
 import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider;
 import sviolet.thistle.model.common.SysPropFirstProperties;
 import sviolet.thistle.model.concurrent.lock.UnsafeHashSpinLocks;
