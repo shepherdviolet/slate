@@ -34,7 +34,7 @@ import javax.servlet.ServletContextListener;
  */
 @Configuration
 @ConditionalOnClass(javax.servlet.ServletContextListener.class)
-public class ContextListenerConfig {
+public class SlateServletContextListenerConfig {
 
     @Bean("slate.httpclient.slateServletContextListener")
     public ServletContextListener slateServletContextListener() {

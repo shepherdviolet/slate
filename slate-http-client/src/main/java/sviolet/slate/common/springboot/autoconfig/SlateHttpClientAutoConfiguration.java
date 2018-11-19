@@ -19,20 +19,21 @@
 
 package sviolet.slate.common.springboot.autoconfig;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import sviolet.slate.common.x.net.loadbalance.springboot.apollo.HttpClientsApolloConfig;
+import sviolet.slate.common.x.net.loadbalance.springboot.autoconfig.HttpClientsConfig;
 
 /**
- * Slate自动配置(Spring Boot)
+ * slate-http-client 自动配置 (Spring Boot)
  *
  * @author S.Violet
  */
 @Configuration
-@EnableConfigurationProperties(SlateProperties.class)
 @Import({
-        ContextListenerConfig.class
+        HttpClientsConfig.class,
+        HttpClientsApolloConfig.class
 })
-public class SlateAutoConfiguration {
+public class SlateHttpClientAutoConfiguration {
 
 }
