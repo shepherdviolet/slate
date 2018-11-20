@@ -23,12 +23,13 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.ctrip.framework.apollo.spring.annotation.ApolloConfig;
 import com.ctrip.framework.apollo.spring.annotation.ApolloConfigChangeListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Configuration;
 import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
-
-import java.util.Set;
 
 /**
  * <p>HttpClients阿波罗动态配置: 支持在Apollo配置中心上动态调整客户端配置</p>
@@ -37,8 +38,11 @@ import java.util.Set;
  * @author S.Violet
  */
 @Configuration
+@ConditionalOnExpression("${slate.httpclient.enabled:false} && ${slate.httpclient.apollo-support:false}")
 @ConditionalOnClass(com.ctrip.framework.apollo.Config.class)
 public class HttpClientsApolloConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(HttpClientsApolloConfig.class);
 
     private HttpClients httpClients;
 
@@ -47,41 +51,18 @@ public class HttpClientsApolloConfig {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public HttpClientsApolloConfig(HttpClients httpClients) {
         this.httpClients = httpClients;
+        logger.info("HttpClients Apollo | Listening client configurations changes from apollo, namespace: application");
     }
 
     //获得Apollo配置实例, 注意配置正确的namespace
-    @ApolloConfig("application")
+    @ApolloConfig
     private Config config;
 
     //监听Apollo配置变化
-    @ApolloConfigChangeListener("application")
-    private void onApolloConfigChanged(ConfigChangeEvent configChangeEvent){
+    @ApolloConfigChangeListener
+    public void onApolloConfigChanged(ConfigChangeEvent configChangeEvent){
         //实时调整HttpClient配置
-        httpClients.settingsOverride(new ApolloOverrideSettings(config));
-    }
-
-    //将Apollo配置包装为OverrideSettings
-    private static class ApolloOverrideSettings implements HttpClients.OverrideSettings {
-
-        private Config config;
-
-        private ApolloOverrideSettings(Config config) {
-            //持有Apollo配置
-            this.config = config;
-        }
-
-        @Override
-        public Set<String> getKeys() {
-            //获取所有配置key
-            return config.getPropertyNames();
-        }
-
-        @Override
-        public String getValue(String key) {
-            //根据key返回配置value, 不存在返回null
-            return config.getProperty(key, null);
-        }
-
+        httpClients.settingsOverride(new HttpClientsApolloOverrideSettings(config));
     }
 
 }

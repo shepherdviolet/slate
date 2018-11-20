@@ -61,6 +61,8 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     HttpClientsImpl(Map<String, HttpClientsProperties> initProperties) {
 
+        logger.info("HttpClients | Enabled");
+
         //init properties
         if (initProperties == null) {
             initProperties = new HashMap<>(0);

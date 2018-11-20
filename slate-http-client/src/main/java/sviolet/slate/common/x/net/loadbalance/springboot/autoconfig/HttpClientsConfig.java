@@ -19,6 +19,7 @@
 
 package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +34,7 @@ import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
  * @author S.Violet
  */
 @Configuration
+@ConditionalOnExpression("${slate.httpclient.enabled:false}")
 @EnableConfigurationProperties(SlateProperties.class)
 @EnableMemberProcessor(HttpClientMemberProcessor.class)//开启@HttpClient注解注入
 public class HttpClientsConfig {

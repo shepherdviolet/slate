@@ -85,6 +85,8 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 
 ```yaml
 slate:
+  httpclient:
+    enabled: true
   httpclients:
     client1:
       hosts: http://127.0.0.1:8081,http://127.0.0.1:8082
@@ -110,7 +112,7 @@ slate:
       txTimerEnabled: true
 ```
 
-* 以上文为例, 配置了client1和client2两个HTTP请求客户端
+* 以上文为例, 启用并配置了client1和client2两个HTTP请求客户端
 * client1有两个主机http://127.0.0.1:8081和http://127.0.0.1:8082
 * client2有两个主机http://127.0.0.1:8083和http://127.0.0.1:8084
 * hosts配置的优先级比hostList高, 同时配置时只有hosts生效
@@ -125,6 +127,11 @@ slate:
 
 ```yaml
 slate:
+  httpclient:
+    # 启用HttpClients (必须)
+    enabled: true
+    # 使用Apollo配置中心动态调整配置 (可选)
+    apollo-support: true
   httpclients:
     client1:
       # 后端列表
@@ -176,7 +183,6 @@ slate:
 # 手动配置
 
 * 除了用YML配置, 也可以进行手动配置, 参考https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-annotation.md
-* 注意: 有一部分配置未在YML中提供, 必须通过手动配置(例如: 设置CookieJar, 设置Proxy等)
 
 <br>
 <br>
@@ -217,6 +223,8 @@ slate:
 <br>
 
 # 运行时调整配置
+
+* 部分配置未支持用YML配置, 必须通过手动配置(例如: 设置CookieJar, 设置Proxy等)
 
 ```text
 客户端所有配置均可以在运行时调整, set系列方法均为线程安全. 但是, 配置的调整是异步生效的, 即不会在执行set方法的同时生效. 
@@ -291,79 +299,27 @@ public class MyHttpTransport implements InitializingBean {
 
 # 使用Apollo配置中心实时调整配置
 
-* 确保Apollo配置启用, 并配置正确的namespace
+* 启用Apollo, 配置正确的namespace
 
 ```text
-@EnableApolloConfig(
-        {"application", "it.common"}
-)
+@EnableApolloConfig({
+    "application"
+})
 @SpringBootApplication
 public class BootApplication {
 }
 ```
 
-* 添加一个配置类, 监听Apollo配置变化并实时调整HttpClient的配置(甚至能够新增客户端)
+* 在application.yml/application-profile.yml中增加配置
 
-```text
-import com.ctrip.framework.apollo.Config;
-import com.ctrip.framework.apollo.model.ConfigChangeEvent;
-import com.ctrip.framework.apollo.spring.annotation.ApolloConfig;
-import com.ctrip.framework.apollo.spring.annotation.ApolloConfigChangeListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
-import java.util.Set;
-
-@Configuration
-public class HttpClientsApolloConfig {
-
-    private HttpClients httpClients;
-
-    //构造注入确保第一时间获得实例
-    @Autowired
-    public HttpClientsApolloConfig(HttpClients httpClients) {
-        this.httpClients = httpClients;
-    }
-
-    //获得Apollo配置实例, 注意配置正确的namespace
-    @ApolloConfig("application")
-    private Config config;
-
-    //监听Apollo配置变化
-    @ApolloConfigChangeListener("application")
-    private void onApolloConfigChanged(ConfigChangeEvent configChangeEvent){
-        //实时调整HttpClient配置
-        httpClients.settingsOverride(new ApolloOverrideSettings(config));
-    }
-
-    //将Apollo配置包装为OverrideSettings
-    private static class ApolloOverrideSettings implements HttpClients.OverrideSettings {
-
-        private Config config;
-
-        private ApolloOverrideSettings(Config config) {
-            //持有Apollo配置
-            this.config = config;
-        }
-
-        @Override
-        public Set<String> getKeys() {
-            //获取所有配置key
-            return config.getPropertyNames();
-        }
-
-        @Override
-        public String getValue(String key) {
-            //根据key返回配置value, 不存在返回null
-            return config.getProperty(key, null);
-        }
-
-    }
-
-}
+```yaml
+slate:
+  httpclient:
+    apollo-support: true
 ```
 
-* 在Apollo配置中心添加配置并发布, 应用端的HttpClient配置就会实时调整
+* 进入Apollo配置中心控制台, 新增或修改应用的`私有配置(namespace=application)`, 应用端的HttpClient配置就会实时调整
+* 注意: 通过YML方式启用, 只能配置在应用的`私有配置(namespace=application)`中, 配在`公共配置或非默认配置(namespace!=application)`中无效
 * Key格式: slate.httpclients.`客户端标识`.`配置名`
 
 * 例如: 修改client2的hosts为http://127.0.0.1:8083,http://127.0.0.1:8084
@@ -380,6 +336,42 @@ public class HttpClientsApolloConfig {
 
 > 如果`客户端标识`是新增的, 应用端会实时创建一个新的HttpClient实例<br>
 > 在日志中搜索`HttpClients`关键字可以观察到配置实时调整的情况<br>
+
+* (可选) 如果想要配置在`公共配置或非默认配置(namespace!=application)`中, 请添加如下配置类, 并指定namespace
+
+```text
+import com.ctrip.framework.apollo.Config;
+import com.ctrip.framework.apollo.model.ConfigChangeEvent;
+import com.ctrip.framework.apollo.spring.annotation.ApolloConfig;
+import com.ctrip.framework.apollo.spring.annotation.ApolloConfigChangeListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
+import sviolet.slate.common.x.net.loadbalance.springboot.apollo.HttpClientsApolloOverrideSettings;
+
+@Configuration
+public class HttpClientsApolloConfig {
+
+    private HttpClients httpClients;
+
+    //构造注入确保第一时间获得实例
+    @Autowired
+    public HttpClientsApolloConfig(HttpClients httpClients) {
+        this.httpClients = httpClients;
+    }
+
+    //获得Apollo配置实例, 注意配置正确的namespace
+    @ApolloConfig("it.common")
+    private Config config;
+
+    //监听Apollo配置变化, 注意配置正确的namespace
+    @ApolloConfigChangeListener("it.common")
+    public void onApolloConfigChanged(ConfigChangeEvent configChangeEvent){
+        //实时调整HttpClient配置
+        httpClients.settingsOverride(new HttpClientsApolloOverrideSettings(config));
+    }
+
+}
+```
 
 <br>
 <br>
