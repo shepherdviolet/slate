@@ -51,7 +51,7 @@ public class HttpClientsApolloConfig {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public HttpClientsApolloConfig(HttpClients httpClients) {
         this.httpClients = httpClients;
-        logger.info("HttpClients Apollo | Listening client configurations changes from apollo, namespace: application");
+        logger.info("HttpClients Apollo | Listening client config changes from apollo, namespace: application");
     }
 
     //获得Apollo配置实例, 注意配置正确的namespace
