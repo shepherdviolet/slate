@@ -181,21 +181,6 @@ dependencies {
 }
 ```
 
-* gradle(最少依赖)
-
-```text
-//version替换为具体版本
-dependencies {
-    compile ('com.github.shepherdviolet:slate-common:version') {
-        transitive = false
-    }
-    compile ('com.github.shepherdviolet:thistle:version') {
-        transitive = false
-    }
-    compile 'ch.qos.logback:logback-classic:1.2.3'
-}
-```
-
 * maven
 
 ```maven
@@ -204,38 +189,5 @@ dependencies {
         <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
         <version>version</version>
-    </dependency>
-```
-
-* maven(最少依赖)
-
-```maven
-    <!--version替换为具体版本-->
-    <dependency>
-        <groupId>com.github.shepherdviolet</groupId>
-        <artifactId>slate-common</artifactId>
-        <version>version</version>
-        <exclusions>
-             <exclusion>
-                 <groupId>*</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-        </exclusions>
-    </dependency>
-    <dependency>
-        <groupId>com.github.shepherdviolet</groupId>
-        <artifactId>thistle</artifactId>
-        <version>version</version>
-        <exclusions>
-             <exclusion>
-                 <groupId>*</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-        </exclusions>
-    </dependency>
-    <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.2.3</version>
     </dependency>
 ```

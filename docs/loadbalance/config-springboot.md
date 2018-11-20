@@ -128,9 +128,9 @@ slate:
 ```yaml
 slate:
   httpclient:
-    # 启用HttpClients (必须)
+    # 启用HttpClients (必须, 修改该配置需重启生效)
     enabled: true
-    # 使用Apollo配置中心动态调整配置 (可选)
+    # 使用Apollo配置中心动态调整配置 (可选, 修改该配置需重启生效)
     apollo-support: true
   httpclients:
     client1:
@@ -299,12 +299,10 @@ public class MyHttpTransport implements InitializingBean {
 
 # 使用Apollo配置中心实时调整配置
 
-* 启用Apollo, 配置正确的namespace
+* 启用Apollo
 
 ```text
-@EnableApolloConfig({
-    "application"
-})
+@EnableApolloConfig
 @SpringBootApplication
 public class BootApplication {
 }
@@ -318,9 +316,13 @@ slate:
     apollo-support: true
 ```
 
+> 该配置为true时, 程序会监听Apollo中应用的`私有配置(namespace=application)`, 根据其中的配置调整客户端参数 <br>
+> 调整该配置(slate.httpclient.apollo-support)后需重启才能生效 <br>
+
 * 进入Apollo配置中心控制台, 新增或修改应用的`私有配置(namespace=application)`, 应用端的HttpClient配置就会实时调整
-* 注意: 通过YML方式启用, 只能配置在应用的`私有配置(namespace=application)`中, 配在`公共配置或非默认配置(namespace!=application)`中无效
-* Key格式: slate.httpclients.`客户端标识`.`配置名`
+* 注意: 只能配置在应用的`私有配置(namespace=application)`中, 配在`公共配置或非默认配置(namespace!=application)`中无效
+
+> Key格式: slate.httpclients.`客户端标识`.`配置名`
 
 * 例如: 修改client2的hosts为http://127.0.0.1:8083,http://127.0.0.1:8084
 
@@ -337,7 +339,7 @@ slate:
 > 如果`客户端标识`是新增的, 应用端会实时创建一个新的HttpClient实例<br>
 > 在日志中搜索`HttpClients`关键字可以观察到配置实时调整的情况<br>
 
-* (可选) 如果想要配置在`公共配置或非默认配置(namespace!=application)`中, 请添加如下配置类, 并指定namespace
+* (可选) 如果想要配置在`公共配置或非默认配置(namespace!=application)`中, 请添加如下配置类, 监听指定的namespace
 
 ```text
 import com.ctrip.framework.apollo.Config;
@@ -359,11 +361,11 @@ public class HttpClientsApolloConfig {
         this.httpClients = httpClients;
     }
 
-    //获得Apollo配置实例, 注意配置正确的namespace
+    //获得Apollo配置实例, 注意配置正确的namespace, 这里以it.common为例
     @ApolloConfig("it.common")
     private Config config;
 
-    //监听Apollo配置变化, 注意配置正确的namespace
+    //监听Apollo配置变化, 注意配置正确的namespace, 这里以it.common为例
     @ApolloConfigChangeListener("it.common")
     public void onApolloConfigChanged(ConfigChangeEvent configChangeEvent){
         //实时调整HttpClient配置
