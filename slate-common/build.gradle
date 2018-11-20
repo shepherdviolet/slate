@@ -13,6 +13,7 @@ dependencies {
     compile "ch.qos.logback:logback-classic:$version_logback", optional
     compile "com.jcraft:jsch:$version_jsch", optional
     compile "redis.clients:jedis:$version_jedis", optional
+    compile "org.mybatis:mybatis:$version_mybatis", optional
 
     //compileOnly
 //    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$version_spring_boot"
