@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import sviolet.thistle.util.judge.CheckUtils;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * 用于Spring容器中修改配置(仅支持部分配置), 引入本配置类即可.
  *
@@ -33,30 +35,38 @@ import sviolet.thistle.util.judge.CheckUtils;
 @Configuration
 public class DefaultTxTimerSpringConfig {
 
+    private static final AtomicInteger counter = new AtomicInteger(0);
+
+    private int id;
+
+    public DefaultTxTimerSpringConfig() {
+        id = counter.getAndIncrement();
+    }
+
     @Value("${slate.txtimer.reportall.interval:}")
     private void setReportAllInterval(String reportAllInterval){
-        if (!CheckUtils.isEmptyOrBlank(reportAllInterval)){
+        if (id == 0 && !CheckUtils.isEmptyOrBlank(reportAllInterval)){
             DefaultTxTimerConfig.setReportAllInterval(reportAllInterval);
         }
     }
 
     @Value("${slate.txtimer.threshold.avg:}")
     private void setThresholdAvg(String avg){
-        if (!CheckUtils.isEmptyOrBlank(avg)){
+        if (id == 0 && !CheckUtils.isEmptyOrBlank(avg)){
             DefaultTxTimerConfig.setThresholdAvg(avg);
         }
     }
 
     @Value("${slate.txtimer.threshold.max:}")
     private void setThresholdMax(String max){
-        if (!CheckUtils.isEmptyOrBlank(max)){
+        if (id == 0 && !CheckUtils.isEmptyOrBlank(max)){
             DefaultTxTimerConfig.setThresholdMax(max);
         }
     }
 
     @Value("${slate.txtimer.threshold.min:}")
     private void setThresholdMin(String min){
-        if (!CheckUtils.isEmptyOrBlank(min)){
+        if (id == 0 && !CheckUtils.isEmptyOrBlank(min)){
             DefaultTxTimerConfig.setThresholdMin(min);
         }
     }
