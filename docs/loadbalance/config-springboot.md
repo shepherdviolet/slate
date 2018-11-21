@@ -97,7 +97,6 @@ slate:
       readTimeout: 10000
       maxReadLength: 10485760
       verboseLog: true
-      txTimerEnabled: true
     client2:
       hostList:
         - http://127.0.0.1:8083
@@ -109,7 +108,6 @@ slate:
       readTimeout: 10000
       maxReadLength: 10485760
       verboseLog: true
-      txTimerEnabled: true
 ```
 
 * 以上文为例, 启用并配置了client1和client2两个HTTP请求客户端
@@ -172,7 +170,7 @@ slate:
       httpCodeNeedBlock: 400,500
       # true时会输出更多日志
       verboseLog: false
-      # true启用TxTimer对请求耗时的统计(目前只支持同步方式)
+      # true启用TxTimer对请求耗时的统计(目前只支持同步方式), 详见https://github.com/shepherdviolet/slate/blob/master/docs/txtimer/guide.md
       txTimerEnabled: false
 ```
 
