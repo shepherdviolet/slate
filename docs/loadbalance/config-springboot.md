@@ -119,16 +119,15 @@ slate:
 * connectTimeout/writeTimeout/readTimeout分别为连接/写/读超时时间, 单位ms
 * maxReadLength数据最大读取长度, 单位字节
 * verboseLog为true时会输出更多日志
-* 启用TxTimer对请求耗时的统计(目前只支持同步方式)
 
 ### YML中所提供的全部配置说明
 
 ```yaml
 slate:
   httpclient:
-    # 启用HttpClients (必须, 修改该配置需重启生效)
+    # 启用HttpClients (必须, 修改该配置需重启, 源码见HttpClientsConfig)
     enabled: true
-    # 使用Apollo配置中心动态调整配置 (可选, 修改该配置需重启生效)
+    # 使用Apollo配置中心动态调整配置 (可选, 修改该配置需重启, 源码见HttpClientsApolloConfig)
     apollo-support: true
   httpclients:
     client1:
@@ -314,8 +313,7 @@ slate:
     apollo-support: true
 ```
 
-> 该配置为true时, 程序会监听Apollo中应用的`私有配置(namespace=application)`, 根据其中的配置调整客户端参数 <br>
-> 调整该配置(slate.httpclient.apollo-support)后需重启才能生效 <br>
+> 该配置为true时, 程序会监听Apollo中应用的`私有配置(namespace=application)`, 根据其中的配置调整客户端参数(详见源码`HttpClientsApolloConfig`)
 
 * 进入Apollo配置中心控制台, 新增或修改应用的`私有配置(namespace=application)`, 应用端的HttpClient配置就会实时调整
 * 注意: 只能配置在应用的`私有配置(namespace=application)`中, 配在`公共配置或非默认配置(namespace!=application)`中无效
