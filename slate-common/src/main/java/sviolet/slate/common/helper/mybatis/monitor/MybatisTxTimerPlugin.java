@@ -39,7 +39,7 @@ import java.util.Properties;
  * <configuration>
  *  <plugins>
  *      <plugin interceptor="sviolet.slate.common.helper.mybatis.monitor.MybatisTxTimerPlugin">
- *          <property name="groupName" value="MyBatis">
+ *          <property name="groupName" value="MyBatis"/>
  *      </plugin>
  *  </plugins>
  * </configuration>
