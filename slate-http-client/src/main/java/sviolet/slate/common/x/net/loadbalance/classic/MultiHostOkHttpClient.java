@@ -1366,7 +1366,7 @@ public class MultiHostOkHttpClient {
         /**
          * <p>请求成功</p>
          *
-         * <p>注意: ResponsePackage实例是需要关闭的(close), 但我们提供autoClose配置, 详见{@link Request#autoClose(boolean)}</p>
+         * <p>注意: ResponsePackage实例是需要关闭的(close), 但我们提供autoClose配置, 详见Request#autoClose(boolean)</p>
          *
          * <p>
          * 当autoClose=true时, onSucceed方法回调结束后, ResponsePackage/InputStream会被自动关闭, 无需手动调用close方法. 适用于
@@ -1462,7 +1462,7 @@ public class MultiHostOkHttpClient {
         /**
          * <p>请求成功</p>
          *
-         * <p>注意: InputStream实例是需要关闭的(close), 但我们提供autoClose配置, 详见{@link Request#autoClose(boolean)}</p>
+         * <p>注意: InputStream实例是需要关闭的(close), 但我们提供autoClose配置, 详见Request#autoClose(boolean)</p>
          *
          * <p>
          * 当autoClose=true时, onSucceed方法回调结束后, ResponsePackage/InputStream会被自动关闭, 无需手动调用close方法. 适用于
