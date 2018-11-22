@@ -30,19 +30,19 @@ import java.util.Map;
  * @author S.Violet
  */
 @ConfigurationProperties(prefix = "slate")
-class SlateProperties {
+public class SlatePropertiesForHttpClient {
 
     /**
      * slate.httpclients
      * 自动配置SimpleOkHttpClient(多个)
      */
-    private Map<String, HttpClientsProperties> httpclients;
+    private Map<String, HttpClientSettings> httpclients;
 
-    public Map<String, HttpClientsProperties> getHttpclients() {
+    public Map<String, HttpClientSettings> getHttpclients() {
         return httpclients;
     }
 
-    public void setHttpclients(Map<String, HttpClientsProperties> httpclients) {
+    public void setHttpclients(Map<String, HttpClientSettings> httpclients) {
         this.httpclients = httpclients;
     }
 

@@ -20,6 +20,7 @@
 package sviolet.slate.common.springboot.autoconfig;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -29,10 +30,15 @@ import org.springframework.context.annotation.Import;
  * @author S.Violet
  */
 @Configuration
-@EnableConfigurationProperties(SlateProperties.class)
+@EnableConfigurationProperties
 @Import({
         SlateServletContextListenerConfig.class
 })
 public class SlateCommonAutoConfiguration {
+
+    @Bean("slate.common.slateProperties")
+    public SlateProperties slateProperties(){
+        return new SlateProperties();
+    }
 
 }

@@ -27,7 +27,7 @@ import java.util.Arrays;
  *
  * @author S.Violet
  */
-class HttpClientsProperties {
+public class HttpClientSettings {
 
     /**
      * [可运行时修改]
@@ -337,7 +337,7 @@ class HttpClientsProperties {
 
     @Override
     public String toString() {
-        return "HttpClientsProperties{" +
+        return "HttpClientSettings{" +
                 "hosts='" + hosts + '\'' +
                 ", hostList=" + Arrays.toString(hostList) +
                 ", initiativeInspectInterval=" + initiativeInspectInterval +

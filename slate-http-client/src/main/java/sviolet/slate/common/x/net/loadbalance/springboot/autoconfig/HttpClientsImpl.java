@@ -59,31 +59,31 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
     private AtomicReference<OverrideSettings> newOverrideSettings = new AtomicReference<>(null);
     private ExecutorService overrideThreadPool = ThreadPoolExecutorUtils.createLazy(60, "Slate-HttpClients-override-%d");
 
-    HttpClientsImpl(Map<String, HttpClientsProperties> initProperties) {
+    HttpClientsImpl(Map<String, HttpClientSettings> settingsMap) {
 
         logger.info("HttpClients | Enabled");
 
         //init properties
-        if (initProperties == null) {
-            initProperties = new HashMap<>(0);
+        if (settingsMap == null) {
+            settingsMap = new HashMap<>(0);
         }
 
         //create client
-        for (Map.Entry<String, HttpClientsProperties> entry : initProperties.entrySet()) {
+        for (Map.Entry<String, HttpClientSettings> entry : settingsMap.entrySet()) {
 
             String tag = entry.getKey();
 
-            HttpClientsProperties properties = entry.getValue();
-            if (properties == null) {
+            HttpClientSettings settings = entry.getValue();
+            if (settings == null) {
                 logger.warn("HttpClients | " + tag + "> Has no properties, skip creation");
                 continue;
             }
 
             if (logger.isDebugEnabled()) {
-                logger.debug("HttpClients | " + tag + "> Creating with properties: " + properties);
+                logger.debug("HttpClients | " + tag + "> Creating with settings: " + settings);
             }
 
-            SimpleOkHttpClient client = HttpClientCreator.create(tag, properties);
+            SimpleOkHttpClient client = HttpClientCreator.create(tag, settings);
             clients.put(tag, client);
 
             if (logger.isInfoEnabled()) {
@@ -189,7 +189,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                     //Check if new
                     if (client == null) {
                         try {
-                            client = HttpClientCreator.create(tag, new HttpClientsProperties());
+                            client = HttpClientCreator.create(tag, new HttpClientSettings());
                             client.start();
                             clients.put(tag, client);
                             logger.info("HttpClients SettingsOverride | " + tag + "> Create new HttpClient with default properties, because no HttpClient named " + tag + " before");

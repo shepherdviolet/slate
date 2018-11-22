@@ -34,10 +34,15 @@ import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
  * @author S.Violet
  */
 @Configuration
+@EnableConfigurationProperties
 @ConditionalOnExpression("${slate.httpclient.enabled:false}")
-@EnableConfigurationProperties(SlateProperties.class)
 @EnableMemberProcessor(HttpClientMemberProcessor.class)//开启@HttpClient注解注入
 public class HttpClientsConfig {
+
+    @Bean("slate.httpclient.slatePropertiesForHttpClient")
+    public SlatePropertiesForHttpClient slatePropertiesForHttpClient(){
+        return new SlatePropertiesForHttpClient();
+    }
 
     /**
      * <p>自动配置HttpClients</p>
@@ -52,8 +57,8 @@ public class HttpClientsConfig {
      * </pre>
      */
     @Bean(HttpClients.HTTP_CLIENTS_NAME)
-    public HttpClients httpClientsContainer(SlateProperties slateProperties){
-        return new HttpClientsImpl(slateProperties.getHttpclients());
+    public HttpClients httpClientsContainer(SlatePropertiesForHttpClient slatePropertiesForHttpClient){
+        return new HttpClientsImpl(slatePropertiesForHttpClient.getHttpclients());
     }
 
 }

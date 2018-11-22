@@ -40,50 +40,50 @@ class HttpClientCreator {
     /**
      * 根据tag和配置创建一个HttpClient
      * @param tag tag
-     * @param properties 配置
+     * @param settings 配置
      * @return SimpleOkHttpClient
      */
-    static SimpleOkHttpClient create(String tag, HttpClientsProperties properties) {
+    static SimpleOkHttpClient create(String tag, HttpClientSettings settings) {
         //tag
         SimpleOkHttpClient client = (SimpleOkHttpClient) new SimpleOkHttpClient().setTag(tag);
 
         //hosts
-        if (!CheckUtils.isEmptyOrBlank(properties.getHosts())) {
-            client.setHosts(properties.getHosts());
+        if (!CheckUtils.isEmptyOrBlank(settings.getHosts())) {
+            client.setHosts(settings.getHosts());
         } else {
-            client.setHostArray(properties.getHostList());
+            client.setHostArray(settings.getHostList());
         }
 
         Map<String, String> headers = null;
-        if (!CheckUtils.isEmptyOrBlank(properties.getHeaders())) {
+        if (!CheckUtils.isEmptyOrBlank(settings.getHeaders())) {
             try {
-                headers = SimpleKeyValueEncoder.decode(properties.getHeaders());
+                headers = SimpleKeyValueEncoder.decode(settings.getHeaders());
             } catch (SimpleKeyValueEncoder.DecodeException e) {
-                throw new RuntimeException("HttpClients | Error while parsing headers '" + properties.getHeaders() + "' to Map, illegal key-value format, see github.com/shepherdviolet/thistle/blob/master/docs/kvencoder/guide.md", e);
+                throw new RuntimeException("HttpClients | Error while parsing headers '" + settings.getHeaders() + "' to Map, illegal key-value format, see github.com/shepherdviolet/thistle/blob/master/docs/kvencoder/guide.md", e);
             }
         }
 
         //properties
         return (SimpleOkHttpClient) client
-                .setInitiativeInspectInterval(properties.getInitiativeInspectInterval())
-                .setReturnNullIfAllBlocked(properties.isReturnNullIfAllBlocked())
-                .setHttpGetInspector(properties.getHttpGetInspectorUrlSuffix())
-                .setInspectorVerboseLog(properties.isInspectorVerboseLog())
-                .setPassiveBlockDuration(properties.getPassiveBlockDuration())
-                .setMediaType(properties.getMediaType())
-                .setEncode(properties.getEncode())
+                .setInitiativeInspectInterval(settings.getInitiativeInspectInterval())
+                .setReturnNullIfAllBlocked(settings.isReturnNullIfAllBlocked())
+                .setHttpGetInspector(settings.getHttpGetInspectorUrlSuffix())
+                .setInspectorVerboseLog(settings.isInspectorVerboseLog())
+                .setPassiveBlockDuration(settings.getPassiveBlockDuration())
+                .setMediaType(settings.getMediaType())
+                .setEncode(settings.getEncode())
                 .setHeaders(headers)
-                .setRecoveryCoefficient(properties.getRecoveryCoefficient())
-                .setMaxIdleConnections(properties.getMaxIdleConnections())
-                .setMaxThreads(properties.getMaxThreads())
-                .setMaxThreadsPerHost(properties.getMaxThreadsPerHost())
-                .setConnectTimeout(properties.getConnectTimeout())
-                .setWriteTimeout(properties.getWriteTimeout())
-                .setReadTimeout(properties.getReadTimeout())
-                .setMaxReadLength(properties.getMaxReadLength())
-                .setHttpCodeNeedBlock(properties.getHttpCodeNeedBlock())
-                .setVerboseLog(properties.isVerboseLog())
-                .setTxTimerEnabled(properties.isTxTimerEnabled())
+                .setRecoveryCoefficient(settings.getRecoveryCoefficient())
+                .setMaxIdleConnections(settings.getMaxIdleConnections())
+                .setMaxThreads(settings.getMaxThreads())
+                .setMaxThreadsPerHost(settings.getMaxThreadsPerHost())
+                .setConnectTimeout(settings.getConnectTimeout())
+                .setWriteTimeout(settings.getWriteTimeout())
+                .setReadTimeout(settings.getReadTimeout())
+                .setMaxReadLength(settings.getMaxReadLength())
+                .setHttpCodeNeedBlock(settings.getHttpCodeNeedBlock())
+                .setVerboseLog(settings.isVerboseLog())
+                .setTxTimerEnabled(settings.isTxTimerEnabled())
                 .setDataConverter(new GsonDataConverter());
     }
 
