@@ -19,26 +19,39 @@
 
 package sviolet.slate.common.springboot.autoconfig;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-
 /**
- * <p>slate-common 自动配置</p>
+ * <p>slate-http-client的客户端公共配置</p>
+ *
+ * <p>配置前缀: slate.httpclient</p>
  *
  * @author S.Violet
  */
-@Configuration
-@EnableConfigurationProperties
-@Import({
-        SlateServletContextListenerConfig.class
-})
-public class SlateCommonAutoConfiguration {
+public class SlateHttpClientProperties {
 
-    @Bean("slate.common.slateCommonProperties")
-    public SlateCommonProperties slateCommonProperties(){
-        return new SlateCommonProperties();
+    /**
+     * true: 启用Slate的HttpClient(总开关, 详见HttpClientsConfig), 默认false
+     */
+    private boolean enabled = false;
+
+    /**
+     * true: 根据Apollo配置动态调整客户端的参数(详见HttpClientsApolloConfig), 默认false
+     */
+    private boolean apolloSupported = false;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isApolloSupported() {
+        return apolloSupported;
+    }
+
+    public void setApolloSupported(boolean apolloSupported) {
+        this.apolloSupported = apolloSupported;
     }
 
 }

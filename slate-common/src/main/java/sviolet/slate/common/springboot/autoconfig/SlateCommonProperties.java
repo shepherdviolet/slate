@@ -22,12 +22,28 @@ package sviolet.slate.common.springboot.autoconfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * <p>Slate配置</p>
- * <p>配置前缀: slate</p>
+ * <p>slate-common 配置</p>
+ *
+ * <p>配置前缀: slate.common</p>
  *
  * @author S.Violet
  */
-@ConfigurationProperties(prefix = "slate")
-class SlateProperties {
+@ConfigurationProperties(prefix = "slate.common")
+public class SlateCommonProperties {
+
+    /**
+     * <p>true:启用ServletContextListener监听WEB容器启停事件, 默认true</p>
+     *
+     * <p>See SlateServletContextListenerConfig</p>
+     */
+    private boolean servletContextListenerEnabled = true;
+
+    public boolean isServletContextListenerEnabled() {
+        return servletContextListenerEnabled;
+    }
+
+    public void setServletContextListenerEnabled(boolean servletContextListenerEnabled) {
+        this.servletContextListenerEnabled = servletContextListenerEnabled;
+    }
 
 }

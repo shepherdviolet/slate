@@ -17,26 +17,41 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
+package sviolet.slate.common.springboot.autoconfig;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import sviolet.slate.common.x.net.loadbalance.springboot.autoconfig.HttpClientSettings;
 
 import java.util.Map;
 
 /**
- * <p>Slate配置</p>
- * <p>配置前缀: slate</p>
+ * <p>slate-http-client 配置</p>
+ * <p>配置前缀: slate.httpclient slate.httpclients</p>
  *
  * @author S.Violet
  */
 @ConfigurationProperties(prefix = "slate")
 public class SlatePropertiesForHttpClient {
 
+    public static final String BEAN_NAME = "slate.httpclient.slatePropertiesForHttpClient";
+
     /**
-     * slate.httpclients
-     * 自动配置SimpleOkHttpClient(多个)
+     * 配置Http客户端的公共配置(总开关/Apollo动态配置等), 详见HttpClientProperties
+     */
+    private SlateHttpClientProperties httpclient;
+
+    /**
+     * 配置每个Http客户端的参数, key:客户端名, value:详见HttpClientSettings
      */
     private Map<String, HttpClientSettings> httpclients;
+
+    public SlateHttpClientProperties getHttpclient() {
+        return httpclient;
+    }
+
+    public void setHttpclient(SlateHttpClientProperties httpclient) {
+        this.httpclient = httpclient;
+    }
 
     public Map<String, HttpClientSettings> getHttpclients() {
         return httpclients;

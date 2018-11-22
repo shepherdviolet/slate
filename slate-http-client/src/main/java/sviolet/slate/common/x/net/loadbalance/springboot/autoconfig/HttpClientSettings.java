@@ -22,7 +22,8 @@ package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
 import java.util.Arrays;
 
 /**
- * <p>HttpClients配置: 自动配置SimpleOkHttpClient</p>
+ * <p>Http客户端实例参数</p>
+ *
  * <p>配置前缀: slate.httpclients</p>
  *
  * @author S.Violet

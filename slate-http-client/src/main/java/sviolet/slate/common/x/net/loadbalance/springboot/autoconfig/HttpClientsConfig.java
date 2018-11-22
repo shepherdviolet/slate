@@ -21,9 +21,9 @@ package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import sviolet.slate.common.springboot.autoconfig.SlatePropertiesForHttpClient;
 import sviolet.slate.common.x.bean.mbrproc.EnableMemberProcessor;
 import sviolet.slate.common.x.net.loadbalance.springboot.autowired.HttpClientMemberProcessor;
 import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
@@ -35,15 +35,9 @@ import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
  * @author S.Violet
  */
 @Configuration
-@EnableConfigurationProperties
 @ConditionalOnExpression("${slate.httpclient.enabled:false}")
 @EnableMemberProcessor(HttpClientMemberProcessor.class)//开启@HttpClient注解注入
 public class HttpClientsConfig {
-
-    @Bean("slate.httpclient.slatePropertiesForHttpClient")
-    public SlatePropertiesForHttpClient slatePropertiesForHttpClient(){
-        return new SlatePropertiesForHttpClient();
-    }
 
     /**
      * <p>自动配置HttpClients</p>
@@ -58,8 +52,10 @@ public class HttpClientsConfig {
      * </pre>
      */
     @Bean(HttpClients.HTTP_CLIENTS_NAME)
-    public HttpClients httpClientsContainer(@Qualifier("slate.httpclient.slatePropertiesForHttpClient")
-                                                        SlatePropertiesForHttpClient slatePropertiesForHttpClient){
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    public HttpClients httpClientsContainer(
+            @Qualifier(SlatePropertiesForHttpClient.BEAN_NAME)
+                    SlatePropertiesForHttpClient slatePropertiesForHttpClient) {
         return new HttpClientsImpl(slatePropertiesForHttpClient.getHttpclients());
     }
 

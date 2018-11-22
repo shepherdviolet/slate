@@ -19,6 +19,8 @@
 
 package sviolet.slate.common.springboot.autoconfig;
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import sviolet.slate.common.x.net.loadbalance.springboot.apollo.HttpClientsApolloConfig;
@@ -30,10 +32,16 @@ import sviolet.slate.common.x.net.loadbalance.springboot.autoconfig.HttpClientsC
  * @author S.Violet
  */
 @Configuration
+@EnableConfigurationProperties
 @Import({
         HttpClientsConfig.class,
         HttpClientsApolloConfig.class
 })
 public class SlateHttpClientAutoConfiguration {
+
+    @Bean(SlatePropertiesForHttpClient.BEAN_NAME)
+    public SlatePropertiesForHttpClient slatePropertiesForHttpClient(){
+        return new SlatePropertiesForHttpClient();
+    }
 
 }

@@ -21,6 +21,7 @@ package sviolet.slate.common.springboot.autoconfig;
 
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import sviolet.slate.common.web.servlet.SlateServletContextListener;
@@ -33,6 +34,7 @@ import javax.servlet.ServletContextListener;
  * @author S.Violet
  */
 @Configuration
+@ConditionalOnExpression("${slate.common.servlet-context-listener-enabled:true}")
 @ConditionalOnClass(javax.servlet.ServletContextListener.class)
 public class SlateServletContextListenerConfig {
 

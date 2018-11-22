@@ -90,24 +90,24 @@ slate:
   httpclients:
     client1:
       hosts: http://127.0.0.1:8081,http://127.0.0.1:8082
-      initiativeInspectInterval: 5000
-      passiveBlockDuration: 30000
-      connectTimeout: 3000
-      writeTimeout: 10000
-      readTimeout: 10000
-      maxReadLength: 10485760
-      verboseLog: true
+      initiative-inspect-interval: 5000
+      passive-block-duration: 30000
+      connect-timeout: 3000
+      write-timeout: 10000
+      read-timeout: 10000
+      max-read-length: 10485760
+      verbose-log: true
     client2:
-      hostList:
+      host-list:
         - http://127.0.0.1:8083
         - http://127.0.0.1:8084
-      initiativeInspectInterval: 5000
-      passiveBlockDuration: 30000
-      connectTimeout: 3000
-      writeTimeout: 10000
-      readTimeout: 10000
-      maxReadLength: 10485760
-      verboseLog: true
+      initiative-inspect-interval: 5000
+      passive-block-duration: 30000
+      connect-timeout: 3000
+      write-timeout: 10000
+      read-timeout: 10000
+      max-read-length: 10485760
+      verbose-log: true
 ```
 
 * 以上文为例, 启用并配置了client1和client2两个HTTP请求客户端
@@ -134,43 +134,43 @@ slate:
       # 后端列表
       hosts: http://127.0.0.1:8083,http://127.0.0.1:8084
       # 健康主动探测间隔, 单位ms
-      initiativeInspectInterval: 5000
+      initiative-inspect-interval: 5000
       # true: 当所有后端都被阻断时不发送请求(抛异常), false: 当所有后端都被阻断时随机发送请求
-      returnNullIfAllBlocked: false
+      return-null-if-all-blocked: false
       # 启用HTTP Get方式进行主动健康探测, URL为http://127.0.0.1:8083/health和http://127.0.0.1:8084/health, (设置+telnet+改回TELNET方式)
-      httpGetInspectorUrlSuffix: /health
+      http-get-inspector-url-suffix: /health
       # 主动探测器打印更多日志
-      inspectorVerboseLog: false
+      inspector-verbose-log: false
       # 健康被动探测阻断时长, 单位ms
-      passiveBlockDuration: 30000
+      passive-block-duration: 30000
       # mediaType
-      mediaType: application/json;charset=utf-8
+      media-type: application/json;charset=utf-8
       # 编码
       encode: utf-8
       # Http请求头, 键值对格式参考: https://github.com/shepherdviolet/thistle/blob/master/docs/kvencoder/guide.md
       headers: User-Agent=SlateHttpClient,Referer=http://github.com
       # 阻断后的恢复期系数, 恢复期时长 = blockDuration * recoveryCoefficient, 设置1则无恢复期
-      recoveryCoefficient: 10
+      recovery-coefficient: 10
       # 最大闲置连接数. 客户端会保持与服务端的连接, 保持数量由此设置决定, 直到闲置超过5分钟. 默认16
-      maxIdleConnections: 16
+      max-idle-connections: 16
       # 异步方式最大线程数, 配置仅在异步方式有效, 同步无限制
-      maxThreads: 256
+      max-threads: 256
       # 异步方式每个后端最大线程数, 配置仅在异步方式有效, 同步无限制
-      maxThreadsPerHost: 256
+      max-threads-per-host: 256
       # 连接超时时间, 单位ms
-      connectTimeout: 3000
+      connect-timeout: 3000
       # 写超时时间, 单位ms
-      writeTimeout: 10000
+      write-timeout: 10000
       # 读超时时间, 单位ms
-      readTimeout: 10000
+      read-timeout: 10000
       # 数据最大读取长度, 单位字节
-      maxReadLength: 10485760
+      max-read-length: 10485760
       # 当后端HTTP返回码为400或500时阻断后端
-      httpCodeNeedBlock: 400,500
+      http-code-need-block: 400,500
       # true时会输出更多日志
-      verboseLog: false
+      verbose-log: false
       # true启用TxTimer对请求耗时的统计(目前只支持同步方式), 详见https://github.com/shepherdviolet/slate/blob/master/docs/txtimer/guide.md
-      txTimerEnabled: false
+      tx-timer-enabled: false
 ```
 
 <br>
