@@ -110,17 +110,11 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 
 # 关于日志
 
-### 常规日志
-
 * SLF4J日志包路径: `sviolet.slate.common.x.net.loadbalance`
 * 推荐日志级别: `INFO`
-* 日志关键字: `HttpClient` / `LoadBalance`
-* 包含: 请求/响应日志, Hosts变化日志, 主动探测日志, 被动阻断日志等
-* 另外, 建议将`sviolet.slate.common.x.net.loadbalance.LoadBalancedInspectManager`日志输出到单独文件中(主动探测日志)
-
-### SpringBoot自动配置日志
-
-* SLF4J日志包路径: `sviolet.slate.common.x.net.loadbalance`
-* 推荐日志级别: `INFO`
-* 日志关键字: `HttpClients`
-* 包含: 客户端自动配置日志, 客户端配置实时调整日志等
+* 需要打印请求报文和响应码的, 可以将`verboseLog`调为true (配合`INFO`级别)
+* 需要更详细的内容, 可以将级别调为`DEBUG`
+* SimpleOkHttpClient(MultiHostOkHttpClient)还支持日志微调, 详见源码中的verboseLogConfig配置
+* 日志关键字: `LoadBalance` / `HttpClient` / `HttpClients`
+* 包含: 请求/响应日志, Hosts变化日志, 主动探测日志, 被动阻断日志, SpringBoot自动配置日志, Apollo配置实时调整日志等
+* 建议将`sviolet.slate.common.x.net.loadbalance.LoadBalancedInspectManager`日志输出到单独文件中(主动探测日志)
