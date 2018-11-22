@@ -742,7 +742,7 @@ public class MultiHostOkHttpClient {
                 //网络故障阻断后端
                 isOk = false;
                 if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_BLOCK)){
-                    logger.info(settings.tag + "Block: " + host.getUrl() + " " + passiveBlockDuration + " R" + settings.recoveryCoefficient);
+                    logger.info(settings.tag + "Bad host " + host.getUrl() + ", block for " + passiveBlockDuration + " ms, passive block, recoveryCoefficient " + settings.recoveryCoefficient);
                 }
             }
             if (t instanceof  IOException ||
@@ -870,7 +870,7 @@ public class MultiHostOkHttpClient {
                         //反馈异常
                         host.feedback(false, passiveBlockDuration, settings.recoveryCoefficient);
                         if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_BLOCK)) {
-                            logger.info(settings.tag + "Block: " + host.getUrl() + " " + passiveBlockDuration + " R" + settings.recoveryCoefficient);
+                            logger.info(settings.tag + "Bad host " + host.getUrl() + ", block for " + passiveBlockDuration + " ms, passive block, recoveryCoefficient " + settings.recoveryCoefficient);
                         }
                     } else {
                         //反馈健康(反馈健康无需计算阻断时长)
@@ -928,82 +928,100 @@ public class MultiHostOkHttpClient {
     }
 
     private void printPostInputsLog(Request request, LoadBalancedHostManager.Host host) {
-        if (settings.verboseLog && logger.isDebugEnabled()
-                && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
-
-            String bodyLog;
-            if (request.body != null) {
-                bodyLog = ", body(hex):" + ByteUtils.bytesToHex(request.body);
-            } else if (request.formBody != null) {
-                bodyLog = ", formBody:" + request.formBody;
-            } else if (request.beanBody != null) {
-                bodyLog = ", beanBody:" + request.beanBody;
-            } else {
-                bodyLog = ", body: null";
-            }
-            logger.debug(settings.tag + "POST: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams + bodyLog);
-
+        if (!logger.isDebugEnabled() || !CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
+            return;
         }
+
+        String bodyLog;
+        if (request.body != null) {
+            bodyLog = ", body(hex):" + ByteUtils.bytesToHex(request.body);
+        } else if (request.formBody != null) {
+            bodyLog = ", formBody:" + request.formBody;
+        } else if (request.beanBody != null) {
+            bodyLog = ", beanBody:" + request.beanBody;
+        } else {
+            bodyLog = ", body: null";
+        }
+        logger.debug(settings.tag + "POST: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams + bodyLog);
     }
 
     private void printPostStringBodyLog(Request request, byte[] parsedData) {
-        if (settings.verboseLog && logger.isDebugEnabled()
-                && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)) {
-
-            if (request.body != null) {
-                try {
-                    logger.debug(settings.tag + "POST: string-body:" + new String(request.body, settings.encode));
-                } catch (Exception e) {
-                    logger.warn(settings.tag + "Error while printing string body", e);
-                }
-            } else if (request.formBody != null) {
-                logger.debug(settings.tag + "POST: string-body(form):" + request.formBody);
-            } else if (request.beanBody != null && parsedData != null) {
-                try {
-                    logger.debug(settings.tag + "POST: string-body(bean):" + new String(parsedData, settings.encode));
-                } catch (Exception e) {
-                    logger.warn(settings.tag + "Error while printing string body", e);
-                }
-            } else {
-                logger.debug(settings.tag + "POST: string-body: null");
+        if (settings.verboseLog) {
+            if (!logger.isInfoEnabled()) {
+                return;
             }
+        } else {
+            if (!logger.isDebugEnabled()) {
+                return;
+            }
+        }
 
+        if (!CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_STRING_BODY)){
+            return;
+        }
+
+        if (request.body != null) {
+            try {
+                logger.info(settings.tag + "POST: string-body:" + new String(request.body, settings.encode));
+            } catch (Exception e) {
+                logger.warn(settings.tag + "Error while printing string body", e);
+            }
+        } else if (request.formBody != null) {
+            logger.info(settings.tag + "POST: string-body(form):" + request.formBody);
+        } else if (request.beanBody != null && parsedData != null) {
+            try {
+                logger.info(settings.tag + "POST: string-body(bean):" + new String(parsedData, settings.encode));
+            } catch (Exception e) {
+                logger.warn(settings.tag + "Error while printing string body", e);
+            }
+        } else {
+            logger.info(settings.tag + "POST: string-body: null");
         }
     }
 
     private void printGetInputsLog(Request request, LoadBalancedHostManager.Host host) {
-        if (settings.verboseLog && logger.isDebugEnabled() && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
-            logger.debug(settings.tag + "GET: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams);
+        if (!logger.isDebugEnabled() || !CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
+            return;
         }
+        logger.debug(settings.tag + "GET: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams);
     }
 
     private void printUrlLog(Request request, LoadBalancedHostManager.Host host) {
-        if (settings.verboseLog && logger.isDebugEnabled()
-                && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RAW_URL)) {
+        if (!logger.isDebugEnabled() || !CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RAW_URL)) {
+            return;
+        }
 
-            StringBuilder stringBuilder = new StringBuilder("raw-url:" + host.getUrl() + request.urlSuffix);
-            if (request.urlParams != null && request.urlParams.size() > 0) {
-                stringBuilder.append("?");
-                int i = 0;
-                for (Map.Entry<String, Object> entry : request.urlParams.entrySet()) {
-                    if (i++ > 0) {
-                        stringBuilder.append("&");
-                    }
-                    stringBuilder.append(entry.getKey());
-                    stringBuilder.append("=");
-                    stringBuilder.append(entry.getValue());
+        StringBuilder stringBuilder = new StringBuilder("raw-url:" + host.getUrl() + request.urlSuffix);
+        if (request.urlParams != null && request.urlParams.size() > 0) {
+            stringBuilder.append("?");
+            int i = 0;
+            for (Map.Entry<String, Object> entry : request.urlParams.entrySet()) {
+                if (i++ > 0) {
+                    stringBuilder.append("&");
                 }
-
+                stringBuilder.append(entry.getKey());
+                stringBuilder.append("=");
+                stringBuilder.append(entry.getValue());
             }
-            logger.debug(settings.tag + stringBuilder.toString());
 
         }
+        logger.debug(settings.tag + stringBuilder.toString());
     }
 
     private void printResponseCodeLog(Response response) {
-        if (settings.verboseLog && logger.isDebugEnabled() && CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RESPONSE_CODE)) {
-            logger.debug(settings.tag + "Response: code:" + response.code() + ", message:" + response.message());
+        if (settings.verboseLog) {
+            if (!logger.isInfoEnabled()) {
+                return;
+            }
+        } else {
+            if (!logger.isDebugEnabled()) {
+                return;
+            }
         }
+        if (!CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RESPONSE_CODE)) {
+            return;
+        }
+        logger.info(settings.tag + "Response: code:" + response.code() + ", message:" + response.message());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
