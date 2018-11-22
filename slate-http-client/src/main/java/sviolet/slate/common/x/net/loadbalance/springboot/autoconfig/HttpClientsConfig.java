@@ -19,6 +19,7 @@
 
 package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -57,7 +58,8 @@ public class HttpClientsConfig {
      * </pre>
      */
     @Bean(HttpClients.HTTP_CLIENTS_NAME)
-    public HttpClients httpClientsContainer(SlatePropertiesForHttpClient slatePropertiesForHttpClient){
+    public HttpClients httpClientsContainer(@Qualifier("slate.httpclient.slatePropertiesForHttpClient")
+                                                        SlatePropertiesForHttpClient slatePropertiesForHttpClient){
         return new HttpClientsImpl(slatePropertiesForHttpClient.getHttpclients());
     }
 
