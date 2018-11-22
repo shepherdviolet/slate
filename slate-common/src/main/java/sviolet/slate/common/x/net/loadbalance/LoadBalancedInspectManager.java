@@ -245,7 +245,7 @@ public class LoadBalancedInspectManager implements Closeable {
                 } catch (InterruptedException ignored) {
                 }
                 if (logger.isInfoEnabled()) {
-                    logger.info(tag + "InspectManager Start: " + this);
+                    logger.info(tag + "InspectManager Start: " + LoadBalancedInspectManager.this);
                 }
                 LoadBalancedHostManager hostManager;
                 LoadBalancedHostManager.Host[] hostArray;
@@ -282,7 +282,7 @@ public class LoadBalancedInspectManager implements Closeable {
                     }
                 }
                 if (logger.isInfoEnabled()) {
-                    logger.info(tag + "InspectManager Closed: " + this);
+                    logger.info(tag + "InspectManager Closed: " + LoadBalancedInspectManager.this);
                 }
             }
         });

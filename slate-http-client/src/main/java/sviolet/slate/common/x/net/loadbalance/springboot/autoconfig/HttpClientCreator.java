@@ -104,60 +104,77 @@ class HttpClientCreator {
                     client.setHosts(value);
                     break;
                 case "httpGetInspectorUrlSuffix":
+                case "http-get-inspector-url-suffix":
                     client.setHttpGetInspector(value);
                     break;
                 case "mediaType":
+                case "media-type":
                     client.setMediaType(value);
                     break;
                 case "encode":
                     client.setEncode(value);
                     break;
                 case "httpCodeNeedBlock":
+                case "http-code-need-block":
                     client.setEncode(value);
                     break;
                 case "initiativeInspectInterval":
+                case "initiative-inspect-interval":
                     client.setInitiativeInspectInterval(Long.parseLong(value));
                     break;
                 case "returnNullIfAllBlocked":
+                case "return-null-if-all-blocked":
                     client.setReturnNullIfAllBlocked(Boolean.parseBoolean(value));
                     break;
                 case "inspectorVerboseLog":
+                case "inspector-verbose-log":
                     client.setInspectorVerboseLog(Boolean.parseBoolean(value));
                     break;
                 case "passiveBlockDuration":
+                case "passive-block-duration":
                     client.setPassiveBlockDuration(Long.parseLong(value));
                     break;
                 case "headers":
                     client.setHeaders(SimpleKeyValueEncoder.decode(value));
                     break;
                 case "recoveryCoefficient":
+                case "recovery-coefficient":
                     client.setRecoveryCoefficient(Integer.parseInt(value));
                     break;
                 case "maxIdleConnections":
+                case "max-idle-connections":
                     client.setMaxIdleConnections(Integer.parseInt(value));
                     break;
                 case "maxThreads":
+                case "max-threads":
                     client.setMaxThreads(Integer.parseInt(value));
                     break;
                 case "maxThreadsPerHost":
+                case "max-threads-per-host":
                     client.setMaxThreadsPerHost(Integer.parseInt(value));
                     break;
                 case "connectTimeout":
+                case "connect-timeout":
                     client.setConnectTimeout(Long.parseLong(value));
                     break;
                 case "writeTimeout":
+                case "write-timeout":
                     client.setWriteTimeout(Long.parseLong(value));
                     break;
                 case "readTimeout":
+                case "read-timeout":
                     client.setReadTimeout(Long.parseLong(value));
                     break;
                 case "maxReadLength":
+                case "max-read-length":
                     client.setMaxReadLength(Long.parseLong(value));
                     break;
                 case "verboseLog":
+                case "verbose-log":
                     client.setVerboseLog(Boolean.parseBoolean(value));
                     break;
                 case "txTimerEnabled":
+                case "tx-timer-enabled":
                     client.setTxTimerEnabled(Boolean.parseBoolean(value));
                     break;
                 default:

@@ -1926,7 +1926,7 @@ public class MultiHostOkHttpClient {
 
     /**
      * [可运行时修改]
-     * 打印更多的日志, 细粒度配置, 默认全打印, 当verboseLog=true时该参数生效<br>
+     * 打印更多的日志, 细粒度配置, 默认全打印<br>
      *
      * VERBOSE_LOG_CONFIG_ALL:{@value VERBOSE_LOG_CONFIG_ALL}<br>
      * VERBOSE_LOG_CONFIG_REQUEST_INPUTS:{@value VERBOSE_LOG_CONFIG_REQUEST_INPUTS}<br>
