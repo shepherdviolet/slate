@@ -84,7 +84,8 @@ class HttpClientCreator {
                 .setHttpCodeNeedBlock(settings.getHttpCodeNeedBlock())
                 .setVerboseLog(settings.isVerboseLog())
                 .setTxTimerEnabled(settings.isTxTimerEnabled())
-                .setDataConverter(new GsonDataConverter());
+                .setDataConverter(new GsonDataConverter())
+                .setRequestTraceEnabled(settings.isRequestTraceEnabled());
     }
 
     /**
@@ -176,6 +177,10 @@ class HttpClientCreator {
                 case "txTimerEnabled":
                 case "tx-timer-enabled":
                     client.setTxTimerEnabled(Boolean.parseBoolean(value));
+                    break;
+                case "requestTraceEnabled":
+                case "request-trace-enabled":
+                    client.setRequestTraceEnabled(Boolean.parseBoolean(value));
                     break;
                 default:
                     logger.error("HttpClients SettingsOverride | Error while changing " + property + " of " + tag + " to '" + value + "', No overridable setting named '" + property + "'");

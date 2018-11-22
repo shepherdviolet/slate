@@ -169,6 +169,8 @@ slate:
       verbose-log: false
       # true启用TxTimer对请求耗时的统计(目前只支持同步方式), 详见https://github.com/shepherdviolet/slate/blob/master/docs/txtimer/guide.md
       tx-timer-enabled: false
+      # true: 开启简易的请求日志追踪(请求日志追加4位数追踪号), 默认false
+      request-trace-enabled: false
 ```
 
 <br>

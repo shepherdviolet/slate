@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>支持均衡负载的OkHttpClient(简单的示例模板, 建议自行实现)</p>
@@ -165,7 +166,8 @@ public class MultiHostOkHttpClient {
     private static final String TXTIMER_GROUP_SEND = "MultiHostOkHttpClient-Send-";
     private static final String TXTIMER_GROUP_CONNECT = "MultiHostOkHttpClient-Connect-";
 
-    private static Logger logger = LoggerFactory.getLogger(MultiHostOkHttpClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(MultiHostOkHttpClient.class);
+    private static final AtomicInteger requestCounter = new AtomicInteger(0);
 
     private volatile OkHttpClient okHttpClient;
     private LoadBalancedHostManager hostManager;
@@ -191,7 +193,8 @@ public class MultiHostOkHttpClient {
      * @param urlSuffix 请求的url后缀, 例如/user/add.json
      */
     public Request post(String urlSuffix) {
-        return new Request(this, urlSuffix, true);
+        return new Request(this, urlSuffix, true,
+                settings.requestTraceEnabled ? requestCounter.getAndIncrement() & 0x00000FFF : Integer.MAX_VALUE);
     }
 
     /**
@@ -203,7 +206,8 @@ public class MultiHostOkHttpClient {
      * @param urlSuffix 请求的url后缀, 例如/user/add.json
      */
     public Request get(String urlSuffix) {
-        return new Request(this, urlSuffix, false);
+        return new Request(this, urlSuffix, false,
+                settings.requestTraceEnabled ? requestCounter.getAndIncrement() & 0x00000FFF : Integer.MAX_VALUE);
     }
 
     /**
@@ -214,6 +218,7 @@ public class MultiHostOkHttpClient {
         //status
         private WeakReference<MultiHostOkHttpClient> clientReference;
         private boolean isSend = false;
+        private int requestId;
 
         //basic
         private String urlSuffix;
@@ -234,10 +239,11 @@ public class MultiHostOkHttpClient {
         private DataConverter dataConverter;
         private Stub stub = new Stub();
 
-        private Request(MultiHostOkHttpClient client, String urlSuffix, boolean isPost) {
+        private Request(MultiHostOkHttpClient client, String urlSuffix, boolean isPost, int requestId) {
             this.clientReference = new WeakReference<>(client);
             this.urlSuffix = urlSuffix;
             this.isPost = isPost;
+            this.requestId = requestId;
         }
 
         /**
@@ -359,7 +365,7 @@ public class MultiHostOkHttpClient {
         /**
          * <p>[配置]异步请求专用: 配置响应实例(或输入流)是否在回调方法onSucceed结束后自动关闭, 默认true</p>
          *
-         * <p>注意:同步请求返回的ResponseBode/InputStream是必须手动关闭的!!!</p>
+         * <p>注意:同步请求返回的ResponsePackage/InputStream是必须手动关闭的!!!</p>
          *
          * <p>
          * 当autoClose=true时, onSucceed方法回调结束后, ResponsePackage/InputStream会被自动关闭, 无需手动调用close方法. 适用于
@@ -688,7 +694,7 @@ public class MultiHostOkHttpClient {
         }
 
         if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
-            logger.info(settings.tag + "POST: real-url:" + okRequest.url().toString());
+            logger.info(genLogPrefix(settings.tag, request) + "POST: real-url:" + okRequest.url().toString());
         }
 
         //请求
@@ -714,7 +720,7 @@ public class MultiHostOkHttpClient {
         }
 
         if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
-            logger.info(settings.tag + "GET: real-url:" + okRequest.url().toString());
+            logger.info(genLogPrefix(settings.tag, request) + "GET: real-url:" + okRequest.url().toString());
         }
 
         //请求
@@ -729,20 +735,20 @@ public class MultiHostOkHttpClient {
         try {
             //同步请求
             Response response = getOkHttpClient().newCall(okRequest).execute();
-            printResponseCodeLog(response);
+            printResponseCodeLog(request, response);
             //Http拒绝
             if (!isSucceed(response)) {
                 CloseableUtils.closeQuiet(response);
                 throw new HttpRejectException(response.code(), response.message());
             }
             //报文体
-            return ResponsePackage.newInstance(response);
+            return ResponsePackage.newInstance(request, response);
         } catch (Throwable t) {
             if (needBlock(t, settings)) {
                 //网络故障阻断后端
                 isOk = false;
                 if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_BLOCK)){
-                    logger.info(settings.tag + "Bad host " + host.getUrl() + ", block for " + passiveBlockDuration + " ms, passive block, recoveryCoefficient " + settings.recoveryCoefficient);
+                    logger.info(genLogPrefix(settings.tag, request) + "Bad host " + host.getUrl() + ", block for " + passiveBlockDuration + " ms, passive block, recoveryCoefficient " + settings.recoveryCoefficient);
                 }
             }
             if (t instanceof  IOException ||
@@ -784,7 +790,7 @@ public class MultiHostOkHttpClient {
             }
 
             if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
-                logger.info(settings.tag + "POST: real-url:" + okRequest.url().toString());
+                logger.info(genLogPrefix(settings.tag, request) + "POST: real-url:" + okRequest.url().toString());
             }
 
             //请求
@@ -817,7 +823,7 @@ public class MultiHostOkHttpClient {
             }
 
             if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_REAL_URL)) {
-                logger.info(settings.tag + "GET: real-url:" + okRequest.url().toString());
+                logger.info(genLogPrefix(settings.tag, request) + "GET: real-url:" + okRequest.url().toString());
             }
 
             //请求
@@ -833,7 +839,7 @@ public class MultiHostOkHttpClient {
             getOkHttpClient().newCall(okRequest).enqueue(new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    printResponseCodeLog(response);
+                    printResponseCodeLog(request, response);
                     //Http拒绝
                     if (!isSucceed(response)) {
                         CloseableUtils.closeQuiet(response);
@@ -846,7 +852,7 @@ public class MultiHostOkHttpClient {
                     host.feedback(true, 0);
                     //报文体
                     try {
-                        callback.onSucceed(ResponsePackage.newInstance(response));
+                        callback.onSucceed(ResponsePackage.newInstance(request, response));
                         //自动关闭
                         if (request.autoClose) {
                             CloseableUtils.closeQuiet(response);
@@ -870,7 +876,7 @@ public class MultiHostOkHttpClient {
                         //反馈异常
                         host.feedback(false, passiveBlockDuration, settings.recoveryCoefficient);
                         if (logger.isInfoEnabled() && CheckUtils.isFlagMatch(settings.logConfig, LOG_CONFIG_BLOCK)) {
-                            logger.info(settings.tag + "Bad host " + host.getUrl() + ", block for " + passiveBlockDuration + " ms, passive block, recoveryCoefficient " + settings.recoveryCoefficient);
+                            logger.info(genLogPrefix(settings.tag, request) + "Bad host " + host.getUrl() + ", block for " + passiveBlockDuration + " ms, passive block, recoveryCoefficient " + settings.recoveryCoefficient);
                         }
                     } else {
                         //反馈健康(反馈健康无需计算阻断时长)
@@ -942,7 +948,7 @@ public class MultiHostOkHttpClient {
         } else {
             bodyLog = ", body: null";
         }
-        logger.debug(settings.tag + "POST: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams + bodyLog);
+        logger.debug(genLogPrefix(settings.tag, request) + "POST: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams + bodyLog);
     }
 
     private void printPostStringBodyLog(Request request, byte[] parsedData) {
@@ -962,20 +968,20 @@ public class MultiHostOkHttpClient {
 
         if (request.body != null) {
             try {
-                logger.info(settings.tag + "POST: string-body:" + new String(request.body, settings.encode));
+                logger.info(genLogPrefix(settings.tag, request) + "POST: string-body:" + new String(request.body, settings.encode));
             } catch (Exception e) {
-                logger.warn(settings.tag + "Error while printing string body", e);
+                logger.warn(genLogPrefix(settings.tag, request) + "Error while printing string body", e);
             }
         } else if (request.formBody != null) {
-            logger.info(settings.tag + "POST: string-body(form):" + request.formBody);
+            logger.info(genLogPrefix(settings.tag, request) + "POST: string-body(form):" + request.formBody);
         } else if (request.beanBody != null && parsedData != null) {
             try {
-                logger.info(settings.tag + "POST: string-body(bean):" + new String(parsedData, settings.encode));
+                logger.info(genLogPrefix(settings.tag, request) + "POST: string-body(bean):" + new String(parsedData, settings.encode));
             } catch (Exception e) {
-                logger.warn(settings.tag + "Error while printing string body", e);
+                logger.warn(genLogPrefix(settings.tag, request) + "Error while printing string body", e);
             }
         } else {
-            logger.info(settings.tag + "POST: string-body: null");
+            logger.info(genLogPrefix(settings.tag, request) + "POST: string-body: null");
         }
     }
 
@@ -983,7 +989,7 @@ public class MultiHostOkHttpClient {
         if (!logger.isDebugEnabled() || !CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_REQUEST_INPUTS)) {
             return;
         }
-        logger.debug(settings.tag + "GET: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams);
+        logger.debug(genLogPrefix(settings.tag, request) + "GET: url:" + host.getUrl() + ", suffix:" + request.urlSuffix + ", urlParams:" + request.urlParams);
     }
 
     private void printUrlLog(Request request, LoadBalancedHostManager.Host host) {
@@ -1005,10 +1011,10 @@ public class MultiHostOkHttpClient {
             }
 
         }
-        logger.debug(settings.tag + stringBuilder.toString());
+        logger.debug(genLogPrefix(settings.tag, request) + stringBuilder.toString());
     }
 
-    private void printResponseCodeLog(Response response) {
+    private void printResponseCodeLog(Request request, Response response) {
         if (settings.verboseLog) {
             if (!logger.isInfoEnabled()) {
                 return;
@@ -1021,7 +1027,14 @@ public class MultiHostOkHttpClient {
         if (!CheckUtils.isFlagMatch(settings.verboseLogConfig, VERBOSE_LOG_CONFIG_RESPONSE_CODE)) {
             return;
         }
-        logger.info(settings.tag + "Response: code:" + response.code() + ", message:" + response.message());
+        logger.info(genLogPrefix(settings.tag, request) + "Response: code:" + response.code() + ", message:" + response.message());
+    }
+
+    private String genLogPrefix(String tag, Request request){
+        if (request.requestId == Integer.MAX_VALUE) {
+            return tag;
+        }
+        return tag + request.requestId + " ";
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1286,8 +1299,9 @@ public class MultiHostOkHttpClient {
         private DataConverter dataConverter;
         private String tag = LOG_PREFIX;
         private String rawTag = "";
-
         private Set<Integer> httpCodeNeedBlock = new HashSet<>(8);
+
+        private boolean requestTraceEnabled = false;
 
         private Settings(){
         }
@@ -1332,20 +1346,22 @@ public class MultiHostOkHttpClient {
         private boolean isRedirect;
         private ResponseBody body;
         private Headers headers;
+        private String requestId;
 
-        private static ResponsePackage newInstance(Response response) {
+        private static ResponsePackage newInstance(Request request, Response response) {
             if (response == null || response.body() == null) {
                 return null;
             }
-            return new ResponsePackage(response);
+            return new ResponsePackage(request, response);
         }
 
-        private ResponsePackage(Response response) {
+        private ResponsePackage(Request request, Response response) {
             code = response.code();
             message = response.message();
             isRedirect = response.isRedirect();
             body = response.body();
             headers = response.headers();
+            requestId = request.requestId == Integer.MAX_VALUE ? "" : String.valueOf(request.requestId);
         }
 
         public int code() {
@@ -1366,6 +1382,10 @@ public class MultiHostOkHttpClient {
 
         public Headers headers() {
             return headers;
+        }
+
+        public String requestId() {
+            return requestId;
         }
 
         @Override
@@ -1955,6 +1975,17 @@ public class MultiHostOkHttpClient {
      */
     public MultiHostOkHttpClient setLogConfig(int logConfig) {
         settings.logConfig = logConfig;
+        return this;
+    }
+
+    /**
+     * [可运行时修改]
+     * true: 开启简易的请求日志追踪(请求日志追加4位数追踪号), 默认false<br>
+     *
+     * @param requestTraceEnabled true: 开启简易的请求日志追踪(请求日志追加4位数追踪号), 默认false
+     */
+    public MultiHostOkHttpClient setRequestTraceEnabled(boolean requestTraceEnabled) {
+        settings.requestTraceEnabled = requestTraceEnabled;
         return this;
     }
 

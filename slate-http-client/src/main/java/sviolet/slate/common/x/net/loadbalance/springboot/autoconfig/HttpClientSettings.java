@@ -168,6 +168,12 @@ public class HttpClientSettings {
      */
     private boolean txTimerEnabled = false;
 
+    /**
+     * [可运行时修改]
+     * true: 开启简易的请求日志追踪(请求日志追加4位数追踪号), 默认false<br>
+     */
+    private boolean requestTraceEnabled = false;
+
     public String getHosts() {
         return hosts;
     }
@@ -336,6 +342,14 @@ public class HttpClientSettings {
         this.txTimerEnabled = txTimerEnabled;
     }
 
+    public boolean isRequestTraceEnabled() {
+        return requestTraceEnabled;
+    }
+
+    public void setRequestTraceEnabled(boolean requestTraceEnabled) {
+        this.requestTraceEnabled = requestTraceEnabled;
+    }
+
     @Override
     public String toString() {
         return "HttpClientSettings{" +
@@ -348,7 +362,7 @@ public class HttpClientSettings {
                 ", passiveBlockDuration=" + passiveBlockDuration +
                 ", mediaType='" + mediaType + '\'' +
                 ", encode='" + encode + '\'' +
-                ", headers=" + headers +
+                ", headers='" + headers + '\'' +
                 ", recoveryCoefficient=" + recoveryCoefficient +
                 ", maxIdleConnections=" + maxIdleConnections +
                 ", maxThreads=" + maxThreads +
@@ -360,6 +374,7 @@ public class HttpClientSettings {
                 ", httpCodeNeedBlock='" + httpCodeNeedBlock + '\'' +
                 ", verboseLog=" + verboseLog +
                 ", txTimerEnabled=" + txTimerEnabled +
+                ", requestTraceEnabled=" + requestTraceEnabled +
                 '}';
     }
 }
