@@ -70,7 +70,7 @@ public class HttpClientSettings {
 
     /**
      * [可运行时修改]
-     * 主动探测器打印更多的日志, 默认关闭
+     * true: 主动探测器打印更多的日志, 默认false
      */
     private boolean inspectorVerboseLog = false;
 
@@ -158,7 +158,7 @@ public class HttpClientSettings {
 
     /**
      * [可运行时修改]
-     * 打印更多的日志, 默认关闭
+     * true: INFO级别可打印更多的日志(请求报文/响应码等), 默认false
      */
     private boolean verboseLog = false;
 

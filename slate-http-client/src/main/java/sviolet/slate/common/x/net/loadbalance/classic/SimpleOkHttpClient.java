@@ -193,8 +193,8 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
 
     /**
      * [线程安全/异步生效/可运行时修改]
-     * 主动探测器打印更多的日志, 默认关闭
-     * @param verboseLog true:主动探测器打印更多的调试日志, 默认关闭
+     * true: 主动探测器打印更多的日志, 默认false
+     * @param verboseLog true: 主动探测器打印更多的日志, 默认false
      */
     public SimpleOkHttpClient setInspectorVerboseLog(boolean verboseLog) {
         inspectManager.setVerboseLog(verboseLog);
@@ -203,7 +203,7 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
 
     /**
      * [线程安全/异步生效/可运行时修改]
-     * 打印更多的日志, 默认关闭
+     * true: INFO级别可打印更多的日志(请求报文/响应码等), 默认false
      * @param verboseLog true:打印更多的调试日志, 默认关闭
      */
     @Override

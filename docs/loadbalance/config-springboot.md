@@ -118,7 +118,7 @@ slate:
 * 健康被动探测阻断时长(passiveBlockDuration)为30000ms
 * connectTimeout/writeTimeout/readTimeout分别为连接/写/读超时时间, 单位ms
 * maxReadLength数据最大读取长度, 单位字节
-* verboseLog为true时会输出更多日志
+* verbose-log为true: INFO级别可打印更多的日志(请求报文/响应码等)
 
 ### YML中所提供的全部配置说明
 
@@ -139,8 +139,6 @@ slate:
       return-null-if-all-blocked: false
       # 启用HTTP Get方式进行主动健康探测, URL为http://127.0.0.1:8083/health和http://127.0.0.1:8084/health, (设置+telnet+改回TELNET方式)
       http-get-inspector-url-suffix: /health
-      # 主动探测器打印更多日志
-      inspector-verbose-log: false
       # 健康被动探测阻断时长, 单位ms
       passive-block-duration: 30000
       # mediaType
@@ -167,7 +165,7 @@ slate:
       max-read-length: 10485760
       # 当后端HTTP返回码为400或500时阻断后端
       http-code-need-block: 400,500
-      # true时会输出更多日志
+      # true: INFO级别可打印更多的日志(请求报文/响应码等), 默认false
       verbose-log: false
       # true启用TxTimer对请求耗时的统计(目前只支持同步方式), 详见https://github.com/shepherdviolet/slate/blob/master/docs/txtimer/guide.md
       tx-timer-enabled: false
