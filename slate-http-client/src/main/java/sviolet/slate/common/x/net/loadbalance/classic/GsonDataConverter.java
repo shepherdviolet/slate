@@ -58,7 +58,7 @@ public class GsonDataConverter implements DataConverter {
         try {
             return gson.toJson(bean).getBytes(encode);
         } catch (Exception e) {
-            logger.error("Convert Error, type:" + bean.getClass() + ", bean:" + bean);
+            logger.warn("Gson convert Error, type:" + bean.getClass() + ", bean:" + bean);
             throw e;
         }
     }
@@ -71,8 +71,8 @@ public class GsonDataConverter implements DataConverter {
         try {
             return gson.fromJson(new String(data, encode), type);
         } catch (Exception e) {
-            logger.error("Convert Error, type:" + type + ", hex:" + ByteUtils.bytesToHex(data));
-            logger.error("Convert Error, string:" + new String(data, encode));
+            logger.warn("Gson convert Error, type:" + type + ", hex:" + ByteUtils.bytesToHex(data));
+            logger.warn("Gson convert Error, string:" + new String(data, encode));
             throw e;
         }
     }
