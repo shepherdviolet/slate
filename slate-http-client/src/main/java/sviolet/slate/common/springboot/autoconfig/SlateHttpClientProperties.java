@@ -38,6 +38,11 @@ public class SlateHttpClientProperties {
      */
     private boolean apolloSupported = false;
 
+    /**
+     * true: 开启提醒类日志(特殊情况下可以关闭), 默认true
+     */
+    private boolean noticeLogEnabled = true;
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -54,4 +59,11 @@ public class SlateHttpClientProperties {
         this.apolloSupported = apolloSupported;
     }
 
+    public boolean isNoticeLogEnabled() {
+        return noticeLogEnabled;
+    }
+
+    public void setNoticeLogEnabled(boolean noticeLogEnabled) {
+        this.noticeLogEnabled = noticeLogEnabled;
+    }
 }

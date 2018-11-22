@@ -56,7 +56,7 @@ public class HttpClientsConfig {
     public HttpClients httpClientsContainer(
             @Qualifier(SlatePropertiesForHttpClient.BEAN_NAME)
                     SlatePropertiesForHttpClient slatePropertiesForHttpClient) {
-        return new HttpClientsImpl(slatePropertiesForHttpClient.getHttpclients());
+        return new HttpClientsImpl(slatePropertiesForHttpClient);
     }
 
 }

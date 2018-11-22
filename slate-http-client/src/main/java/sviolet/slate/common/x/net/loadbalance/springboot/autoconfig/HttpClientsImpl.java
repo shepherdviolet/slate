@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import sviolet.slate.common.springboot.autoconfig.SlatePropertiesForHttpClient;
 import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
 import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
@@ -47,11 +48,8 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
     public static final String OVERRIDE_PREFIX = "slate.httpclients.";
 
     private static final Logger logger = LoggerFactory.getLogger(HttpClientsImpl.class);
-    private static final boolean NOTICE_LOG_ENABLED;
 
-    static {
-        NOTICE_LOG_ENABLED = "true".equals(System.getProperty("slate.httpclientsconf.notice", "true"));
-    }
+    private boolean noticeLogEnabled = true;
 
     private Map<String, SimpleOkHttpClient> clients = new ConcurrentHashMap<>(16);
 
@@ -59,17 +57,21 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
     private AtomicReference<OverrideSettings> newOverrideSettings = new AtomicReference<>(null);
     private ExecutorService overrideThreadPool = ThreadPoolExecutorUtils.createLazy(60, "Slate-HttpClients-override-%d");
 
-    HttpClientsImpl(Map<String, HttpClientSettings> settingsMap) {
+    HttpClientsImpl(SlatePropertiesForHttpClient slatePropertiesForHttpClient) {
 
         logger.info("HttpClients | Enabled");
 
+        if (slatePropertiesForHttpClient.getHttpclient() != null) {
+            noticeLogEnabled = slatePropertiesForHttpClient.getHttpclient().isNoticeLogEnabled();
+        }
+
         //init properties
-        if (settingsMap == null) {
-            settingsMap = new HashMap<>(0);
+        if (slatePropertiesForHttpClient.getHttpclients() == null) {
+            return;
         }
 
         //create client
-        for (Map.Entry<String, HttpClientSettings> entry : settingsMap.entrySet()) {
+        for (Map.Entry<String, HttpClientSettings> entry : slatePropertiesForHttpClient.getHttpclients().entrySet()) {
 
             String tag = entry.getKey();
 
@@ -95,7 +97,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     @Override
     public void settingsOverride(OverrideSettings overrideSettings) {
-        if (NOTICE_LOG_ENABLED && overrideSettings == null) {
+        if (overrideSettings == null && logger.isDebugEnabled() && noticeLogEnabled) {
             logger.warn("HttpClients SettingsOverride | overrideSettings is null, skip override");
             return;
         }
@@ -106,7 +108,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
     @Override
     public SimpleOkHttpClient get(String key) {
         SimpleOkHttpClient client = clients.get(key);
-        if (NOTICE_LOG_ENABLED && client == null) {
+        if (client == null && logger.isInfoEnabled() && noticeLogEnabled) {
             logger.warn("HttpClients | No HttpClient named " + key + ", return null");
         }
         return client;
@@ -152,7 +154,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
             OverrideSettings settings;
             while ((settings = newOverrideSettings.getAndSet(null)) != null) {
                 Set<String> keys = settings.getKeys();
-                if (NOTICE_LOG_ENABLED && keys == null || keys.isEmpty()) {
+                if (keys == null || keys.isEmpty() && logger.isDebugEnabled() && noticeLogEnabled) {
                     logger.warn("HttpClients SettingsOverride | overrideSettings.getKeys() return null or empty, skip override");
                     continue;
                 }
@@ -161,7 +163,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                 for (String key : keys) {
                     //Check if relevant
                     if (key == null || !key.startsWith(OVERRIDE_PREFIX) || key.length() <= OVERRIDE_PREFIX.length()) {
-                        if (NOTICE_LOG_ENABLED && logger.isTraceEnabled()) {
+                        if (logger.isTraceEnabled() && noticeLogEnabled) {
                             logger.trace("HttpClients SettingsOverride | Skip key '" + key + "', not start with " + OVERRIDE_PREFIX);
                         }
                         continue;
@@ -194,7 +196,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                             clients.put(tag, client);
                             logger.info("HttpClients SettingsOverride | " + tag + "> Create new HttpClient with default properties, because no HttpClient named " + tag + " before");
                         } catch (Exception e) {
-                            logger.debug("HttpClients SettingsOverride | Error while creating new HttpClient named " + tag + ", skip key " + key, e);
+                            logger.warn("HttpClients SettingsOverride | Error while creating new HttpClient named " + tag + ", skip key " + key, e);
                             continue;
                         }
                     }
