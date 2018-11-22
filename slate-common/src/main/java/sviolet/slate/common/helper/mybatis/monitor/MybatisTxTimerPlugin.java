@@ -26,6 +26,8 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sviolet.slate.common.x.monitor.txtimer.TxTimer;
 
 import java.util.Properties;
@@ -55,7 +57,13 @@ import java.util.Properties;
 })
 public class MybatisTxTimerPlugin implements Interceptor {
 
+    private static final Logger logger = LoggerFactory.getLogger(MybatisTxTimerPlugin.class);
+
     private String groupName;
+
+    public MybatisTxTimerPlugin() {
+        logger.info("TxTimer | MyBatis monitor enabled");
+    }
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
