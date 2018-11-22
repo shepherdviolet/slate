@@ -132,7 +132,6 @@ public class LoadBalancedInspectManager implements Closeable {
             inspectThreadPool.shutdownNow();
         } catch (Throwable ignore){
         }
-        logger.info(tag + "Closed: " + this);
     }
 
     /**
@@ -245,12 +244,11 @@ public class LoadBalancedInspectManager implements Closeable {
                     Thread.sleep(inspectInterval);
                 } catch (InterruptedException ignored) {
                 }
-                if (logger.isDebugEnabled()) {
-                    logger.debug(tag + "Dispatch: start");
+                if (logger.isInfoEnabled()) {
+                    logger.info(tag + "InspectManager Start: " + this);
                 }
                 LoadBalancedHostManager hostManager;
                 LoadBalancedHostManager.Host[] hostArray;
-                List<LoadBalanceInspector> inspectors;
                 while (!closed.get()){
                     //间隔
                     try {
@@ -262,7 +260,7 @@ public class LoadBalancedInspectManager implements Closeable {
                     //检查是否配置
                     if (hostManager == null){
                         if (logger.isDebugEnabled()) {
-                            logger.debug(tag + "Dispatch: no hostManager, skip inspect");
+                            logger.debug(tag + "InspectManager has no hostManager, skip inspect");
                         }
                         continue;
                     }
@@ -270,12 +268,12 @@ public class LoadBalancedInspectManager implements Closeable {
                     hostArray = hostManager.getHostArray();
                     if (hostArray.length <= 0){
                         if (logger.isDebugEnabled()) {
-                            logger.debug(tag + "Dispatch: hostArray is empty, skip inspect");
+                            logger.debug(tag + "InspectManager has no hosts, skip inspect");
                         }
                         continue;
                     }
                     //打印当前远端状态
-                    if (verboseLog && logger.isDebugEnabled()) {
+                    if (logger.isDebugEnabled()) {
                         logger.debug(hostManager.printHostsStatus(tag + "Hosts status (before inspect):"));
                     }
                     //探测所有远端
@@ -283,8 +281,8 @@ public class LoadBalancedInspectManager implements Closeable {
                         inspect(host);
                     }
                 }
-                if (logger.isDebugEnabled()) {
-                    logger.debug(tag + "Dispatch: closed");
+                if (logger.isInfoEnabled()) {
+                    logger.info(tag + "InspectManager Closed: " + this);
                 }
             }
         });
@@ -297,8 +295,8 @@ public class LoadBalancedInspectManager implements Closeable {
         inspectThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                if (verboseLog && logger.isDebugEnabled()) {
-                    logger.debug(tag + "Inspect: inspecting " + host.getUrl());
+                if (logger.isTraceEnabled()) {
+                    logger.trace(tag + "Inspect: inspecting " + host.getUrl());
                 }
                 //持有探测器
                 List<LoadBalanceInspector> inspectors = LoadBalancedInspectManager.this.inspectors;
@@ -322,7 +320,7 @@ public class LoadBalancedInspectManager implements Closeable {
                         }
                     } catch (Throwable t) {
                         if (logger.isErrorEnabled()){
-                            logger.error(tag + "Inspect: error, url " + host.getUrl() + ", in " + inspector.getClass(), t);
+                            logger.error(tag + "Inspect: Un-captured error, url " + host.getUrl() + ", in " + inspector.getClass(), t);
                         }
                         if (isBlockIfInspectorError()) {
                             block = true;
@@ -333,12 +331,12 @@ public class LoadBalancedInspectManager implements Closeable {
                 //阻断(无恢复期)
                 if (block){
                     host.feedback(false, blockDuration, 1);
-                    if (logger.isInfoEnabled()) {
-                        logger.info(tag + "Inspect: block " + host.getUrl() + " " + blockDuration);
+                    if (logger.isWarnEnabled()) {
+                        logger.warn(tag + "Inspect: Bad host " + host.getUrl() + " , block for " + blockDuration + " ms");
                     }
                 }
-                if (verboseLog && logger.isDebugEnabled()) {
-                    logger.debug(tag + "Inspect: inspected " + host.getUrl());
+                if (logger.isTraceEnabled()) {
+                    logger.trace(tag + "Inspect: inspected " + host.getUrl());
                 }
             }
         });

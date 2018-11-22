@@ -89,7 +89,8 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closea
                 return true;
             }
         } catch (Throwable t) {
-            if (verboseLog){
+            if (logger.isDebugEnabled()){
+                //DEBUG级别时输出WARN日志
                 logger.warn("Inspect: error, url " + url, t);
             }
         } finally {
