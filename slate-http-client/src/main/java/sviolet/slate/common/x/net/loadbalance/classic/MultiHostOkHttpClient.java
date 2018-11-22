@@ -1307,6 +1307,8 @@ public class MultiHostOkHttpClient {
                     ", mediaType='" + mediaType + '\'' +
                     ", encode='" + encode + '\'' +
                     ", verboseLog=" + verboseLog +
+                    ", verboseLogConfig=" + verboseLogConfig +
+                    ", logConfig=" + logConfig +
                     ", cookieJar=" + cookieJar +
                     ", proxy=" + proxy +
                     ", dns=" + dns +
