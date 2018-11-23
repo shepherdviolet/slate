@@ -119,33 +119,17 @@
 
 # 配合Spring容器/Apollo配置中心动态修改配置
 
-* 在工程的配置类中引入`DefaultTxTimerSpringConfig`配置类(该类无需编写, 已提供)
+* 在工程的配置类中添加注释@EnableTxTimerSpringConfig
 
 ```text
     @Configuration
-    @Import(DefaultTxTimerSpringConfig.class)
+    @EnableTxTimerSpringConfig
     public class AppConfiguration {
     }
 ```
 
-* `DefaultTxTimerSpringConfig`配置类的部分代码如下(该类无需编写, 已提供):
-* 其中使用@Value从PlaceHolder中获取参数
-* 因此只需要在properties中, 或apollo配置中心中, 配置对应参数, 即可完成阈值的修改
-
-```text
-    @Configuration
-    public class DefaultTxTimerSpringConfig {
-        @Value("${slate.txtimer.reportall.interval:}")
-        private void setReportAllInterval(String reportAllInterval){
-            if (!CheckUtils.isEmptyOrBlank(reportAllInterval)){
-                DefaultTxTimerConfig.setReportAllInterval(reportAllInterval);
-            }
-        }
-        
-        // ... 省略 ...
-        
-    }
-```
+* @EnableTxTimerSpringConfig注解实际上是引入了`DefaultTxTimerSpringConfig`配置类
+* 因此只需要在yml/properties中, 或apollo配置中心中, 配置对应参数, 即可完成阈值的修改
 
 * 支持修改的配置如下:
 
