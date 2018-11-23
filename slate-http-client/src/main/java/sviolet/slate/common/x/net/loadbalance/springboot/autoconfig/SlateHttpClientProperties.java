@@ -17,7 +17,7 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.springboot.autoconfig;
+package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
 
 /**
  * <p>slate-http-client的客户端公共配置</p>

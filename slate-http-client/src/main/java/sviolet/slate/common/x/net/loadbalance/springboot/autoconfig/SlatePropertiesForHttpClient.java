@@ -17,10 +17,9 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.springboot.autoconfig;
+package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import sviolet.slate.common.x.net.loadbalance.springboot.autoconfig.HttpClientSettings;
 
 import java.util.Map;
 

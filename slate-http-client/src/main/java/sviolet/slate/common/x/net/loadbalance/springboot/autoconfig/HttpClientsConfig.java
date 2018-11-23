@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import sviolet.slate.common.springboot.autoconfig.SlatePropertiesForHttpClient;
 import sviolet.slate.common.x.bean.mbrproc.EnableMemberProcessor;
 import sviolet.slate.common.x.net.loadbalance.springboot.autowired.HttpClientMemberProcessor;
 import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;

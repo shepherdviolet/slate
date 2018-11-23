@@ -17,14 +17,13 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.springboot.autoconfig;
+package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import sviolet.slate.common.x.net.loadbalance.springboot.apollo.HttpClientsApolloConfig;
-import sviolet.slate.common.x.net.loadbalance.springboot.autoconfig.HttpClientsConfig;
 
 /**
  * slate-http-client 自动配置 (Spring Boot)
