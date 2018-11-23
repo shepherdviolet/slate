@@ -99,7 +99,6 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
         <property name="maxReadLength" value="10485760"/><!-- 数据最大读取长度, 单位字节 -->
         <property name="dataConverter" ref="dataConverter"/><!-- 设置数据转换器 -->
         <property name="verboseLog" value="true"/><!-- 为true时会输出更多日志 -->
-        <property name="txTimerEnabled" value="true"/><!-- 启用TxTimer对请求耗时的统计(目前只支持同步方式) -->
         <!--<property name="verboseLogConfig" value="0x00000110"/> 微调输出的日志内容(详见源码)-->
         <!--<property name="httpGetInspector" ref="/health"/> 启用HTTP Get方式进行主动健康探测, URL为http://127.0.0.1:8083/health和http://127.0.0.1:8084/health, (设置+telnet+改回TELNET方式)-->
     </bean>
@@ -140,7 +139,6 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
         <property name="maxReadLength" value="10485760"/><!-- 数据最大读取长度, 单位字节 -->
         <property name="dataConverter" ref="dataConverter"/><!-- 设置数据转换器 -->
         <property name="verboseLog" value="true"/><!-- true: INFO级别可打印更多的日志(请求报文/响应码等), 默认false -->
-        <property name="txTimerEnabled" value="true"/><!-- 启用TxTimer对请求耗时的统计(目前只支持同步方式) -->
         <!--<property name="verboseLogConfig" value="0x00000110"/> 微调输出的日志内容(详见源码)-->
     </bean>
     
