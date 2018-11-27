@@ -35,38 +35,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Configuration
 public class DefaultTxTimerSpringConfig {
 
-    private static final AtomicInteger counter = new AtomicInteger(0);
-
-    private int id;
-
-    public DefaultTxTimerSpringConfig() {
-        id = counter.getAndIncrement();
-    }
-
     @Value("${slate.txtimer.reportall.interval:}")
     private void setReportAllInterval(String reportAllInterval){
-        if (id == 0 && !CheckUtils.isEmptyOrBlank(reportAllInterval)){
+        if (!CheckUtils.isEmptyOrBlank(reportAllInterval)){
             DefaultTxTimerConfig.setReportAllInterval(reportAllInterval);
         }
     }
 
     @Value("${slate.txtimer.threshold.avg:}")
     private void setThresholdAvg(String avg){
-        if (id == 0 && !CheckUtils.isEmptyOrBlank(avg)){
+        if (!CheckUtils.isEmptyOrBlank(avg)){
             DefaultTxTimerConfig.setThresholdAvg(avg);
         }
     }
 
     @Value("${slate.txtimer.threshold.max:}")
     private void setThresholdMax(String max){
-        if (id == 0 && !CheckUtils.isEmptyOrBlank(max)){
+        if (!CheckUtils.isEmptyOrBlank(max)){
             DefaultTxTimerConfig.setThresholdMax(max);
         }
     }
 
     @Value("${slate.txtimer.threshold.min:}")
     private void setThresholdMin(String min){
-        if (id == 0 && !CheckUtils.isEmptyOrBlank(min)){
+        if (!CheckUtils.isEmptyOrBlank(min)){
             DefaultTxTimerConfig.setThresholdMin(min);
         }
     }
