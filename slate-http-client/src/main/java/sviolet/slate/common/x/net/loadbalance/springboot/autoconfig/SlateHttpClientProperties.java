@@ -39,6 +39,11 @@ public class SlateHttpClientProperties {
     private boolean apolloSupported = false;
 
     /**
+     * 设置Apollo配置的Namespace, 多个用逗号分隔, 默认为空(默认监听应用默认私有配置application). 如非必要, 请勿配置该参数.
+     */
+    private String apolloNamespace;
+
+    /**
      * true: 开启提醒类日志(特殊情况下可以关闭), 默认true
      */
     private boolean noticeLogEnabled = true;
@@ -57,6 +62,14 @@ public class SlateHttpClientProperties {
 
     public void setApolloSupported(boolean apolloSupported) {
         this.apolloSupported = apolloSupported;
+    }
+
+    public String getApolloNamespace() {
+        return apolloNamespace;
+    }
+
+    public void setApolloNamespace(String apolloNamespace) {
+        this.apolloNamespace = apolloNamespace;
     }
 
     public boolean isNoticeLogEnabled() {

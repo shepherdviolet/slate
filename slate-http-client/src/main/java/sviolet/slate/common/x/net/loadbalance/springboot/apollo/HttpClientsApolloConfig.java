@@ -33,13 +33,17 @@ import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
 
 /**
  * <p>HttpClients阿波罗动态配置: 支持在Apollo配置中心上动态调整客户端配置</p>
- * <p>配置前缀: slate.httpclients</p>
+ * <p>配置前缀: slate.httpclient</p>
  *
  * @author S.Violet
  */
 @Configuration
-@ConditionalOnExpression("${slate.httpclient.enabled:false} && ${slate.httpclient.apollo-support:false}")
-@ConditionalOnClass(com.ctrip.framework.apollo.Config.class)
+@ConditionalOnExpression("${slate.httpclient.enabled:false} " +
+        "&& ${slate.httpclient.apollo-support:false} " +
+        "&& ( '${slate.httpclient.apollo-namespace:<null/>}'.equals(\"<null/>\") " +
+        "|| '${slate.httpclient.apollo-namespace:<null/>}'.equals(\"application\") " +
+        "|| '${slate.httpclient.apollo-namespace:<null/>}'.length() == 0 )")
+@ConditionalOnClass(Config.class)
 public class HttpClientsApolloConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpClientsApolloConfig.class);
@@ -51,6 +55,7 @@ public class HttpClientsApolloConfig {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public HttpClientsApolloConfig(HttpClients httpClients) {
         this.httpClients = httpClients;
+        logger.info("HttpClients Apollo | Default namespace mode");
         logger.info("HttpClients Apollo | Listening client config changes from apollo, namespace: application");
     }
 

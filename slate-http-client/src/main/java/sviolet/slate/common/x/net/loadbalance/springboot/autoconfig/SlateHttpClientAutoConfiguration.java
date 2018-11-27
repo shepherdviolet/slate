@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import sviolet.slate.common.x.net.loadbalance.springboot.apollo.HttpClientsApolloConfig;
+import sviolet.slate.common.x.net.loadbalance.springboot.apollo.HttpClientsApolloConfigWithNamespace;
 
 /**
  * slate-http-client 自动配置 (Spring Boot)
@@ -34,7 +35,8 @@ import sviolet.slate.common.x.net.loadbalance.springboot.apollo.HttpClientsApoll
 @EnableConfigurationProperties
 @Import({
         HttpClientsConfig.class,
-        HttpClientsApolloConfig.class
+        HttpClientsApolloConfig.class,
+        HttpClientsApolloConfigWithNamespace.class
 })
 public class SlateHttpClientAutoConfiguration {
 

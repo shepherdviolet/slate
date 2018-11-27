@@ -129,6 +129,8 @@ slate:
     enabled: true
     # 使用Apollo配置中心动态调整配置 (可选, 修改该配置需重启, 源码见HttpClientsApolloConfig)
     apollo-support: true
+    # 设置Apollo配置的Namespace, 多个用逗号分隔, 默认为空(默认监听应用默认私有配置application). 如非必要, 请勿配置该参数.
+    apollo-namespace: application
   httpclients:
     client1:
       # 后端列表
@@ -310,6 +312,7 @@ public class BootApplication {
 ```yaml
 slate:
   httpclient:
+    enabled: true
     apollo-support: true
 ```
 
@@ -335,40 +338,15 @@ slate:
 > 如果`客户端标识`是新增的, 应用端会实时创建一个新的HttpClient实例<br>
 > 在日志中搜索`HttpClients`关键字可以观察到配置实时调整的情况<br>
 
-* (可选) 如果想要配置在`公共配置或非默认配置(namespace!=application)`中, 请添加如下配置类, 监听指定的namespace
+* (可选) 如果想要配置在`公共配置或非默认配置(namespace!=application)`中, 请在application.yml/application-profile.yml中增加配置
+* 多个namespace用逗号分隔, 默认为application
 
-```text
-import com.ctrip.framework.apollo.Config;
-import com.ctrip.framework.apollo.model.ConfigChangeEvent;
-import com.ctrip.framework.apollo.spring.annotation.ApolloConfig;
-import com.ctrip.framework.apollo.spring.annotation.ApolloConfigChangeListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
-import sviolet.slate.common.x.net.loadbalance.springboot.apollo.HttpClientsApolloOverrideSettings;
-
-@Configuration
-public class HttpClientsApolloConfig {
-
-    private HttpClients httpClients;
-
-    //构造注入确保第一时间获得实例
-    @Autowired
-    public HttpClientsApolloConfig(HttpClients httpClients) {
-        this.httpClients = httpClients;
-    }
-
-    //获得Apollo配置实例, 注意配置正确的namespace, 这里以it.common为例
-    @ApolloConfig("it.common")
-    private Config config;
-
-    //监听Apollo配置变化, 注意配置正确的namespace, 这里以it.common为例
-    @ApolloConfigChangeListener("it.common")
-    public void onApolloConfigChanged(ConfigChangeEvent configChangeEvent){
-        //实时调整HttpClient配置
-        httpClients.settingsOverride(new HttpClientsApolloOverrideSettings(config));
-    }
-
-}
+```yaml
+slate:
+  httpclient:
+    enabled: true
+    apollo-support: true
+    apollo-namespace: application,yournamespace
 ```
 
 <br>
