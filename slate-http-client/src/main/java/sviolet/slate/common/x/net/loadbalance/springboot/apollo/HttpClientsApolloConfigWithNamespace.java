@@ -65,12 +65,7 @@ public class HttpClientsApolloConfigWithNamespace {
                 continue;
             }
             final Config config = ConfigService.getConfig(namespace);
-            if (config == null || config.getSourceType() == ConfigSourceType.NONE) {
-                logger.error("HttpClients Apollo | Namespace '" + namespace + "' not found !!! Listening failure !!!");
-                continue;
-            }
-            if (config.getSourceType() == ConfigSourceType.LOCAL) {
-                logger.error("HttpClients Apollo | Namespace '" + namespace + "' in local cache only !!! Listening failure !!!");
+            if (checkConfig(namespace, config)) {
                 continue;
             }
             config.addChangeListener(new ConfigChangeListener() {
@@ -81,6 +76,27 @@ public class HttpClientsApolloConfigWithNamespace {
             });
             logger.info("HttpClients Apollo | Listening client config changes from apollo, namespace: " + namespace);
         }
+    }
+
+    private boolean checkConfig(String namespace, Config config) {
+
+        //兼容老版本没有getSourceType方法
+        try {
+            Config.class.getMethod("getSourceType");
+        } catch (Exception e) {
+            return false;
+        }
+
+        if (config == null || config.getSourceType() == ConfigSourceType.NONE) {
+            logger.error("HttpClients Apollo | Namespace '" + namespace + "' not found !!! Listening failure !!!");
+            return true;
+        }
+        if (config.getSourceType() == ConfigSourceType.LOCAL) {
+            logger.error("HttpClients Apollo | Namespace '" + namespace + "' in local cache only !!! Listening failure !!!");
+            return true;
+        }
+
+        return false;
     }
 
 }
