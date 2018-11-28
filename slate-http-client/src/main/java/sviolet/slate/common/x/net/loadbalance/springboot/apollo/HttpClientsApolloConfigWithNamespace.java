@@ -64,6 +64,7 @@ public class HttpClientsApolloConfigWithNamespace {
             if (CheckUtils.isEmptyOrBlank(namespace)) {
                 continue;
             }
+            namespace = namespace.trim();
             final Config config = ConfigService.getConfig(namespace);
             //检查配置是否获取到
             if (checkConfig(namespace, config)) {
