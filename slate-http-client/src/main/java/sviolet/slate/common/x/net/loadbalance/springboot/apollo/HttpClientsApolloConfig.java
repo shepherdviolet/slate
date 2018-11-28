@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.spring.annotation.ApolloConfig;
 import com.ctrip.framework.apollo.spring.annotation.ApolloConfigChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -44,7 +45,7 @@ import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
         "|| '${slate.httpclient.apollo-namespace:<null/>}'.equals(\"application\") " +
         "|| '${slate.httpclient.apollo-namespace:<null/>}'.length() == 0 )")
 @ConditionalOnClass(Config.class)
-public class HttpClientsApolloConfig {
+public class HttpClientsApolloConfig implements InitializingBean {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpClientsApolloConfig.class);
 
@@ -66,6 +67,16 @@ public class HttpClientsApolloConfig {
     //监听Apollo配置变化
     @ApolloConfigChangeListener
     public void onApolloConfigChanged(ConfigChangeEvent configChangeEvent){
+        refreshSettings();
+    }
+
+    //启动时先更新一次配置
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        refreshSettings();
+    }
+
+    private void refreshSettings(){
         //实时调整HttpClient配置
         httpClients.settingsOverride(new HttpClientsApolloOverrideSettings(config));
     }

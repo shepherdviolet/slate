@@ -65,15 +65,19 @@ public class HttpClientsApolloConfigWithNamespace {
                 continue;
             }
             final Config config = ConfigService.getConfig(namespace);
+            //检查配置是否获取到
             if (checkConfig(namespace, config)) {
                 continue;
             }
+            //监听配置变化
             config.addChangeListener(new ConfigChangeListener() {
                 @Override
                 public void onChange(ConfigChangeEvent changeEvent) {
                     HttpClientsApolloConfigWithNamespace.this.httpClients.settingsOverride(new HttpClientsApolloOverrideSettings(config));
                 }
             });
+            //启动时先更新一次配置
+            HttpClientsApolloConfigWithNamespace.this.httpClients.settingsOverride(new HttpClientsApolloOverrideSettings(config));
             logger.info("HttpClients Apollo | Listening client config changes from apollo, namespace: " + namespace);
         }
     }
