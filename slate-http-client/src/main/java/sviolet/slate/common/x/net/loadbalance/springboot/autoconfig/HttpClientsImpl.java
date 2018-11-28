@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * SimpleOkHttpClient集合
@@ -52,8 +52,8 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     private Map<String, SimpleOkHttpClient> clients = new ConcurrentHashMap<>(16);
 
-    private OverrideSettings previousOverrideSettings = new MapBasedOverrideSettings(new HashMap<String, String>(0));
-    private AtomicReference<OverrideSettings> newOverrideSettings = new AtomicReference<>(null);
+    private Map<String, String> previousSettingMap = new HashMap<>(16);
+    private LinkedBlockingQueue<OverrideSettings> overrideSettingQueue = new LinkedBlockingQueue<>();
     private ExecutorService overrideThreadPool = ThreadPoolExecutorUtils.createLazy(60, "Slate-HttpClients-override-%d");
 
     HttpClientsImpl(SlatePropertiesForHttpClient slatePropertiesForHttpClient) {
@@ -96,11 +96,13 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     @Override
     public void settingsOverride(OverrideSettings overrideSettings) {
-        if (overrideSettings == null && logger.isDebugEnabled() && noticeLogEnabled) {
-            logger.warn("HttpClients SettingsOverride | overrideSettings is null, skip override");
+        if (overrideSettings == null) {
+            if (logger.isDebugEnabled() && noticeLogEnabled) {
+                logger.warn("HttpClients SettingsOverride | overrideSettings is null, skip override");
+            }
             return;
         }
-        newOverrideSettings.set(overrideSettings);
+        overrideSettingQueue.offer(overrideSettings);
         overrideThreadPool.execute(overrideTask);
     }
 
@@ -151,14 +153,15 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
         @Override
         public void run() {
             OverrideSettings settings;
-            while ((settings = newOverrideSettings.getAndSet(null)) != null) {
+            while ((settings = overrideSettingQueue.poll()) != null) {
                 Set<String> keys = settings.getKeys();
-                if (keys == null || keys.isEmpty() && logger.isDebugEnabled() && noticeLogEnabled) {
-                    logger.warn("HttpClients SettingsOverride | overrideSettings.getKeys() return null or empty, skip override");
+                if (keys == null || keys.isEmpty()) {
+                    if (logger.isDebugEnabled() && noticeLogEnabled) {
+                        logger.warn("HttpClients SettingsOverride | overrideSettings.getKeys() return null or empty, skip override");
+                    }
                     continue;
                 }
                 Set<SimpleOkHttpClient> changedClients = new HashSet<>();
-                Map<String, String> relatedSettings = new HashMap<>();
                 for (String key : keys) {
                     //Check if relevant
                     if (key == null || !key.startsWith(OVERRIDE_PREFIX) || key.length() <= OVERRIDE_PREFIX.length()) {
@@ -170,10 +173,10 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
                     //Get value
                     String value = settings.getValue(key);
-                    String previousValue = previousOverrideSettings.getValue(key);
+                    String previousValue = previousSettingMap.get(key);
 
-                    //Record setting, we should take a copy of OverrideSettings, prevent data changes
-                    relatedSettings.put(key, value);
+                    //Record setting
+                    previousSettingMap.put(key, value);
 
                     //Get tag and property key
                     int tagEnd = key.indexOf('.', OVERRIDE_PREFIX.length());
@@ -183,6 +186,18 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                     }
                     String tag = key.substring(OVERRIDE_PREFIX.length(), tagEnd);
                     String property = key.substring(tagEnd + 1, key.length());
+
+                    //Check if changed
+                    if (value == null) {
+                        logger.warn("HttpClients SettingsOverride | The new value of '" + key + "' is null, " + property + " of " + tag + " stay the same");
+                        continue;
+                    }
+                    if (value.equals(previousValue)) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("HttpClients SettingsOverride | The new value of '" + key + "' is the same as the old value, " + property + " of " + tag + " stay the same");
+                        }
+                        continue;
+                    }
 
                     //Get client
                     SimpleOkHttpClient client = clients.get(tag);
@@ -200,18 +215,6 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                         }
                     }
 
-                    //Check if changed
-                    if (value == null) {
-                        logger.warn("HttpClients SettingsOverride | The new value of '" + key + "' is null, " + property + " of " + tag + " stay the same");
-                        continue;
-                    }
-                    if (value.equals(previousValue)) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("HttpClients SettingsOverride | The new value of '" + key + "' is the same as the old value, " + property + " of " + tag + " stay the same");
-                        }
-                        continue;
-                    }
-
                     //Change setting
                     HttpClientCreator.settingsOverride(client, tag, property, value);
 
@@ -226,8 +229,6 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                     }
                 }
 
-                //Set previous, we should take a copy of OverrideSettings, prevent data changes
-                previousOverrideSettings = new MapBasedOverrideSettings(relatedSettings);
             }
         }
     };
