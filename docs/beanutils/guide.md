@@ -106,7 +106,7 @@
 
 # Glaciion SPI扩展点1: 类型转换
 
-* 使用扩展点之前, 请先阅读https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
+* 以下示例均为精简案例, 更多高级用法详见文档:https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
 
 ## 完全自定义实现类型转换逻辑(不推荐)
 
@@ -121,78 +121,60 @@
 
 ### 默认提供的转换器
 
-* 默认提供的类型转换器优先级为1, 默认`启用`无需声明
-* 其声明在slate-common包的`META-INF/thistle-spi/plugin.properties`中, 节选部分内容:
+* 默认提供的类型转换器已经`启用`无需声明
+* 它们声明在slate-common包的`META-INF/glaciion/services/multiple/sviolet.slate.common.x.conversion.beanutil.PropMapper`中, 节选部分内容:
 
 ```text
-# SlateBeanUtils: bean property mappers: safe num
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperAllNumber2String
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperAllNumber2BigDecimal
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperAllInteger2BigInteger
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Double
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Float
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Long
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Integer
-......
-
-# SlateBeanUtils: bean property mappers: safe date
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2String(yyyy-MM-dd HH:mm:ss.SSS)
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2SqlDate
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2SqlTimestamp
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2UtilDate
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2SqlDate
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2SqlTimestamp
-sviolet.slate.common.x.conversion.beanutil.PropMapper>1=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2UtilDate
++sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperAllNumber2String
++sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperAllNumber2BigDecimal
++sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperAllInteger2BigInteger
++sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Double
++sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Float
++sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Long
++sviolet.slate.common.x.conversion.beanutil.safe.num.SBUMapperLowlevelNum2Integer
++sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2String
++sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2SqlDate
++sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2SqlTimestamp
++sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2UtilDate
++sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2SqlDate
++sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2SqlTimestamp
++sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperString2UtilDate
 ......
 ```
-
-* 优先级数字越小, 优先级越高. 遇到冲突时, 高优先级的插件生效.
-* 如果自定义实现的类型转换器需要覆盖默认实现, 优先级请小于等于0
-* 同一个配置文件中, 优先级允许重复(thistle 11.5+)
 
 ### 调整日期格式(Date->String)
 
 * Date转String默认格式为`yyyy-MM-dd HH:mm:ss.SSS`, 示例中改为`yyyy-MM-dd HH:mm:ss`
-* 创建文件`META-INF/thistle-spi/plugin.properties`
+* 创建文件`META-INF/glaciion/properties/sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2String`
 * 编辑文件:
 
 ```text
-sviolet.slate.common.x.conversion.beanutil.PropMapper>0=sviolet.slate.common.x.conversion.beanutil.safe.date.SBUMapperAllDate2String(yyyy-MM-dd HH:mm:ss)
+#如果有其他工程也创建了该配置文件, 则新增一个@priority参数, 使得@priority比其他工程的数值更大
+#priority=1
+dateFormat=yyyy-MM-dd HH:mm:ss
 ```
-
-* 注意优先级(示例中为`0`)要比1小(用来覆盖默认实现)
 
 ### 增加类型转换器
 
 * 实现PropMapper接口
-* 以默认转换器SBUMapperAllNumber2String为例
 
 ```text
-public class SBUMapperAllNumber2String implements PropMapper {
+package template.conversion.beanutil.num;
+
+public class SBUMapperXxx2Xxx implements PropMapper {
 
     /**
      * 声明该转换器用于将如下类型转换成别的类型
      */
     private static final Class[] FROM = new Class[]{
-            short.class,
-            Short.class,
-            int.class,
-            Integer.class,
-            long.class,
-            Long.class,
-            float.class,
-            Float.class,
-            double.class,
-            Double.class,
-            BigInteger.class,
-            BigDecimal.class,
+            From.class
     };
 
     /**
      * 声明该转换器用于将FROM指定的类型转换成如下类型
      */
     private static final Class[] TO = new Class[]{
-            String.class,
+            To.class,
     };
 
     @Override
@@ -226,22 +208,22 @@ public class SBUMapperAllNumber2String implements PropMapper {
 ```
 
 * 声明插件
-* 创建文件`META-INF/thistle-spi/plugin.properties`
+* 创建文件`META-INF/glaciion/services/multiple/sviolet.slate.common.x.conversion.beanutil.PropMapper`
 * 编辑文件:
 
 ```text
-sviolet.slate.common.x.conversion.beanutil.PropMapper>0=template.conversion.beanutil.num.SBUMapperXxx2Xxx
++template.conversion.beanutil.num.SBUMapperXxx2Xxx
 ```
 
-* 上述示例新增了一个类型转换器, 优先级1001, 若与默认转换器冲突, 该自定义转换器生效
+* 上述示例添加了一个类型转换器`template.conversion.beanutil.num.SBUMapperXxx2Xxx`
 
 ### 删除类型转换器
 
-* 创建文件`META-INF/thistle-spi/plugin-ignore.properties`
+* 创建文件`META-INF/glaciion/services/multiple/sviolet.slate.common.x.conversion.beanutil.PropMapper`
 * 编辑文件:
 
 ```text
-sviolet.slate.common.x.conversion.beanutil.PropMapper=template.conversion.beanutil.num.SBUMapperXxx2Xxx
+-template.conversion.beanutil.num.SBUMapperXxx2Xxx
 ```
 
 * 上述示例将实现类为`template.conversion.beanutil.num.SBUMapperXxx2Xxx`的类型转换器排除
@@ -254,14 +236,18 @@ sviolet.slate.common.x.conversion.beanutil.PropMapper=template.conversion.beanut
 
 #### 方法2
 
-* 创建文件`META-INF/thistle-spi/service.properties`
+* 创建文件`META-INF/glaciion/properties/sviolet.slate.common.x.conversion.beanutil.DefaultBeanConverter`
 * 编辑文件:
 
 ```text
-sviolet.slate.common.x.conversion.beanutil.BeanConverter>yourapp>application=sviolet.slate.common.x.conversion.beanutil.DefaultBeanConverter(logDisabled)
+#如果有其他工程也创建了该配置文件, 则新增一个@priority参数, 使得@priority比其他工程的数值更大
+#priority=1
+logEnabled=false
 ```
 
-* 其中ID`yourapp`和优先级`application`的设置请参考https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
+#### 方法3
+
+* 添加启动参数`-Dslate.beanutils.log=false`
 
 <br>
 <br>
@@ -269,7 +255,7 @@ sviolet.slate.common.x.conversion.beanutil.BeanConverter>yourapp>application=svi
 
 # Glaciion SPI扩展点2: 不可分割类型判断
 
-* 使用扩展点之前, 请先阅读https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
+* 以下示例均为精简案例, 更多高级用法详见文档:https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
 
 ## 完全自定义实现不可分割类型判断器(不推荐)
 
@@ -279,30 +265,17 @@ sviolet.slate.common.x.conversion.beanutil.BeanConverter>yourapp>application=svi
 
 ## 修改默认的不可分割类型
 
-* 创建定义文件`META-INF/thistle-spi/service.properties`, 并编辑
-  
-```text
-sviolet.slate.common.x.conversion.beanutil.IndivisibleJudge>yourapp>application=sviolet.slate.common.x.conversion.beanutil.DefaultIndivisibleJudge(beanutil.properties)
-```
-
-* 其中ID`yourapp`和优先级`application`的设置请参考https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
-* 在定义文件所在路径`META-INF/thistle-spi/`下创建目录`parameter/`, 然后在目录中创建配置文件`beanutil.properties`
-* 编辑配置文件: 
+* 创建文件`META-INF/glaciion/properties/sviolet.slate.common.x.conversion.beanutil.DefaultIndivisibleJudge`, 并编辑
+* 编辑文件: 
 
 ```text
-sample.beanutil.BeanA=equals
-sample.beanutil.BeanB=isAssignableFrom
+#如果有其他工程也创建了该配置文件, 则新增一个@priority参数, 使得@priority比其他工程的数值更大
+#priority=1
+types=sample.BeanA,sample.BeanB
+typeGroups=sample.BeanC,sample.BeanD
 ```
 
-* 这样就设置了BeanA(不包含子类)和BeanB(包含子类)为不可分割类型
-* 最终目录结构如下: 
-
-```text
-    myproject/module1/src/main/resources/META-INF/thistle-spi/service.properties
-    myproject/module1/src/main/resources/META-INF/thistle-spi/parameter/beanutil.properties
-```
-
-* 注意, 这样设置会覆盖原有配置(如果其他开源库框架库也用相同方法设置了), 需要将原有的配置复制过来配置到生效的配置文件中
+* 这样就设置了BeanA/BeanB(不包含子类)和BeanC/BeanD(包含子类)为不可分割类型
 
 <br>
 <br>
