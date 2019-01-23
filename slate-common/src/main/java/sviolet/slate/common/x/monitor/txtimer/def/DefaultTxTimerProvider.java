@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * <p>默认实现了交易耗时的统计, 并通过日志定时输出报告. 可以使用ThistleSpi替换实现.</p>
+ * <p>默认实现了交易耗时的统计, 并通过日志定时输出报告. 可以使用Glaciion SPI替换实现.</p>
  *
  * @author S.Violet
  */

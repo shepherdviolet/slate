@@ -30,7 +30,7 @@ import java.util.Map;
  *
  * <p>实现:判断一个元素是否不可分割, 用于beanOrMapToMapRecursively</p>
  *
- * <p>使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md</p>
+ * <p>使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md</p>
  *
  * @see SlateBeanUtils
  * @author S.Violet

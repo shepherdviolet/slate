@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>简单的交易耗时统计, 提供默认实现, 也可以用ThistleSpi扩展</p>
+ * <p>简单的交易耗时统计, 提供默认实现, 也可以用Glaciion SPI扩展</p>
  *
  * <p>日志前缀:TxTimer</p>
  *
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  *     1.默认实现了交易耗时的统计, 并通过日志定时输出报告. <br>
- *     2.可以使用ThistleSpi替换实现, 替换实现后下面的参数无效. <br>
+ *     2.可以使用Glaciion SPI替换实现, 替换实现后下面的参数无效. <br>
  * </p>
  *
  * <p>默认实现的启动参数(不可动态修改):<br>

@@ -53,10 +53,10 @@ public class DefaultBeanConverter implements BeanConverter, InitializableImpleme
         List<PropMapper> propMapperList = Glaciion.loadMultipleService(PropMapper.class).getAll();
         for (PropMapper mapper : propMapperList) {
             if (mapper.fromType() == null || mapper.fromType().length <= 0) {
-                throw new RuntimeException("Invalid PropMapper " + mapper.getClass().getName() + ", fromType method return null or empty, you can ignore this plugin by ThistleSpi");
+                throw new RuntimeException("Invalid PropMapper " + mapper.getClass().getName() + ", fromType method return null or empty, you can ignore this plugin by Glaciion SPI");
             }
             if (mapper.toType() == null || mapper.toType().length <= 0) {
-                throw new RuntimeException("Invalid PropMapper " + mapper.getClass().getName() + ", toType method return null or empty, you can ignore this plugin by ThistleSpi");
+                throw new RuntimeException("Invalid PropMapper " + mapper.getClass().getName() + ", toType method return null or empty, you can ignore this plugin by Glaciion SPI");
             }
             for (Class<?> fromType : mapper.fromType()) {
                 for (Class<?> toType : mapper.toType()) {

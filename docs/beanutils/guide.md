@@ -23,7 +23,7 @@
 
 * 浅复制, 只复制Bean和Map的第一层参数
 * 参数类型不匹配时一般不会抛出异常, 会跳过不匹配的参数(参数留空)
-* 内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展
+* 内置类型转换器, 当类型不匹配时会尝试转换, 可使用Glaciion SPI扩展
 * throws MappingRuntimeException 异常概率:低, 触发原因: 拷贝器创建失败 / 拷贝过程出错, 可使用getFromType/getToType/getFieldName方法获得出问题的类型和参数名
 * throws ObjenesisException 异常概率:低, 触发原因: 目标Bean实例化失败
 
@@ -60,7 +60,7 @@
 
 * 浅复制, 只复制Bean和Map的第一层参数
 * 当Map中字段类型与Bean参数类型不匹配时会抛出异常(若设置throwExceptionIfFails为false, 则不会抛出异常, 失败的参数留空)
-* 内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展
+* 内置类型转换器, 当类型不匹配时会尝试转换, 可使用Glaciion SPI扩展
 * `convert` true: 尝试转换参数类型使之符合要求, false: 不转换参数类型
 * `throwExceptionIfFails` true: 如果参数的类型不匹配或转换失败, 则抛出异常, false: 如果参数的类型不匹配或转换失败, 不会抛出异常, 失败的参数留空
 * throws MappingRuntimeException 异常概率:高, 触发原因: Map中字段类型与Bean参数类型不匹配(当throwExceptionIfFails=true) / 给目的Bean赋值时出错(当throwExceptionIfFails=true) / Bean映射器创建失败(无论throwExceptionIfFails为何值, 均抛异常)
@@ -104,9 +104,9 @@
 <br>
 <br>
 
-# ThistleSpi扩展点1: 类型转换
+# Glaciion SPI扩展点1: 类型转换
 
-* 使用扩展点之前, 请先阅读[服务加载指南](https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/service-loading.md)
+* 使用扩展点之前, 请先阅读https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
 
 ## 完全自定义实现类型转换逻辑(不推荐)
 
@@ -261,15 +261,15 @@ sviolet.slate.common.x.conversion.beanutil.PropMapper=template.conversion.beanut
 sviolet.slate.common.x.conversion.beanutil.BeanConverter>yourapp>application=sviolet.slate.common.x.conversion.beanutil.DefaultBeanConverter(logDisabled)
 ```
 
-* 其中ID`yourapp`和优先级`application`的设置请参考[服务加载指南](https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/service-loading.md)
+* 其中ID`yourapp`和优先级`application`的设置请参考https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
 
 <br>
 <br>
 <br>
 
-# ThistleSpi扩展点2: 不可分割类型判断
+# Glaciion SPI扩展点2: 不可分割类型判断
 
-* 使用扩展点之前, 请先阅读[服务加载指南](https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/service-loading.md)
+* 使用扩展点之前, 请先阅读https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
 
 ## 完全自定义实现不可分割类型判断器(不推荐)
 
@@ -285,7 +285,7 @@ sviolet.slate.common.x.conversion.beanutil.BeanConverter>yourapp>application=svi
 sviolet.slate.common.x.conversion.beanutil.IndivisibleJudge>yourapp>application=sviolet.slate.common.x.conversion.beanutil.DefaultIndivisibleJudge(beanutil.properties)
 ```
 
-* 其中ID`yourapp`和优先级`application`的设置请参考[服务加载指南](https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/service-loading.md)
+* 其中ID`yourapp`和优先级`application`的设置请参考https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
 * 在定义文件所在路径`META-INF/thistle-spi/`下创建目录`parameter/`, 然后在目录中创建配置文件`beanutil.properties`
 * 编辑配置文件: 
 

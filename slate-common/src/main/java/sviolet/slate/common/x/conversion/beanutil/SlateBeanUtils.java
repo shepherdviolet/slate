@@ -57,7 +57,7 @@ public class SlateBeanUtils {
      * <p>浅克隆, 只拷贝第一层参数</p>
      * <p>Bean参数拷贝, Bean -> Bean</p>
      * <p>参数类型不匹配时一般不会抛出异常, 会跳过不匹配的参数(参数留空)</p>
-     * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展</p>
+     * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用Glaciion SPI扩展</p>
      * @param from 从这个Bean复制(必须是个Bean, 无法复制Map/List对象)
      * @param to 复制到这个Bean(必须是个Bean, 无法复制Map/List对象)
      * @throws MappingRuntimeException 异常概率:低, 触发原因: 拷贝器创建失败 / 拷贝过程出错
@@ -86,7 +86,7 @@ public class SlateBeanUtils {
      * <p>浅克隆, 只拷贝第一层参数</p>
      * <p>Bean参数拷贝, Bean -> Bean</p>
      * <p>参数类型不匹配时一般不会抛出异常, 会跳过不匹配的参数(参数留空)</p>
-     * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展</p>
+     * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用Glaciion SPI扩展</p>
      * @param from 从这个Bean复制(必须是个Bean, 无法复制Map/List对象)
      * @param toType 目的Bean类型(必须是个Bean, 无法复制Map/List对象)
      * @throws MappingRuntimeException 异常概率:低, 触发原因: 拷贝器创建失败 / 拷贝过程出错
@@ -146,7 +146,7 @@ public class SlateBeanUtils {
      * <p>浅克隆, 只拷贝第一层参数</p>
      * <p>Map转Bean</p>
      * <p>当Map中字段类型与Bean参数类型不匹配时会抛出异常(若设置throwExceptionIfFails为false, 则不会抛出异常, 失败的参数留空)</p>
-     * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展</p>
+     * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用Glaciion SPI扩展</p>
      * @param fromMap 从这个Map取值
      * @param toBean 复制到这个Bean(必须是个Bean, 无法复制Map/List对象)
      * @param convert true: 尝试转换参数类型使之符合要求, false: 不转换参数类型
@@ -181,7 +181,7 @@ public class SlateBeanUtils {
      * <p>浅克隆, 只拷贝第一层参数</p>
      * <p>Map转Bean</p>
      * <p>当Map中字段类型与Bean参数类型不匹配时会抛出异常(若设置throwExceptionIfFails为false, 则不会抛出异常, 失败的参数留空)</p>
-     * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用ThistleSpi扩展</p>
+     * <p>内置类型转换器, 当类型不匹配时会尝试转换, 可使用Glaciion SPI扩展</p>
      * @param fromMap 从这个Map取值
      * @param toType 目的Bean类型(必须是个Bean, 无法复制Map/List对象)
      * @param convert true: 尝试转换参数类型使之符合要求, false: 不转换参数类型

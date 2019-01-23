@@ -27,7 +27,7 @@ import org.slf4j.Logger;
  *
  * <p>实现:声明自身能处理什么类型的数据, 实现对应的类型转换逻辑</p>
  *
- * <p>使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md</p>
+ * <p>使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md</p>
  *
  * @see DefaultBeanConverter
  * @see SlateBeanUtils

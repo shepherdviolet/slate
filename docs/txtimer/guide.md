@@ -1,6 +1,6 @@
 # TxTimer 简单的交易耗时统计
 
-* TxTimer支持`ThistleSpi`扩展, 并提供一个缺省的实现
+* TxTimer支持`Glaciion`SPI扩展, 并提供一个缺省的实现
 * `缺省实现`实现了交易耗时的统计, 并通过日志定时输出报告
 * 本文档讲述`缺省实现`的用法, 除了`全局禁用`方法以外, 其他的配置均只对`缺省实现`有效
 * `Maven/Gradle依赖配置`在本文最后
@@ -138,17 +138,17 @@
 > slate.txtimer.threshold.min=1000 打印周期内最小耗时超过该值的交易, 单位:毫秒<br>
 > slate.txtimer.reportall.interval=60 全量日志报告输出间隔(周期), 单位:分钟, 2-∞, 默认∞(不输出全量日志)<br>
 
-# ThistleSpi扩展点
+# Glaciion SPI扩展点
 
 ## 自定义实现统计和报告逻辑
 
 * 扩展点接口:sviolet.slate.common.x.monitor.txtimer.TxTimerProvider
-* 使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md
+* 使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
 
 ## 修改默认实现的配置
 
 * 默认实现:sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider
-* 可以重新定义默认实现的配置, 具体请阅读文档: https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md
+* 可以重新定义默认实现的配置, 具体请阅读文档: https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
 
 <br>
 <br>

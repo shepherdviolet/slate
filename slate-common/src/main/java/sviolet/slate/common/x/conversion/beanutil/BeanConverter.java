@@ -28,7 +28,7 @@ import com.github.shepherdviolet.glaciion.api.annotation.SingleServiceInterface;
  *
  * <p>实现:将参数的类型转换为指定类型, 用于mapToMap / mapToBean / mapBeanization</p>
  *
- * <p>使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md</p>
+ * <p>使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md</p>
  *
  * @see SlateBeanUtils
  * @author S.Violet
