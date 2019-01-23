@@ -19,6 +19,7 @@
 
 package sviolet.slate.common.x.conversion.beanutil;
 
+import com.github.shepherdviolet.glaciion.api.annotation.MultipleServiceInterface;
 import org.slf4j.Logger;
 
 /**
@@ -32,6 +33,7 @@ import org.slf4j.Logger;
  * @see SlateBeanUtils
  * @author S.Violet
  */
+@MultipleServiceInterface
 public interface PropMapper {
 
     /**

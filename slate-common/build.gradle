@@ -2,7 +2,7 @@
 dependencies {
     //required
     compile "com.github.shepherdviolet:thistle-common:$version_thistle"
-    compile "com.github.shepherdviolet:thistle-with-slf4j:$version_thistle"
+    compile "com.github.shepherdviolet:glaciion-core:$version_glaciion"
     compile "org.springframework:spring-context:$version_spring"
 
     //compile only

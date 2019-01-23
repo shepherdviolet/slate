@@ -19,12 +19,16 @@
 
 package sviolet.slate.common.x.conversion.beanutil;
 
+import com.github.shepherdviolet.glaciion.api.annotation.PropertyInject;
 import sviolet.thistle.util.conversion.PrimitiveUtils;
-import sviolet.thistle.x.common.thistlespi.ThistleSpi;
+import sviolet.thistle.util.conversion.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 默认的不可分割类型判断器
@@ -33,27 +37,28 @@ import java.util.*;
  */
 public class DefaultIndivisibleJudge implements IndivisibleJudge {
 
-    private Map<Class<?>, JudgeType> indivisibleTypes;
+    private Map<Class<?>, JudgeType> indivisibleTypes = new HashMap<>();
 
-    public DefaultIndivisibleJudge(Properties parameter) {
-        if (parameter == null) {
-            return;
-        }
-        String propertiesUrl = (String) parameter.remove(ThistleSpi.PROPERTIES_URL);
-        if (parameter.size() <= 0) {
-            return;
-        }
-        indivisibleTypes = new LinkedHashMap<>(parameter.size());
-        ClassLoader classLoader = getClass().getClassLoader();
-        for (Object key : parameter.keySet()) {
-            JudgeType judgeType = JudgeType.parse((String)parameter.get(key));
-            if (judgeType == null) {
-                throw new RuntimeException("Invalid constructor parameter '" + key + "=" + parameter.get(key) + "', illegal JudgeType (value) should be isAssignableFrom or equals, properties url:" + propertiesUrl);
-            }
+    @PropertyInject
+    public void setTypes(String types) {
+        List<String> typeList = StringUtils.splitAndTrim(types, ",");
+        for (String type : typeList) {
             try {
-                indivisibleTypes.put(classLoader.loadClass((String)key), judgeType);
+                indivisibleTypes.put(Class.forName(type), JudgeType.EQUALS);
             } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Invalid constructor parameter '" + key + "=" + parameter.get(key) + "', class not found, properties url:" + propertiesUrl, e);
+                throw new RuntimeException("Invalid property 'types': " + type, e);
+            }
+        }
+    }
+
+    @PropertyInject
+    public void setTypeGroups(String types) {
+        List<String> typeList = StringUtils.splitAndTrim(types, ",");
+        for (String type : typeList) {
+            try {
+                indivisibleTypes.put(Class.forName(type), JudgeType.IS_ASSIGNABLE_FROM);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Invalid property 'typeGroups': " + type, e);
             }
         }
     }

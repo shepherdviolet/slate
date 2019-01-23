@@ -19,9 +19,7 @@
 
 package sviolet.slate.common.x.conversion.beanutil;
 
-import org.springframework.cglib.core.Converter;
-import sviolet.thistle.util.conversion.BeanMethodNameUtils;
-import sviolet.thistle.util.conversion.PrimitiveUtils;
+import com.github.shepherdviolet.glaciion.api.annotation.SingleServiceInterface;
 
 /**
  * <p>SlateBeanUtils Bean工具的扩展点</p>
@@ -35,19 +33,8 @@ import sviolet.thistle.util.conversion.PrimitiveUtils;
  * @see SlateBeanUtils
  * @author S.Violet
  */
-public abstract class BeanConverter implements Converter {
-
-    @Override
-    public final Object convert(Object from, Class toType, Object setMethodName) {
-        try {
-            return onConvert(Cause.BEAN_TO_BEAN, from, new Class[]{PrimitiveUtils.toWrapperType(toType)});
-        } catch (MappingRuntimeException e) {
-            //补上field名
-            String fieldName = BeanMethodNameUtils.methodToField(String.valueOf(setMethodName));
-            e.setFieldName(fieldName);
-            throw e;
-        }
-    }
+@SingleServiceInterface
+public interface BeanConverter {
 
     /**
      * 实现类型转换
@@ -56,9 +43,9 @@ public abstract class BeanConverter implements Converter {
      * @param toTypes 目的类型(符合其中的一个类型即可)
      * @return 转换后的参数, 转换失败返回null
      */
-    protected abstract Object onConvert(Cause cause, Object from, Class[] toTypes);
+    Object onConvert(Cause cause, Object from, Class[] toTypes);
 
-    public enum Cause {
+    enum Cause {
         /**
          * 由SlateBeanUtils.beanToBean触发
          */

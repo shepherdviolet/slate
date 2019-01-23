@@ -19,8 +19,10 @@
 
 package sviolet.slate.common.x.conversion.beanutil.safe.date;
 
+import com.github.shepherdviolet.glaciion.api.annotation.ImplementationPriority;
 import org.slf4j.Logger;
 
+@ImplementationPriority(0)
 public class SBUMapperString2SqlDate extends SBUMapperString2UtilDate {
 
     private static final Class[] FROM = new Class[]{

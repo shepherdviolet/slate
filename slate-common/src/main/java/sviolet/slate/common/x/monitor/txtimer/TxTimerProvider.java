@@ -19,6 +19,8 @@
 
 package sviolet.slate.common.x.monitor.txtimer;
 
+import com.github.shepherdviolet.glaciion.api.annotation.SingleServiceInterface;
+
 /**
  * <p>TxTimer简单的交易耗时统计 扩展点</p>
  *
@@ -29,6 +31,7 @@ package sviolet.slate.common.x.monitor.txtimer;
  * @see TxTimer
  * @author S.Violet
  */
+@SingleServiceInterface
 public interface TxTimerProvider {
 
     /**

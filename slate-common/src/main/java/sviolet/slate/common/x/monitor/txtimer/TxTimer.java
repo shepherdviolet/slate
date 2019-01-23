@@ -19,9 +19,9 @@
 
 package sviolet.slate.common.x.monitor.txtimer;
 
+import com.github.shepherdviolet.glaciion.Glaciion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.thistle.x.common.thistlespi.ThistleSpi;
 
 /**
  * <p>简单的交易耗时统计, 提供默认实现, 也可以用ThistleSpi扩展</p>
@@ -65,7 +65,7 @@ public class TxTimer {
     static {
         //统计开关, 默认关闭
         if ("true".equals(System.getProperty("slate.txtimer.enabled", "true"))) {
-            TxTimerProvider service = ThistleSpi.getLoader().loadService(TxTimerProvider.class);
+            TxTimerProvider service = Glaciion.loadSingleService(TxTimerProvider.class).get();
             //再根据provider判断是否要启用
             if (service.enabled()) {
                 PROVIDER = service;

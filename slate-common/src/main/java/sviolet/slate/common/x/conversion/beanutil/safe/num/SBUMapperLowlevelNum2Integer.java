@@ -19,9 +19,11 @@
 
 package sviolet.slate.common.x.conversion.beanutil.safe.num;
 
+import com.github.shepherdviolet.glaciion.api.annotation.ImplementationPriority;
 import org.slf4j.Logger;
 import sviolet.slate.common.x.conversion.beanutil.PropMapper;
 
+@ImplementationPriority(0)
 public class SBUMapperLowlevelNum2Integer implements PropMapper {
 
     private static final Class[] FROM = new Class[]{

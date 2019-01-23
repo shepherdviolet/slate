@@ -19,12 +19,15 @@
 
 package sviolet.slate.common.x.conversion.beanutil.safe.date;
 
+import com.github.shepherdviolet.glaciion.api.annotation.ImplementationPriority;
+import com.github.shepherdviolet.glaciion.api.annotation.PropertyInject;
 import org.slf4j.Logger;
 import sviolet.slate.common.x.conversion.beanutil.PropMapper;
 import sviolet.thistle.util.judge.CheckUtils;
 
 import java.text.SimpleDateFormat;
 
+@ImplementationPriority(0)
 public class SBUMapperAllDate2String implements PropMapper {
 
     private static final Class[] FROM = new Class[]{
@@ -39,9 +42,10 @@ public class SBUMapperAllDate2String implements PropMapper {
 
     private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
     private ThreadLocal<SimpleDateFormat> dateFormats = new ThreadLocal<>();
-    private String dateFormat;
+    private String dateFormat = DEFAULT_DATE_FORMAT;
 
-    public SBUMapperAllDate2String(String dateFormat) {
+    @PropertyInject
+    public void setDateFormat(String dateFormat) {
         //注意这个值可能为空
         if (CheckUtils.isEmptyOrBlank(dateFormat)) {
             dateFormat = DEFAULT_DATE_FORMAT;

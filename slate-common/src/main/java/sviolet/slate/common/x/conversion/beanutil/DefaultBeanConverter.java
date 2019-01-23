@@ -19,10 +19,11 @@
 
 package sviolet.slate.common.x.conversion.beanutil;
 
+import com.github.shepherdviolet.glaciion.Glaciion;
+import com.github.shepherdviolet.glaciion.api.annotation.PropertyInject;
+import com.github.shepherdviolet.glaciion.api.interfaces.InitializableImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.thistle.util.judge.CheckUtils;
-import sviolet.thistle.x.common.thistlespi.ThistleSpi;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,41 +34,23 @@ import java.util.Map;
  *
  * @author S.Violet
  */
-public class DefaultBeanConverter extends BeanConverter {
-
-    private static final String LOG_PROPERTY = "slate.beanutils.log";
+public class DefaultBeanConverter implements BeanConverter, InitializableImplementation {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultBeanConverter.class);
     private static final String LOG_PREFIX = "SlateBeanUtils | ";
 
     private Map<Class<?>, Map<Class<?>, PropMapper>> propMappers = new HashMap<>();
-    private boolean logEnabled;
 
-    /**
-     * 禁用默认类型转换器的日志 <br>
-     *
-     * sviolet.slate.common.x.conversion.beanutil.BeanConverter>yourapp>application=sviolet.slate.common.x.conversion.beanutil.DefaultBeanConverter(false) <br>
-     *
-     * 使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/thistle/blob/master/docs/thistlespi/guide.md
-     *
-     * @param logEnabled true/logEnabled:开启日志
-     */
-    public DefaultBeanConverter(String logEnabled) {
-        String logProperty = System.getProperty(LOG_PROPERTY, null);
-        if (CheckUtils.isEmptyOrBlank(logProperty)) {
-            logEnabled = String.valueOf(logEnabled);
-            this.logEnabled = "TRUE".equalsIgnoreCase(logEnabled) || "LOGENABLED".equalsIgnoreCase(logEnabled);
-        } else {
-            this.logEnabled = "TRUE".equalsIgnoreCase(logProperty) || "LOGENABLED".equalsIgnoreCase(logProperty);
-        }
+    @PropertyInject(getVmOptionFirst = "slate.beanutils.log")
+    private boolean logEnabled = true;
+
+    @Override
+    public void onServiceCreated() {
         init();
     }
 
     private void init() {
-        List<PropMapper> propMapperList = ThistleSpi.getLoader().loadPlugins(PropMapper.class);
-        if (propMapperList == null) {
-            return;
-        }
+        List<PropMapper> propMapperList = Glaciion.loadMultipleService(PropMapper.class).getAll();
         for (PropMapper mapper : propMapperList) {
             if (mapper.fromType() == null || mapper.fromType().length <= 0) {
                 throw new RuntimeException("Invalid PropMapper " + mapper.getClass().getName() + ", fromType method return null or empty, you can ignore this plugin by ThistleSpi");
@@ -105,7 +88,7 @@ public class DefaultBeanConverter extends BeanConverter {
     }
 
     @Override
-    protected Object onConvert(Cause cause, Object from, Class... toTypes) {
+    public Object onConvert(Cause cause, Object from, Class... toTypes) {
         if (from == null || toTypes == null || toTypes.length <= 0) {
             return null;
         }

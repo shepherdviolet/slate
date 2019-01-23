@@ -19,12 +19,15 @@
 
 package sviolet.slate.common.x.conversion.beanutil;
 
+import com.github.shepherdviolet.glaciion.Glaciion;
 import org.springframework.cglib.beans.BeanCopier;
 import org.springframework.cglib.beans.BeanMap;
+import org.springframework.cglib.core.Converter;
 import org.springframework.objenesis.ObjenesisException;
 import org.springframework.objenesis.SpringObjenesis;
 import sviolet.thistle.model.concurrent.lock.UnsafeSpinLock;
-import sviolet.thistle.x.common.thistlespi.ThistleSpi;
+import sviolet.thistle.util.conversion.BeanMethodNameUtils;
+import sviolet.thistle.util.conversion.PrimitiveUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +47,7 @@ public class SlateBeanUtils {
 
     private static volatile SpringObjenesis objenesis;
     private static volatile BeanConverter converter;
+    private static volatile Converter beanCopierConverter;
     private static volatile IndivisibleJudge judger;
 
     private static final Map<String, BeanCopier> COPIER = new ConcurrentHashMap<>(256);
@@ -70,7 +74,7 @@ public class SlateBeanUtils {
                 copier = BeanCopier.create(from.getClass(), to.getClass(), true);
                 COPIER.put(copierName, copier);
             }
-            copier.copy(from, to, getConverter());
+            copier.copy(from, to, getBeanCopierConverter());
         } catch (MappingRuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -319,12 +323,12 @@ public class SlateBeanUtils {
                 SPIN_LOCK.lock();
                 if (converter == null) {
                     //spi loading
-                    converter = ThistleSpi.getLoader().loadService(BeanConverter.class);
+                    converter = Glaciion.loadSingleService(BeanConverter.class).get();
                     //default
                     if (converter == null) {
                         converter = new BeanConverter() {
                             @Override
-                            protected Object onConvert(Cause cause, Object from, Class... toTypes) {
+                            public Object onConvert(Cause cause, Object from, Class... toTypes) {
                                 return from;
                             }
                         };
@@ -337,16 +341,24 @@ public class SlateBeanUtils {
         return converter;
     }
 
+    private static Converter getBeanCopierConverter(){
+        //no lock
+        if (beanCopierConverter == null) {
+            beanCopierConverter = new BeanCopierConverter(getConverter());
+        }
+        return beanCopierConverter;
+    }
+
     private static IndivisibleJudge getJudger(){
         if (judger == null) {
             try {
                 SPIN_LOCK.lock();
                 if (judger == null) {
                     //spi loading
-                    judger = ThistleSpi.getLoader().loadService(IndivisibleJudge.class);
+                    judger = Glaciion.loadSingleService(IndivisibleJudge.class).get();
                     //default
                     if (judger == null) {
-                        judger = new DefaultIndivisibleJudge(null);
+                        judger = new DefaultIndivisibleJudge();
                     }
                 }
             } finally {
@@ -368,6 +380,31 @@ public class SlateBeanUtils {
             }
         }
         return objenesis;
+    }
+
+    /**
+     * BeanCopier的Converter包装类, 适配成自定义的BeanConverter
+     */
+    private static class BeanCopierConverter implements Converter {
+
+        private BeanConverter converter;
+
+        public BeanCopierConverter(BeanConverter converter) {
+            this.converter = converter;
+        }
+
+        @Override
+        public final Object convert(Object from, Class toType, Object setMethodName) {
+            try {
+                return converter.onConvert(BeanConverter.Cause.BEAN_TO_BEAN, from, new Class[]{PrimitiveUtils.toWrapperType(toType)});
+            } catch (MappingRuntimeException e) {
+                //补上field名
+                String fieldName = BeanMethodNameUtils.methodToField(String.valueOf(setMethodName));
+                e.setFieldName(fieldName);
+                throw e;
+            }
+        }
+
     }
 
 }

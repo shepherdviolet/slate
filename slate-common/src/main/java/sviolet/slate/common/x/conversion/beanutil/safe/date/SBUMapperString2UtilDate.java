@@ -19,6 +19,7 @@
 
 package sviolet.slate.common.x.conversion.beanutil.safe.date;
 
+import com.github.shepherdviolet.glaciion.api.annotation.ImplementationPriority;
 import org.slf4j.Logger;
 import sviolet.slate.common.x.conversion.beanutil.MappingRuntimeException;
 import sviolet.slate.common.x.conversion.beanutil.PropMapper;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+@ImplementationPriority(0)
 public class SBUMapperString2UtilDate implements PropMapper {
 
     private static final Class[] FROM = new Class[]{

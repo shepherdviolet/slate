@@ -19,11 +19,13 @@
 
 package sviolet.slate.common.x.conversion.beanutil.safe.num;
 
+import com.github.shepherdviolet.glaciion.api.annotation.ImplementationPriority;
 import org.slf4j.Logger;
 import sviolet.slate.common.x.conversion.beanutil.PropMapper;
 
 import java.math.BigInteger;
 
+@ImplementationPriority(0)
 public class SBUMapperAllInteger2BigInteger implements PropMapper {
 
     private static final Class[] FROM = new Class[]{

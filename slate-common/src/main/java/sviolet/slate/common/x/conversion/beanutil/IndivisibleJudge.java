@@ -19,6 +19,8 @@
 
 package sviolet.slate.common.x.conversion.beanutil;
 
+import com.github.shepherdviolet.glaciion.api.annotation.SingleServiceInterface;
+
 import java.util.Map;
 
 /**
@@ -33,6 +35,7 @@ import java.util.Map;
  * @see SlateBeanUtils
  * @author S.Violet
  */
+@SingleServiceInterface
 public interface IndivisibleJudge {
 
     /**
@@ -45,7 +48,7 @@ public interface IndivisibleJudge {
     /**
      * 判断方式
      */
-    public enum JudgeType {
+    enum JudgeType {
 
         /**
          * 使用isAssignableFrom判断
@@ -55,16 +58,7 @@ public interface IndivisibleJudge {
         /**
          * 使用equals判断
          */
-        EQUALS;
-
-        public static JudgeType parse(String str) {
-            if ("isAssignableFrom".equalsIgnoreCase(str)) {
-                return IS_ASSIGNABLE_FROM;
-            } else if ("equals".equalsIgnoreCase(str)) {
-                return EQUALS;
-            }
-            return null;
-        }
+        EQUALS
 
     }
 
