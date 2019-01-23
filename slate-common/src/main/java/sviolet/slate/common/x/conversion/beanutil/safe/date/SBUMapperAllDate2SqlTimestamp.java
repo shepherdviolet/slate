@@ -23,7 +23,7 @@ import com.github.shepherdviolet.glaciion.api.annotation.ImplementationPriority;
 import org.slf4j.Logger;
 import sviolet.slate.common.x.conversion.beanutil.PropMapper;
 
-@ImplementationPriority(0)
+@ImplementationPriority(-1)
 public class SBUMapperAllDate2SqlTimestamp implements PropMapper {
 
     private static final Class[] FROM = new Class[]{

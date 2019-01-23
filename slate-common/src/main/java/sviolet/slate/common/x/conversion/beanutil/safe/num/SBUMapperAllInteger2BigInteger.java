@@ -25,7 +25,7 @@ import sviolet.slate.common.x.conversion.beanutil.PropMapper;
 
 import java.math.BigInteger;
 
-@ImplementationPriority(0)
+@ImplementationPriority(-1)
 public class SBUMapperAllInteger2BigInteger implements PropMapper {
 
     private static final Class[] FROM = new Class[]{

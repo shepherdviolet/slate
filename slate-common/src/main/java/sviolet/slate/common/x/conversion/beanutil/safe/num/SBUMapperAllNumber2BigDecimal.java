@@ -25,7 +25,7 @@ import sviolet.slate.common.x.conversion.beanutil.PropMapper;
 
 import java.math.BigDecimal;
 
-@ImplementationPriority(0)
+@ImplementationPriority(-1)
 public class SBUMapperAllNumber2BigDecimal implements PropMapper {
 
     private static final Class[] FROM = new Class[]{

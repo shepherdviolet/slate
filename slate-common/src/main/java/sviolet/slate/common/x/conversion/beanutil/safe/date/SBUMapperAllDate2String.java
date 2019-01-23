@@ -27,7 +27,7 @@ import sviolet.thistle.util.judge.CheckUtils;
 
 import java.text.SimpleDateFormat;
 
-@ImplementationPriority(0)
+@ImplementationPriority(-1)
 public class SBUMapperAllDate2String implements PropMapper {
 
     private static final Class[] FROM = new Class[]{

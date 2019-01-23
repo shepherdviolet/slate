@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-@ImplementationPriority(0)
+@ImplementationPriority(-1)
 public class SBUMapperString2UtilDate implements PropMapper {
 
     private static final Class[] FROM = new Class[]{
