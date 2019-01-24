@@ -63,14 +63,11 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
-        logger.info("InterfaceInst | -------------------------------------------------");
         logger.info("InterfaceInst | Interface Instantiation Start (spring 5- or jdk 8-) Doc: https://github.com/shepherdviolet/slate");
 
         Set<String> processedClasses = new HashSet<>(128);
 
         for (AnnotationAttributes annotationAttributes : annotationAttributesList) {
-
-            logger.info("InterfaceInst | -------------------------------------------------");
 
             //接口类实例化器
             InterfaceInstantiator interfaceInstantiator;
@@ -175,9 +172,7 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
 
         }
 
-        logger.info("InterfaceInst | -------------------------------------------------");
         logger.info("InterfaceInst | Interface Instantiation Finished");
-        logger.info("InterfaceInst | -------------------------------------------------");
 
     }
 
