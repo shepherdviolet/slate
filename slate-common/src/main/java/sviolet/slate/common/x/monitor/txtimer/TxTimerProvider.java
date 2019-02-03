@@ -19,7 +19,11 @@
 
 package sviolet.slate.common.x.monitor.txtimer;
 
+import com.github.shepherdviolet.glaciion.api.annotation.NewMethod;
 import com.github.shepherdviolet.glaciion.api.annotation.SingleServiceInterface;
+import com.github.shepherdviolet.glaciion.api.interfaces.CompatibleApproach;
+
+import java.lang.reflect.Method;
 
 /**
  * <p>TxTimer简单的交易耗时统计 扩展点</p>
@@ -67,6 +71,23 @@ public interface TxTimerProvider {
     void stop();
 
     /**
+     * 交易结束时调用
+     *
+     * <code>
+     *  try {
+     *      TxTimer.start("Entrance", "TestService");
+     *      // 交易逻辑 ......
+     *  } finally {
+     *      TxTimer.stop();
+     *  }
+     * </code>
+     *
+     * @param resultCode 处理结果编码
+     */
+    @NewMethod(compatibleApproach = StopCompat.class)
+    void stop(int resultCode);
+
+    /**
      * 是否启用统计功能
      * @return true 启用
      */
@@ -77,5 +98,16 @@ public interface TxTimerProvider {
      * @return true 允许
      */
     boolean canBeGet();
+
+    /**
+     * stop方法向下兼容办法
+     */
+    class StopCompat implements CompatibleApproach {
+        @Override
+        public Object onInvoke(Class<?> serviceInterface, Object serviceInstance, Method method, Object[] params) throws Throwable {
+            ((TxTimerProvider)serviceInstance).stop();
+            return null;
+        }
+    }
 
 }

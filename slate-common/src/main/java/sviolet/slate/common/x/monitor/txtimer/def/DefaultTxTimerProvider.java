@@ -144,6 +144,12 @@ public class DefaultTxTimerProvider implements TxTimerProvider, InitializableImp
     }
 
     @Override
+    public void stop(int resultCode) {
+        //暂未实现统计响应码
+        stop();
+    }
+
+    @Override
     public boolean enabled() {
         return true;
     }

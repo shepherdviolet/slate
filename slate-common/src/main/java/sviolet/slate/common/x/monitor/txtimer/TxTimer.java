@@ -118,6 +118,26 @@ public class TxTimer {
         }
     }
 
+    /**
+     * 交易结束时调用
+     *
+     * <code>
+     *  try {
+     *      TxTimer.start("Entrance", "TestService");
+     *      // 交易逻辑 ......
+     *  } finally {
+     *      TxTimer.stop();
+     *  }
+     * </code>
+     *
+     * @param resultCode 处理结果编码
+     */
+    public static void stop(int resultCode){
+        if (PROVIDER != null) {
+            PROVIDER.stop(resultCode);
+        }
+    }
+
     public static TxTimerProvider getProvider(){
         if (PROVIDER != null && PROVIDER.canBeGet()) {
             return PROVIDER;
