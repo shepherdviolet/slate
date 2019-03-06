@@ -16,6 +16,7 @@ dependencies {
     compile "org.mybatis:mybatis:$version_mybatis", optional
     compile "com.alibaba:hessian-lite:$version_hessianlite", optional
     compile "org.objenesis:objenesis:$version_objenesis", optional
+    compile "org.apache.rocketmq:rocketmq-client:$version_rocketmq", optional
 
     //compileOnly
 //    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$version_spring_boot"
