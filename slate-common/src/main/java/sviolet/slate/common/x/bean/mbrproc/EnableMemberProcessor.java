@@ -75,6 +75,6 @@ import java.lang.annotation.*;
 @Import({MemberProcessorSelector.class})
 public @interface EnableMemberProcessor {
 
-    Class<? extends MemberProcessor> value();
+    Class<? extends MemberProcessor>[] value();
 
 }

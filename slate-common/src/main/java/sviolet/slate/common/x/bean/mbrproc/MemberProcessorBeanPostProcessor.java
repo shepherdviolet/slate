@@ -57,34 +57,39 @@ class MemberProcessorBeanPostProcessor extends MemberVisitBeanPostProcessor impl
         //handle enable annotations
         for (AnnotationAttributes annotationAttributes : annotationAttributesList) {
             //get processor class
-            Class<? extends MemberProcessor> processorClass = annotationAttributes.getClass("value");
-            //create processor instance
-            MemberProcessor processor;
-            try {
-                processor = processorClass.newInstance();
-            } catch (Exception e) {
-                throw new RuntimeException("Illegal MemberProcessor " + processorClass.getName(), e);
+            Class<? extends MemberProcessor>[] processorClasses = (Class<? extends MemberProcessor>[]) annotationAttributes.getClassArray("value");
+            for (Class<? extends MemberProcessor> processorClass : processorClasses) {
+                addProcessor(processorClass);
             }
-            //get accept type
-            Class<?> clazz = processor.acceptAnnotationType();
-            if (!Annotation.class.isAssignableFrom(clazz)) {
-                throw new RuntimeException("Illegal MemberProcessor " + processorClass.getName() + ", method acceptAnnotationType returns null " +
-                        "or not an Annotation class, MemberProcessor#acceptAnnotationType must return a class which extends Annotation");
-            }
-            @SuppressWarnings("unchecked")
-            Class<? extends Annotation> annotationClass = (Class<? extends Annotation>)clazz;
-            //check previous
-            MemberProcessor previous = processors.get(annotationClass);
-            if (previous != null) {
-                if (!processorClass.equals(previous.getClass())) {
-                    throw new RuntimeException("Duplicate MemberProcessor declared that they accept annotation " + annotationClass.getName() +
-                            ", " + previous.getClass().getName() + " and " + processor.getClass().getName());
-                } else {
-                    continue;
-                }
-            }
-            processors.put(annotationClass, processor);
         }
+    }
+
+    private void addProcessor(Class<? extends MemberProcessor> processorClass) {
+        //create processor instance
+        MemberProcessor processor;
+        try {
+            processor = processorClass.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Illegal MemberProcessor " + processorClass.getName(), e);
+        }
+        //get accept type
+        Class<?> clazz = processor.acceptAnnotationType();
+        if (!Annotation.class.isAssignableFrom(clazz)) {
+            throw new RuntimeException("Illegal MemberProcessor " + processorClass.getName() + ", method acceptAnnotationType returns null " +
+                    "or not an Annotation class, MemberProcessor#acceptAnnotationType must return a class which extends Annotation");
+        }
+        Class<? extends Annotation> annotationClass = (Class<? extends Annotation>)clazz;
+        //check previous
+        MemberProcessor previous = processors.get(annotationClass);
+        if (previous != null) {
+            if (!processorClass.equals(previous.getClass())) {
+                throw new RuntimeException("Duplicate MemberProcessor declared that they accept annotation " + annotationClass.getName() +
+                        ", " + previous.getClass().getName() + " and " + processor.getClass().getName());
+            } else {
+                return;
+            }
+        }
+        processors.put(annotationClass, processor);
     }
 
     @Override
