@@ -26,13 +26,15 @@ import java.lang.annotation.*;
  *
  * <p>注意!!! 消费者必须保证幂等性! 任何一条消息都有可能被重复消费!</p>
  *
+ * <p>https://github.com/shepherdviolet/slate/blob/master/docs/rocketmq/guide.md</p>
+ *
  * <pre>
  *     <code>@Bean(name = "consumerBeanName", destroyMethod = "shutdown")</code>
  *     public DefaultMQPushConsumer customConsumer() throws MQClientException {
  *         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("consumer-custom");
  *         consumer.setNamesrvAddr(nameServer);
  *         consumer.subscribe("custom-topic", "*");
- *         //注意!!! consumer不要启动(start), 也不要绑定listener, 这些操作会在绑定方法时自动进行
+ *         //注意!!! consumer不要启动, 也不要绑定listener, 因为这些操作会在绑定方法时自动进行
  *         return consumer;
  *     }
  * </pre>
