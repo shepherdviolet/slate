@@ -7,7 +7,64 @@
 退回消息(RECONSUME)也要小心, 消息可能会无限重复. 顺序消费模式性能差, 慎用. 
 ```
 
-## 普通并发消费
+<br>
+
+## 配置
+
+### Spring Boot (推荐)
+
+* 添加注解`@EnableRocketMqHelper`
+
+```text
+@Configuration
+@EnableRocketMqHelper
+public class AppConfiguration {
+}
+```
+
+* 配置NameServer地址(yaml/properties/启动参数)
+
+```text
+slate.common.rocketmq.namesrv=host1:9876;host2:9876
+```
+
+<br>
+
+### Spring
+
+* 添加配置类
+
+```text
+@Configuration
+@EnableMemberProcessor({
+        RmqConcurrentConsumerMemProc.class,
+        RmqOrderedConsumerMemProc.class,
+        RmqCustomConsumerMemProc.class,
+})
+public class RocketMqHelperConfiguration {
+    @Bean(RmqConsumerManager.BEAN_NAME)
+    public RmqConsumerManager consumerManager(){
+        return new RmqConsumerManagerImpl(RmqHelperSelector.annotationAttributes);
+    }
+
+    @Bean(RmqConsumerMethodInvokerFactory.BEAN_NAME)
+    public RmqConsumerMethodInvokerFactory consumerMethodInvokerFactory(){
+        return new RmqConsumerMethodInvokerFactoryImpl();
+    }
+}
+```
+
+* 配置NameServer地址(properties/启动参数)
+
+```text
+slate.common.rocketmq.namesrv=host1:9876;host2:9876
+```
+
+<br>
+
+## 使用
+
+### 普通并发消费
 
 * 简单示例
 
@@ -58,7 +115,9 @@
     )
 ```
 
-## 顺序消费
+<br>
+
+### 顺序消费
 
 * 顺序消费慎用, 全局单线程, 退回消息处理不当可能会无限循环
 * RocketMQ只保证同一个队列中的消息有序(一个Topic会有多个队列), 生产端需要将消息放进同一个队列, 消费端也要从同一个队列取
@@ -78,7 +137,9 @@
     }
 ```
 
-## 自定义消费者
+<br>
+
+### 自定义消费者
 
 * 如果注解的配置无法满足需求, 但又想将消费者绑定到一个方法上
 * 声明自定义的消费者
@@ -106,7 +167,34 @@
     }
 ```
 
-# 扩展方法参数类型/方法调用拦截
+<br>
 
-* 支持自定义RmqConsumerMethodInvokerFactory, 支持更多的绑定方法参数类型, 甚至实现方法调用拦截
-* 详见sviolet.slate.common.helper.rocketmq.consumer.RmqHelperConfig和RmqConsumerMethodInvokerFactoryImpl
+### 扩展方法参数类型/方法调用拦截
+
+* 支持自定义RmqConsumerMethodInvokerFactory, 支持更多的绑定方法参数类型, 或者实现方法调用拦截
+* 详见`RmqHelperConfig`和`RmqConsumerMethodInvokerFactoryImpl`
+
+<br>
+
+## 依赖
+
+```gradle
+dependencies {
+    compile 'com.github.shepherdviolet:slate-common:version'
+    compile 'org.apache.rocketmq:rocketmq-client:4.4.0'
+}
+
+```
+
+```maven
+    <dependency>
+        <groupId>com.github.shepherdviolet</groupId>
+        <artifactId>slate-common</artifactId>
+        <version>version</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.rocketmq</groupId>
+        <artifactId>rocketmq-client</artifactId>
+        <version>4.4.0</version>
+    </dependency>
+```
