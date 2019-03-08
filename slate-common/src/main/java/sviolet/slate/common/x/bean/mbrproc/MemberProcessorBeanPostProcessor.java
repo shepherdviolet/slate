@@ -19,6 +19,8 @@
 
 package sviolet.slate.common.x.bean.mbrproc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -47,6 +49,8 @@ import java.util.Map;
  * @author S.Violet
  */
 class MemberProcessorBeanPostProcessor extends MemberVisitBeanPostProcessor implements ApplicationContextAware {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private Map<Class<? extends Annotation>, MemberProcessor> processors;
     private ApplicationContext applicationContext;
@@ -90,6 +94,9 @@ class MemberProcessorBeanPostProcessor extends MemberVisitBeanPostProcessor impl
             }
         }
         processors.put(annotationClass, processor);
+        if (logger.isInfoEnabled()) {
+            logger.info("Add MemberProcessor " + processorClass.getName() + " for annotation " + annotationClass.getName());
+        }
     }
 
     @Override

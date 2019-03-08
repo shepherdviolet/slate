@@ -19,6 +19,8 @@
 
 package sviolet.slate.common.x.bean.mbrproc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
@@ -40,9 +42,14 @@ import org.springframework.context.annotation.Role;
 @Configuration
 public class MemberProcessorConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(MemberProcessorConfig.class);
+
     @Bean("slate.common.memberProcessorBeanPostProcessor")
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     public static BeanPostProcessor memberProcessorBeanPostProcessor(){
+        if (logger.isInfoEnabled()) {
+            logger.info("MemberProcessor Enabled");
+        }
         return new MemberProcessorBeanPostProcessor(MemberProcessorSelector.annotationAttributesList);
     }
 
