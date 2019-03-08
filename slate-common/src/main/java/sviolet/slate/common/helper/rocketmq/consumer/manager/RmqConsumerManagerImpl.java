@@ -34,10 +34,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.annotation.AnnotationAttributes;
 import sviolet.slate.common.helper.rocketmq.consumer.*;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -90,9 +90,12 @@ public class RmqConsumerManagerImpl implements RmqConsumerManager, ApplicationCo
     private ApplicationContext applicationContext;
 
     private final ConcurrentHashMap<String, MQPushConsumer> consumers = new ConcurrentHashMap<>();
-    private final AnnotationAttributes enableAnnotationAttributes;
+    private final Map<String, Object> enableAnnotationAttributes;
 
-    public RmqConsumerManagerImpl(AnnotationAttributes enableAnnotationAttributes) {
+    public RmqConsumerManagerImpl(Map<String, Object> enableAnnotationAttributes) {
+        if (enableAnnotationAttributes == null) {
+            enableAnnotationAttributes = new HashMap<>();
+        }
         this.enableAnnotationAttributes = enableAnnotationAttributes;
     }
 
@@ -347,7 +350,11 @@ public class RmqConsumerManagerImpl implements RmqConsumerManager, ApplicationCo
             return nameServerFromProperties;
         }
         //默认值最后
-        return enableAnnotationAttributes.getString("defaultNameServer");
+        Object defaultNameServer = enableAnnotationAttributes.get("defaultNameServer");
+        if ((defaultNameServer instanceof String) && !"".equals(defaultNameServer)) {
+            return (String) defaultNameServer;
+        }
+        return "localhost:9876";
     }
 
     protected ConsumeFromWhere parseConsumeFromWhere(ConsumeWay consumeWay) throws Exception {
