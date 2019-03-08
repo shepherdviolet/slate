@@ -129,8 +129,8 @@ public class RmqConsumerManagerImpl implements RmqConsumerManager, ApplicationCo
         //缓存
         cacheConsumer(consumer.getConsumerGroup(), consumer);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(String.valueOf(consumer));
+        if (logger.isInfoEnabled()) {
+            logger.info("New RocketMQ Consumer: " + consumer);
         }
     }
 
@@ -169,8 +169,8 @@ public class RmqConsumerManagerImpl implements RmqConsumerManager, ApplicationCo
         //缓存
         cacheConsumer(consumerGroup, consumer);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(String.valueOf(consumer));
+        if (logger.isInfoEnabled()) {
+            logger.info("New RocketMQ Consumer: " + consumer);
         }
     }
 
@@ -199,8 +199,8 @@ public class RmqConsumerManagerImpl implements RmqConsumerManager, ApplicationCo
         //缓存
         cacheConsumer(consumerGroup, consumer);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(String.valueOf(consumer));
+        if (logger.isInfoEnabled()) {
+            logger.info("New RocketMQ Consumer: " + consumer);
         }
     }
 
