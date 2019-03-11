@@ -44,7 +44,7 @@ slate.common.rocketmq.namesrv=host1:9876;host2:9876
 public class RocketMqHelperConfiguration {
     @Bean(RmqConsumerManager.BEAN_NAME)
     public RmqConsumerManager consumerManager(){
-        return new RmqConsumerManagerImpl(RmqHelperSelector.annotationAttributes);
+        return new RmqConsumerManagerImpl(null);
     }
 
     @Bean(RmqConsumerMethodInvokerFactory.BEAN_NAME)
