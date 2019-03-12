@@ -261,6 +261,9 @@ public class RmqConsumerManagerImpl implements RmqConsumerManager, ApplicationCo
 
         @Override
         public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> messages, ConsumeConcurrentlyContext context) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Consume Concurrent Messages: " + messages);
+            }
             context.setAckIndex(-1);
             for (MessageExt message : messages) {
                 if (consumeOneMessage(invoker, message, reconsumeWhenException)){
@@ -295,6 +298,9 @@ public class RmqConsumerManagerImpl implements RmqConsumerManager, ApplicationCo
 
         @Override
         public ConsumeOrderlyStatus consumeMessage(List<MessageExt> messages, ConsumeOrderlyContext context) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Consume Ordered Messages: " + messages);
+            }
             for (MessageExt message : messages) {
                 if (!consumeOneMessage(invoker, message, reconsumeWhenException)){
                     //有一条消息处理失败时, 会退回全部消息
