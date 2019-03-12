@@ -261,17 +261,21 @@ public class RmqConsumerManagerImpl implements RmqConsumerManager, ApplicationCo
 
         @Override
         public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> messages, ConsumeConcurrentlyContext context) {
-            boolean success = true;
+            context.setAckIndex(-1);
             for (MessageExt message : messages) {
-                //即使失败也把所有消息处理完, 这样会增加重复消费的概率, 但是可以让消息尽可能早点被处理
-                if (!consumeOneMessage(invoker, message, reconsumeWhenException)){
-                    success = false;
+                if (consumeOneMessage(invoker, message, reconsumeWhenException)){
+                    context.setAckIndex(context.getAckIndex() + 1);
+                } else {
+                    break;
                 }
             }
-            if (!success && logger.isInfoEnabled() && printMessageWhenReconsume) {
-                logger.info("RECONSUME_LATER: " + messages);
+            if (logger.isInfoEnabled() && printMessageWhenReconsume) {
+                for (int i = context.getAckIndex() + 1 ; i < messages.size() ; i++) {
+                    logger.info("RECONSUME_LATER: " + messages.get(i));
+                }
             }
-            return success ? ConsumeConcurrentlyStatus.CONSUME_SUCCESS : ConsumeConcurrentlyStatus.RECONSUME_LATER;
+            //使用ackIndex机制退回部分失败消息
+            return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }
 
     }
@@ -291,17 +295,16 @@ public class RmqConsumerManagerImpl implements RmqConsumerManager, ApplicationCo
 
         @Override
         public ConsumeOrderlyStatus consumeMessage(List<MessageExt> messages, ConsumeOrderlyContext context) {
-            boolean success = true;
             for (MessageExt message : messages) {
-                //即使失败也把所有消息处理完, 这样会增加重复消费的概率, 但是可以让消息尽可能早点被处理
                 if (!consumeOneMessage(invoker, message, reconsumeWhenException)){
-                    success = false;
+                    //有一条消息处理失败时, 会退回全部消息
+                    if (logger.isInfoEnabled() && printMessageWhenReconsume) {
+                        logger.info("SUSPEND_CURRENT_QUEUE_A_MOMENT: " + messages);
+                    }
+                    return ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT;
                 }
             }
-            if (!success && logger.isInfoEnabled() && printMessageWhenReconsume) {
-                logger.info("SUSPEND_CURRENT_QUEUE_A_MOMENT: " + messages);
-            }
-            return success ? ConsumeOrderlyStatus.SUCCESS : ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT;
+            return ConsumeOrderlyStatus.SUCCESS;
         }
     }
 

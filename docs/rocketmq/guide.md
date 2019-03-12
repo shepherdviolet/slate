@@ -80,6 +80,7 @@ slate.common.rocketmq.namesrv=host1:9876;host2:9876
         //入参默认支持MessageExt/Message/byte[]/String/Map, 需要支持更多类型请自定义RmqConsumerMethodInvokerFactory, 见RmqHelperConfig
         logger.info("Received: {}", message);
         //返回类型不限定, 可以为void, 但是返回false会退回消息(RECONSUME, 该消息会重新被消费)
+        //该方法抛出异常时, 默认不会退回消息(RECONSUME), 设置reconsumeWhenException=true后, 当抛出异常时会退回消息
         return true;
     }
 ```
@@ -134,6 +135,7 @@ slate.common.rocketmq.namesrv=host1:9876;host2:9876
         //入参默认支持MessageExt/Message/byte[]/String/Map, 需要支持更多类型请自定义RmqConsumerMethodInvokerFactory, 见RmqHelperConfig
         logger.info("Received: {}", message);
         //返回类型不限定, 可以为void, 但是返回false会退回消息(RECONSUME, 该消息会重新被消费)
+        //该方法抛出异常时, 默认不会退回消息(RECONSUME), 设置reconsumeWhenException=true后, 当抛出异常时会退回消息
     }
 ```
 
@@ -163,7 +165,10 @@ slate.common.rocketmq.namesrv=host1:9876;host2:9876
             isOrdered = false
     )
     public void test(Map map) {
+        //入参默认支持MessageExt/Message/byte[]/String/Map, 需要支持更多类型请自定义RmqConsumerMethodInvokerFactory, 见RmqHelperConfig
         logger.info("Received: {}", map);
+        //返回类型不限定, 可以为void, 但是返回false会退回消息(RECONSUME, 该消息会重新被消费)
+        //该方法抛出异常时, 默认不会退回消息(RECONSUME), 设置reconsumeWhenException=true后, 当抛出异常时会退回消息
     }
 ```
 
