@@ -48,8 +48,8 @@ allprojects {
 	version project_version
 
     //build version
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
 	//encoding
 	[compileJava, compileTestJava, javadoc]*.options*.encoding = "UTF-8"

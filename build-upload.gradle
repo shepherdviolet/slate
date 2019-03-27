@@ -100,7 +100,7 @@ configure(subprojects.findAll { it.name.startsWith('slate-') }) {
 	        pom.project {
 	            name project.name
 	            packaging 'jar'
-	            description 'Java EE Library'
+	            description 'Comprehensive Java library for spring framework (Java8+)'
 	            url 'https://github.com/shepherdviolet/slate'
 
 	            scm {

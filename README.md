@@ -1,5 +1,6 @@
 # Slate 14.1
-* Comprehensive Java library for spring framework (Java7+)
+* Comprehensive Java library for spring framework (Java8+)
+* Can be recompiled with Java 7, but some features will not be available
 * https://github.com/shepherdviolet/slate
 * [Special thanks to JetBrains for the free open source license, it is very helpful for our project!](https://www.jetbrains.com/?from=slate)
 
