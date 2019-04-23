@@ -179,6 +179,24 @@ slate:
 <br>
 <br>
 
+# 配置数据转换器`dataConverter`(可选)
+
+* 如果你希望直接发送一个Bean对象, 或接收一个Bean对象作为响应, 请配置`dataConverter`
+* SpringBoot自动配置模式下, 如果你的工程依赖了`com.google.code.gson:gson`会自动配置一个`GsonDataConverter`
+* 如果你的工程未依赖`com.google.code.gson:gson`, 或希望自行实现转换逻辑, 请自行配置一个:
+
+```text
+    //必须叫这个名字
+    @Bean(HttpClients.DATA_CONVERTER_NAME)
+    public DataConverter httpClientsDataConverter(){
+        return new YourDataConverter();
+    }
+```
+
+<br>
+<br>
+<br>
+
 # 手动配置
 
 * 除了用YML配置, 也可以进行手动配置, 参考https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-annotation.md

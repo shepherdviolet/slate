@@ -2,8 +2,8 @@
 dependencies {
     //required
     compile "com.github.shepherdviolet:thistle-common:$version_thistle"
-    compile "com.github.shepherdviolet:glaciion-core:$version_glaciion"
     compile "org.springframework:spring-context:$version_spring"
+    compile "org.slf4j:slf4j-api:$version_slf4j"
 
     //compile only
     compileOnly "javax.servlet:javax.servlet-api:$version_servlet"
@@ -17,6 +17,7 @@ dependencies {
     compile "com.alibaba:hessian-lite:$version_hessianlite", optional
     compile "org.objenesis:objenesis:$version_objenesis", optional
     compile "org.apache.rocketmq:rocketmq-client:$version_rocketmq", optional
+    compile "com.alicp.jetcache:jetcache-starter-redis-lettuce:$version_jetcache", optional
 
     //compileOnly
 //    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$version_spring_boot"

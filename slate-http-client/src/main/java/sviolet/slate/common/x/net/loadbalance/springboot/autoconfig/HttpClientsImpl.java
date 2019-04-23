@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import sviolet.slate.common.x.net.loadbalance.classic.DataConverter;
 import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
 import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
@@ -48,6 +49,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     private static final Logger logger = LoggerFactory.getLogger(HttpClientsImpl.class);
 
+    private DataConverter dataConverter;
     private boolean noticeLogEnabled = true;
 
     private Map<String, SimpleOkHttpClient> clients = new ConcurrentHashMap<>(16);
@@ -56,9 +58,11 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
     private LinkedBlockingQueue<OverrideSettings> overrideSettingQueue = new LinkedBlockingQueue<>();
     private ExecutorService overrideThreadPool = ThreadPoolExecutorUtils.createLazy(60, "Slate-HttpClients-override-%d");
 
-    HttpClientsImpl(SlatePropertiesForHttpClient slatePropertiesForHttpClient) {
+    HttpClientsImpl(SlatePropertiesForHttpClient slatePropertiesForHttpClient, DataConverter dataConverter) {
 
         logger.info("HttpClients | Enabled");
+
+        this.dataConverter = dataConverter;
 
         if (slatePropertiesForHttpClient.getHttpclient() != null) {
             noticeLogEnabled = slatePropertiesForHttpClient.getHttpclient().isNoticeLogEnabled();
@@ -84,7 +88,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                 logger.debug("HttpClients | " + tag + "> Creating with settings: " + settings);
             }
 
-            SimpleOkHttpClient client = HttpClientCreator.create(tag, settings);
+            SimpleOkHttpClient client = HttpClientCreator.create(tag, settings, dataConverter);
             clients.put(tag, client);
 
             if (logger.isInfoEnabled()) {
@@ -205,7 +209,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                     //Check if new
                     if (client == null) {
                         try {
-                            client = HttpClientCreator.create(tag, new HttpClientSettings());
+                            client = HttpClientCreator.create(tag, new HttpClientSettings(), dataConverter);
                             client.start();
                             clients.put(tag, client);
                             logger.info("HttpClients SettingsOverride | " + tag + "> Create new HttpClient with default properties, because no HttpClient named " + tag + " before");

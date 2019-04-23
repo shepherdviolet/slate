@@ -21,7 +21,7 @@ package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.slate.common.x.net.loadbalance.classic.GsonDataConverter;
+import sviolet.slate.common.x.net.loadbalance.classic.DataConverter;
 import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
 import sviolet.thistle.util.conversion.SimpleKeyValueEncoder;
 import sviolet.thistle.util.judge.CheckUtils;
@@ -41,9 +41,14 @@ class HttpClientCreator {
      * 根据tag和配置创建一个HttpClient
      * @param tag tag
      * @param settings 配置
+     * @param dataConverter 数据类型转换器
      * @return SimpleOkHttpClient
      */
-    static SimpleOkHttpClient create(String tag, HttpClientSettings settings) {
+    static SimpleOkHttpClient create(
+            String tag,
+            HttpClientSettings settings,
+            DataConverter dataConverter) {
+
         //tag
         SimpleOkHttpClient client = (SimpleOkHttpClient) new SimpleOkHttpClient().setTag(tag);
 
@@ -84,7 +89,7 @@ class HttpClientCreator {
                 .setHttpCodeNeedBlock(settings.getHttpCodeNeedBlock())
                 .setVerboseLog(settings.isVerboseLog())
                 .setTxTimerEnabled(settings.isTxTimerEnabled())
-                .setDataConverter(new GsonDataConverter())
+                .setDataConverter(dataConverter)
                 .setRequestTraceEnabled(settings.isRequestTraceEnabled());
     }
 
@@ -95,7 +100,12 @@ class HttpClientCreator {
      * @param property 客户端参数名
      * @param value 新参数值
      */
-    static void settingsOverride(SimpleOkHttpClient client, String tag, String property, String value){
+    static void settingsOverride(
+            SimpleOkHttpClient client,
+            String tag,
+            String property,
+            String value){
+
         if (logger.isInfoEnabled()) {
             logger.info("HttpClients SettingsOverride | Trying to change " + property + " of " + tag + " to '" + value + "'");
         }

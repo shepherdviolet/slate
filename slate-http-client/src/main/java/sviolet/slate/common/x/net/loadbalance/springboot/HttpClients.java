@@ -32,6 +32,7 @@ import java.util.Set;
 public interface HttpClients {
 
     String HTTP_CLIENTS_NAME = "slate.httpclient.httpClients";
+    String DATA_CONVERTER_NAME = "slate.httpclient.dataConverter";
 
     /**
      * 获取Http请求客户端

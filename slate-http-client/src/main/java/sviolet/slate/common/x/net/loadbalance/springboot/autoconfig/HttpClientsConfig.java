@@ -19,13 +19,20 @@
 
 package sviolet.slate.common.x.net.loadbalance.springboot.autoconfig;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import sviolet.slate.common.x.bean.mbrproc.EnableMemberProcessor;
+import sviolet.slate.common.x.net.loadbalance.classic.DataConverter;
+import sviolet.slate.common.x.net.loadbalance.classic.GsonDataConverter;
 import sviolet.slate.common.x.net.loadbalance.springboot.autowired.HttpClientMemberProcessor;
 import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
+
+import java.util.Map;
 
 /**
  * <p>HttpClients配置: 自动配置SimpleOkHttpClient</p>
@@ -53,9 +60,29 @@ public class HttpClientsConfig {
     @Bean(HttpClients.HTTP_CLIENTS_NAME)
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public HttpClients httpClientsContainer(
-            @Qualifier(SlatePropertiesForHttpClient.BEAN_NAME)
-                    SlatePropertiesForHttpClient slatePropertiesForHttpClient) {
-        return new HttpClientsImpl(slatePropertiesForHttpClient);
+            @Qualifier(SlatePropertiesForHttpClient.BEAN_NAME) SlatePropertiesForHttpClient slatePropertiesForHttpClient,
+            ObjectProvider<Map<String, DataConverter>> dataConverterProvider) {
+
+        //data converter
+        DataConverter dataConverter = null;
+        Map<String, DataConverter> dataConverterMap = dataConverterProvider.getIfAvailable();
+        if (dataConverterMap != null) {
+            dataConverter = dataConverterMap.get(HttpClients.DATA_CONVERTER_NAME);
+        }
+
+        //impl
+        return new HttpClientsImpl(slatePropertiesForHttpClient, dataConverter);
+    }
+
+    /**
+     * 数据转换器(JavaBean -> JSON byte[])
+     */
+    @Bean(HttpClients.DATA_CONVERTER_NAME)
+    @ConditionalOnClass(name = "com.google.gson.Gson")
+    @ConditionalOnMissingBean(name = HttpClients.DATA_CONVERTER_NAME)
+    public DataConverter httpClientsDataConverter(){
+        //默认用GSON
+        return new GsonDataConverter();
     }
 
 }
