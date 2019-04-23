@@ -106,7 +106,7 @@
 
 # Glaciion SPI扩展点1: 类型转换
 
-* 以下示例均为精简案例, 更多高级用法详见文档:https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
+* 以下示例均为精简案例, 更多高级用法详见文档:https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md
 
 ## 完全自定义实现类型转换逻辑(不推荐)
 
@@ -255,7 +255,7 @@ logEnabled=false
 
 # Glaciion SPI扩展点2: 不可分割类型判断
 
-* 以下示例均为精简案例, 更多高级用法详见文档:https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md
+* 以下示例均为精简案例, 更多高级用法详见文档:https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md
 
 ## 完全自定义实现不可分割类型判断器(不推荐)
 

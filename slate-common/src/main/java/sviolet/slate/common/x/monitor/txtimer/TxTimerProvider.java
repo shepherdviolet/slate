@@ -30,7 +30,7 @@ import java.lang.reflect.Method;
  *
  * <p>实现:耗时统计/结果输出</p>
  *
- * <p>使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/glaciion/blob/master/docs/guide.md</p>
+ * <p>使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md</p>
  *
  * @see TxTimer
  * @author S.Violet
