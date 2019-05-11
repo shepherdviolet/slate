@@ -27,6 +27,7 @@ import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider;
 import sviolet.thistle.model.concurrent.lock.UnsafeHashSpinLocks;
 import sviolet.thistle.model.concurrent.lock.UnsafeSpinLock;
 
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -78,7 +79,7 @@ public class DefaultTxTimerProvider implements TxTimerProvider, InitializableImp
     static final long MINUTE_MILLIS = 60L * 1000L;
 
     //用于start和stop之间的上下文传递
-    private ThreadLocal<Record> record = new ThreadLocal<>();
+    private ThreadLocal<LinkedList<Record>> recordStack = new ThreadLocal<>();
 
     //组Map
     Map<String, Group> groups = new ConcurrentHashMap<>();
@@ -98,6 +99,19 @@ public class DefaultTxTimerProvider implements TxTimerProvider, InitializableImp
         reportIntervalMillis = reportInterval * 60 * 1000;
         locks = new UnsafeHashSpinLocks(hashLockNum);
         logger.info("TxTimer | Config: Ordinary Report every " + reportInterval + " minutes");
+
+        if (pageLines < 1) {
+            throw new IllegalArgumentException("slate.txtimer.pagelines must >= 1");
+        }
+        if (mapInitCap < 16) {
+            throw new IllegalArgumentException("slate.txtimer.mapinitcap must >= 16");
+        }
+        if (hashLockNum < 8) {
+            throw new IllegalArgumentException("slate.txtimer.hashlocknum must >= 8");
+        }
+        if (updateAttempts < 1) {
+            throw new IllegalArgumentException("slate.txtimer.updateattemps must >= 1");
+        }
     }
 
     @Override
@@ -108,33 +122,39 @@ public class DefaultTxTimerProvider implements TxTimerProvider, InitializableImp
         if (transactionName == null) {
             transactionName = "<null>";
         }
-        //从ThreadLocal获取上下文, 若存在则不正常
-        Record record = this.record.get();
-        if (record != null) {
-            //重复调用start没有做stop, 忘记做stop, 有可能会导致这个问题
-            Transaction transaction = getGroup(record.getGroupName()).getTransaction(record.getTransactionName());
-            transaction.duplicate();
+        //从ThreadLocal获取上下文
+        LinkedList<Record> recordStack = this.recordStack.get();
+        if (recordStack == null) {
+            recordStack = new LinkedList<>();
+            this.recordStack.set(recordStack);
         }
         //获得交易记录实例
         Transaction transaction = getGroup(groupName).getTransaction(transactionName);
         //标记为正在执行
         transaction.running();
         //在ThreadLocal记录上下文
-        record = new Record(groupName, transactionName);
-        this.record.set(record);
+        recordStack.addLast(new Record(groupName, transactionName));
     }
 
     @Override
     public void stop() {
         //从ThreadLocal获取上下文, 若不存在则不正常
-        Record record = this.record.get();
+        LinkedList<Record> recordStack = this.recordStack.get();
+        if (recordStack == null) {
+            //重复调用stop, 没做start直接做stop, 有可能会导致这个问题
+            missingCount.incrementAndGet();
+            return;
+        }
+        Record record = recordStack.pollLast();
         if (record == null) {
             //重复调用stop, 没做start直接做stop, 有可能会导致这个问题
             missingCount.incrementAndGet();
             return;
         }
-        //置空
-        this.record.set(null);
+        //如果栈里没记录, 则删除栈
+        if (recordStack.size() <= 0) {
+            this.recordStack.remove();
+        }
         //计算时长
         long elapse = System.currentTimeMillis() - record.getStartTime();
         //获得交易记录实例

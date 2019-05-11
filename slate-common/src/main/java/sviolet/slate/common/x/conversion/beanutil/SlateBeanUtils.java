@@ -262,7 +262,11 @@ public class SlateBeanUtils {
         if (fromBean instanceof List) {
             throw new MappingRuntimeException("SlateBeanUtils: Root node cannot be a list, data:" + String.valueOf(fromBean), null, fromBean.getClass().getName(), "java.util.Map", null);
         }
-        return (Map<String, Object>) beanOrMapToMapRecursivelyInner(fromBean, fromBean, extraIndivisibleTypes, "");
+        try {
+            return (Map<String, Object>) beanOrMapToMapRecursivelyInner(fromBean, fromBean, extraIndivisibleTypes, "");
+        } catch (StackOverflowError e) {
+            throw new RuntimeException("StackOverflow! The instance holds itself!", e);
+        }
     }
 
     private static Object beanOrMapToMapRecursivelyInner(Object root, Object fromBean, Map<Class<?>, IndivisibleJudge.JudgeType> extraIndivisibleTypes, String path) {

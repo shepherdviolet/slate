@@ -33,8 +33,6 @@ class Transaction {
     AtomicInteger finishCount = new AtomicInteger(0);
     //执行中计数
     AtomicInteger runningCount = new AtomicInteger(0);
-    //碰撞计数, 重复调用start没有做stop, 忘记做stop, 有可能会导致这个问题
-    AtomicInteger duplicateCount = new AtomicInteger(0);
 
     //用于粗略地估算总平均耗时
     long averageElapseTotal = 0;
@@ -50,14 +48,6 @@ class Transaction {
         for (int i = 0 ; i < units.length ; i++) {
             units[i] = new Unit(provider);
         }
-    }
-
-    /**
-     * 发生碰撞
-     */
-    void duplicate(){
-        //碰撞计数
-        duplicateCount.incrementAndGet();
     }
 
     /**

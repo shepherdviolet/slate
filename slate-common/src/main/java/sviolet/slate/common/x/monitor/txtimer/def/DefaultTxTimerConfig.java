@@ -86,7 +86,7 @@ public class DefaultTxTimerConfig {
     public static void setReportAllInterval(String reportAllInterval) {
         int value;
         try {
-            value = Integer.valueOf(reportAllInterval);
+            value = Integer.parseInt(reportAllInterval);
         } catch (Exception e) {
             logger.error("TxTimer | Config: Error while parsing reportAllInterval " + reportAllInterval + " to int, change reportAllInterval failed", e);
             return;
@@ -120,7 +120,7 @@ public class DefaultTxTimerConfig {
     public static void setThresholdAvg(String thresholdAvg) {
         int value;
         try {
-            value = Integer.valueOf(thresholdAvg);
+            value = Integer.parseInt(thresholdAvg);
         } catch (Exception e) {
             logger.error("TxTimer | Config: Error while parsing thresholdAvg " + thresholdAvg + " to int, change thresholdAvg failed", e);
             return;
@@ -154,7 +154,7 @@ public class DefaultTxTimerConfig {
     public static void setThresholdMax(String thresholdMax) {
         int value;
         try {
-            value = Integer.valueOf(thresholdMax);
+            value = Integer.parseInt(thresholdMax);
         } catch (Exception e) {
             logger.error("TxTimer | Config: Error while parsing thresholdMax " + thresholdMax + " to int, change thresholdMax failed", e);
             return;
@@ -188,7 +188,7 @@ public class DefaultTxTimerConfig {
     public static void setThresholdMin(String thresholdMin) {
         int value;
         try {
-            value = Integer.valueOf(thresholdMin);
+            value = Integer.parseInt(thresholdMin);
         } catch (Exception e) {
             logger.error("TxTimer | Config: Error while parsing thresholdMin " + thresholdMin + " to int, change thresholdMin failed", e);
             return;

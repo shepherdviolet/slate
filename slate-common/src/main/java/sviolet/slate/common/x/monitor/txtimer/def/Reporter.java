@@ -163,7 +163,6 @@ class Reporter {
                 info.transactionName = transactionEntry.getKey();
                 info.finishTotal = transactionEntry.getValue().finishCount.get();
                 info.runningTotal = transactionEntry.getValue().runningCount.get();
-                info.duplicateTotal = transactionEntry.getValue().duplicateCount.get();
                 info.finish = finishCountSum;
                 info.averageElapse = finishCountSum > 0 ? totalElapseSum / finishCountSum : 0;
                 info.maxElapse = maxElapse != Long.MIN_VALUE ? maxElapse : 0;
@@ -200,15 +199,11 @@ class Reporter {
             String title = (reportAll ? "[ReportAll] " : "") + "Group (" + groupEntry.getKey() + ") Time (" + dateFormat.format(new Date(reportStartTime)) + " - " + dateFormat.format(new Date(reportEndTime)) + ")";
             for (Info info : infos) {
                 if (reportAll ||
-                        info.duplicateTotal > 0 ||
                         !DefaultTxTimerConfig.thresholdEnabled ||
                         info.averageElapse >= DefaultTxTimerConfig.thresholdAvg ||
                         info.maxElapse >= DefaultTxTimerConfig.thresholdMax ||
                         info.minElapse >= DefaultTxTimerConfig.thresholdMin) {
                     print(title, String.valueOf(info));
-                }
-                if (info.duplicateTotal > 0) {
-                    print(title, "ERROR!!! Times:" + info.duplicateTotal + ", TxTimer.start() been invoked before previous transaction finished (you invoke TxTimer.start() twice before TxTimer.stop(), start > start > stop)");
                 }
             }
 
@@ -230,7 +225,6 @@ class Reporter {
         private String transactionName;
         private int finishTotal;
         private int runningTotal;
-        private int duplicateTotal;
         private long averageElapseTotal;
         private int finish;
         private long maxElapse;

@@ -62,6 +62,11 @@ public class MybatisTxTimerPlugin implements Interceptor {
     private String groupName;
 
     public MybatisTxTimerPlugin() {
+        this("Mybatis");
+    }
+
+    public MybatisTxTimerPlugin(String groupName) {
+        this.groupName = groupName;
         logger.info("TxTimer | MyBatis monitor enabled");
     }
 

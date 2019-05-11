@@ -5,4 +5,4 @@ reportInterval=5
 pageLines=20
 mapInitCap=128
 hashLockNum=16
-updateAttemps=10
+updateAttempts=10

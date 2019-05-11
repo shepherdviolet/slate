@@ -23,7 +23,7 @@
 
 # 记录耗时
 
-* 使用try-finally包裹, 确保stop被执行
+* `注意!!! 必须使用try-finally包裹, 确保stop被执行`
 * `GroupName`是组别名, 统计报告按组别分类输出
 * `TransactionName`是交易名
 
@@ -51,6 +51,7 @@
 ```
 
 * 仅当代理实例存在时, 记录耗时
+* `注意!!! 必须使用try-finally包裹, 确保stop被执行`
 
 ```text
     NoRefTxTimer txTimer = this.txTimer;
