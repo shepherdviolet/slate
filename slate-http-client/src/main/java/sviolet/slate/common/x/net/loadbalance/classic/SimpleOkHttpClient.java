@@ -21,6 +21,7 @@ package sviolet.slate.common.x.net.loadbalance.classic;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import sviolet.slate.common.x.net.loadbalance.LoadBalanceInspector;
 import sviolet.slate.common.x.net.loadbalance.LoadBalancedHostManager;
 import sviolet.slate.common.x.net.loadbalance.LoadBalancedInspectManager;
 import sviolet.slate.common.x.net.loadbalance.inspector.HttpGetLoadBalanceInspector;
@@ -188,6 +189,19 @@ public class SimpleOkHttpClient extends MultiHostOkHttpClient implements Closeab
         } else {
             inspectManager.setInspector(new HttpGetLoadBalanceInspector(urlSuffix, inspectManager.getInspectTimeout()));
         }
+        return this;
+    }
+
+    /**
+     * [可运行时修改]
+     * 设置自定义的主动探测器, 这个方法与setHttpGetInspector方法只能选择一个设置
+     * @param inspector 自定义主动探测器, 默认为TELNET方式
+     */
+    public SimpleOkHttpClient setInspector(LoadBalanceInspector inspector) {
+        if (inspector == null) {
+            inspector = new TelnetLoadBalanceInspector();
+        }
+        inspectManager.setInspector(inspector);
         return this;
     }
 

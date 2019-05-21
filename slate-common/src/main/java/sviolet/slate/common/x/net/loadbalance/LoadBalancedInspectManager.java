@@ -21,6 +21,7 @@ package sviolet.slate.common.x.net.loadbalance;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sviolet.slate.common.x.net.loadbalance.inspector.FixedTimeoutLoadBalanceInspector;
 import sviolet.slate.common.x.net.loadbalance.inspector.TelnetLoadBalanceInspector;
 import sviolet.thistle.util.common.CloseableUtils;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
@@ -47,7 +48,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *      LoadBalancedInspectManager inspectManager = new LoadBalancedInspectManager()
  *              //设置要探测的远端管理器(必须)
  *              .setHostManager(hostManager)
- *              //探测间隔(阻断时长为该值的两倍, 探测超时为该值的1/4)
+ *              //探测间隔(阻断时长为该值的两倍, 探测超时为该值的1/2)
  *              .setInspectInterval(5000L)
  *              //设置探测器
  *              .setInspector(new TelnetLoadBalanceInspector())
@@ -79,7 +80,7 @@ public class LoadBalancedInspectManager implements Closeable {
     private boolean verboseLog = false;
 
     private long inspectInterval = DEFAULT_INSPECT_INTERVAL;
-    private long inspectTimeout = DEFAULT_INSPECT_INTERVAL / 4;
+    private long inspectTimeout = DEFAULT_INSPECT_INTERVAL / 2;
     private long blockDuration = DEFAULT_INSPECT_INTERVAL * 2;
 
     private ExecutorService dispatchThreadPool = ThreadPoolExecutorUtils.createFixed(1, "Slate-LBInspect-Dispatch-%d");
@@ -185,9 +186,19 @@ public class LoadBalancedInspectManager implements Closeable {
         //探测间隔
         this.inspectInterval = inspectInterval;
         //探测超时
-        this.inspectTimeout = inspectInterval / 4;
+        this.inspectTimeout = inspectInterval / 2;
         //故障时远端被阻断的时间
         this.blockDuration = inspectInterval * 2;
+
+        //更新探测器的超时时间
+        List<LoadBalanceInspector> inspectors = LoadBalancedInspectManager.this.inspectors;
+        if (inspectors != null) {
+            for (LoadBalanceInspector inspector : inspectors) {
+                if (inspector instanceof FixedTimeoutLoadBalanceInspector) {
+                    ((FixedTimeoutLoadBalanceInspector) inspector).setTimeout(inspectTimeout);
+                }
+            }
+        }
         return this;
     }
 

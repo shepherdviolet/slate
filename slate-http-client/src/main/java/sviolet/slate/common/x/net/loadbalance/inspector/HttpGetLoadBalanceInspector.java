@@ -24,7 +24,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.slate.common.x.net.loadbalance.LoadBalanceInspector;
 import sviolet.thistle.util.common.CloseableUtils;
 
 import java.io.Closeable;
@@ -36,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author S.Violet
  */
-public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closeable {
+public class HttpGetLoadBalanceInspector implements FixedTimeoutLoadBalanceInspector, Closeable {
 
     private static final int HTTP_SUCCESS = 200;
     private static final long DEFAULT_TIMEOUT = 2000L;
@@ -77,7 +76,7 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closea
                     .build();
         } catch (Throwable t) {
             if (logger.isErrorEnabled()){
-                logger.error("Inspect: invalid url " + url, t);
+                logger.error("Inspect: invalid url " + url + urlSuffix, t);
             }
             //探测的URL异常视为后端异常
             return false;
@@ -89,9 +88,10 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closea
                 return true;
             }
         } catch (Throwable t) {
-            if (logger.isDebugEnabled()){
-                //DEBUG级别时输出WARN日志
-                logger.warn("Inspect: error, url " + url, t);
+            if (logger.isTraceEnabled()){
+                logger.trace("Inspect: error, url " + url + urlSuffix, t);
+            } else if (logger.isDebugEnabled()) {
+                logger.debug("Inspect: error, url " + url + urlSuffix + ", error message:" + t.getMessage() + ", set level to trace for more");
             }
         } finally {
             CloseableUtils.closeQuiet(response);
@@ -106,6 +106,10 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closea
     @Override
     public void close() throws IOException {
         closed = true;
+        closeClient(client);
+    }
+
+    private void closeClient(OkHttpClient client) {
         try {
             client.dispatcher().executorService().shutdown();
             client.connectionPool().evictAll();
@@ -116,19 +120,22 @@ public class HttpGetLoadBalanceInspector implements LoadBalanceInspector, Closea
 
     /**
      * [可运行时修改(不建议频繁修改)]
-     * 设置单次探测网络超时时间(必须), 建议为LoadBalancedInspectManager.setInspectInterval设置值的1/4
+     * 设置单次探测网络超时时间(必须), 建议为LoadBalancedInspectManager.setInspectInterval设置值的1/2
      */
+    @Override
     public void setTimeout(long timeout){
         //除以2, 因为网络超时包括连接/写入/读取超时, 避免过长
         timeout = timeout >> 1;
         if (timeout <= 0){
             throw new IllegalArgumentException("timeout must > 1 (usually > 1000)");
         }
+        OkHttpClient previous = client;
         client = new OkHttpClient.Builder()
                 .connectTimeout(timeout, TimeUnit.MILLISECONDS)
                 .readTimeout(timeout, TimeUnit.MILLISECONDS)
                 .writeTimeout(timeout, TimeUnit.MILLISECONDS)
                 .build();
+        closeClient(previous);
     }
 
     /**
