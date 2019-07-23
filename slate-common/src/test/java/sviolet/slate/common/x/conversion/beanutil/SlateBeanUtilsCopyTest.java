@@ -16,7 +16,6 @@ public class SlateBeanUtilsCopyTest {
     public void test() throws InterruptedException {
 //        System.out.println(EnvironmentUtils.PID);
         System.setProperty("slate.beanutils.log", "false");
-        System.setProperty("thistle.spi.loglv", "error");
         String result = String.valueOf(copyOnce());
 //        System.out.println(result);
     }
@@ -167,7 +166,6 @@ public class SlateBeanUtilsCopyTest {
 
     public static void main(String[] args) {
         System.setProperty("slate.beanutils.log", "true");
-        System.setProperty("thistle.spi.loglv", "error");
 
         for (int i = 0 ; i < 1000 ; i++) {
             new Thread(new Runnable() {

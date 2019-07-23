@@ -14,7 +14,6 @@ public class SlateBeanUtilsFromToMapTest {
     public void toMap(){
 //        System.out.println(EnvironmentUtils.PID);
         System.setProperty("slate.beanutils.log", "false");
-        System.setProperty("thistle.spi.loglv", "error");
         Bean bean = new Bean();
         bean.p1 = "lalala";
         bean.p2 = new BigDecimal("321.333");
@@ -28,7 +27,6 @@ public class SlateBeanUtilsFromToMapTest {
     public void fromMap() throws InterruptedException {
 //        System.out.println(EnvironmentUtils.PID);
         System.setProperty("slate.beanutils.log", "false");
-        System.setProperty("thistle.spi.loglv", "error");
         Map<String, Object> map = new HashMap<>();
         map.put("p1", "lalala");
         map.put("p2", 123.333);

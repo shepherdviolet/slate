@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
 import sviolet.thistle.util.judge.CheckUtils;
+import sviolet.thistle.util.reflect.ReflectUtils;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -122,15 +123,15 @@ public class LoadBalancedHostManager {
         }
     }
 
+    private final Collection<String> startsWithSkips = Arrays.asList(
+            "sviolet.slate.common.x.net.loadbalance.",
+            "org.springframework.cglib.proxy.Proxy$ProxyImpl$$"
+    );
+
     private String getCallerInfo() {
-        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-        boolean found = false;
-        for (StackTraceElement element : stackTraceElements) {
-            if (element.getClassName().startsWith("sviolet.slate.common.x.net.loadbalance")) {
-                found = true;
-            } else if (found) {
-                return element.getClassName() + "#" + element.getMethodName();
-            }
+        ReflectUtils.MethodCaller methodCaller = ReflectUtils.getMethodCaller(null, startsWithSkips);
+        if (methodCaller != null) {
+            return methodCaller.getCallerClass() + "#" + methodCaller.getCallerMethodName();
         }
         return "";
     }

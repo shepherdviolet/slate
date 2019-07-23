@@ -230,6 +230,7 @@ public class MultiHostOkHttpClient {
         private byte[] body;
         private Map<String, Object> formBody;
         private Object beanBody;
+        private RequestBody customBody;
 
         //senior
         private boolean autoClose = true;
@@ -275,6 +276,7 @@ public class MultiHostOkHttpClient {
             this.body = body;
             this.formBody = null;
             this.beanBody = null;
+            this.customBody = null;
             return this;
         }
 
@@ -288,6 +290,7 @@ public class MultiHostOkHttpClient {
             this.body = null;
             this.formBody = formBody;
             this.beanBody = null;
+            this.customBody = null;
             return this;
         }
 
@@ -302,6 +305,37 @@ public class MultiHostOkHttpClient {
             this.body = null;
             this.formBody = null;
             this.beanBody = beanBody;
+            this.customBody = null;
+            return this;
+        }
+
+        /**
+         * <p>
+         *     [配置]POST请求专用: 请求报文体, OkHttp RequestBody<br>
+         *     用这个会使得Request.mediaType()无效, 会由Builder().setType()指定.
+         * </p>
+         *
+         * <pre>
+         *     //Multipart Form 示例
+         *     //文件
+         *     RequestBody fileBody = RequestBody.create(MediaType.parse("image/png"), fileOrData);
+         *     //Multipart请求体
+         *     RequestBody requestBody = new MultipartBody.Builder()
+         *             .setType(MultipartBody.FORM)
+         *             .addFormDataPart("file", "file_name", fileBody)
+         *             .addFormDataPart("param1", value1)
+         *             .addFormDataPart("param2", value2)
+         *             .build();
+         * </pre>
+         */
+        public Request customBody(RequestBody customBody) {
+            if (!isPost) {
+                throw new IllegalArgumentException("You can not set body in GET request");
+            }
+            this.body = null;
+            this.formBody = null;
+            this.beanBody = null;
+            this.customBody = customBody;
             return this;
         }
 
@@ -581,6 +615,7 @@ public class MultiHostOkHttpClient {
                     ", body=" + ByteUtils.bytesToHex(body) +
                     ", formBody=" + formBody +
                     ", beanBody=" + beanBody +
+                    ", customBody=" + customBody +
                     ", passiveBlockDuration=" + passiveBlockDuration +
                     ", mediaType='" + mediaType + '\'' +
                     ", encode='" + encode + '\'' +
@@ -945,6 +980,8 @@ public class MultiHostOkHttpClient {
             bodyLog = ", formBody:" + request.formBody;
         } else if (request.beanBody != null) {
             bodyLog = ", beanBody:" + request.beanBody;
+        } else if (request.customBody != null) {
+            bodyLog = ", customBody:" + request.customBody;
         } else {
             bodyLog = ", body: null";
         }
@@ -980,6 +1017,8 @@ public class MultiHostOkHttpClient {
             } catch (Exception e) {
                 logger.warn(genLogPrefix(settings.tag, request) + "Error while printing string body", e);
             }
+        } else if (request.customBody != null) {
+            logger.info(genLogPrefix(settings.tag, request) + "POST: string-body: multipart data can not be print");
         } else {
             logger.info(genLogPrefix(settings.tag, request) + "POST: string-body: null");
         }
@@ -1161,7 +1200,11 @@ public class MultiHostOkHttpClient {
             }
             printPostStringBodyLog(request, requestBodyBytes);
             requestBody = RequestBody.create(MediaType.parse(request.mediaType != null ? request.mediaType : settings.mediaType), requestBodyBytes);
-        } else {
+        } else if (request.customBody != null) {
+            //custom
+            printPostStringBodyLog(request, null);
+            requestBody = request.customBody;
+        }else {
             //null
             requestBody = RequestBody.create(MediaType.parse(request.mediaType != null ? request.mediaType : settings.mediaType), new byte[0]);
         }
