@@ -94,8 +94,7 @@ class InterfaceInstBeanDefRegistry4 implements BeanDefinitionRegistryPostProcess
 
             //根据注解过滤
             if (annotationAttributes.getBoolean("annotationRequired")) {
-                TypeFilter includeFilter = new AnnotationTypeFilter(annotationClass);
-                beanScanner.addIncludeFilter(includeFilter);
+                beanScanner.addIncludeFilter(new AnnotationTypeFilter(annotationClass));
             } else {
                 beanScanner.addIncludeFilter(new TypeFilter() {
                     @Override
