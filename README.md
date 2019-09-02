@@ -10,7 +10,9 @@
 
 * [InterfaceInstantiation | Interface instantiation tool, supporting proxy](https://github.com/shepherdviolet/slate/blob/master/docs/interfaceinst/guide.md)
 * [SlateBeanUtils | Bean to Bean / Bean to Map Conversion tool](https://github.com/shepherdviolet/slate/blob/master/docs/beanutils/guide.md)
+* [TxTimer | RT Statistic API](https://github.com/shepherdviolet/slate/blob/master/docs/txtimer/guide.md)
 * [RocketMQ Helper | Subscribe message by annotation](https://github.com/shepherdviolet/slate/blob/master/docs/rocketmq/guide.md)
+* [Sentinel Helper | Another way to config rules](https://github.com/shepherdviolet/slate/blob/master/docs/ezsentinel/guide.md)
 * [Helpers | Helper of third party libraries](https://github.com/shepherdviolet/slate/tree/develop/slate-common/src/main/java/sviolet/slate/common/helper)
 * [Various Utils | Various utils are here](https://github.com/shepherdviolet/slate/tree/develop/slate-common/src/main/java/sviolet/slate/common/util)
 

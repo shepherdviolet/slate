@@ -20,6 +20,8 @@ dependencies {
     compile "org.apache.rocketmq:rocketmq-client:$version_rocketmq", optional
     compile "com.alicp.jetcache:jetcache-starter-redis-lettuce:$version_jetcache", optional
     compile "com.ctrip.framework.apollo:apollo-client:$version_apollo", optional
+    compile "com.google.code.gson:gson:$version_gson", optional
+    compile "com.alibaba.csp:sentinel-core:$version_sentinel", optional
 
     //compileOnly
 //    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$version_spring_boot"
