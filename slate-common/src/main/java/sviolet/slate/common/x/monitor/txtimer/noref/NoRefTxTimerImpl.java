@@ -19,8 +19,9 @@
 
 package sviolet.slate.common.x.monitor.txtimer.noref;
 
+import sviolet.slate.common.x.monitor.txtimer.TimerContext;
 import sviolet.slate.common.x.monitor.txtimer.TxTimer;
-import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider;
+import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider2;
 
 /**
  * 与TxTimer关联点
@@ -30,17 +31,22 @@ import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider;
 class NoRefTxTimerImpl implements NoRefTxTimer {
 
     @Override
-    public void start(String groupName, String transactionName) {
-        TxTimer.start(groupName, transactionName);
+    public TimerContext entry(String groupName, String transactionName) {
+        return TxTimer.entry(groupName, transactionName);
     }
 
     @Override
-    public void stop() {
-        TxTimer.stop();
+    public void exit(TimerContext timerContext) {
+        TxTimer.exit(timerContext);
     }
 
     @Override
-    public TxTimerProvider getProvider() {
+    public void exit(TimerContext timerContext, int resultCode) {
+        TxTimer.exit(timerContext, resultCode);
+    }
+
+    @Override
+    public TxTimerProvider2 getProvider() {
         return TxTimer.getProvider();
     }
 

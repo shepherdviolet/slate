@@ -22,6 +22,7 @@ package sviolet.slate.common.x.net.loadbalance.classic;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sviolet.slate.common.x.monitor.txtimer.TimerContext;
 import sviolet.slate.common.x.monitor.txtimer.noref.NoRefTxTimer;
 import sviolet.slate.common.x.monitor.txtimer.noref.NoRefTxTimerFactory;
 import sviolet.slate.common.x.net.loadbalance.LoadBalancedHostManager;
@@ -455,11 +456,8 @@ public class MultiHostOkHttpClient {
             }
             NoRefTxTimer txTimer = client.txTimer;
             if (txTimer != null) {
-                try {
-                    txTimer.start(TXTIMER_GROUP_SEND + client.settings.tag, urlSuffix);
+                try (TimerContext timerContext = txTimer.entry(TXTIMER_GROUP_SEND + client.settings.tag, urlSuffix)) {
                     return client.responseToBean(client.requestSend(this), type, this);
-                } finally {
-                    txTimer.stop();
                 }
             } else {
                 return client.responseToBean(client.requestSend(this), type, this);
@@ -483,11 +481,8 @@ public class MultiHostOkHttpClient {
             }
             NoRefTxTimer txTimer = client.txTimer;
             if (txTimer != null) {
-                try {
-                    txTimer.start(TXTIMER_GROUP_SEND + client.settings.tag, urlSuffix);
+                try (TimerContext timerContext = txTimer.entry(TXTIMER_GROUP_SEND + client.settings.tag, urlSuffix)) {
                     return client.responseToBytes(client.requestSend(this));
-                } finally {
-                    txTimer.stop();
                 }
             } else {
                 return client.responseToBytes(client.requestSend(this));
@@ -511,11 +506,8 @@ public class MultiHostOkHttpClient {
             }
             NoRefTxTimer txTimer = client.txTimer;
             if (txTimer != null) {
-                try {
-                    txTimer.start(TXTIMER_GROUP_SEND + client.settings.tag, urlSuffix);
+                try (TimerContext timerContext = txTimer.entry(TXTIMER_GROUP_SEND + client.settings.tag, urlSuffix)) {
                     return client.responseToInputStream(client.requestSend(this));
-                } finally {
-                    txTimer.stop();
                 }
             } else {
                 return client.responseToInputStream(client.requestSend(this));
@@ -539,11 +531,8 @@ public class MultiHostOkHttpClient {
             }
             NoRefTxTimer txTimer = client.txTimer;
             if (txTimer != null) {
-                try {
-                    txTimer.start(TXTIMER_GROUP_CONNECT + client.settings.tag, urlSuffix);
+                try (TimerContext timerContext = txTimer.entry(TXTIMER_GROUP_CONNECT + client.settings.tag, urlSuffix)) {
                     return client.requestSend(this);
-                } finally {
-                    txTimer.stop();
                 }
             } else {
                 return client.requestSend(this);

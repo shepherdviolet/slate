@@ -19,7 +19,8 @@
 
 package sviolet.slate.common.x.monitor.txtimer.noref;
 
-import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider;
+import sviolet.slate.common.x.monitor.txtimer.TimerContext;
+import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider2;
 
 /**
  * <p>对TxTimer类无引用的NoRefTxTimer代理类</p>
@@ -31,10 +32,12 @@ import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider;
  */
 public interface NoRefTxTimer {
 
-    void start(String groupName, String transactionName);
+    TimerContext entry(String groupName, String transactionName);
 
-    void stop();
+    void exit(TimerContext timerContext);
 
-    TxTimerProvider getProvider();
+    void exit(TimerContext timerContext, int resultCode);
+
+    TxTimerProvider2 getProvider();
 
 }

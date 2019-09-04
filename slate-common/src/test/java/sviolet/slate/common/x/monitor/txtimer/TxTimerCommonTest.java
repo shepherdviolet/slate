@@ -37,13 +37,10 @@ public class TxTimerCommonTest {
                     long startTime = System.currentTimeMillis();
                     while (System.currentTimeMillis() - startTime < 10 * 60 * 1000L) {
 
-                        try {
-                            TxTimer.start("HttpTransport", "Service" + String.valueOf(finalI % 50));
+                        try (TimerContext timerContext = TxTimer.entry("HttpTransport", "Service" + String.valueOf(finalI % 50))) {
                             Thread.sleep(SecureRandomUtils.nextInt(100) + finalI % 100);
 //                            Thread.sleep(100);
                         } catch (InterruptedException ignored) {
-                        } finally {
-                            TxTimer.stop();
                         }
 
                     }

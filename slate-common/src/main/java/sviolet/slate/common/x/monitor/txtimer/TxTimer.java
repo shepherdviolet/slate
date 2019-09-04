@@ -23,6 +23,8 @@ import com.github.shepherdviolet.glaciion.Glaciion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
+
 /**
  * <p>简单的交易耗时统计, 提供默认实现, 也可以用Glaciion SPI扩展</p>
  *
@@ -60,12 +62,12 @@ public class TxTimer {
 
     private static final Logger logger = LoggerFactory.getLogger(TxTimer.class);
 
-    private static final TxTimerProvider PROVIDER;
+    private static final TxTimerProvider2 PROVIDER;
 
     static {
         //统计开关, 默认关闭
         if ("true".equals(System.getProperty("slate.txtimer.enabled", "true"))) {
-            TxTimerProvider service = Glaciion.loadSingleService(TxTimerProvider.class).get();
+            TxTimerProvider2 service = Glaciion.loadSingleService(TxTimerProvider2.class).get();
             //再根据provider判断是否要启用
             if (service.enabled()) {
                 PROVIDER = service;
@@ -82,25 +84,109 @@ public class TxTimer {
      * <p>交易开始时调用</p>
      *
      * <code>
+     *  try (TimerContext context = TxTimer.entry("Entrance", "TestService")) {
+     *      // 交易逻辑 ......
+     *  }
+     * </code>
+     *
+     * <code>
+     *  TimerContext context = TxTimer.entry("Entrance", "TestService");
      *  try {
-     *      TxTimer.start("Entrance", "TestService");
      *      // 交易逻辑 ......
      *  } finally {
-     *      TxTimer.stop();
+     *      context.exit();
      *  }
      * </code>
      *
      * @param groupName 组别
      * @param transactionName 交易名
      */
-    public static void start(String groupName, String transactionName){
+    public static TimerContext entry(String groupName, String transactionName){
         if (PROVIDER != null) {
-            PROVIDER.start(groupName, transactionName);
+            return PROVIDER.entry(groupName, transactionName);
         }
+        return DUMMY_CONTEXT;
     }
 
     /**
      * 交易结束时调用
+     *
+     * <code>
+     *  try (TimerContext context = TxTimer.entry("Entrance", "TestService")) {
+     *      // 交易逻辑 ......
+     *  }
+     * </code>
+     *
+     * <code>
+     *  TimerContext context = TxTimer.entry("Entrance", "TestService");
+     *  try {
+     *      // 交易逻辑 ......
+     *  } finally {
+     *      //context.exit();
+     *      TxTimer.exit(context);
+     *  }
+     * </code>
+     *
+     * @param timerContext 处理结果编码
+     */
+    public static void exit(TimerContext timerContext) {
+        exit(timerContext, 0);
+    }
+
+    /**
+     * 交易结束时调用
+     *
+     * <code>
+     *  try (TimerContext context = TxTimer.entry("Entrance", "TestService")) {
+     *      // 交易逻辑 ......
+     *  }
+     * </code>
+     *
+     * <code>
+     *  TimerContext context = TxTimer.entry("Entrance", "TestService");
+     *  try {
+     *      // 交易逻辑 ......
+     *  } finally {
+     *      //context.exit(code);
+     *      TxTimer.exit(context, code);
+     *  }
+     * </code>
+     *
+     * @param timerContext 处理结果编码
+     */
+    public static void exit(TimerContext timerContext, int resultCode) {
+        if (timerContext == DUMMY_CONTEXT) {
+            return;
+        }
+        if (PROVIDER != null) {
+            PROVIDER.exit(timerContext, resultCode);
+        }
+    }
+
+    public static TxTimerProvider2 getProvider(){
+        if (PROVIDER != null && PROVIDER.canBeGet()) {
+            return PROVIDER;
+        }
+        logger.error("TxTimer | Prohibit access to get TxTimerProvider2, Null or Banned by TxTimerProvider2.canBeGet()");
+        return null;
+    }
+
+    private static final TimerContext DUMMY_CONTEXT = new TimerContext(){
+        @Override
+        public void exit(int resultCode) {
+            //do nothing
+        }
+    };
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Deprecated ///////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //用于start和stop之间的上下文传递
+    private static final ThreadLocal<LinkedList<TimerContext>> recordStack = new ThreadLocal<>();
+
+    /**
+     * <p>交易开始时调用, 弃用, 这个只能统计同步的代码块</p>
      *
      * <code>
      *  try {
@@ -111,15 +197,46 @@ public class TxTimer {
      *  }
      * </code>
      *
+     * @param groupName 组别
+     * @param transactionName 交易名
+     * @deprecated TxTimer#entry + TxTimer#exit instead
      */
-    public static void stop(){
+    @Deprecated
+    public static void start(String groupName, String transactionName){
         if (PROVIDER != null) {
-            PROVIDER.stop();
+            TimerContext timerContext = PROVIDER.entry(groupName, transactionName);
+            //从ThreadLocal获取上下文
+            LinkedList<TimerContext> recordStack = TxTimer.recordStack.get();
+            if (recordStack == null) {
+                recordStack = new LinkedList<>();
+                TxTimer.recordStack.set(recordStack);
+            }
+            //存入堆栈
+            recordStack.addLast(timerContext);
         }
     }
 
     /**
-     * 交易结束时调用
+     * 交易结束时调用, 弃用, 这个只能统计同步的代码块
+     *
+     * <code>
+     *  try {
+     *      TxTimer.start("Entrance", "TestService");
+     *      // 交易逻辑 ......
+     *  } finally {
+     *      TxTimer.stop();
+     *  }
+     * </code>
+     *
+     * @deprecated TxTimer#entry + TxTimer#exit instead
+     */
+    @Deprecated
+    public static void stop(){
+        stop(0);
+    }
+
+    /**
+     * 交易结束时调用, 弃用, 这个只能统计同步的代码块
      *
      * <code>
      *  try {
@@ -131,19 +248,23 @@ public class TxTimer {
      * </code>
      *
      * @param resultCode 处理结果编码
+     * @deprecated TxTimer#entry + TxTimer#exit instead
      */
+    @Deprecated
     public static void stop(int resultCode){
         if (PROVIDER != null) {
-            PROVIDER.stop(resultCode);
+            //从ThreadLocal获取上下文, 若不存在则不正常
+            LinkedList<TimerContext> recordStack = TxTimer.recordStack.get();
+            if (recordStack == null) {
+                return;
+            }
+            TimerContext timerContext = recordStack.pollLast();
+            //如果栈里没记录, 则删除栈
+            if (recordStack.size() <= 0) {
+                TxTimer.recordStack.remove();
+            }
+            PROVIDER.exit(timerContext, resultCode);
         }
-    }
-
-    public static TxTimerProvider getProvider(){
-        if (PROVIDER != null && PROVIDER.canBeGet()) {
-            return PROVIDER;
-        }
-        logger.error("TxTimer | Prohibit access to get TxTimerProvider, Null or Banned by TxTimerProvider.canBeGet()");
-        return null;
     }
 
 }

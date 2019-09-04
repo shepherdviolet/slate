@@ -22,11 +22,11 @@ package sviolet.slate.common.x.monitor.txtimer.def;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider.MINUTE_MILLIS;
+import static sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider2.MINUTE_MILLIS;
 
 class Unit {
 
-    private DefaultTxTimerProvider provider;
+    private DefaultTxTimerProvider2 provider;
 
     //开始时间
     AtomicLong startTime = new AtomicLong(0);
@@ -41,7 +41,7 @@ class Unit {
     //最小耗时
     AtomicLong minElapse = new AtomicLong(Long.MAX_VALUE);
 
-    Unit(DefaultTxTimerProvider provider) {
+    Unit(DefaultTxTimerProvider2 provider) {
         this.provider = provider;
     }
 

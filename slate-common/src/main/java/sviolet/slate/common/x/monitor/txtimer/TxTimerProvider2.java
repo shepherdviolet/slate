@@ -19,11 +19,7 @@
 
 package sviolet.slate.common.x.monitor.txtimer;
 
-import com.github.shepherdviolet.glaciion.api.annotation.NewMethod;
 import com.github.shepherdviolet.glaciion.api.annotation.SingleServiceInterface;
-import com.github.shepherdviolet.glaciion.api.interfaces.CompatibleApproach;
-
-import java.lang.reflect.Method;
 
 /**
  * <p>TxTimer简单的交易耗时统计 扩展点</p>
@@ -36,56 +32,23 @@ import java.lang.reflect.Method;
  * @author S.Violet
  */
 @SingleServiceInterface
-public interface TxTimerProvider {
+public interface TxTimerProvider2 {
 
     /**
      * <p>交易开始时调用</p>
      *
-     * <code>
-     *  try {
-     *      TxTimer.start("Entrance", "TestService");
-     *      // 交易逻辑 ......
-     *  } finally {
-     *      TxTimer.stop();
-     *  }
-     * </code>
-     *
      * @param groupName 组别
      * @param transactionName 交易名
      */
-    void start(String groupName, String transactionName);
+    TimerContext entry(String groupName, String transactionName);
 
     /**
      * 交易结束时调用
      *
-     * <code>
-     *  try {
-     *      TxTimer.start("Entrance", "TestService");
-     *      // 交易逻辑 ......
-     *  } finally {
-     *      TxTimer.stop();
-     *  }
-     * </code>
-     *
+     * @param timerContext 计数上下文
+     * @param resultCode 结果码
      */
-    void stop();
-
-    /**
-     * 交易结束时调用
-     *
-     * <code>
-     *  try {
-     *      TxTimer.start("Entrance", "TestService");
-     *      // 交易逻辑 ......
-     *  } finally {
-     *      TxTimer.stop();
-     *  }
-     * </code>
-     *
-     * @param resultCode 处理结果编码
-     */
-    @NewMethod(compatibleApproach = StopCompat.class)
-    void stop(int resultCode);
+    void exit(TimerContext timerContext, int resultCode);
 
     /**
      * 是否启用统计功能
@@ -98,16 +61,5 @@ public interface TxTimerProvider {
      * @return true 允许
      */
     boolean canBeGet();
-
-    /**
-     * stop方法向下兼容办法
-     */
-    class StopCompat implements CompatibleApproach {
-        @Override
-        public Object onInvoke(Class<?> serviceInterface, Object serviceInstance, Method method, Object[] params) throws Throwable {
-            ((TxTimerProvider)serviceInstance).stop();
-            return null;
-        }
-    }
 
 }

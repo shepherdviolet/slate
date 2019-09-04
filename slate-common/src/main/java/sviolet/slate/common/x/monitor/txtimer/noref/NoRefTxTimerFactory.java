@@ -21,7 +21,8 @@ package sviolet.slate.common.x.monitor.txtimer.noref;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider;
+import sviolet.slate.common.x.monitor.txtimer.TimerContext;
+import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider2;
 
 /**
  * <p>对TxTimer类无引用的NoRefTxTimer代理工厂</p>
@@ -46,15 +47,26 @@ public class NoRefTxTimerFactory {
 
     private static class DummyNoRefTxTimer implements NoRefTxTimer {
         @Override
-        public void start(String groupName, String transactionName) {
+        public TimerContext entry(String groupName, String transactionName) {
+            return DUMMY_CONTEXT;
         }
         @Override
-        public void stop() {
+        public void exit(TimerContext timerContext) {
         }
         @Override
-        public TxTimerProvider getProvider() {
+        public void exit(TimerContext timerContext, int resultCode) {
+        }
+        @Override
+        public TxTimerProvider2 getProvider() {
             return null;
         }
     }
+
+    private static final TimerContext DUMMY_CONTEXT = new TimerContext(){
+        @Override
+        public void exit(int resultCode) {
+            //do nothing
+        }
+    };
 
 }

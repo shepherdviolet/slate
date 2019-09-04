@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider.*;
+import static sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider2.*;
 
 class Transaction {
 
-    private DefaultTxTimerProvider provider;
+    private DefaultTxTimerProvider2 provider;
 
     //完成计数(总计)
     AtomicInteger finishCount = new AtomicInteger(0);
@@ -40,7 +40,7 @@ class Transaction {
     //将统计单元按分钟划分, 预置并重复使用
     private Unit[] units;
 
-    Transaction(DefaultTxTimerProvider provider) {
+    Transaction(DefaultTxTimerProvider2 provider) {
         this.provider = provider;
 
         //创建统计报告时长+6的统计单元, 每分钟一个单元

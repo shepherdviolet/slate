@@ -23,16 +23,13 @@
 
 # 记录耗时
 
-* `注意!!! 必须使用try-finally包裹, 确保stop被执行`
+* `注意!!! 必须使用try-with-resource或try-finally包裹, 确保stop被执行`
 * `GroupName`是组别名, 统计报告按组别分类输出
 * `TransactionName`是交易名
 
 ```text
-    try {
-        TxTimer.start("GroupName", "TransactionName");
+    try (TimerContext timerContext = TxTimer.start("GroupName", "TransactionName")) {
         // 交易逻辑 ......
-    } finally {
-        TxTimer.stop();
     }
 ```
 
@@ -51,16 +48,13 @@
 ```
 
 * 仅当代理实例存在时, 记录耗时
-* `注意!!! 必须使用try-finally包裹, 确保stop被执行`
+* `注意!!! 必须使用try-with-resource或try-finally包裹, 确保stop被执行`
 
 ```text
     NoRefTxTimer txTimer = this.txTimer;
     if (txTimer != null) {
-        try {
-            txTimer.start("GroupName", "TransactionName");
+        try (TimerContext timerContext = txTimer.start("GroupName", "TransactionName")) {
             // 交易逻辑 ......
-        } finally {
-            txTimer.stop();
         }
     } else {
         // 交易逻辑 ......
@@ -143,12 +137,12 @@
 
 ## 自定义实现统计和报告逻辑
 
-* 扩展点接口:sviolet.slate.common.x.monitor.txtimer.TxTimerProvider
+* 扩展点接口:sviolet.slate.common.x.monitor.txtimer.TxTimerProvider2
 * 使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md
 
 ## 修改默认实现的配置
 
-* 默认实现:sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider
+* 默认实现:sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider2
 * 可以重新定义默认实现的配置, 具体请阅读文档: https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md
 
 <br>

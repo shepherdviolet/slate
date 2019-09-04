@@ -23,21 +23,20 @@ import com.github.shepherdviolet.glaciion.api.annotation.PropertyInject;
 import com.github.shepherdviolet.glaciion.api.interfaces.InitializableImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider;
+import sviolet.slate.common.x.monitor.txtimer.TimerContext;
+import sviolet.slate.common.x.monitor.txtimer.TxTimerProvider2;
 import sviolet.thistle.model.concurrent.lock.UnsafeHashSpinLocks;
 import sviolet.thistle.model.concurrent.lock.UnsafeSpinLock;
 
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>默认实现了交易耗时的统计, 并通过日志定时输出报告. 可以使用Glaciion SPI替换实现.</p>
  *
  * @author S.Violet
  */
-public class DefaultTxTimerProvider implements TxTimerProvider, InitializableImplementation {
+public class DefaultTxTimerProvider2 implements TxTimerProvider2, InitializableImplementation {
 
     /**
      * 启动后固定
@@ -73,18 +72,13 @@ public class DefaultTxTimerProvider implements TxTimerProvider, InitializableImp
 
     /* ******************************************************************************************************** */
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultTxTimerProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultTxTimerProvider2.class);
 
     //每分钟的毫秒数
     static final long MINUTE_MILLIS = 60L * 1000L;
 
-    //用于start和stop之间的上下文传递
-    private ThreadLocal<LinkedList<Record>> recordStack = new ThreadLocal<>();
-
     //组Map
     Map<String, Group> groups = new ConcurrentHashMap<>();
-    //stop时记录找不到的计数器
-    AtomicInteger missingCount = new AtomicInteger(0);
 
     //锁
     UnsafeHashSpinLocks locks;
@@ -115,58 +109,33 @@ public class DefaultTxTimerProvider implements TxTimerProvider, InitializableImp
     }
 
     @Override
-    public void start(String groupName, String transactionName) {
+    public TimerContext entry(String groupName, String transactionName) {
         if (groupName == null) {
             groupName = "<null>";
         }
         if (transactionName == null) {
             transactionName = "<null>";
         }
-        //从ThreadLocal获取上下文
-        LinkedList<Record> recordStack = this.recordStack.get();
-        if (recordStack == null) {
-            recordStack = new LinkedList<>();
-            this.recordStack.set(recordStack);
-        }
         //获得交易记录实例
         Transaction transaction = getGroup(groupName).getTransaction(transactionName);
         //标记为正在执行
         transaction.running();
-        //在ThreadLocal记录上下文
-        recordStack.addLast(new Record(groupName, transactionName));
+        //创建并返回上下文
+        return new Record(groupName, transactionName);
     }
 
     @Override
-    public void stop() {
-        //从ThreadLocal获取上下文, 若不存在则不正常
-        LinkedList<Record> recordStack = this.recordStack.get();
-        if (recordStack == null) {
-            //重复调用stop, 没做start直接做stop, 有可能会导致这个问题
-            missingCount.incrementAndGet();
+    public void exit(TimerContext timerContext, int resultCode) {
+        if (!(timerContext instanceof Record)) {
             return;
         }
-        Record record = recordStack.pollLast();
-        if (record == null) {
-            //重复调用stop, 没做start直接做stop, 有可能会导致这个问题
-            missingCount.incrementAndGet();
-            return;
-        }
-        //如果栈里没记录, 则删除栈
-        if (recordStack.size() <= 0) {
-            this.recordStack.remove();
-        }
+        Record record = (Record) timerContext;
         //计算时长
         long elapse = System.currentTimeMillis() - record.getStartTime();
         //获得交易记录实例
         Transaction transaction = getGroup(record.getGroupName()).getTransaction(record.getTransactionName());
         //标记为完成交易, 并记录时间
         transaction.finish(System.currentTimeMillis(), elapse);
-    }
-
-    @Override
-    public void stop(int resultCode) {
-        //暂未实现统计响应码
-        stop();
     }
 
     @Override
@@ -183,7 +152,6 @@ public class DefaultTxTimerProvider implements TxTimerProvider, InitializableImp
         Group group = groups.get(groupName);
         if (group == null) {
             //用UnsafeHashSpinLocks分散碰撞的可能性
-            @SuppressWarnings("deprecation")
             UnsafeSpinLock lock = locks.getLock(groupName);
             try {
                 lock.lock();

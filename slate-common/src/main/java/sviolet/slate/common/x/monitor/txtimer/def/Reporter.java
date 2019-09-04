@@ -28,13 +28,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
-import static sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider.*;
+import static sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider2.*;
 
 class Reporter {
 
     private static final Logger logger = LoggerFactory.getLogger(Reporter.class);
 
-    private DefaultTxTimerProvider provider;
+    private DefaultTxTimerProvider2 provider;
 
     private ExecutorService reportThreadPool = ThreadPoolExecutorUtils.createLazy(60, "Slate-TxTimer-Report-%d");
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd HH:mm");
@@ -42,7 +42,7 @@ class Reporter {
     private volatile boolean shutdown = false;
     private long lastReportAllTime = System.currentTimeMillis();
 
-    Reporter(DefaultTxTimerProvider provider) {
+    Reporter(DefaultTxTimerProvider2 provider) {
         this.provider = provider;
         initMessagePool();
 
@@ -91,13 +91,6 @@ class Reporter {
     };
 
     private void report(long currentTime){
-
-        //输出错误提醒, 重复调用stop, 没做start直接做stop, 有可能会导致这个问题
-        if (provider.missingCount.get() > 0) {
-            print("Error Report", "ERROR!!! Times:" + provider.missingCount.get() + ", No record found in ThreadLocal when invoking TxTimer.stop()");
-            print("Error Report", "Suggest 1: If you invoke TxTimer.stop() without or before TxTimer.start()?");
-            print("Error Report", "Suggest 2: If you invoke TxTimer.stop() twice?");
-        }
 
         //判断是否打印全量日志
         boolean reportAll = false;

@@ -19,7 +19,9 @@
 
 package sviolet.slate.common.x.monitor.txtimer.def;
 
-class Record {
+import sviolet.slate.common.x.monitor.txtimer.TimerContext;
+
+class Record implements TimerContext {
 
     //组名
     private String groupName;

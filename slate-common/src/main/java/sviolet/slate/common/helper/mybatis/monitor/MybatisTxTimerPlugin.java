@@ -28,6 +28,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sviolet.slate.common.x.monitor.txtimer.TimerContext;
 import sviolet.slate.common.x.monitor.txtimer.TxTimer;
 
 import java.util.Properties;
@@ -78,11 +79,8 @@ public class MybatisTxTimerPlugin implements Interceptor {
         } catch (Exception ignore) {
             return invocation.proceed();
         }
-        try {
-            TxTimer.start(groupName, id);
+        try (TimerContext timerContext = TxTimer.entry(groupName, id)) {
             return invocation.proceed();
-        } finally {
-            TxTimer.stop();
         }
     }
 

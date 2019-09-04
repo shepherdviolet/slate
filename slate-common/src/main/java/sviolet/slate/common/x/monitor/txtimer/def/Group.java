@@ -26,11 +26,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 class Group {
 
-    private DefaultTxTimerProvider provider;
+    private DefaultTxTimerProvider2 provider;
 
     Map<String, Transaction> transactions;
 
-    Group(DefaultTxTimerProvider provider) {
+    Group(DefaultTxTimerProvider2 provider) {
         this.provider = provider;
         transactions = new ConcurrentHashMap<>(provider.mapInitCap);
     }
