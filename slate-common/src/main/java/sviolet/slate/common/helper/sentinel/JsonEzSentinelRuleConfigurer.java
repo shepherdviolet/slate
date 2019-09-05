@@ -38,9 +38,12 @@ public class JsonEzSentinelRuleConfigurer extends AbstractEzSentinelRuleConfigur
 
     private final Gson gson = new Gson();
 
-    @Override
+    /**
+     * 同update方法
+     * @param ruleData 规则数据
+     */
     public void setRuleData(String ruleData) {
-        super.setRuleData(ruleData);
+        update(ruleData);
     }
 
     @Override

@@ -25,11 +25,11 @@ EzSentinel的本质是通过一个大JSON来维护规则(人工), 然后手动�
 ## EzSentinel可以帮助我们关闭Sentinel
 
 ```text
-Sentinel的SpringBoot版提供一个参数spring.cloud.sentinel.enabled, 用来开关Sentinel. 但实际上这个参数对核心包的功能无效, 
-即对本地监控限流熔断无效, 核心包的功能必须用com.alibaba.csp.sentinel.Constants.ON=false关闭. 
-EzSentinel的EzSentinelConfiguration中监听了spring.cloud.sentinel.enabled参数, 讲它作用于Constants.ON, 这样就可以用
-一个参数完全关闭Sentinel(实际上并不完全, 本地起的命令接收端口还监听着, 而且监听端口还会变成默认的8719, 因为你的cloud配置
-也不生效了).
+Sentinel的SpringBoot版提供一个参数spring.cloud.sentinel.enabled, 用来开关Sentinel. 但实际上这个参数对核心包的功能无效, 即对本
+地监控限流熔断无效, 核心包的功能必须用com.alibaba.csp.sentinel.Constants.ON=false关闭. 
+EzSentinel的EzSentinelConfiguration中监听了spring.cloud.sentinel.enabled参数, 讲它作用于Constants.ON, 这样就可以用一个参数完
+全关闭Sentinel了(调整开关状态后需要重启应用).
+另外, 非SpringBoot版本不太一样, 见源码JsonEzSentinelRuleConfigurerForSpring4. 
 ```
 
 * 添加启动参数/YAML参数/APOLLO参数即可: spring.cloud.sentinel.enabled=false
@@ -68,6 +68,7 @@ compile "com.google.code.gson:gson:$version_gson"
 spring:
   cloud:
     sentinel:
+      ## 总开关, 默认开, 修改后需重启
       enabled: true
       transport:
         ## <重要>dashboard地址
@@ -265,11 +266,11 @@ slate.common.ez-sentinel.rule-data: classpath:config/demo/sentinel/rules.json
 * 启用EzSentinel, 请参考`EzSentinelConfiguration`配置类, 将其中的Bean用XML形式声明
 
 ```text
-    <!-- 此处仅供参考, 参考EzSentinelConfiguration为准 -->
-    <bean id="ezSentinelRuleConfigurer" class="sviolet.slate.common.helper.sentinel.JsonEzSentinelRuleConfigurer">
+    <!-- 使用非SpringBoot专用的版本, 这个版本不是根据spring.cloud.sentinel.enabled开关的 -->
+    <!-- 是根据四个必要的启动参数是否设置来决定是否启用Sentinel的, 详见源码 -->
+    <bean id="ezSentinelRuleConfigurer" class="sviolet.slate.common.helper.sentinel.JsonEzSentinelRuleConfigurerForSpring4">
         <property name="ruleData" value="${slate.common.ez-sentinel.rule-data:}"/>
     </bean>
-    <!-- 另外, 这样的话全局开关就没有实现了 -->
 ```
 
 * 定义资源, 此处省略, 请参考上文`客户端(SpringBoot)`章节内容

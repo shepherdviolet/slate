@@ -48,7 +48,7 @@ import static com.alibaba.csp.sentinel.slots.block.RuleConstant.*;
  * @param <T> 规则数据类型
  * @author S.Violet
  */
-public abstract class AbstractEzSentinelRuleConfigurer<T> {
+public abstract class AbstractEzSentinelRuleConfigurer<T> implements EzSentinelRuleConfigurer<T> {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
 
@@ -80,10 +80,6 @@ public abstract class AbstractEzSentinelRuleConfigurer<T> {
         //update
         updateRules(rules);
         logger.info("EzSentinel | Update sentinel rule finish");
-    }
-
-    public void setRuleData(T ruleData){
-        update(ruleData);
     }
 
     protected abstract Rules convertRuleData(T ruleData);

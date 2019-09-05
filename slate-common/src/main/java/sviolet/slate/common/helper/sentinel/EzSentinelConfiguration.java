@@ -22,6 +22,7 @@ package sviolet.slate.common.helper.sentinel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -37,12 +38,20 @@ public class EzSentinelConfiguration {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    /**
+     * 规则设置器
+     */
     @Bean("slate.common.ezSentinelRuleConfigurer")
-    public AbstractEzSentinelRuleConfigurer<String> ezSentinelRuleConfigurer(){
+    @ConditionalOnProperty(name = "spring.cloud.sentinel.enabled", matchIfMissing = true)
+    public EzSentinelRuleConfigurer<String> ezSentinelRuleConfigurer(){
         return new JsonEzSentinelRuleConfigurer();
     }
 
+    /**
+     * 规则设置器绑定参数slate.common.ez-sentinel.rule-data
+     */
     @Bean("slate.common.ezSentinelRuleConfigurerPropertySetter")
+    @ConditionalOnProperty(name = "spring.cloud.sentinel.enabled", matchIfMissing = true)
     public Object ezSentinelRuleConfigurerPropertySetter(AbstractEzSentinelRuleConfigurer<String> ezSentinelRuleConfigurer){
         return new Object() {
 
@@ -54,18 +63,17 @@ public class EzSentinelConfiguration {
                 ezSentinelRuleConfigurer.update(ruleData);
             }
 
-            /**
-             * Sentinel总开关
-             */
-            @Value("${spring.cloud.sentinel.enabled:true}")
-            public void setEnabled(boolean enabled) {
-                //这个只对核心有效, 即对本地统计限流熔断有效
-                //但是, 这个参数和SpringBoot版的一样, 所以对核心和外围(连Dashboard等)都有效, 但是改了配置需要重启应用
-                com.alibaba.csp.sentinel.Constants.ON = enabled;
-                logger.info("EzSentinel | Sentinel " + (enabled ? "Enabled" : "Disabled"));
-            }
-
         };
+    }
+
+    /**
+     * Sentinel开关
+     */
+    @Value("${spring.cloud.sentinel.enabled:true}")
+    public void setEnabled(boolean enabled) {
+        //这个只对核心有效, 即对本地统计限流熔断有效
+        com.alibaba.csp.sentinel.Constants.ON = enabled;
+        logger.info("EzSentinel | Sentinel " + (enabled ? "Enabled" : "Disabled"));
     }
 
 }
