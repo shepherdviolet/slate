@@ -1,4 +1,4 @@
-# Slate 14.5
+# Slate 14.6
 * Comprehensive Java library for spring framework (Java8+)
 * Can be recompiled with Java 7, but some features will not be available
 * https://github.com/shepherdviolet/slate
