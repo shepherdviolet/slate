@@ -61,6 +61,12 @@ public class DefaultTxTimerConfig {
     static int thresholdMin;
     static boolean lockThresholdMin = false;
     static boolean thresholdEnabled = false;
+    /**
+     * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [高级设置]false时, 统计报告的统计周期为N分钟(默认5分钟, N为日志打印间隔), true时, 统计报告的统计周期为1分钟(日志量变大, 数据变精细), 默认false<br>
+     */
+    static boolean reportPrintsPerMinute = false;
+    static boolean lockReportPrintsPerMinute = true;
 
     /* ******************************************************************************************************************* */
 
@@ -196,6 +202,34 @@ public class DefaultTxTimerConfig {
         setThresholdMin(value);
     }
 
+    /**
+     * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [高级设置]false时, 统计报告的统计周期为N分钟(默认5分钟, N为日志打印间隔), true时, 统计报告的统计周期为1分钟(日志量变大, 数据变精细), 默认false<br>
+     */
+    public static void setReportPrintsPerMinute(boolean reportPrintsPerMinute) {
+        if (lockReportPrintsPerMinute) {
+            logger.warn("TxTimer | Config: reportPrintsPerMinute has been locked by -Dslate.txtimer.report.printpermin, can not change");
+            return;
+        }
+        DefaultTxTimerConfig.reportPrintsPerMinute = reportPrintsPerMinute;
+        logger.info("TxTimer | Config: reportPrintsPerMinute change to " + reportPrintsPerMinute);
+    }
+
+    /**
+     * 可动态调整, 启动参数优先级大于动态配置<br>
+     * [高级设置]false时, 统计报告的统计周期为N分钟(默认5分钟, N为日志打印间隔), true时, 统计报告的统计周期为1分钟(日志量变大, 数据变精细), 默认false<br>
+     */
+    public static void setReportPrintsPerMinute(String reportPrintsPerMinute) {
+        boolean value;
+        try {
+            value = Boolean.parseBoolean(reportPrintsPerMinute);
+        } catch (Exception e) {
+            logger.error("TxTimer | Config: Error while parsing reportPrintsPerMinute " + reportPrintsPerMinute + " to boolean, change reportPrintsPerMinute failed", e);
+            return;
+        }
+        setReportPrintsPerMinute(value);
+    }
+
     /* ******************************************************************************************************************* */
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultTxTimerConfig.class);
@@ -231,11 +265,31 @@ public class DefaultTxTimerConfig {
             logger.debug("TxTimer | Config: thresholdMin is locked by -Dslate.txtimer.threshold.min=" + thresholdMin);
         }
         logger.info("TxTimer | Config: Report " + reportCondition());
+
+        Boolean reportPrintsPerMinute = getBooleanFromProperty("slate.txtimer.report.printpermin", null);
+        if (reportPrintsPerMinute == null) {
+            reportPrintsPerMinute = false;
+            lockReportPrintsPerMinute = false;
+        }
+        DefaultTxTimerConfig.reportPrintsPerMinute = reportPrintsPerMinute;
     }
 
     private static int getIntFromProperty(String key, int def) {
         try {
             return Integer.parseInt(System.getProperty(key, String.valueOf(def)));
+        } catch (Exception e) {
+            logger.error("TxTimer | Config: Error while parsing -D" + key + " to int, using " + def + " by default", e);
+            return def;
+        }
+    }
+
+    private static Boolean getBooleanFromProperty(String key, Boolean def) {
+        String value = System.getProperty(key);
+        if (value == null) {
+            return def;
+        }
+        try {
+            return Boolean.parseBoolean(value);
         } catch (Exception e) {
             logger.error("TxTimer | Config: Error while parsing -D" + key + " to int, using " + def + " by default", e);
             return def;

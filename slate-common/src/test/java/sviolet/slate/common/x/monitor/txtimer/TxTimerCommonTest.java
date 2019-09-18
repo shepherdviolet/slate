@@ -12,6 +12,7 @@ public class TxTimerCommonTest {
         System.setProperty("slate.txtimer.threshold.avg", "110");
 //        System.setProperty("slate.txtimer.threshold.max", "700");
 //        System.setProperty("slate.txtimer.threshold.min", "30");
+//        System.setProperty("slate.txtimer.report.printpermin", "true");
 
         //Set
         DefaultTxTimerConfig.setReportAllInterval(60);

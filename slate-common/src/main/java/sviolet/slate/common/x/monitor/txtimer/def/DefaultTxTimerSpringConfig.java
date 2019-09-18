@@ -61,4 +61,11 @@ public class DefaultTxTimerSpringConfig {
         }
     }
 
+    @Value("${slate.txtimer.report.printpermin:}")
+    private void setReportPrintsPerMinute(String reportPrintsPerMinute){
+        if (!CheckUtils.isEmptyOrBlank(reportPrintsPerMinute)){
+            DefaultTxTimerConfig.setReportPrintsPerMinute(reportPrintsPerMinute);
+        }
+    }
+
 }

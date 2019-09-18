@@ -37,7 +37,7 @@ class Reporter {
     private DefaultTxTimerProvider2 provider;
 
     private ExecutorService reportThreadPool = ThreadPoolExecutorUtils.createLazy(60, "Slate-TxTimer-Report-%d");
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd HH:mm");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private volatile boolean shutdown = false;
     private long lastReportAllTime = System.currentTimeMillis();
@@ -99,11 +99,25 @@ class Reporter {
             reportAll = true;
         }
 
-        //报告结束事件(抹去秒数)
+        //报告结束时间(抹去秒数)
         long reportEndTime = currentTime / MINUTE_MILLIS * MINUTE_MILLIS;
-        //报告起始时间(多减一分钟)
-        long reportStartTime = reportEndTime - provider.reportIntervalMillis - MINUTE_MILLIS;
+        //报告起始时间
+        long reportStartTime = reportEndTime - provider.reportIntervalMillis;
 
+        if (DefaultTxTimerConfig.reportPrintsPerMinute) {
+            //一分钟一分钟打印
+            int elapseMinutes = (int) (provider.reportIntervalMillis / MINUTE_MILLIS);
+            for (int i = 0 ; i < elapseMinutes ; i++) {
+                long startTime = reportStartTime + i * MINUTE_MILLIS;
+                report(startTime, startTime + MINUTE_MILLIS, reportAll);
+            }
+        }else {
+            //合计打印
+            report(reportStartTime, reportEndTime, reportAll);
+        }
+    }
+
+    private void report(long reportStartTime, long reportEndTime, boolean reportAll) {
         //遍历groups
         Map<String, Group> groupsSnap = ConcurrentUtils.getSnapShot(provider.groups);
         for (Map.Entry<String, Group> groupEntry : groupsSnap.entrySet()) {
@@ -189,7 +203,7 @@ class Reporter {
             Collections.sort(infos, comparator);
 
             //输出日志
-            String title = (reportAll ? "[ReportAll] " : "") + "Group (" + groupEntry.getKey() + ") Time (" + dateFormat.format(new Date(reportStartTime)) + " - " + dateFormat.format(new Date(reportEndTime)) + ")";
+            String title = "Group (" + groupEntry.getKey() + ") Time (" + dateFormat.format(new Date(reportStartTime)) + " - " + dateFormat.format(new Date(reportEndTime)) + ")" + (reportAll ? " ReportAll" : "");
             for (Info info : infos) {
                 if (reportAll ||
                         !DefaultTxTimerConfig.thresholdEnabled ||
@@ -204,7 +218,6 @@ class Reporter {
 
         //保证日志都写完
         finish();
-
     }
 
     private Comparator<Info> comparator = new Comparator<Info>() {
@@ -235,7 +248,7 @@ class Reporter {
                     "ms, min:" + minElapse +
                     "ms ) total ( cnt:" + finishTotal +
                     ", ing:" + runningTotal +
-                    ", est-avg: " + averageElapseTotal + "ms )";
+                    ", est-avg:" + averageElapseTotal + "ms )";
         }
     }
 

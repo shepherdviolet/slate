@@ -17,7 +17,7 @@
 ### 日志
 
 * SLF4J日志包路径: `sviolet.slate.common.x.monitor.txtimer.def`
-* 推荐日志级别: `INFO`
+* 推荐日志级别: `INFO`, 建议将日志输出到一个独立的日志文件中便于查看
 * 日志关键字: `TxTimer`
 * [日志样例](https://github.com/shepherdviolet/slate/blob/master/docs/txtimer/log-sample.md)
 
@@ -96,6 +96,7 @@
 > -Dslate.txtimer.threshold.max=10000 打印周期内最大耗时超过该值的交易, 单位:毫秒<br>
 > -Dslate.txtimer.threshold.min=1000 打印周期内最小耗时超过该值的交易, 单位:毫秒<br>
 > -Dslate.txtimer.reportall.interval=60 全量日志报告输出间隔(周期), 单位:分钟, 2-∞, 默认∞(不输出全量日志)<br>
+> -Dslate.txtimer.report.printpermin=true false时, 报告的周期为N分钟(默认5分钟, N为日志打印间隔), true时, 报告的周期为1分钟(日志量变大, 数据变精细), 默认false<br>
 
 * 运行时修改
 
@@ -104,6 +105,7 @@
     DefaultTxTimerConfig.setThresholdMax(10000);
     DefaultTxTimerConfig.setThresholdMin(1000);
     DefaultTxTimerConfig.setReportAllInterval(60);
+    DefaultTxTimerConfig.setReportPrintsPerMinute(true);
 ```
 
 * 默认情况下, 统计报告会输出所有交易的信息, 可以通过`slate.txtimer.threshold`系列参数配置输出的条件
@@ -132,6 +134,7 @@
 > slate.txtimer.threshold.max=10000 打印周期内最大耗时超过该值的交易, 单位:毫秒<br>
 > slate.txtimer.threshold.min=1000 打印周期内最小耗时超过该值的交易, 单位:毫秒<br>
 > slate.txtimer.reportall.interval=60 全量日志报告输出间隔(周期), 单位:分钟, 2-∞, 默认∞(不输出全量日志)<br>
+> slate.txtimer.report.printpermin=true false时, 报告的周期为N分钟(默认5分钟, N为日志打印间隔), true时, 报告的周期为1分钟(日志量变大, 数据变精细), 默认false<br>
 
 # Glaciion SPI扩展点
 

@@ -9,7 +9,7 @@
 ```text
 2018-10-03 09:12:38,978 INFO Slate-TxTimer-Report-0 s.s.common.x.monitor.txtimer.def.Reporter : 
 TxTimer | ------------------------------------------------------------------------------------------------------------
-TxTimer | Group (Scrunchy-Actions) Time (10/03 09:09 - 10/03 09:12)  Page 1
-TxTimer | template.api.base.UserService#get > last 2 min ( cnt:44, avg:1ms, max:16ms, min:0ms ) total ( cnt:44, ing:0, est-avg: 1ms )
-TxTimer | template.api.base.UserService#set > last 2 min ( cnt:44, avg:0ms, max:13ms, min:0ms ) total ( cnt:44, ing:0, est-avg: 0ms )
+TxTimer | Group (Scrunchy-Actions) Time (2019-10-03 09:09 - 2019-10-03 09:12)  Page 1
+TxTimer | template.api.base.UserService#get > last 2 min ( cnt:44, avg:1ms, max:16ms, min:0ms ) total ( cnt:44, ing:0, est-avg:1ms )
+TxTimer | template.api.base.UserService#set > last 2 min ( cnt:44, avg:0ms, max:13ms, min:0ms ) total ( cnt:44, ing:0, est-avg:0ms )
 ```

@@ -22,6 +22,7 @@ dependencies {
     compile "com.ctrip.framework.apollo:apollo-client:$version_apollo", optional
     compile "com.google.code.gson:gson:$version_gson", optional
     compile "com.alibaba.csp:sentinel-core:$version_sentinel", optional
+    compile ("com.alibaba:fastjson:$version_fastjson") { force = true; optionalDeps << it; }//Fix security bugs of fastjson
 
     //compileOnly
 //    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$version_spring_boot"
