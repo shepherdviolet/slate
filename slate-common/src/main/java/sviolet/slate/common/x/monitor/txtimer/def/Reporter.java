@@ -21,10 +21,14 @@ package sviolet.slate.common.x.monitor.txtimer.def;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Base64Utils;
 import sviolet.thistle.util.concurrent.ConcurrentUtils;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
+import sviolet.thistle.util.crypto.SecureRandomUtils;
 
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
@@ -32,12 +36,15 @@ import static sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider2
 
 class Reporter {
 
+    private static final String VERSION = "1";
+    private static final String COMMENT = "\n   Ver Rand StartTime Duration Group Name RunCnt     TotAvg TotCnt     CurrMin CurrMax CurrAvg CurrCnt (TimeUnit:ms)";
+
+    private DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss").withZone(ZoneId.systemDefault());
+
     private static final Logger logger = LoggerFactory.getLogger(Reporter.class);
 
     private DefaultTxTimerProvider2 provider;
-
     private ExecutorService reportThreadPool = ThreadPoolExecutorUtils.createLazy(60, "Slate-TxTimer-Report-%d");
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private volatile boolean shutdown = false;
     private long lastReportAllTime = System.currentTimeMillis();
@@ -200,17 +207,19 @@ class Reporter {
             }
 
             //排序
-            Collections.sort(infos, comparator);
+            infos.sort(comparator);
+
+            //批次公共信息
+            this.reportAll = reportAll;
 
             //输出日志
-            String title = "Group (" + groupEntry.getKey() + ") Time (" + dateFormat.format(new Date(reportStartTime)) + " - " + dateFormat.format(new Date(reportEndTime)) + ")" + (reportAll ? " ReportAll" : "");
             for (Info info : infos) {
                 if (reportAll ||
                         !DefaultTxTimerConfig.thresholdEnabled ||
                         info.averageElapse >= DefaultTxTimerConfig.thresholdAvg ||
                         info.maxElapse >= DefaultTxTimerConfig.thresholdMax ||
                         info.minElapse >= DefaultTxTimerConfig.thresholdMin) {
-                    print(title, String.valueOf(info));
+                    print(reportStartTime, reportEndTime, groupEntry.getKey(), info);
                 }
             }
 
@@ -237,24 +246,12 @@ class Reporter {
         private long minElapse;
         private long averageElapse;
         private int unitNum;
-
-        @Override
-        public String toString() {
-            return transactionName +
-                    " > last " + unitNum +
-                    " min ( cnt:" + finish +
-                    ", avg:" + averageElapse +
-                    "ms, max:" + maxElapse +
-                    "ms, min:" + minElapse +
-                    "ms ) total ( cnt:" + finishTotal +
-                    ", ing:" + runningTotal +
-                    ", est-avg:" + averageElapseTotal + "ms )";
-        }
     }
 
     /* *********************************************************************************************************** */
 
-    private String title;
+    private final String RANDOM = getRandomString();
+    private boolean reportAll;
     private int page = 1;
     private List<String> messagePool;
 
@@ -262,35 +259,53 @@ class Reporter {
         messagePool = new ArrayList<>(provider.pageLines);
     }
 
-    private void print(String title, String msg){
-        //如果标题变化
-        if (!title.equals(this.title)) {
-            //输出之前的日志
-            if (this.title != null) {
-                flush();
-            }
-            //重置页码
-            page = 1;
-            //设置标题
-            this.title = title;
-        }
+    private void print(long reportStartTime, long reportEndTime, String groupName, Info info){
         if (messagePool.size() >= provider.pageLines) {
             flush();
         }
-        messagePool.add(msg);
+        String msgBuilder = RANDOM +
+                '|' +
+                DATE_FORMAT.format(Instant.ofEpochMilli(reportStartTime)) +
+                '|' +
+                (reportEndTime - reportStartTime) +
+                '|' +
+                (groupName.indexOf('|') < 0 ? groupName : groupName.replaceAll("\\|", "/")) +
+                '|' +
+                (info.transactionName.indexOf('|') < 0 ? info.transactionName : info.transactionName.replaceAll("\\|", "/")) +
+                '|' +
+                info.runningTotal +
+                "||" +
+                info.averageElapseTotal +
+                '|' +
+                info.finishTotal +
+                "||" +
+                info.minElapse +
+                '|' +
+                info.maxElapse +
+                '|' +
+                info.averageElapse +
+                '|' +
+                info.finish +
+                '|';
+        messagePool.add(msgBuilder);
     }
 
     private void flush(){
 
-        StringBuilder stringBuilder = new StringBuilder("\nTxTimer | ------------------------------------------------------------------------------------------------------------");
-        stringBuilder.append("\nTxTimer | ");
-        stringBuilder.append(title);
-        stringBuilder.append("  Page ");
-        stringBuilder.append(page);
+        if (messagePool.size() <= 0) {
+            return;
+        }
+
+        StringBuilder stringBuilder = new StringBuilder(reportAll ? "ReportAll " : "")
+                .append("Page ")
+                .append(page)
+                .append(COMMENT);
 
         for (String msg : messagePool) {
-            stringBuilder.append("\nTxTimer | ");
-            stringBuilder.append(msg);
+            stringBuilder.append("\nTxT|")
+                    .append(VERSION)
+                    .append("|")
+                    .append(msg);
         }
 
         logger.info(stringBuilder.toString());
@@ -302,7 +317,12 @@ class Reporter {
     private void finish(){
         flush();
         page = 1;
-        title = null;
+    }
+
+    private String getRandomString(){
+        byte[] randomValue = new byte[6];
+        SecureRandomUtils.nextBytes(randomValue);
+        return Base64Utils.encodeToString(randomValue);
     }
 
 }

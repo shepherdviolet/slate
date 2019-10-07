@@ -25,6 +25,10 @@ import com.alicp.jetcache.MultiGetResult;
 import com.alicp.jetcache.redis.lettuce.RedisLettuceCache;
 import com.alicp.jetcache.redis.lettuce.RedisLettuceCacheBuilder;
 import com.alicp.jetcache.redis.lettuce.RedisLettuceCacheConfig;
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
+import io.lettuce.core.cluster.RedisClusterClient;
 
 import java.util.Map;
 import java.util.Set;
@@ -42,8 +46,27 @@ public class SyncRedisLettuceCacheBuilder extends RedisLettuceCacheBuilder<SyncR
         return new SyncRedisLettuceCacheBuilder();
     }
 
+    @SuppressWarnings("unchecked")
     public SyncRedisLettuceCacheBuilder() {
-        buildFunc(config -> new RedisLettuceCache((RedisLettuceCacheConfig) config) {
+        buildFunc(config -> {
+            RedisLettuceCacheConfig lettuceCacheConfig = (RedisLettuceCacheConfig)config;
+
+            //开启集群拓扑刷新/关闭集群节点验证(避免Redis集群拓扑变化时报出错误: Connection to ?:? not allowed. This connection point is not known in the cluster view)
+            AbstractRedisClient redisClient = lettuceCacheConfig.getRedisClient();
+            if (redisClient instanceof RedisClusterClient) {
+                ((RedisClusterClient) redisClient).setOptions(ClusterClientOptions.builder()
+                        .topologyRefreshOptions(ClusterTopologyRefreshOptions.builder()
+                                .enablePeriodicRefresh()//开启定期刷新, 默认关闭
+//                                .refreshPeriod(Duration.ofMinutes(1))//默认1分钟
+                                .enableAdaptiveRefreshTrigger()//开启拓扑刷新, 默认关闭
+                                .enableAllAdaptiveRefreshTriggers()//启用全部拓扑刷新定时器
+                                .build())
+//                        .validateClusterNodeMembership(false)//直接关闭集群节点检查, 默认true(避免Redis集群拓扑变化时报出错误: Connection to ?:? not allowed. This connection point is not known in the cluster view)
+                        .build());
+            }
+
+            //同步化
+            return new RedisLettuceCache(lettuceCacheConfig) {
             @Override
             protected CacheResult do_PUT(Object key, Object value, long expireAfterWrite, TimeUnit timeUnit) {
                 CacheResult result = super.do_PUT(key, value, expireAfterWrite, timeUnit);
@@ -92,6 +115,7 @@ public class SyncRedisLettuceCacheBuilder extends RedisLettuceCacheBuilder<SyncR
                 result.getResultCode();
                 return result;
             }
+        };
         });
     }
 }
