@@ -1,0 +1,9 @@
+{
+  "library": [
+    "slate-common",
+    "slate-http-client"
+  ],
+  "bom": [
+    "slate-bom"
+  ]
+}

@@ -191,7 +191,8 @@ public class MultiHostOkHttpClient {
      * <p>https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-sync.md</p>
      * <p>https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-async.md</p>
      *
-     * @param urlSuffix 请求的url后缀, 例如/user/add.json
+     * @param urlSuffix 请求的url后缀, 不含协议/域名/端口, 例如/user/add.json. 如果是一个完整的URL, 可以借助HttpUrl.parse(url)
+     *                  获取域名端口后面的请求路径(pathSegments)和请求参数(query).
      */
     public Request post(String urlSuffix) {
         return new Request(this, urlSuffix, true,
@@ -204,7 +205,8 @@ public class MultiHostOkHttpClient {
      * <p>https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-sync.md</p>
      * <p>https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-async.md</p>
      *
-     * @param urlSuffix 请求的url后缀, 例如/user/add.json
+     * @param urlSuffix 请求的url后缀, 不含协议/域名/端口, 例如/user/add.json. 如果是一个完整的URL, 可以借助HttpUrl.parse(url)
+     *                  获取域名端口后面的请求路径(pathSegments)和请求参数(query).
      */
     public Request get(String urlSuffix) {
         return new Request(this, urlSuffix, false,

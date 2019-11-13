@@ -116,7 +116,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
  ```
 
 * 同步POST:返回InputStream类型的响应
-* 注意:InputStream需要手动关闭(close)
+* 注意:InputStream需要手动关闭(close), 示例中是使用try-with-resource语法糖写法关闭的
 
  ```text
  try (InputStream inputStream = client.post("/post/json")
@@ -144,7 +144,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 ```
 
 * 同步POST:返回ResponsePackage类型的响应
-* 注意:ResponsePackage需要手动关闭(close)
+* 注意:ResponsePackage需要手动关闭(close), 示例中是使用try-with-resource语法糖写法关闭的
 
  ```text
  try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.post("/post/json")
@@ -222,7 +222,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
  ```
 
 * 同步GET:返回InputStream类型的响应
-* 注意:InputStream需要手动关闭(close)
+* 注意:InputStream需要手动关闭(close), 示例中是使用try-with-resource语法糖写法关闭的
 
  ```text
  try (InputStream inputStream = client.get("/get/json")
@@ -249,7 +249,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 ```
 
 * 同步GET:返回ResponsePackage类型的响应
-* 注意:ResponsePackage需要手动关闭(close)
+* 注意:ResponsePackage需要手动关闭(close), 示例中是使用try-with-resource语法糖写法关闭的
 
  ```text
  try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.get("/get/json")

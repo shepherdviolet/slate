@@ -34,7 +34,7 @@ import sviolet.slate.common.x.monitor.txtimer.TxTimer;
 import java.util.Properties;
 
 /**
- * <p>使用TxTimer统计sql执行时间</p>
+ * <p>使用TxTimer统计sql执行时间, 依赖: org.mybatis:mybatis</p>
  *
  * <pre>{@code
  * <?xml version="1.0" encoding="utf-8"?>

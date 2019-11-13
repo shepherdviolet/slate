@@ -5,7 +5,7 @@
 * 本文档讲述`缺省实现`的用法, 除了`全局禁用`方法以外, 其他的配置均只对`缺省实现`有效
 * `Maven/Gradle依赖配置`在本文最后
 
-### 全局禁用
+## 全局禁用
 
 * TxTimer默认启用, 如需禁用, 添加启动参数
 * 任何实现都能用这个方法禁用
@@ -14,14 +14,23 @@
 -Dslate.txtimer.enabled=false
 ```
 
-### 日志
+<br>
+<br>
+
+# 缺省实现
+
+* TxTimer的定位: 比Micrometer+Prometheus+Grafana这种完善/实时/图形化的方案更加精简, 用于事后离线分析
+* 日志体积: `1个交易持续24小时约4.2MB`, 日志压缩比: `约6%(4.2MB->252KB)`, 内存消耗: `每个交易约2.2KB`
+* 缺省实现中, 数据记录的时间是交易结束时间, 也就是说报告中每个时间段的交易是在这个时间范围内结束的交易
+
+## 日志
 
 * SLF4J日志包路径: `sviolet.slate.common.x.monitor.txtimer.def`
-* 推荐日志级别: `INFO`, 建议将日志输出到一个独立的日志文件中便于查看
+* 推荐日志级别: `INFO`, 建议将日志输出到一个独立的文件中便于查看, 推荐单文件200MB, 最大历史50-100个(根据实际需求)
 * 日志关键字: `TxTimer`
 * [日志样例](https://github.com/shepherdviolet/slate/blob/master/docs/txtimer/log-sample.md)
 
-# 记录耗时
+## 记录耗时
 
 * `注意!!! 必须使用try-with-resource或try-finally包裹, 确保stop被执行`
 * `GroupName`是组别名, 统计报告按组别分类输出
@@ -33,7 +42,7 @@
     }
 ```
 
-# 记录耗时(类库框架层用法)
+## 记录耗时(类库框架层用法)
 
 * 在开发类库或框架时, 如果想要让用户自己决定是否启用TxTimer
 * 可以使用`NoRefTxTimer`, 它对TxTimer没有直接类引用, 不会触发TxTimer类加载, 可以减少不必要的对象加载
@@ -61,12 +70,12 @@
     }
 ```
 
-# 统计报告配置
+## 统计报告配置
 
 * 统计报告使用SLF4J输出, 你可以将该日志输出到一个独立的日志文件中便于查看
 * `缺省实现`提供一些参数配置
 
-## 不可动态修改的配置
+### 不可动态修改的配置
 
 * 由于内部实现原因, 这些配置不允许在运行时修改
 * 目前只能通过启动参数调整
@@ -87,7 +96,7 @@
 
 * 默认情况下, 统计报告每隔五分钟输出一次, 时间间隔通过`slate.txtimer.report.interval`修改
 
-## 可动态修改的配置
+### 可动态修改的配置
 
 * 如下配置可以在启动参数里设置, 也可以在运行时动态修改
 * 注意: 启动参数优先级高于运行时修改, 运行时无法修改在启动参数里指定的值
@@ -114,7 +123,7 @@
 * 以上面的配置为例, 每隔5分钟, 日志中会打印满足`slate.txtimer.threshold`系列参数条件的交易信息, 每隔60分钟, 日志中会打印所有交易的信息
 * 通常这些参数会配合使用, 设置较高的阈值, 避免频繁输出大量的信息, 开启全量统计日志, 在每隔较长的一段时间后, 输出一次全部信息
 
-# 配合Spring容器/Apollo配置中心动态修改配置
+## 配合Spring容器/Apollo配置中心动态修改配置
 
 * 在工程的配置类中添加注释@EnableTxTimerSpringConfig
 
@@ -136,6 +145,9 @@
 > slate.txtimer.reportall.interval=60 全量日志报告输出间隔(周期), 单位:分钟, 2-∞, 默认∞(不输出全量日志)<br>
 > slate.txtimer.report.printpermin=true false时, 报告的周期为N分钟(默认5分钟, N为日志打印间隔), true时, 报告的周期为1分钟(日志量变大, 数据变精细), 默认false<br>
 
+<br>
+<br>
+
 # Glaciion SPI扩展点
 
 ## 自定义实现统计和报告逻辑
@@ -143,12 +155,11 @@
 * 扩展点接口:sviolet.slate.common.x.monitor.txtimer.TxTimerProvider2
 * 使用扩展点之前, 请先仔细阅读文档: https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md
 
-## 修改默认实现的配置
+## 修改缺省实现的配置
 
-* 默认实现:sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider2
-* 可以重新定义默认实现的配置, 具体请阅读文档: https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md
+* 缺省实现:sviolet.slate.common.x.monitor.txtimer.def.DefaultTxTimerProvider2
+* 可以重新定义缺省实现的配置, 具体请阅读文档: https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md
 
-<br>
 <br>
 <br>
 

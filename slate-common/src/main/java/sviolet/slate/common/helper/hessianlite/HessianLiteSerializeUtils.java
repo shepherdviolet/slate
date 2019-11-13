@@ -28,7 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 /**
- * hessian-lite序列化工具, 服务端场合建议自定义, 调整参数优化性能增加扩展性
+ * hessian-lite序列化工具, 服务端场合建议自定义, 调整参数优化性能增加扩展性, 依赖: com.alibaba:hessian-lite
  *
  * @author S.Violet
  */

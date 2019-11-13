@@ -28,7 +28,7 @@ import org.objenesis.ObjenesisStd;
 import org.objenesis.instantiator.ObjectInstantiator;
 
 /**
- * <p>强化版HessianLite的SerializerFactory</p>
+ * <p>强化版HessianLite的SerializerFactory, 依赖: com.alibaba:hessian-lite</p>
  *
  * <p>
  *     1.改用Objenesis实例化类, 提高泛用性<br>

@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * JetCache的Lettuce方式原生是异步的, 性能好, 但对于对JetCache不了解的人, 如果拿JetCache去存一致性要求的数据时,
- * 会因为异步发生问题, 因此这个CacheBuilder牺牲性能, 将Redis操作改为同步
+ * 会因为异步发生问题, 因此这个CacheBuilder牺牲性能, 将Redis操作改为同步, 依赖: com.alicp.jetcache:jetcache-starter-redis-lettuce
  *
  * @author S.Violet
  */
@@ -51,7 +51,11 @@ public class SyncRedisLettuceCacheBuilder extends RedisLettuceCacheBuilder<SyncR
         buildFunc(config -> {
             RedisLettuceCacheConfig lettuceCacheConfig = (RedisLettuceCacheConfig)config;
 
-            //开启集群拓扑刷新/关闭集群节点验证(避免Redis集群拓扑变化时报出错误: Connection to ?:? not allowed. This connection point is not known in the cluster view)
+            /*
+                避免Redis集群拓扑变化时报出错误: Connection to ?:? not allowed. This connection point is not known in the cluster view
+                开启集群拓扑刷新(topologyRefreshOptions): 当服务端拓扑发生变化时, 短时间内还会出现连接错误, 刷新后才恢复
+                关闭集群节点验证(validateClusterNodeMembership): 当服务端拓扑发生变化时, 由于不验证, 能够更快恢复(但是, 官方默认开启验证, 应该是有某种原因的, 所以这里默认不用这个方案)
+             */
             AbstractRedisClient redisClient = lettuceCacheConfig.getRedisClient();
             if (redisClient instanceof RedisClusterClient) {
                 ((RedisClusterClient) redisClient).setOptions(ClusterClientOptions.builder()
@@ -65,7 +69,9 @@ public class SyncRedisLettuceCacheBuilder extends RedisLettuceCacheBuilder<SyncR
                         .build());
             }
 
-            //同步化
+            /*
+                同步化
+             */
             return new RedisLettuceCache(lettuceCacheConfig) {
             @Override
             protected CacheResult do_PUT(Object key, Object value, long expireAfterWrite, TimeUnit timeUnit) {

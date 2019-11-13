@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * JSch助手, 进行了一些公共配置
+ * JSch助手, 进行了一些公共配置, 依赖: com.jcraft:jsch
  *
  * @author S.Violet
  */
