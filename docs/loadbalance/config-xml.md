@@ -225,7 +225,7 @@ public class MyHttpTransport implements InitializingBean {
 ```text
 //version替换为具体版本, 另外需要依赖spring库
 dependencies {
-    compile 'com.github.shepherdviolet:slate-http-client:version'
+    compile 'com.github.shepherdviolet.slate20:slate-http-client:version'
 }
 ```
 
@@ -234,7 +234,7 @@ dependencies {
 ```maven
     <!--version替换为具体版本, 另外需要依赖spring库-->
     <dependency>
-        <groupId>com.github.shepherdviolet</groupId>
+        <groupId>com.github.shepherdviolet.slate20</groupId>
         <artifactId>slate-http-client</artifactId>
         <version>version</version>
     </dependency>

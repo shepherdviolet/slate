@@ -185,7 +185,7 @@ slate.common.rocketmq.namesrv=host1:9876;host2:9876
 
 ```gradle
 dependencies {
-    compile 'com.github.shepherdviolet:slate-common:version'
+    compile 'com.github.shepherdviolet.slate20:slate-common:version'
     compile 'org.apache.rocketmq:rocketmq-client:4.4.0'
 }
 
@@ -193,7 +193,7 @@ dependencies {
 
 ```maven
     <dependency>
-        <groupId>com.github.shepherdviolet</groupId>
+        <groupId>com.github.shepherdviolet.slate20</groupId>
         <artifactId>slate-common</artifactId>
         <version>version</version>
     </dependency>

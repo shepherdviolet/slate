@@ -48,7 +48,7 @@ EzSentinel的EzSentinelConfiguration中监听了spring.cloud.sentinel.enabled参
 //Sentinel官方依赖
 compile "com.alibaba.cloud:spring-cloud-starter-alibaba-sentinel:$version_sentinel"
 //EzSentinel依赖 (slate-common 14.5+)
-compile "com.github.shepherdviolet:slate-common:$version_slate"
+compile "com.github.shepherdviolet.slate20:slate-common:$version_slate"
 //默认的JsonEzSentinelRuleConfigurer使用GSON解析JSON, 你也可以不要GSON, 自行实现AbstractEzSentinelRuleConfigurer
 compile "com.google.code.gson:gson:$version_gson"
 ```
@@ -213,7 +213,7 @@ compile "com.alibaba.csp:sentinel-core:$version_sentinel"
 compile "com.alibaba.csp:sentinel-annotation-aspectj:$version_sentinel"
 compile "com.alibaba.csp:sentinel-transport-simple-http:$version_sentinel"
 //EzSentinel依赖 (slate-common 14.5+)
-compile "com.github.shepherdviolet:slate-common:$version_slate"
+compile "com.github.shepherdviolet.slate20:slate-common:$version_slate"
 //默认的JsonEzSentinelRuleConfigurer使用GSON解析JSON, 你也可以不要GSON, 自行实现AbstractEzSentinelRuleConfigurer
 compile "com.google.code.gson:gson:$version_gson"
 ```

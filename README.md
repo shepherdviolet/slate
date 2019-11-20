@@ -1,4 +1,4 @@
-# Slate 14.9
+# Slate 20.0.0
 * Comprehensive Java library for spring framework (Java8+)
 * Can be recompiled with Java 7, but some features will not be available
 * https://github.com/shepherdviolet/slate
@@ -32,9 +32,9 @@ repositories {
 }
 dependencies {
     // slate-common
-    compile 'com.github.shepherdviolet:slate-common:version'
+    compile 'com.github.shepherdviolet.slate20:slate-common:version'
     // slate-http-client
-    compile 'com.github.shepherdviolet:slate-http-client:version'
+    compile 'com.github.shepherdviolet.slate20:slate-http-client:version'
 }
 
 ```
@@ -42,16 +42,14 @@ dependencies {
 ```maven
     <!-- slate-common -->
     <dependency>
-        <groupId>com.github.shepherdviolet</groupId>
+        <groupId>com.github.shepherdviolet.slate20</groupId>
         <artifactId>slate-common</artifactId>
         <version>version</version>
     </dependency>
     <!-- slate-http-client -->
     <dependency>
-        <groupId>com.github.shepherdviolet</groupId>
+        <groupId>com.github.shepherdviolet.slate20</groupId>
         <artifactId>slate-http-client</artifactId>
         <version>version</version>
     </dependency>
 ```
-
-* [Dependencies exclusion](https://github.com/shepherdviolet/slate/blob/master/docs/dependencies-exclusion.md)
