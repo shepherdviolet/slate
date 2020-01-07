@@ -171,7 +171,7 @@ public class TxTimer {
         return null;
     }
 
-    private static final TimerContext DUMMY_CONTEXT = new TimerContext(){
+    private static final TimerContext DUMMY_CONTEXT = new TimerContext.Basic(){
         @Override
         public void exit(int resultCode) {
             //do nothing

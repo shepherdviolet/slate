@@ -212,6 +212,7 @@ public class SingleRedisLock {
      * 调用jedis访问redis时的异常
      */
     public static class LockException extends RuntimeException {
+        private static final long serialVersionUID = 9044380487813963206L;
         public LockException(Throwable cause) {
             super("Error while SingleRedisLock locking / unlocking", cause);
         }
@@ -221,6 +222,7 @@ public class SingleRedisLock {
      * lock等待超时
      */
     public static class TimeoutException extends Exception {
+        private static final long serialVersionUID = 4075952941701103494L;
         public TimeoutException(String message) {
             super(message);
         }

@@ -26,6 +26,8 @@ package sviolet.slate.common.x.net.loadbalance.classic;
  */
 public class HttpRejectException extends Exception {
 
+    private static final long serialVersionUID = 8474850236277260027L;
+
     private int code;
     private String message;
 

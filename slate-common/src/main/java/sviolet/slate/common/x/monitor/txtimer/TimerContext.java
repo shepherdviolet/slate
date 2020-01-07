@@ -26,17 +26,42 @@ package sviolet.slate.common.x.monitor.txtimer;
  */
 public interface TimerContext extends AutoCloseable {
 
-    default void exit(int resultCode) {
-        TxTimer.exit(this, resultCode);
-    }
+    /**
+     * 结束计时
+     */
+    void exit(int resultCode);
 
-    default void exit() {
-        exit(0);
-    }
+    /**
+     * 结束计时
+     */
+    void exit();
 
+    /**
+     * 结束计时, 等同于exit
+     */
     @Override
-    default void close() {
-        exit(0);
+    void close();
+
+    /**
+     * TimerContext的基础实现
+     */
+    class Basic implements TimerContext {
+
+        @Override
+        public void exit(int resultCode) {
+            TxTimer.exit(this, resultCode);
+        }
+
+        @Override
+        public void exit() {
+            exit(0);
+        }
+
+        @Override
+        public void close() {
+            exit(0);
+        }
+
     }
 
 }

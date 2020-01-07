@@ -223,7 +223,8 @@ public class RmqConsumerManagerImpl implements RmqConsumerManager, ApplicationCo
     }
 
     /**
-     * 处理一条消息
+     * 处理一条消息.
+     * APM埋点时, 可以拦截这个方法, 捕获消息消费前后的信息.
      */
     protected boolean consumeOneMessage(RmqConsumerMethodInvoker invoker, MessageExt message, boolean reconsumeWhenException){
         try {

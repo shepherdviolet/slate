@@ -24,6 +24,8 @@ package sviolet.slate.common.x.net.loadbalance.springboot.autowired;
  */
 public class IllegalHttpClientAnnotationException extends RuntimeException {
 
+    private static final long serialVersionUID = -1430701161974732142L;
+
     public IllegalHttpClientAnnotationException(String message) {
         super(message);
     }

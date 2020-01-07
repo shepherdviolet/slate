@@ -86,7 +86,8 @@ public @interface RocketMqConcurrentConsumer {
     int threadMin() default 4;
 
     /**
-     * 最大线程数
+     * 最大线程数,
+     * 这个参数目前无效, 请设置threadMin, 见https://github.com/apache/rocketmq-spring/issues/184
      */
     int threadMax() default 8;
 

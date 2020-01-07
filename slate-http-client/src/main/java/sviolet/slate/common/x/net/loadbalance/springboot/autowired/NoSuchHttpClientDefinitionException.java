@@ -24,6 +24,8 @@ package sviolet.slate.common.x.net.loadbalance.springboot.autowired;
  */
 public class NoSuchHttpClientDefinitionException extends RuntimeException {
 
+    private static final long serialVersionUID = -7923072172111852162L;
+
     public NoSuchHttpClientDefinitionException(String message) {
         super(message);
     }

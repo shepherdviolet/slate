@@ -28,6 +28,8 @@ import java.io.IOException;
  */
 public class ResponseConvertException extends IOException {
 
+    private static final long serialVersionUID = -8529241701403541709L;
+
     public ResponseConvertException(String message) {
         super(message);
     }

@@ -37,7 +37,7 @@
 * `TransactionName`是交易名
 
 ```text
-    try (TimerContext timerContext = TxTimer.start("GroupName", "TransactionName")) {
+    try (TimerContext timerContext = TxTimer.entry("GroupName", "TransactionName")) {
         // 交易逻辑 ......
     }
 ```
@@ -62,7 +62,7 @@
 ```text
     NoRefTxTimer txTimer = this.txTimer;
     if (txTimer != null) {
-        try (TimerContext timerContext = txTimer.start("GroupName", "TransactionName")) {
+        try (TimerContext timerContext = txTimer.entry("GroupName", "TransactionName")) {
             // 交易逻辑 ......
         }
     } else {

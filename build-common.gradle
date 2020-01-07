@@ -9,7 +9,6 @@ configure(subprojects.findAll { it.PROJECT_GROUP in ['library'] }) {
     apply plugin: 'java-library'
 //    apply plugin: 'java'
 
-    // compat android
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 

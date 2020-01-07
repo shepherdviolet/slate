@@ -25,16 +25,16 @@ import org.springframework.cglib.proxy.Proxy;
 import java.lang.reflect.Method;
 
 /**
- * springframework CGLib 代理工具
- * 依赖org.springframework:spring-core
+ * <p>Spring CGLIB 代理工具</p>
  *
  * @author S.Violet
  */
-public class CGLibProxyUtils {
+public class SpringCglibUtils {
 
     /**
-     * 给定类/接口创建一个代理对象, 所有的方法实现为空,
-     * 通常用于将接口实例化
+     * 给定类/接口创建一个代理对象, 所有的方法实现为空, 通常用于将接口实例化
+     *
+     * 依赖: org.springframework:spring-core
      */
     public static <T> T newEmptyInstance(Class<T> clazz) {
         return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] {clazz}, emptyInvocationHandler);

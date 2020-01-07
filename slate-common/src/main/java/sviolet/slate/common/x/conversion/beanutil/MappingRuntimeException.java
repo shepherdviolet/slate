@@ -25,6 +25,9 @@ package sviolet.slate.common.x.conversion.beanutil;
  * @author S.Violet
  */
 public class MappingRuntimeException extends RuntimeException {
+
+    private static final long serialVersionUID = -1014117760954793998L;
+
     private String fromType;
     private String toType;
     private String fieldName;

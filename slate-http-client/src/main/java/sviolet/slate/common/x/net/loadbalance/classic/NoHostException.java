@@ -26,6 +26,8 @@ package sviolet.slate.common.x.net.loadbalance.classic;
  */
 public class NoHostException extends Exception {
 
+    private static final long serialVersionUID = -812060603297219054L;
+
     public NoHostException(String message) {
         super(message);
     }

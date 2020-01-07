@@ -26,6 +26,8 @@ package sviolet.slate.common.x.net.loadbalance.classic;
  */
 public class RequestBuildException extends Exception {
 
+    private static final long serialVersionUID = -8250196145180572152L;
+
     public RequestBuildException(String message) {
         super(message);
     }

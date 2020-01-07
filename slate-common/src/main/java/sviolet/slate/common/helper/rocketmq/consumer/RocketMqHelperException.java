@@ -24,6 +24,8 @@ package sviolet.slate.common.helper.rocketmq.consumer;
  */
 public class RocketMqHelperException extends Exception {
 
+    private static final long serialVersionUID = 3092154136566006704L;
+
     public RocketMqHelperException(String message) {
         super(message);
     }

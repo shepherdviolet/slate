@@ -69,6 +69,16 @@ import java.lang.reflect.Method;
  *  }
  * </pre>
  *
+ * <p>启用:</p>
+ *
+ * <pre>
+ *  <code>@Configuration</code>
+ *  <code>@EnableMemberProcessor(HttpClientMemberProcessor.class)</code>
+ *  public class MyConfiguration {
+ *      // ...
+ *  }
+ * </pre>
+ *
  * @author S.Violet
  */
 public interface MemberProcessor<AnnotationType extends Annotation> {
