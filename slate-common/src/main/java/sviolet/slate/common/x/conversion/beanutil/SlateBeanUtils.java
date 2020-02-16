@@ -51,7 +51,6 @@ public class SlateBeanUtils {
     private static volatile IndivisibleJudge judger;
 
     private static final Map<String, BeanCopier> COPIER = new ConcurrentHashMap<>(256);
-    private static final Map<String, BeanizationFactory> BEANIZATION_FACTORYS = new ConcurrentHashMap<>(256);
 
     /**
      * <p>浅克隆, 只拷贝第一层参数</p>
@@ -217,14 +216,9 @@ public class SlateBeanUtils {
         if (map == null || map.size() <= 0 || templateType == null) {
             return new HashMap<>();
         }
-        String factoryName = templateType.getName();
         try {
-            BeanizationFactory factory = BEANIZATION_FACTORYS.get(factoryName);
-            if (factory == null) {
-                factory = new BeanizationFactory(templateType, getConverter());
-                BEANIZATION_FACTORYS.put(factoryName, factory);
-            }
-            return factory.beanization(map, convert, throwExceptionIfFails);
+            return BeanizationFactory.getFactory(templateType, getConverter())
+                    .beanization(map, convert, throwExceptionIfFails);
         } catch (MappingRuntimeException e) {
             throw e;
         } catch (Exception e) {

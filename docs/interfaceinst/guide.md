@@ -277,6 +277,6 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet.slate20</groupId>
         <artifactId>slate-common</artifactId>
-        <version>version</version>
+        <version>?</version>
     </dependency>
 ```

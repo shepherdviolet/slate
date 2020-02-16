@@ -1,7 +1,9 @@
 package sviolet.slate.common.x.conversion.beanutil;
 
+import ch.qos.logback.classic.Level;
+import org.junit.Assert;
 import org.junit.Test;
-import sviolet.thistle.util.common.EnvironmentUtils;
+import sviolet.slate.common.helper.logback.LogbackHelper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -16,8 +18,11 @@ public class SlateBeanUtilsCopyTest {
     public void test() throws InterruptedException {
 //        System.out.println(EnvironmentUtils.PID);
         System.setProperty("slate.beanutils.log", "false");
+        LogbackHelper.setLevel("com.github.shepherdviolet.glaciion", Level.OFF);
         String result = String.valueOf(copyOnce());
 //        System.out.println(result);
+        Assert.assertEquals("To{p1='abc', p2=21, p3=5656.222, p4=[wo1, wo2, wo3], p5={m1=v1, m2=v2}, p6=A}",
+                result);
     }
 
     private static To copyOnce() {

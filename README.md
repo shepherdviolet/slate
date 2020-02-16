@@ -1,7 +1,9 @@
 # Slate 20.0.1
+
 * Comprehensive Java library for spring framework (Java8+)
-* Can be recompiled with Java 7, but some features will not be available
-* https://github.com/shepherdviolet/slate
+* [Github Home](https://github.com/shepherdviolet/slate)
+* [Search in Maven Central](https://search.maven.org/search?q=g:com.github.shepherdviolet.slate20)
+* [PGP Key](http://pool.sks-keyservers.net/pks/lookup?op=vindex&fingerprint=on&search=0x90998B78AABD6E96)
 * [Special thanks to JetBrains for the free open source license, it is very helpful for our project!](https://www.jetbrains.com/?from=slate)
 
 # slate-common
@@ -44,12 +46,12 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet.slate20</groupId>
         <artifactId>slate-common</artifactId>
-        <version>version</version>
+        <version>?</version>
     </dependency>
     <!-- slate-http-client -->
     <dependency>
         <groupId>com.github.shepherdviolet.slate20</groupId>
         <artifactId>slate-http-client</artifactId>
-        <version>version</version>
+        <version>?</version>
     </dependency>
 ```

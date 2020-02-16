@@ -236,6 +236,6 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet.slate20</groupId>
         <artifactId>slate-http-client</artifactId>
-        <version>version</version>
+        <version>?</version>
     </dependency>
 ```
