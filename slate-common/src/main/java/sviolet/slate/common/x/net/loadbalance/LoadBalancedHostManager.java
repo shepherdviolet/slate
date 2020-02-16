@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
 import sviolet.thistle.util.judge.CheckUtils;
-import sviolet.thistle.util.reflect.ReflectUtils;
+import sviolet.thistle.util.reflect.MethodCaller;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -129,7 +129,7 @@ public class LoadBalancedHostManager {
     );
 
     private String getCallerInfo() {
-        ReflectUtils.MethodCaller methodCaller = ReflectUtils.getMethodCaller(null, startsWithSkips);
+        MethodCaller methodCaller = MethodCaller.getMethodCaller(null, startsWithSkips);
         if (methodCaller != null) {
             return methodCaller.getCallerClass() + "#" + methodCaller.getCallerMethodName();
         }
