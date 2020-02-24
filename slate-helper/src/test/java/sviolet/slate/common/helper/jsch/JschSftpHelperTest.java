@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 S.Violet
+ * Copyright (C) 2015-2020 S.Violet
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  * Email: shepherdviolet@163.com
  */
 
-package sviolet.slate.common.x.helper.jsch;
+package sviolet.slate.common.helper.jsch;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;

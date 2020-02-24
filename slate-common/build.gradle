@@ -20,24 +20,10 @@ dependencies {
             "org.springframework:spring-jdbc:$version_spring",
             "org.springframework.boot:spring-boot-autoconfigure:$version_spring_boot",
             "ch.qos.logback:logback-classic:$version_logback",
-            "com.jcraft:jsch:$version_jsch",
-            "redis.clients:jedis:$version_jedis",
-            "org.mybatis:mybatis:$version_mybatis",
-            "com.alibaba:hessian-lite:$version_hessianlite",
-            "org.objenesis:objenesis:$version_objenesis",
-            "org.apache.rocketmq:rocketmq-client:$version_rocketmq",
-            "com.alicp.jetcache:jetcache-starter-redis-lettuce:$version_jetcache",
-            "com.ctrip.framework.apollo:apollo-client:$version_apollo",
+            //TxTimer
             "com.google.code.gson:gson:$version_gson",
-            "com.alibaba.csp:sentinel-core:$version_sentinel",
 
     ].forEach{ compileOnly it; testImplementation it }
-
-    //compile only, force version
-    [
-            "com.alibaba:fastjson:$version_fastjson", //Fix security bugs of fastjson
-
-    ].forEach{ compileOnly (it) { force = true }; testImplementation (it) { force = true } }
 
     //test
     [

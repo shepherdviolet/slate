@@ -1,7 +1,8 @@
 {
   "library": [
     "slate-common",
-    "slate-http-client"
+    "slate-http-client",
+    "slate-helper"
   ],
   "bom": [
     "slate-bom"
