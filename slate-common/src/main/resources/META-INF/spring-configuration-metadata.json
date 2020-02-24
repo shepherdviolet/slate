@@ -13,13 +13,6 @@
       "sourceType": "sviolet.slate.common.springboot.autoconfig.SlateServletContextListenerConfig",
       "description": "Properties: sviolet.slate.common.springboot.autoconfig.SlateCommonProperties",
       "defaultValue": true
-    },
-    {
-      "name": "slate.common.ez-sentinel.rule-data",
-      "type": "java.lang.String",
-      "sourceType": "sviolet.slate.common.helper.sentinel.EzSentinelConfiguration",
-      "description": "Annotation: sviolet.slate.common.helper.sentinel.EnableEzSentinel",
-      "defaultValue": ""
     }
   ],
   "hints": [
