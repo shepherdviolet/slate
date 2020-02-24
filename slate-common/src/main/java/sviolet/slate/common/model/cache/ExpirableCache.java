@@ -178,9 +178,9 @@ public abstract class ExpirableCache <T> {
             elementWrapper.expireTime.set(currentTime + result.expireThreshold);
 
             if (logger.isDebugEnabled()){
-                logger.debug("ExpirableCache update \"" + key + "\" succeed, expire time " + DateTimeUtils.getDateTime(elementWrapper.expireTime.get()) + ", value:" + String.valueOf(elementWrapper.element));
+                logger.debug("ExpirableCache update \"" + key + "\" succeed, expire time " + DateTimeUtils.millisToDateTimeString(elementWrapper.expireTime.get()) + ", value:" + String.valueOf(elementWrapper.element));
             } else if (logger.isInfoEnabled()){
-                logger.info("ExpirableCache update \"" + key + "\" succeed, expire time " + DateTimeUtils.getDateTime(elementWrapper.expireTime.get()));
+                logger.info("ExpirableCache update \"" + key + "\" succeed, expire time " + DateTimeUtils.millisToDateTimeString(elementWrapper.expireTime.get()));
             }
         } catch (Throwable t) {
             //update failed
