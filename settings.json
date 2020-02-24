@@ -1,9 +1,9 @@
 {
   "library": [
     "slate-common",
+    "slate-txtimer",
     "slate-helper",
-    "slate-http-client",
-    "slate-txtimer"
+    "slate-http-client"
   ],
   "bom": [
     "slate-bom"

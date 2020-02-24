@@ -14,6 +14,7 @@ dependencies {
     //compile only
     [
             "com.google.code.gson:gson:$version_gson",
+            "org.mybatis:mybatis:$version_mybatis",
 
     ].forEach{ compileOnly it; testImplementation it }
 

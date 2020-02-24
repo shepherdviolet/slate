@@ -15,7 +15,6 @@ dependencies {
     [
             "com.jcraft:jsch:$version_jsch",
             "redis.clients:jedis:$version_jedis",
-            "org.mybatis:mybatis:$version_mybatis",
             "com.alibaba:hessian-lite:$version_hessianlite",
             "org.objenesis:objenesis:$version_objenesis",
             "org.apache.rocketmq:rocketmq-client:$version_rocketmq",
