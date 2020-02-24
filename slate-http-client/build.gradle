@@ -15,6 +15,7 @@ dependencies {
     //compile only
     [
             "com.google.code.gson:gson:$version_gson",
+            "ch.qos.logback:logback-classic:$version_logback",
             "org.springframework.boot:spring-boot-autoconfigure:$version_spring_boot",
             "com.ctrip.framework.apollo:apollo-client:$version_apollo",
 
