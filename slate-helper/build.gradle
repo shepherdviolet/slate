@@ -22,6 +22,9 @@ dependencies {
             "com.ctrip.framework.apollo:apollo-client:$version_apollo",
             "com.google.code.gson:gson:$version_gson",
             "com.alibaba.csp:sentinel-core:$version_sentinel",
+            //version alignment
+            "ch.qos.logback:logback-classic:$version_logback",
+            "org.springframework.boot:spring-boot-starter:$version_spring_boot",
 
     ].forEach{ compileOnly it; testImplementation it }
 
