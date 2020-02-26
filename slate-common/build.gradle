@@ -8,7 +8,6 @@ dependencies {
     //required
     [
             "com.github.shepherdviolet.thistle20:thistle-common:$version_thistle",
-            "com.github.shepherdviolet.thistle20:thistle-trace:$version_thistle",
             "org.springframework:spring-context:$version_spring",
             "org.slf4j:slf4j-api:$version_slf4j",
 
