@@ -35,11 +35,13 @@ import java.util.Map;
  *
  * <p>References:</p><br>
  *
- * <p>In Bean -> Map scene. While a Bean is converting to a Map, all the properties of Bean will keep the original type
- * by default, unless {@link BeanToMapInflateStrategy} tells the program that it needs to be inflated
- * (i.e. the method {@link BeanToMapInflateStrategy#needToBeInflated} returns true).
- * 'Inflate' means convert a property of Java Bean (or element of Collection) to a Map. Notice that the property must
- * be a Java Bean with read methods (Judged by {@link MxbTypeJudger#isBean}).</p><br>
+ * <p>In the scene of Bean -> Map. While a Bean is converting to a Map, all the properties of Bean will keep the
+ * original type by default, unless {@link BeanToMapInflateStrategy} tells the program that it needs to be inflated
+ * (this method returns true).
+ * 'Inflate' means that in the scene of Bean -> Map, if a property (of Java Bean) or an element (of Collection) is
+ * a Java Bean (judged by {@link MxbTypeJudger#isBean}), the property (or element) can be converted to a Map as long
+ * as the method {@link BeanToMapInflateStrategy#needToBeInflated} returns true. The process of converting property
+ * (or element) to Map is called 'Inflate'.</p><br>
  *
  * @author S.Violet
  * @see sviolet.slate.common.x.conversion.mapxbean.MapXBean

@@ -88,7 +88,7 @@
 
 ### MapXBean
 
-* MapXBean : Convert between Map and Bean
+* [MapXBean : Map - Bean Converter](https://github.com/shepherdviolet/slate/blob/master/docs/mapxbean/guide.md)
 
 <br>
 <br>

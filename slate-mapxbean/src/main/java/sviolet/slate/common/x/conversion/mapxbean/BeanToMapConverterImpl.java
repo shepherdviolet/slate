@@ -271,9 +271,13 @@ public class BeanToMapConverterImpl implements BeanToMapConverter, ConversionExc
         /**
          * <p>Decide whether to continue inflating property to Map</p><br>
          *
-         * <p>'Inflate' means convert a property of Java Bean (or element of Collection) to a Map.
-         * In Bean -> Map scene, all the properties of Java Bean will keep the original type by default,
-         * unless BeanToMapInflateStrategy tells the program that it needs to be inflated (i.e. the method returns true)</p><br>
+         * <p>In the scene of Bean -> Map. While a Bean is converting to a Map, all the properties of Bean will keep the
+         * original type by default, unless {@link BeanToMapInflateStrategy} tells the program that it needs to be inflated
+         * (this method returns true).
+         * 'Inflate' means that in the scene of Bean -> Map, if a property (of Java Bean) or an element (of Collection) is
+         * a Java Bean (judged by {@link MxbTypeJudger#isBean}), the property (or element) can be converted to a Map as long
+         * as the method {@link BeanToMapInflateStrategy#needToBeInflated} returns true. The process of converting property
+         * (or element) to Map is called 'Inflate'.</p><br>
          *
          * <p>If there is no {@link BeanToMapInflateStrategy}, Bean's properties will be put directly to a Map,
          * which is equivalent to shallow cloning.</p><br>
