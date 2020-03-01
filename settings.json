@@ -2,6 +2,7 @@
   "library": [
     "slate-common",
     "slate-txtimer",
+    "slate-mapxbean",
     "slate-helper",
     "slate-http-client"
   ],

@@ -79,6 +79,18 @@
 * [MultiHostOkHttpClient : A HTTP client supporting load balancing](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/guide.md)
 
 <br>
+
+## Module 'slate-mapxbean'
+
+[![Depends](https://img.shields.io/badge/Depends-slate--common-6a5acd.svg?style=flat)](https://github.com/shepherdviolet/slate)
+
+> Map - Bean converter
+
+### MapXBean
+
+* MapXBean : Convert between Map and Bean
+
+<br>
 <br>
 
 # Import dependencies from maven repository
@@ -94,6 +106,7 @@ dependencies {
     compile 'com.github.shepherdviolet.slate20:slate-txtimer:?'
     compile 'com.github.shepherdviolet.slate20:slate-helper:?'
     compile 'com.github.shepherdviolet.slate20:slate-http-client:?'
+    compile 'com.github.shepherdviolet.slate20:slate-mapxbean:?'
 }
 
 ```
@@ -117,6 +130,11 @@ dependencies {
     <dependency>
         <groupId>com.github.shepherdviolet.slate20</groupId>
         <artifactId>slate-http-client</artifactId>
+        <version>?</version>
+    </dependency>
+    <dependency>
+        <groupId>com.github.shepherdviolet.slate20</groupId>
+        <artifactId>slate-mapxbean</artifactId>
         <version>?</version>
     </dependency>
 ```
