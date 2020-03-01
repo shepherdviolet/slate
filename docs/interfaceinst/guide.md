@@ -1,5 +1,7 @@
 # InterfaceInstantiation 接口实例化工具 (For Spring)
 
+* [Source Code](https://github.com/shepherdviolet/slate/tree/master/slate-common/src/main/java/sviolet/slate/common/x/proxy/interfaceinst)
+
 ## 说明
 
 * 将指定路径下的接口类实例化并作为Bean注册到ApplicationContext

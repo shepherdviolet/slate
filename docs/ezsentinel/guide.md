@@ -1,5 +1,6 @@
 # EzSentinel | 一种Sentinel动态规则的变通方案
 
+* [Source Code](https://github.com/shepherdviolet/slate/tree/master/slate-helper/src/main/java/sviolet/slate/common/helper/sentinel)
 * [Sentinel是啥?](https://github.com/alibaba/Sentinel/wiki/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8)
 
 ## Sentinel动态规则的现状

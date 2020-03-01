@@ -1,5 +1,6 @@
 # 负载均衡的HttpClient使用手册
 
+* [Source Code](https://github.com/shepherdviolet/slate/tree/master/slate-http-client/src/main/java/sviolet/slate/common/x/net/loadbalance)
 * 支持配置多个后端地址, 平均分配流量(随机, 不可指定)
 * 支持被动/主动方式探测后端是否可用, 自动选择可用的后端发送请求
 * 支持同步/异步方式请求
