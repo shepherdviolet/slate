@@ -51,6 +51,7 @@ public interface MxbCollectionMapper {
      * @param fromClass From this type (Source type)
      * @param toClass To this type (Destination type)
      * @param toType To this generic type (Destination type)
+     * @param toUniversalCollection true: to ArrayList / linkedHashSet / LinkedHashMap... , false: to Collection which is specified
      * @param elementConverter Use it to handle element conversion (Convert element of collection), see {@link MxbCollectionMapperImpl}
      * @param objectInstantiator Use it to create instance of any class
      * @param exceptionThrower Use it to throw Exception
@@ -61,6 +62,7 @@ public interface MxbCollectionMapper {
                      Class<?> fromClass,
                      Class<?> toClass,
                      Type toType,
+                     boolean toUniversalCollection,
                      PropertyOrElementConverter elementConverter,
                      MxbObjectInstantiator objectInstantiator,
                      ConversionExceptionThrower exceptionThrower,

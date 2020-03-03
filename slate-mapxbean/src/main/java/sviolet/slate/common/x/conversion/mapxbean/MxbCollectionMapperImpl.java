@@ -55,6 +55,7 @@ public class MxbCollectionMapperImpl implements MxbCollectionMapper {
                             Class<?> fromClass,
                             Class<?> toClass,
                             Type toType,
+                            boolean toUniversalCollection,
                             PropertyOrElementConverter elementConverter,
                             MxbObjectInstantiator objectInstantiator,
                             ConversionExceptionThrower exceptionThrower,
@@ -62,10 +63,10 @@ public class MxbCollectionMapperImpl implements MxbCollectionMapper {
 
         if (Map.class.isAssignableFrom(fromClass) && Map.class.isAssignableFrom(toClass)) {
             //Map
-            return convertMap(from, fromClass, toClass, toType, elementConverter, objectInstantiator, exceptionThrower, conversionPath);
+            return convertMap(from, fromClass, toClass, toType, toUniversalCollection, elementConverter, objectInstantiator, exceptionThrower, conversionPath);
         } else if (Collection.class.isAssignableFrom(fromClass) && Collection.class.isAssignableFrom(toClass)) {
             //Collection
-            return convertCollection(from, fromClass, toClass, toType, elementConverter, objectInstantiator, exceptionThrower, conversionPath);
+            return convertCollection(from, fromClass, toClass, toType, toUniversalCollection, elementConverter, objectInstantiator, exceptionThrower, conversionPath);
         }
         return RESULT_NOT_COLLECTION_TO_COLLECTION;
     }
@@ -77,6 +78,7 @@ public class MxbCollectionMapperImpl implements MxbCollectionMapper {
                              Class<?> fromClass,
                              Class<?> toClass,
                              Type toType,
+                             boolean toUniversalCollection,
                              PropertyOrElementConverter elementConverter,
                              MxbObjectInstantiator objectInstantiator,
                              ConversionExceptionThrower exceptionThrower,
@@ -88,35 +90,39 @@ public class MxbCollectionMapperImpl implements MxbCollectionMapper {
         Map<Object, Object> toMap;
 
         // Expected element type (Element should convert to this type, get from generic type of Map)
-        Class<?> elementKeyClass;
-        Class<?> elementValueClass;
-        Type elementValueType;
+        Class<?> expectedKeyClass = Object.class;
+        Class<?> expectedValueClass;
+        Type expectedValueType = Object.class;
 
         // Create destination Map
-        if (isOrdinaryMap(toClass)) {
+        if (toUniversalCollection ||
+                isOrdinaryMap(toClass)) {
+            /*
+                If toUniversalCollection is true, to LinkedHashMap.
+                If toClass equals Map.class or AbstractMap.class to LinkedHashMap.
+             */
             // New ordinary Map, keep order
             toMap = new LinkedHashMap<>(fromMap.size() << 1);
             // Get expected key/value types
             if (toType instanceof ParameterizedType) {
                 // Get from generic type
                 Type[] typeArguments = ((ParameterizedType) toType).getActualTypeArguments();
-                elementKeyClass = GenericClassUtils.typeToRawClass(typeArguments[0]);
-                elementValueType = typeArguments[1];
-            } else {
-                // Default
-                elementKeyClass = Object.class;
-                elementValueType = Object.class;
+                expectedKeyClass = GenericClassUtils.typeToRawClass(typeArguments[0]);
+                expectedValueType = typeArguments[1];
             }
         } else {
+            /*
+                To specified type. Create instance by parameter-less constructor.
+             */
             // New specified Map
             toMap = (Map<Object, Object>) objectInstantiator.newInstance(toClass, true);
             // Get expected key/value types by seeking generic type of Map
-            Map<String, Type> actualTypes = GenericClassUtils.getActualTypes(toClass, Map.class);
-            elementKeyClass = GenericClassUtils.typeToRawClass(actualTypes.get("K"));
-            elementValueType = actualTypes.get("V");
+            Map<String, Type> actualTypes = GenericClassUtils.getActualTypes(toType, Map.class);
+            expectedKeyClass = GenericClassUtils.typeToRawClass(actualTypes.get("K"));
+            expectedValueType = actualTypes.get("V");
         }
 
-        elementValueClass = GenericClassUtils.typeToRawClass(elementValueType);
+        expectedValueClass = GenericClassUtils.typeToRawClass(expectedValueType);
 
         // Handle each element
         for (Map.Entry<Object, Object> fromEntry : fromMap.entrySet()) {
@@ -124,10 +130,10 @@ public class MxbCollectionMapperImpl implements MxbCollectionMapper {
             Object value = fromEntry.getValue();
 
             // Match key type
-            if (key != null && !elementKeyClass.isAssignableFrom(key.getClass())) {
+            if (key != null && !expectedKeyClass.isAssignableFrom(key.getClass())) {
                 exceptionThrower.throwConversionException("MapXBean: Error while mapping " + fromClass.getName() +
                         " to " + toType.getTypeName() + ", property \"" + key + "\"'s key type mismatch (" +
-                        key.getClass().getName() + " to " + elementKeyClass.getName() + "), map data:" + fromMap,
+                        key.getClass().getName() + " to " + expectedKeyClass.getName() + "), map data:" + fromMap,
                         null, conversionPath);
                 continue;
             }
@@ -139,14 +145,16 @@ public class MxbCollectionMapperImpl implements MxbCollectionMapper {
             }
 
             Class<?> valueClass = value.getClass();
+            Class<?> expectedValueClass0 = Object.class.equals(expectedValueClass) ? valueClass : expectedValueClass;
+            Type expectedValueType0 = Object.class.equals(expectedValueType) ? valueClass : expectedValueType;
 
             //Create sub ConversionPath for element
-            ConversionPath subConversionPath = new ConversionPath(String.valueOf(key), valueClass, elementValueClass, elementValueType, conversionPath);
+            ConversionPath subConversionPath = new ConversionPath(String.valueOf(key), valueClass, expectedValueClass0, expectedValueType0, conversionPath);
 
             // Convert value to expected type
             Object convertedValue;
             try {
-                convertedValue = elementConverter.convert(value, valueClass, elementValueClass, elementValueType, subConversionPath);
+                convertedValue = elementConverter.convert(value, valueClass, expectedValueClass0, expectedValueType0, subConversionPath);
             } catch (Throwable e) {
                 exceptionThrower.throwConversionException("MapXBean: Error while mapping " + fromClass.getName() +
                         " to " + toType.getTypeName() + ", property \"" + key + "\" mapping failed, map data:" +
@@ -164,7 +172,8 @@ public class MxbCollectionMapperImpl implements MxbCollectionMapper {
      * These types are treated as ordinary Map, will convert to LinkedHashMap
      */
     protected boolean isOrdinaryMap(Class<?> toClass) {
-        return Map.class.equals(toClass);
+        return Map.class.equals(toClass) ||
+                AbstractMap.class.equals(toClass);
     }
 
     /**
@@ -174,6 +183,7 @@ public class MxbCollectionMapperImpl implements MxbCollectionMapper {
                                     Class<?> fromClass,
                                     Class<?> toClass,
                                     Type toType,
+                                    boolean toUniversalCollection,
                                     PropertyOrElementConverter elementConverter,
                                     MxbObjectInstantiator objectInstantiator,
                                     ConversionExceptionThrower exceptionThrower,
@@ -185,43 +195,51 @@ public class MxbCollectionMapperImpl implements MxbCollectionMapper {
         Collection<Object> toCollection;
 
         // Expected element type (Element should convert to this type, get from generic type of Collection)
-        Class<?> elementClass;
-        Type elementType;
+        Class<?> expectedClass;
+        Type expectedType = Object.class;
 
         // Create destination Collection
-        if (isOrdinaryList(toClass)) {
-            // New ordinary List, keep order
-            toCollection = new ArrayList<>(fromCollection.size());
-            // Get expected element type
-            if (toType instanceof ParameterizedType) {
-                // Get from generic type
-                Type[] typeArguments = ((ParameterizedType) toType).getActualTypeArguments();
-                elementType = typeArguments[0];
-            } else {
-                // Default
-                elementType = Object.class;
-            }
-        } else if (isOrdinarySet(toClass)) {
+
+        if ((toUniversalCollection && Set.class.isAssignableFrom(toClass)) ||
+                isOrdinarySet(toClass)) {
+            /*
+                If toUniversalCollection is true and toClass equals Set.class, to LinkedHashSet.
+                If toClass equals Set.class or AbstractSet.class to LinkedHashSet.
+             */
             // New ordinary Set, keep order
             toCollection = new LinkedHashSet<>(fromCollection.size() << 1);
             // Get expected element type
             if (toType instanceof ParameterizedType) {
                 // Get from generic type
                 Type[] typeArguments = ((ParameterizedType) toType).getActualTypeArguments();
-                elementType = typeArguments[0];
-            } else {
-                // Default
-                elementType = Object.class;
+                expectedType = typeArguments[0];
+            }
+        } else if (toUniversalCollection ||
+                isOrdinaryList(toClass)) {
+            /*
+                If toUniversalCollection is true and toClass NOT equals Set.class, to ArrayList.
+                If toClass equals List.class or AbstractList.class or Collection.class or AbstractCollection.class to ArrayList.
+             */
+            // New ordinary List, keep order
+            toCollection = new ArrayList<>(fromCollection.size());
+            // Get expected element type
+            if (toType instanceof ParameterizedType) {
+                // Get from generic type
+                Type[] typeArguments = ((ParameterizedType) toType).getActualTypeArguments();
+                expectedType = typeArguments[0];
             }
         } else {
+            /*
+                To specified type. Create instance by parameter-less constructor.
+             */
             // New specified Collection
             toCollection = (Collection<Object>) objectInstantiator.newInstance(toClass, true);
             // Get expected element type by seeking generic type of Collection
-            Map<String, Type> actualTypes = GenericClassUtils.getActualTypes(toClass, Collection.class);
-            elementType = actualTypes.get("E");
+            Map<String, Type> actualTypes = GenericClassUtils.getActualTypes(toType, Collection.class);
+            expectedType = actualTypes.get("E");
         }
 
-        elementClass = GenericClassUtils.typeToRawClass(elementType);
+        expectedClass = GenericClassUtils.typeToRawClass(expectedType);
 
         // Handle each element
         int i = -1;
@@ -236,14 +254,16 @@ public class MxbCollectionMapperImpl implements MxbCollectionMapper {
             }
 
             Class<?> valueClass = value.getClass();
+            Class<?> expectedClass0 = Object.class.equals(expectedClass) ? valueClass : expectedClass;
+            Type expectedType0 = Object.class.equals(expectedType) ? valueClass : expectedType;
 
             //Create sub ConversionPath for element
-            ConversionPath subConversionPath = new ConversionPath("[" + i + "]", valueClass, elementClass, elementType, conversionPath);
+            ConversionPath subConversionPath = new ConversionPath("[" + i + "]", valueClass, expectedClass0, expectedType0, conversionPath);
 
             // Convert value to expected type
             Object convertedValue;
             try {
-                convertedValue = elementConverter.convert(value, valueClass, elementClass, elementType, subConversionPath);
+                convertedValue = elementConverter.convert(value, valueClass, expectedClass0, expectedType0, subConversionPath);
             } catch (Throwable e) {
                 exceptionThrower.throwConversionException("MapXBean: Error while mapping " + fromClass.getName() +
                                 " to " + toType.getTypeName() + ", element [" + i + "] mapping failed, collection data:" +
@@ -258,17 +278,21 @@ public class MxbCollectionMapperImpl implements MxbCollectionMapper {
     }
 
     /**
-     * These types are treated as ordinary List, will convert to ArrayList
-     */
-    protected boolean isOrdinaryList(Class<?> toClass) {
-        return List.class.equals(toClass) || Collection.class.equals(toClass);
-    }
-
-    /**
      * These types are treated as ordinary Set, will convert to LinkedHashSet
      */
     protected boolean isOrdinarySet(Class<?> toClass) {
-        return Set.class.equals(toClass);
+        return Set.class.equals(toClass) ||
+                AbstractSet.class.equals(toClass);
+    }
+
+    /**
+     * These types are treated as ordinary List, will convert to ArrayList
+     */
+    protected boolean isOrdinaryList(Class<?> toClass) {
+        return List.class.equals(toClass) ||
+                AbstractList.class.equals(toClass) ||
+                Collection.class.equals(toClass) ||
+                AbstractCollection.class.equals(toClass);
     }
 
 }

@@ -171,8 +171,9 @@ public class BeanToMapConverterImpl implements BeanToMapConverter, ConversionExc
 
             Object convertedValue;
             try {
-                //NO type mapping case in Bean -> Map scene. So the source type and destination type are the same
-                convertedValue = MTB_COLLECTION_MAPPER.onConvert(value, valueClass, expectClass, expectType, this, OBJECT_INSTANTIATOR, BeanToMapConverterImpl.this, conversionPath);
+                // NO type mapping case in Bean -> Map scene. So the source type and destination type are the same
+                // To universal collection
+                convertedValue = MTB_COLLECTION_MAPPER.onConvert(value, valueClass, expectClass, expectType, true, this, OBJECT_INSTANTIATOR, BeanToMapConverterImpl.this, conversionPath);
             } catch (Throwable e) {
                 throw new ConversionRuntimeException("Property convert failed, Convert from " + valueClass.getName() +
                         " to " + expectType.getTypeName() + ", in collection to collection mode", e, conversionPath);

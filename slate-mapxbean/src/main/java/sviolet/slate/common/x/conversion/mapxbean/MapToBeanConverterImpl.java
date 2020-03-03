@@ -185,7 +185,8 @@ public class MapToBeanConverterImpl implements MapToBeanConverter, ConversionExc
 
             Object convertedValue;
             try {
-                convertedValue = MTB_COLLECTION_MAPPER.onConvert(value, valueClass, expectClass, expectType, this, OBJECT_INSTANTIATOR, MapToBeanConverterImpl.this, conversionPath);
+                // To specified collection
+                convertedValue = MTB_COLLECTION_MAPPER.onConvert(value, valueClass, expectClass, expectType, false, this, OBJECT_INSTANTIATOR, MapToBeanConverterImpl.this, conversionPath);
             } catch (Throwable e) {
                 throw new ConversionRuntimeException("Property convert failed, Convert from " + valueClass.getName() +
                         " to " + expectType.getTypeName() + ", in collection to collection mode", e, conversionPath);

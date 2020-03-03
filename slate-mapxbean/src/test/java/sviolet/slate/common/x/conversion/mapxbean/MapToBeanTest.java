@@ -29,6 +29,7 @@ import sviolet.slate.common.x.conversion.mapxbean.strategy.InflateUntilIndivisib
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MapToBeanTest {
 
@@ -85,12 +86,12 @@ public class MapToBeanTest {
 
 //        System.out.println(map);
 
-        Bean bean = MapXBean.mapToBean()
+        Bean2 bean = MapXBean.mapToBean()
                 .throwExceptionIfFails(true)
 //                .throwExceptionIfFails(false)
 //                .exceptionCollector(new SimpleConversionExceptionCollector())
                 .build()
-                .convert(map, Bean.class);
+                .convert(map, Bean2.class);
 
         Assert.assertEquals("Bean{person=Person{name='single man', date=Fri Feb 21 08:45:21 CST 2020}, personMap={Mr. Wang=Person{name='Wang da shan', date=Fri Feb 21 08:45:22 CST 2020}, Mr. Chen=Person{name='Chen mai zi', date=Fri Feb 21 08:45:23 CST 2020}}, personList=[Person{name='Rock 0', date=null}, Person{name='Rock 1', date=null}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, onlyWriter=Person{name='Im writer', date=Fri Feb 21 08:45:21 CST 2020}}",
                 String.valueOf(bean));
@@ -186,52 +187,56 @@ public class MapToBeanTest {
 
     }
 
-    public static class Bean {
+    public static class Bean2 <N> extends Bean1<Person, N> {
 
-        private Person person;
-        private Map<String, Person> personMap;
-        private List<Person> personList;
-        private Set<Object> objectSet;
-        private Person onlyReader;
-        private Person onlyWriter;
+    }
 
-        public Person getPerson() {
+    public static class Bean1<E, O> {
+
+        private E person;
+        private ConcurrentHashMap<String, E> personMap;
+        private Collection<E> personList;
+        private Set<O> objectSet;
+        private E onlyReader;
+        private E onlyWriter;
+
+        public E getPerson() {
             return person;
         }
 
-        public void setPerson(Person person) {
+        public void setPerson(E person) {
             this.person = person;
         }
 
-        public Map<String, Person> getPersonMap() {
+        public ConcurrentHashMap<String, E> getPersonMap() {
             return personMap;
         }
 
-        public void setPersonMap(Map<String, Person> personMap) {
+        public void setPersonMap(ConcurrentHashMap<String, E> personMap) {
             this.personMap = personMap;
         }
 
-        public List<Person> getPersonList() {
+        public Collection<E> getPersonList() {
             return personList;
         }
 
-        public void setPersonList(List<Person> personList) {
+        public void setPersonList(Collection<E> personList) {
             this.personList = personList;
         }
 
-        public Set<Object> getObjectSet() {
+        public Set<O> getObjectSet() {
             return objectSet;
         }
 
-        public void setObjectSet(Set<Object> objectSet) {
+        public void setObjectSet(Set<O> objectSet) {
             this.objectSet = objectSet;
         }
 
-        public Person getOnlyReader() {
+        public E getOnlyReader() {
             return onlyReader;
         }
 
-        public void setOnlyWriter(Person onlyWriter) {
+        public void setOnlyWriter(E onlyWriter) {
             this.onlyWriter = onlyWriter;
         }
 
