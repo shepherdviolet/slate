@@ -47,7 +47,7 @@ public class MxbTypeMapperProviderImpl implements MxbTypeMapperProvider, Initial
      * Property inject: Date format, Nullable, e.g. yyyy-MM-dd HH:mm:ss.SSS
      */
     @PropertyInject(getVmOptionFirst = "slate.mapxbean.date-format")
-    private String dateFormat;
+    private String dateFormat = "yyyy-MM-dd HH:mm:ss.SSS";
 
     /**
      * Property inject: Time zone, Nullable, e.g. GMT+08:00
