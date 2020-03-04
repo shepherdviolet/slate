@@ -39,11 +39,19 @@ public class MapToBeanConverterImpl implements MapToBeanConverter, ConversionExc
     private final boolean typeMapping;
     private final boolean throwExceptionIfFails;
     private final ConversionExceptionCollector exceptionCollector;
+    private boolean inspectBeanStrictly;
+    private boolean propertyUpperCamelCase;
 
-    private MapToBeanConverterImpl(boolean typeMapping, boolean throwExceptionIfFails, ConversionExceptionCollector exceptionCollector) {
+    private MapToBeanConverterImpl(boolean typeMapping,
+                                   boolean throwExceptionIfFails,
+                                   ConversionExceptionCollector exceptionCollector,
+                                   boolean inspectBeanStrictly,
+                                   boolean propertyUpperCamelCase) {
         this.typeMapping = typeMapping;
         this.throwExceptionIfFails = throwExceptionIfFails;
         this.exceptionCollector = !throwExceptionIfFails ? exceptionCollector : null;
+        this.inspectBeanStrictly = inspectBeanStrictly;
+        this.propertyUpperCamelCase = propertyUpperCamelCase;
     }
 
     /**
@@ -129,7 +137,7 @@ public class MapToBeanConverterImpl implements MapToBeanConverter, ConversionExc
         for (Object keyObj : toBeanMap.keySet()) {
             //KV
             String key = String.valueOf(keyObj);
-            Object value = fromMap.get(key);
+            Object value = fromMap.get(convertMapKey(key));
             if (value == null) {
                 continue;
             }
@@ -137,9 +145,16 @@ public class MapToBeanConverterImpl implements MapToBeanConverter, ConversionExc
             //Property info
             BeanInfoUtils.PropertyInfo toBeanPropertyInfo = toBeanPropertyInfos.get(key);
             //Check write method
-            if (toBeanPropertyInfo.getWriteMethod() == null) {
-                continue;
+            if (inspectBeanStrictly) {
+                if (toBeanPropertyInfo.getReadMethod() == null || toBeanPropertyInfo.getWriteMethod() == null) {
+                    continue;
+                }
+            } else {
+                if (toBeanPropertyInfo.getWriteMethod() == null) {
+                    continue;
+                }
             }
+
             //From this type
             Class<?> valueClass = value.getClass();
             //To this type
@@ -171,6 +186,13 @@ public class MapToBeanConverterImpl implements MapToBeanConverter, ConversionExc
                                 ", putting \"" + key + "\" failed, map data:" + fromMap, e, subConversionPath);
             }
         }
+    }
+
+    private String convertMapKey(String key){
+        if (!propertyUpperCamelCase || key == null || key.length() <= 0) {
+            return key;
+        }
+        return Character.toUpperCase(key.charAt(0)) + key.substring(1);
     }
 
     /**
@@ -246,7 +268,7 @@ public class MapToBeanConverterImpl implements MapToBeanConverter, ConversionExc
         private boolean isMapToBean(Class<?> valueClass, Class<?> expectClass) {
             return Map.class.isAssignableFrom(valueClass) &&
                     !Map.class.isAssignableFrom(expectClass) &&
-                    TYPE_JUDGER.isBean(expectClass, false, true);
+                    TYPE_JUDGER.isBean(expectClass, inspectBeanStrictly, true);
         }
 
     };
@@ -285,6 +307,8 @@ public class MapToBeanConverterImpl implements MapToBeanConverter, ConversionExc
         private boolean typeMapping = true;
         private boolean throwExceptionIfFails = false;
         private ConversionExceptionCollector exceptionCollector;
+        private boolean inspectBeanStrictly = false;
+        private boolean propertyUpperCamelCase = false;
 
         Builder() {
         }
@@ -307,7 +331,8 @@ public class MapToBeanConverterImpl implements MapToBeanConverter, ConversionExc
         /**
          * Whether to throw an exception when the field mapping fails
          *
-         * @param throwExceptionIfFails true: Throw exception false: Field left null (default)
+         * @param throwExceptionIfFails true: Throw exception,
+         *                              false: Field left null (default)
          */
         public Builder throwExceptionIfFails(boolean throwExceptionIfFails) {
             this.throwExceptionIfFails = throwExceptionIfFails;
@@ -336,8 +361,46 @@ public class MapToBeanConverterImpl implements MapToBeanConverter, ConversionExc
             return this;
         }
 
+        /**
+         * By default, we only require that the bean has a write method in the case of Map -> Bean, and only require
+         * that the bean has a read method in the case of Bean -> Map. But if you set inspectBeanStrictly to true,
+         * all properties of Bean must have both read and write methods.
+         * @param inspectBeanStrictly true: Property of Bean must have both read and write methods,
+         *                            false: (default)
+         */
+        public Builder inspectBeanStrictly(boolean inspectBeanStrictly) {
+            this.inspectBeanStrictly = inspectBeanStrictly;
+            return this;
+        }
+
+        public Builder setInspectBeanStrictly(boolean inspectBeanStrictly) {
+            this.inspectBeanStrictly = inspectBeanStrictly;
+            return this;
+        }
+
+        /**
+         * By default, when Map -> Bean or Bean -> Map, the property name should be 'lowerCamelCase' at the Map side.
+         * But if you set propertyUpperCamelCase to true, the property name will be 'UpperCamelCase' at the Map side.
+         *
+         * @param propertyUpperCamelCase true: Property name will be 'UpperCamelCase' at the Map side,
+         *                               false: lowerCamelCase (default)
+         */
+        public Builder propertyUpperCamelCase(boolean propertyUpperCamelCase) {
+            this.propertyUpperCamelCase = propertyUpperCamelCase;
+            return this;
+        }
+
+        public Builder setPropertyUpperCamelCase(boolean propertyUpperCamelCase) {
+            this.propertyUpperCamelCase = propertyUpperCamelCase;
+            return this;
+        }
+
         public MapToBeanConverter build() {
-            return new MapToBeanConverterImpl(typeMapping, throwExceptionIfFails, exceptionCollector);
+            return new MapToBeanConverterImpl(typeMapping,
+                    throwExceptionIfFails,
+                    exceptionCollector,
+                    inspectBeanStrictly,
+                    propertyUpperCamelCase);
         }
 
     }

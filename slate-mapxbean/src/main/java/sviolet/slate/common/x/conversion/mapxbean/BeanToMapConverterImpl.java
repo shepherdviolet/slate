@@ -40,11 +40,19 @@ public class BeanToMapConverterImpl implements BeanToMapConverter, ConversionExc
     private final boolean throwExceptionIfFails;
     private final ConversionExceptionCollector exceptionCollector;
     private final BeanToMapInflateStrategy inflateStrategy;
+    private boolean inspectBeanStrictly;
+    private boolean propertyUpperCamelCase;
 
-    private BeanToMapConverterImpl(boolean throwExceptionIfFails, ConversionExceptionCollector exceptionCollector, BeanToMapInflateStrategy inflateStrategy) {
+    private BeanToMapConverterImpl(boolean throwExceptionIfFails,
+                                   ConversionExceptionCollector exceptionCollector,
+                                   BeanToMapInflateStrategy inflateStrategy,
+                                   boolean inspectBeanStrictly,
+                                   boolean propertyUpperCamelCase) {
         this.throwExceptionIfFails = throwExceptionIfFails;
         this.exceptionCollector = !throwExceptionIfFails ? exceptionCollector : null;
         this.inflateStrategy = inflateStrategy;
+        this.inspectBeanStrictly = inspectBeanStrictly;
+        this.propertyUpperCamelCase = propertyUpperCamelCase;
     }
 
     /**
@@ -119,14 +127,20 @@ public class BeanToMapConverterImpl implements BeanToMapConverter, ConversionExc
             //Property info
             BeanInfoUtils.PropertyInfo fromBeanPropertyInfo = fromBeanPropertyInfos.get(key);
             //Check read method
-            if (fromBeanPropertyInfo.getReadMethod() == null) {
-                continue;
+            if (inspectBeanStrictly) {
+                if (fromBeanPropertyInfo.getReadMethod() == null || fromBeanPropertyInfo.getWriteMethod() == null) {
+                    continue;
+                }
+            } else {
+                if (fromBeanPropertyInfo.getReadMethod() == null) {
+                    continue;
+                }
             }
 
             Object value = fromBeanMap.get(keyObj);
             //Keep null value
             if (value == null) {
-                toMap.put(key, null);
+                toMap.put(convertMapKey(key), null);
                 continue;
             }
 
@@ -154,8 +168,15 @@ public class BeanToMapConverterImpl implements BeanToMapConverter, ConversionExc
             }
 
             //Put into map
-            toMap.put(key, convertedValue);
+            toMap.put(convertMapKey(key), convertedValue);
         }
+    }
+
+    private String convertMapKey(String key){
+        if (!propertyUpperCamelCase || key == null || key.length() <= 0) {
+            return key;
+        }
+        return Character.toUpperCase(key.charAt(0)) + key.substring(1);
     }
 
     /**
@@ -192,7 +213,7 @@ public class BeanToMapConverterImpl implements BeanToMapConverter, ConversionExc
             //If it is a readable Bean, and the inflateStrategy is not null
             if (inflateStrategy != null &&
                     !Map.class.isAssignableFrom(valueClass) &&
-                    TYPE_JUDGER.isBean(valueClass, true, false)) {
+                    TYPE_JUDGER.isBean(valueClass, true, inspectBeanStrictly)) {
                 //Judge by inflateStrategy
                 if (inflateStrategy.needToBeInflated(value, valueClass, TYPE_JUDGER, conversionPath)) {
                     try {
@@ -233,6 +254,8 @@ public class BeanToMapConverterImpl implements BeanToMapConverter, ConversionExc
         private boolean throwExceptionIfFails = false;
         private ConversionExceptionCollector exceptionCollector;
         private BeanToMapInflateStrategy inflateStrategy;
+        private boolean inspectBeanStrictly = false;
+        private boolean propertyUpperCamelCase = false;
 
         Builder() {
         }
@@ -240,7 +263,8 @@ public class BeanToMapConverterImpl implements BeanToMapConverter, ConversionExc
         /**
          * Whether to throw an exception when the field mapping fails
          *
-         * @param throwExceptionIfFails true: Throw exception false: Field left null (default)
+         * @param throwExceptionIfFails true: Throw exception,
+         *                              false: Field left null (default)
          */
         public Builder throwExceptionIfFails(boolean throwExceptionIfFails) {
             this.throwExceptionIfFails = throwExceptionIfFails;
@@ -299,8 +323,46 @@ public class BeanToMapConverterImpl implements BeanToMapConverter, ConversionExc
             return this;
         }
 
+        /**
+         * By default, we only require that the bean has a write method in the case of Map -> Bean, and only require
+         * that the bean has a read method in the case of Bean -> Map. But if you set inspectBeanStrictly to true,
+         * all properties of Bean must have both read and write methods.
+         * @param inspectBeanStrictly true: Property of Bean must have both read and write methods,
+         *                            false: (default)
+         */
+        public Builder inspectBeanStrictly(boolean inspectBeanStrictly) {
+            this.inspectBeanStrictly = inspectBeanStrictly;
+            return this;
+        }
+
+        public Builder setInspectBeanStrictly(boolean inspectBeanStrictly) {
+            this.inspectBeanStrictly = inspectBeanStrictly;
+            return this;
+        }
+
+        /**
+         * By default, when Map -> Bean or Bean -> Map, the property name should be 'lowerCamelCase' at the Map side.
+         * But if you set propertyUpperCamelCase to true, the property name will be 'UpperCamelCase' at the Map side.
+         *
+         * @param propertyUpperCamelCase true: Property name will be 'UpperCamelCase' at the Map side,
+         *                               false: lowerCamelCase (default)
+         */
+        public Builder propertyUpperCamelCase(boolean propertyUpperCamelCase) {
+            this.propertyUpperCamelCase = propertyUpperCamelCase;
+            return this;
+        }
+
+        public Builder setPropertyUpperCamelCase(boolean propertyUpperCamelCase) {
+            this.propertyUpperCamelCase = propertyUpperCamelCase;
+            return this;
+        }
+
         public BeanToMapConverter build(){
-            return new BeanToMapConverterImpl(throwExceptionIfFails, exceptionCollector, inflateStrategy);
+            return new BeanToMapConverterImpl(throwExceptionIfFails,
+                    exceptionCollector,
+                    inflateStrategy,
+                    inspectBeanStrictly,
+                    propertyUpperCamelCase);
         }
 
     }
