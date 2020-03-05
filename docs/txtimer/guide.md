@@ -171,7 +171,7 @@
 ```text
 //version替换为具体版本
 dependencies {
-    compile 'com.github.shepherdviolet.slate20:slate-common:version'
+    compile 'com.github.shepherdviolet:slate-common:?'
 }
 ```
 
@@ -180,7 +180,7 @@ dependencies {
 ```maven
     <!--version替换为具体版本-->
     <dependency>
-        <groupId>com.github.shepherdviolet.slate20</groupId>
+        <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
         <version>?</version>
     </dependency>

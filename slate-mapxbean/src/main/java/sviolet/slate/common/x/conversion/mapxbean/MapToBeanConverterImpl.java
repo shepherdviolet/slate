@@ -138,8 +138,18 @@ public class MapToBeanConverterImpl implements MapToBeanConverter, ConversionExc
             //KV
             String key = String.valueOf(keyObj);
             Object value = fromMap.get(convertMapKey(key));
-            if (value == null) {
-                continue;
+            if (propertyUpperCamelCase) {
+                if (value == null) {
+                    // Get by lowerCase
+                    value = fromMap.get(key);
+                    if (value == null) {
+                        continue;
+                    }
+                }
+            } else {
+                if (value == null) {
+                    continue;
+                }
             }
 
             //Property info

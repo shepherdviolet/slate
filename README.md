@@ -2,7 +2,7 @@
 
 * Comprehensive Java library for spring framework (Java8+)
 * [Github Home](https://github.com/shepherdviolet/slate)
-* [Search in Maven Central](https://search.maven.org/search?q=g:com.github.shepherdviolet.slate20)
+* [Search in Maven Central](https://search.maven.org/search?q=g:com.github.shepherdviolet)
 * [PGP Key](http://pool.sks-keyservers.net/pks/lookup?op=vindex&fingerprint=on&search=0x90998B78AABD6E96)
 * [Special thanks to JetBrains for the free open source license, it is very helpful for our project!](https://www.jetbrains.com/?from=slate)
 
@@ -95,6 +95,12 @@
 
 # Import dependencies from maven repository
 
+* [Search `slate-common` in Maven Central](https://search.maven.org/search?q=g:com.github.shepherdviolet%20a:slate-common)
+* [Search `slate-txtimer` in Maven Central](https://search.maven.org/search?q=g:com.github.shepherdviolet%20a:slate-txtimer)
+* [Search `slate-helper` in Maven Central](https://search.maven.org/search?q=g:com.github.shepherdviolet%20a:slate-helper)
+* [Search `slate-http-client` in Maven Central](https://search.maven.org/search?q=g:com.github.shepherdviolet%20a:slate-http-client)
+* [Search `slate-mapxbean` in Maven Central](https://search.maven.org/search?q=g:com.github.shepherdviolet%20a:slate-mapxbean)
+
 ```gradle
 
 repositories {
@@ -102,38 +108,38 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'com.github.shepherdviolet.slate20:slate-common:?'
-    compile 'com.github.shepherdviolet.slate20:slate-txtimer:?'
-    compile 'com.github.shepherdviolet.slate20:slate-helper:?'
-    compile 'com.github.shepherdviolet.slate20:slate-http-client:?'
-    compile 'com.github.shepherdviolet.slate20:slate-mapxbean:?'
+    compile 'com.github.shepherdviolet:slate-common:?'
+    compile 'com.github.shepherdviolet:slate-txtimer:?'
+    compile 'com.github.shepherdviolet:slate-helper:?'
+    compile 'com.github.shepherdviolet:slate-http-client:?'
+    compile 'com.github.shepherdviolet:slate-mapxbean:?'
 }
 
 ```
 
 ```maven
     <dependency>
-        <groupId>com.github.shepherdviolet.slate20</groupId>
+        <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-common</artifactId>
         <version>?</version>
     </dependency>
     <dependency>
-        <groupId>com.github.shepherdviolet.slate20</groupId>
+        <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-txtimer</artifactId>
         <version>?</version>
     </dependency>
     <dependency>
-        <groupId>com.github.shepherdviolet.slate20</groupId>
+        <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-helper</artifactId>
         <version>?</version>
     </dependency>
     <dependency>
-        <groupId>com.github.shepherdviolet.slate20</groupId>
+        <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-http-client</artifactId>
         <version>?</version>
     </dependency>
     <dependency>
-        <groupId>com.github.shepherdviolet.slate20</groupId>
+        <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-mapxbean</artifactId>
         <version>?</version>
     </dependency>

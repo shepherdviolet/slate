@@ -45,7 +45,7 @@ instance, the request will be sent to the wrong host!!!
      */
     public byte[] send(String hosts, byte[] request) {
         client.setHosts(hosts);//错误 Wrong !!!
-        return client.post("/post/json")
+        return client.post("/path/path")
                 .body(request)
                 .sendForBytes();
     }
@@ -81,8 +81,8 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
      * still be sent to the old hosts !
      */
     public byte[] send(byte[] request) {
-        client.setHosts("http://127.0.0.1:8080");//错误 Wrong !!!
-        return client.post("/post/json")
+        client.setHosts(hosts);//错误 Wrong !!!
+        return client.post("/path/path")
                 .body(request)
                 .sendForBytes();
     }
@@ -94,7 +94,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 
  ```text
  //返回byte[]类型的响应
- client.post("/post/json")
+ client.post("/path/path")
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
          //.formBody(formBody)//表单提交
@@ -125,7 +125,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 * 当autoClose=false时, onSucceed方法回调结束后, 输入流不会自动关闭, 需要手动调用InputStream.close()关闭, 注意!!!
 
  ```text
- client.post("/post/json")
+ client.post("/path/path")
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
          //.formBody(formBody)//表单提交
@@ -157,7 +157,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 * 当autoClose=false时, onSucceed方法回调结束后, ResponsePackage不会自动关闭, 需要手动调用ResponsePackage.close()关闭, 注意!!!
 
  ```text
- client.post("/post/json")
+ client.post("/path/path")
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
          //.formBody(formBody)//表单提交
@@ -191,7 +191,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 Map<String, Object> requestMap = new HashMap<>(2);
 requestMap.put("name", "wang wang");
 requestMap.put("key", "963");
-client.post("/post/json")
+client.post("/path/path")
         .beanBody(requestMap)
         .enqueue(new MultiHostOkHttpClient.BeanCallback<Map<String, Object>>() {
             @Override
@@ -218,7 +218,7 @@ client.post("/post/json")
 
  ```text
  //返回byte[]类型的响应
- client.get("/get/json")
+ client.get("/path/path")
          .urlParam("name", "000000001")
          .urlParam("key", "000000001")
          //.httpHeader("Accept", "application/json;charset=utf-8")
@@ -247,7 +247,7 @@ client.post("/post/json")
 * 当autoClose=false时, onSucceed方法回调结束后, 输入流不会自动关闭, 需要手动调用InputStream.close()关闭, 注意!!!
 
  ```text
- client.get("/get/json")
+ client.get("/path/path")
          .urlParam("name", "000000001")
          .urlParam("key", "000000001")
          //.autoClose(false)//默认为true
@@ -277,7 +277,7 @@ client.post("/post/json")
 * 当autoClose=false时, onSucceed方法回调结束后, ResponsePackage不会自动关闭, 需要手动调用ResponsePackage.close()关闭, 注意!!!
 
  ```text
- client.get("/get/json")
+ client.get("/path/path")
          .urlParam("name", "000000001")
          .urlParam("key", "000000001")
          //.autoClose(false)//默认为true
@@ -306,7 +306,7 @@ client.post("/post/json")
 * 注意:必须要配置dataConverter
 
 ```text
-client.get("/get/json")
+client.get("/path/path")
         .urlParam("name", "000000001")
         .urlParam("key", "000000001")
         .enqueue(new MultiHostOkHttpClient.BeanCallback<Map<String, Object>>() {

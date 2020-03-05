@@ -57,11 +57,11 @@ public class MapToBeanTest {
         }));
         map.put("personList", LambdaBuilder.arrayList(l -> {
             l.add(LambdaBuilder.hashMap(mm -> {
-                mm.put("name", "Rock 0");
+                mm.put("name", MyEnum.AAA);
                 mm.put("date", null);
             }));
             l.add(LambdaBuilder.hashMap(mm -> {
-                mm.put("name", "Rock 1");
+                mm.put("name", MyEnum.BBB);
                 mm.put("date", "");
             }));
         }));
@@ -83,6 +83,7 @@ public class MapToBeanTest {
             m.put("name", "Im writer");
             m.put("date", "2020-02-21 08:45:21");
         }));
+        map.put("myEnum", "BBB");
 
 //        System.out.println(map);
 
@@ -93,7 +94,7 @@ public class MapToBeanTest {
                 .build()
                 .convert(map, Bean2.class);
 
-        Assert.assertEquals("Bean{person=Person{name='single man', date=Fri Feb 21 08:45:21 CST 2020}, personMap={Mr. Wang=Person{name='Wang da shan', date=Fri Feb 21 08:45:22 CST 2020}, Mr. Chen=Person{name='Chen mai zi', date=Fri Feb 21 08:45:23 CST 2020}}, personList=[Person{name='Rock 0', date=null}, Person{name='Rock 1', date=null}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, onlyWriter=Person{name='Im writer', date=Fri Feb 21 08:45:21 CST 2020}}",
+        Assert.assertEquals("Bean{person=Person{name='single man', date=Fri Feb 21 08:45:21 CST 2020}, personMap={Mr. Wang=Person{name='Wang da shan', date=Fri Feb 21 08:45:22 CST 2020}, Mr. Chen=Person{name='Chen mai zi', date=Fri Feb 21 08:45:23 CST 2020}}, personList=[Person{name='AAA', date=null}, Person{name='BBB', date=null}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, onlyWriter=Person{name='Im writer', date=Fri Feb 21 08:45:21 CST 2020}, myEnum=BBB}",
                 String.valueOf(bean));
 
 //        System.out.println(bean);
@@ -107,7 +108,7 @@ public class MapToBeanTest {
                 .build()
                 .convert(bean);
 
-        Assert.assertEquals("{personList=[Person{name='Rock 0', date=null}, Person{name='Rock 1', date=null}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, person=Person{name='single man', date=Fri Feb 21 08:45:21 CST 2020}, personMap={Mr. Wang=Person{name='Wang da shan', date=Fri Feb 21 08:45:22 CST 2020}, Mr. Chen=Person{name='Chen mai zi', date=Fri Feb 21 08:45:23 CST 2020}}}",
+        Assert.assertEquals("{personList=[Person{name='AAA', date=null}, Person{name='BBB', date=null}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, person=Person{name='single man', date=Fri Feb 21 08:45:21 CST 2020}, myEnum=BBB, personMap={Mr. Wang=Person{name='Wang da shan', date=Fri Feb 21 08:45:22 CST 2020}, Mr. Chen=Person{name='Chen mai zi', date=Fri Feb 21 08:45:23 CST 2020}}}",
                 String.valueOf(resultMap));
 
 //        System.out.println(resultMap);
@@ -120,7 +121,7 @@ public class MapToBeanTest {
                 .build()
                 .convert(bean);
 
-        Assert.assertEquals("{personList=[{date=null, name=Rock 0}, {date=null, name=Rock 1}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, person={date=Fri Feb 21 08:45:21 CST 2020, name=single man}, personMap={Mr. Wang={date=Fri Feb 21 08:45:22 CST 2020, name=Wang da shan}, Mr. Chen={date=Fri Feb 21 08:45:23 CST 2020, name=Chen mai zi}}}",
+        Assert.assertEquals("{personList=[{date=null, name=AAA}, {date=null, name=BBB}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, person={date=Fri Feb 21 08:45:21 CST 2020, name=single man}, myEnum=BBB, personMap={Mr. Wang={date=Fri Feb 21 08:45:22 CST 2020, name=Wang da shan}, Mr. Chen={date=Fri Feb 21 08:45:23 CST 2020, name=Chen mai zi}}}",
                 String.valueOf(resultMap));
 
 //        System.out.println(resultMap);
@@ -141,7 +142,7 @@ public class MapToBeanTest {
                 .build()
                 .convert(bean);
 
-        Assert.assertEquals("{personList=[Person{name='Rock 0', date=null}, Person{name='Rock 1', date=null}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, person=Person{name='single man', date=Fri Feb 21 08:45:21 CST 2020}, personMap={Mr. Wang=Person{name='Wang da shan', date=Fri Feb 21 08:45:22 CST 2020}, Mr. Chen=Person{name='Chen mai zi', date=Fri Feb 21 08:45:23 CST 2020}}}",
+        Assert.assertEquals("{personList=[Person{name='AAA', date=null}, Person{name='BBB', date=null}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, person=Person{name='single man', date=Fri Feb 21 08:45:21 CST 2020}, myEnum=BBB, personMap={Mr. Wang=Person{name='Wang da shan', date=Fri Feb 21 08:45:22 CST 2020}, Mr. Chen=Person{name='Chen mai zi', date=Fri Feb 21 08:45:23 CST 2020}}}",
                 String.valueOf(resultMap));
 
 //        System.out.println(resultMap);
@@ -154,7 +155,7 @@ public class MapToBeanTest {
                 .build()
                 .convert(bean);
 
-        Assert.assertEquals("{personList=[Person{name='Rock 0', date=null}, Person{name='Rock 1', date=null}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, person=Person{name='single man', date=Fri Feb 21 08:45:21 CST 2020}, personMap={Mr. Wang=Person{name='Wang da shan', date=Fri Feb 21 08:45:22 CST 2020}, Mr. Chen=Person{name='Chen mai zi', date=Fri Feb 21 08:45:23 CST 2020}}}",
+        Assert.assertEquals("{personList=[Person{name='AAA', date=null}, Person{name='BBB', date=null}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, person=Person{name='single man', date=Fri Feb 21 08:45:21 CST 2020}, myEnum=BBB, personMap={Mr. Wang=Person{name='Wang da shan', date=Fri Feb 21 08:45:22 CST 2020}, Mr. Chen=Person{name='Chen mai zi', date=Fri Feb 21 08:45:23 CST 2020}}}",
                 String.valueOf(resultMap));
 
 //        System.out.println(resultMap);
@@ -167,7 +168,7 @@ public class MapToBeanTest {
                 .build()
                 .convert(bean);
 
-        Assert.assertEquals("{personList=[Person{name='Rock 0', date=null}, Person{name='Rock 1', date=null}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, person={date=Fri Feb 21 08:45:21 CST 2020, name=single man}, personMap={Mr. Wang=Person{name='Wang da shan', date=Fri Feb 21 08:45:22 CST 2020}, Mr. Chen=Person{name='Chen mai zi', date=Fri Feb 21 08:45:23 CST 2020}}}",
+        Assert.assertEquals("{personList=[Person{name='AAA', date=null}, Person{name='BBB', date=null}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, person={date=Fri Feb 21 08:45:21 CST 2020, name=single man}, myEnum=BBB, personMap={Mr. Wang=Person{name='Wang da shan', date=Fri Feb 21 08:45:22 CST 2020}, Mr. Chen=Person{name='Chen mai zi', date=Fri Feb 21 08:45:23 CST 2020}}}",
                 String.valueOf(resultMap));
 
 //        System.out.println(resultMap);
@@ -180,7 +181,7 @@ public class MapToBeanTest {
                 .build()
                 .convert(bean);
 
-        Assert.assertEquals("{personList=[{date=null, name=Rock 0}, {date=null, name=Rock 1}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, person=Person{name='single man', date=Fri Feb 21 08:45:21 CST 2020}, personMap={Mr. Wang={date=Fri Feb 21 08:45:22 CST 2020, name=Wang da shan}, Mr. Chen={date=Fri Feb 21 08:45:23 CST 2020, name=Chen mai zi}}}",
+        Assert.assertEquals("{personList=[{date=null, name=AAA}, {date=null, name=BBB}], objectSet=[{date=2020-02-21, name=MAX 0}, {date=20200221, name=MAX 1}], onlyReader=null, person=Person{name='single man', date=Fri Feb 21 08:45:21 CST 2020}, myEnum=BBB, personMap={Mr. Wang={date=Fri Feb 21 08:45:22 CST 2020, name=Wang da shan}, Mr. Chen={date=Fri Feb 21 08:45:23 CST 2020, name=Chen mai zi}}}",
                 String.valueOf(resultMap));
 
 //        System.out.println(resultMap);
@@ -199,6 +200,7 @@ public class MapToBeanTest {
         private Set<O> objectSet;
         private E onlyReader;
         private E onlyWriter;
+        private MyEnum myEnum;
 
         public E getPerson() {
             return person;
@@ -240,6 +242,14 @@ public class MapToBeanTest {
             this.onlyWriter = onlyWriter;
         }
 
+        public MyEnum getMyEnum() {
+            return myEnum;
+        }
+
+        public void setMyEnum(MyEnum myEnum) {
+            this.myEnum = myEnum;
+        }
+
         @Override
         public String toString() {
             return "Bean{" +
@@ -249,6 +259,7 @@ public class MapToBeanTest {
                     ", objectSet=" + objectSet +
                     ", onlyReader=" + onlyReader +
                     ", onlyWriter=" + onlyWriter +
+                    ", myEnum=" + myEnum +
                     '}';
         }
     }
@@ -281,6 +292,11 @@ public class MapToBeanTest {
                     ", date=" + date +
                     '}';
         }
+    }
+
+    public enum MyEnum {
+        AAA,
+        BBB
     }
 
 }

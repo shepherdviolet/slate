@@ -121,15 +121,29 @@ public class MxbTypeMapperCenterImpl implements MxbTypeMapperCenter, Initializab
         //Get mappers
         Map<Class<?>, MxbTypeMapper> mappers = typeMappers.get(fromType);
         if (mappers == null) {
-            return RESULT_NO_PROPER_MAPPER;
+            return onConvertInner(from, toType, toGenericType, cause);
         }
         MxbTypeMapper mapper = mappers.get(toType);
         if (mapper == null) {
-            return RESULT_NO_PROPER_MAPPER;
+            return onConvertInner(from, toType, toGenericType, cause);
         }
 
         //Convert by mapper
         return mapper.map(from, toType, toGenericType, cause);
+    }
+
+    protected Object onConvertInner(Object from, Class<?> toType, Type toGenericType, MxbTypeMapper.Cause cause) throws Exception {
+        // Any to String
+        if (String.class.equals(toType)) {
+            return String.valueOf(from);
+        }
+
+        // String to Enum
+        if (from instanceof String && toType.isEnum()) {
+            return Enum.valueOf((Class)toType, (String) from);
+        }
+
+        return RESULT_NO_PROPER_MAPPER;
     }
 
 }

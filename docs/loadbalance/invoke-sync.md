@@ -44,7 +44,7 @@ instance, the request will be sent to the wrong host!!!
      */
     public byte[] send(String hosts, byte[] request) {
         client.setHosts(hosts);//错误 Wrong !!!
-        return client.post("/post/json")
+        return client.post("/path/path")
                 .body(request)
                 .sendForBytes();
     }
@@ -80,8 +80,8 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
      * still be sent to the old hosts !
      */
     public byte[] send(byte[] request) {
-        client.setHosts("http://127.0.0.1:8080");//错误 Wrong !!!
-        return client.post("/post/json")
+        client.setHosts(hosts);//错误 Wrong !!!
+        return client.post("/path/path")
                 .body(request)
                 .sendForBytes();
     }
@@ -93,7 +93,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
  
  ```text
   try {
-      byte[] response = client.post("/post/json")
+      byte[] response = client.post("/path/path")
               .urlParam("traceId", "000000001")
               .body("hello world".getBytes())
               //.formBody(formBody)//表单提交
@@ -119,7 +119,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 * 注意:InputStream需要手动关闭(close), 示例中是使用try-with-resource语法糖写法关闭的
 
  ```text
- try (InputStream inputStream = client.post("/post/json")
+ try (InputStream inputStream = client.post("/path/path")
          .body("hello world".getBytes())
          //.formBody(formBody)//表单提交
          //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
@@ -147,7 +147,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 * 注意:ResponsePackage需要手动关闭(close), 示例中是使用try-with-resource语法糖写法关闭的
 
  ```text
- try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.post("/post/json")
+ try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.post("/path/path")
          .body("hello world".getBytes())
          //.formBody(formBody)//表单提交
          //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
@@ -179,7 +179,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
         Map<String, Object> requestMap = new HashMap<>(2);
         requestMap.put("name", "wang wang");
         requestMap.put("key", "963");
-        Map<String, Object> responseMap = client.post("/post/json")
+        Map<String, Object> responseMap = client.post("/path/path")
                 .beanBody(requestMap)
                 .sendForBean(Map.class);
  } catch (NoHostException e) {
@@ -201,7 +201,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
  
  ```text
   try {
-      byte[] response = client.get("/get/json")
+      byte[] response = client.get("/path/path")
               .urlParam("name", "000000001")
               .urlParam("key", "000000001")
               //.httpHeader("Accept", "application/json;charset=utf-8")
@@ -225,7 +225,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 * 注意:InputStream需要手动关闭(close), 示例中是使用try-with-resource语法糖写法关闭的
 
  ```text
- try (InputStream inputStream = client.get("/get/json")
+ try (InputStream inputStream = client.get("/path/path")
          .urlParam("name", "000000001")
          .urlParam("key", "000000001")
          //.httpHeader("Accept", "application/json;charset=utf-8")
@@ -252,7 +252,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 * 注意:ResponsePackage需要手动关闭(close), 示例中是使用try-with-resource语法糖写法关闭的
 
  ```text
- try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.get("/get/json")
+ try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.get("/path/path")
          .urlParam("name", "000000001")
          .urlParam("key", "000000001")
          //.httpHeader("Accept", "application/json;charset=utf-8")
@@ -280,7 +280,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 
 ```text
  try {
-        Map<String, Object> responseMap = client.get("/get/json")
+        Map<String, Object> responseMap = client.get("/path/path")
                 .urlParam("name", "000000001")
                 .urlParam("key", "000000001")
                 .sendForBean(Map.class);

@@ -347,14 +347,14 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'com.github.shepherdviolet.slate20:slate-mapxbean:?'
+    compile 'com.github.shepherdviolet:slate-mapxbean:?'
 }
 
 ```
 
 ```maven
     <dependency>
-        <groupId>com.github.shepherdviolet.slate20</groupId>
+        <groupId>com.github.shepherdviolet</groupId>
         <artifactId>slate-mapxbean</artifactId>
         <version>?</version>
     </dependency>

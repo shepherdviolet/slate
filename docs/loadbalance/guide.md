@@ -55,7 +55,7 @@ instance, the request will be sent to the wrong host!!!
      */
     public byte[] send(String hosts, byte[] request) {
         client.setHosts(hosts);//错误 Wrong !!!
-        return client.post("/post/json")
+        return client.post("/path/path")
                 .body(request)
                 .sendForBytes();
     }
@@ -91,8 +91,8 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
      * still be sent to the old hosts !
      */
     public byte[] send(byte[] request) {
-        client.setHosts("http://127.0.0.1:8080");//错误 Wrong !!!
-        return client.post("/post/json")
+        client.setHosts(hosts);//错误 Wrong !!!
+        return client.post("/path/path")
                 .body(request)
                 .sendForBytes();
     }
