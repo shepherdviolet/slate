@@ -171,7 +171,7 @@
 ```text
 //version替换为具体版本
 dependencies {
-    compile 'com.github.shepherdviolet:slate-common:?'
+    compile 'com.github.shepherdviolet:slate-txtimer:?'
 }
 ```
 
@@ -181,7 +181,7 @@ dependencies {
     <!--version替换为具体版本-->
     <dependency>
         <groupId>com.github.shepherdviolet</groupId>
-        <artifactId>slate-common</artifactId>
+        <artifactId>slate-txtimer</artifactId>
         <version>?</version>
     </dependency>
 ```
