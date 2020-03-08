@@ -127,7 +127,7 @@ Map<String, Object>{
 > meets the specified classes. <br>
 
 ```text
-// Can be a singleton
+// Can be a singleton, InflateUntilIndivisible can specify which classes are indivisible
 private final BeanToMapConverter beanToMapConverter = MapXBean.beanToMap().inflateStrategy(new InflateUntilIndivisible()).build()
 
 public void foo() {

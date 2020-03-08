@@ -3,15 +3,14 @@
 * [English](https://github.com/shepherdviolet/slate/blob/master/docs/mapxbean/guide-en.md)
 * [Source Code](https://github.com/shepherdviolet/slate/tree/master/slate-mapxbean/src/main/java/sviolet/slate/common/x/conversion/mapxbean)
 * [支持 Glaciion SPI 扩展点](https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md)
-* TODO 中文文档待翻译
 <br>
 
-# Quick start
+# 简单示例
 
-### Convert from Map to Bean
+### Map转Bean
 
 ```text
-// Can be a singleton
+// 可单例, 线程安全
 private final MapToBeanConverter mapToBeanConverter = MapXBean.mapToBean().build();
 
 public void foo() {
@@ -19,7 +18,7 @@ public void foo() {
 }
 ```
 
-* From
+* 转换前
 
 ```text
 Map<String, Object>{
@@ -37,24 +36,24 @@ Map<String, Object>{
 }
 ```
 
-* To
+* 转换后
 
 ```text
 ## Map->Bean
 Person{
     name="Foo"
-    ## Detect the element type from <Location>
+    ## 元素类型由List的泛型<Location>推断
     locations=List<Location>[
         ## Map->Bean
         Location{
                 address="Foo Street"
-                ## String->Date **Type Mapping**
+                ## String->Date **类型映射**
                 time=Date(2020-03-01 14:23:58)
         }
         ## Map->Bean
         Location{
                 address="Foo Street"
-                ## String->Date **Type Mapping**
+                ## String->Date **类型映射**
                 time=Date(2020-03-01 16:26:17)
         }
     ]
@@ -63,13 +62,12 @@ Person{
 
 <br>
 
-### Convert from Bean to Map, and all properties keep original types
+### Bean转Map, Bean属性保持原类型(浅复制)
 
-> In the scene of Bean -> Map. While a Bean is converting to a Map, all the properties of Bean will keep the original <br>
-> type by default. <br>
+> 在Bean转Map的场景中. 当一个Bean被转为Map时, 它的所有的属性默认都会保持原始类型 <br>
 
 ```text
-// Can be a singleton
+// 可单例, 线程安全
 private final BeanToMapConverter beanToMapConverter = MapXBean.beanToMap().build()
 
 public void foo() {
@@ -77,7 +75,7 @@ public void foo() {
 }
 ```
 
-* From
+* 转换前
 
 ```text
 Person{
@@ -95,21 +93,21 @@ Person{
 }
 ```
 
-* To
+* 转换后
 
 ```text
 ## Bean->Map
 Map<String, Object>{
-    ## Keep original type by default
+    ## Bean属性保持原类型
     name="Foo"
-    ## Recreate the List
+    ## 注意这个集合是重新创建的
     locations=List<Location>[
-        ## Keep original type by default
+        ## 集合元素也保持原类型
         Location{
                 address="Foo Street"
                 time=Date(2020-03-01 14:23:58)
         }
-        ## Keep original type by default
+        ## 集合元素也保持原类型
         Location{
                 address="Foo Street"
                 time=Date(2020-03-01 16:26:17)
@@ -120,14 +118,13 @@ Map<String, Object>{
 
 <br>
 
-### Convert from Bean to Map, and all properties inflate to Map until indivisible
+### Bean转Map, Bean属性继续拆解成Map, 直到不可分割
 
-> Set inflateStrategy to InflateUntilIndivisible. Converting a 'Java Bean' to 'Map consisting of Map and Collection <br>
-> nesting', all the properties or elements will be inflate until indivisible, or reaches the specified depth, or <br>
-> meets the specified classes. <br>
+> 设置inflateStrategy为InflateUntilIndivisible后, 我们会将Bean转为一个由Map和Collection嵌套构成的Map, 所有的属性或元素都会被 <br>
+> 继续拆解成Map, 直到不可分割. 你也可以指定哪些特殊的类型不可分割, 或者指定拆解深度. <br>
 
 ```text
-// Can be a singleton
+// 可单例, 线程安全, InflateUntilIndivisible可以指定哪些特殊的类型不可分割
 private final BeanToMapConverter beanToMapConverter = MapXBean.beanToMap().inflateStrategy(new InflateUntilIndivisible()).build()
 
 public void foo() {
@@ -135,7 +132,7 @@ public void foo() {
 }
 ```
 
-* From
+* 转换前
 
 ```text
 Person{
@@ -153,27 +150,27 @@ Person{
 }
 ```
 
-* To
+* 转换后
 
 ```text
 ## Bean->Map
 Map<String, Object>{
-    ## Indivisible type String
+    ## String在默认的不可分割类型中
     name="Foo"
-    ## Recreate the List
+    ## 注意这个集合是重新创建的
     locations=List<Map<String, Object>>[
-        ## Bean->Map **Inflate**
+        ## Bean->Map **继续拆解**
         Map<String, Object>{
-                ## Indivisible type String
+                ## String在默认的不可分割类型中
                 address="Foo Street"
-                ## Indivisible type Date
+                ## Date在默认的不可分割类型中
                 time=Date(2020-03-01 14:23:58)
         }
-        ## Bean->Map **Inflate**
+        ## Bean->Map **继续拆解**
         Map<String, Object>{
-                ## Indivisible type String
+                ## String在默认的不可分割类型中
                 address="Foo Street"
-                ## Indivisible type Date
+                ## Date在默认的不可分割类型中
                 time=Date(2020-03-01 16:26:17)
         }
     ]
@@ -182,12 +179,11 @@ Map<String, Object>{
 
 <br>
 
-# Advanced usage
+# 高级用法
 
-### Throw exception if property (element) mapping failed
+### 当一个属性或元素处理失败时抛出异常
 
-> When property or element mapping fails, no exception will be thrown by default, the failed property will left null. <br>
-> After setting throwExceptionIfFails to true, an exception will be thrown when the property mapping fails. <br>
+> 当一个属性或元素处理失败时, 默认不会抛出异常, 失败的字段会留空(null). 如果设置throwExceptionIfFails为true, 那么就会抛出异常了. <br>
 
 ```text
 MapXBean.mapToBean()
@@ -200,11 +196,10 @@ MapXBean.beanToMap()
 
 <br>
 
-### Print log if property (element) mapping failed
+### 当一个属性或元素处理失败时打印日志
 
-> When property or element mapping fails, no exception will be thrown by default, the failed property will left null. <br>
-> After setting a exceptionCollector, warning log will be printed when the property mapping fails (the failed property <br>
-> will left null). Note that the exceptionCollector is invalid when the throwExceptionIfFails is true. <br>
+> 当一个属性或元素处理失败时, 默认不会抛出异常, 失败的字段会留空(null). 如果设置了exceptionCollector, 就能够将这些异常信息打印 <br>
+> 到日志中, 失败的字段仍然会留空(null). 注意exceptionCollector只在throwExceptionIfFails为false时有效. <br>
 
 ```text
 MapXBean.mapToBean()
@@ -217,12 +212,11 @@ MapXBean.beanToMap()
 
 <br>
 
-### About `Type Mapping` (For Map -> Bean Only)
+### 关于 `类型映射` (仅Map转Bean时出现)
 
-> In the scene of Map -> Bean, if we find that the data type in the Map does not match the type required by the bean, <br>
-> we will try to convert the data to the required type by MxbTypeMappers. <br>
+> 在Map转Bean的场景中. 如果程序发现Map中的数据类型与Bean需要的类型不匹配, 程序会试着用MxbTypeMapper进行类型转换. <br>
 
-| Default MxbTypeMapper | From | To |
+| 默认的类型映射器(MxbTypeMapper) | 源类型 | 目标类型 |
 | --------------------- | ---- | ---- |
 | MxbMapperAllDate2SqlDate | All date | sql.Date |
 | MxbMapperAllDate2SqlTimestamp | All date | sql.Timestamp |
@@ -239,43 +233,41 @@ MapXBean.beanToMap()
 | MxbMapperLowlevelNum2Integer | Low level number | Integer |
 | MxbMapperLowlevelNum2Long | Low level number | Long |
 
-* You can add your own MxbTypeMapper by [Glaciion SPI extension point](https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md)
+* 你可以添加自己的MxbTypeMapper, 利用[Glaciion SPI 扩展点](https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md)
 
-| Extension Point | Default Implementation |
+| 扩展点 | 默认实现 |
 | --------------- | ---------------------- |
 | MxbTypeMapperProvider | MxbTypeMapperProviderImpl |
 
 <br>
 
-### About `Inflate` (Inflate strategy, For Bean -> Map Only)
+### 关于 `继续拆解` (InflateStrategy, 仅Bean转Map出现)
 
-> In the scene of Bean -> Map. While a Bean is converting to a Map, all the properties of Bean will keep the original <br>
-> type by default, unless the BeanToMapInflateStrategy tells the program that it needs to be inflated. <br>
+> 在Bean转Map的场景中. 当一个Bean被转为Map时, 它的所有的属性默认都会保持原始类型, 除非你设置了BeanToMapInflateStrategy, 来告诉 <br>
+> 程序哪些Bean可以被继续拆解成Map. <br>
 
-> 'Inflate' means that in the scene of Bean -> Map, if a property (of Java Bean) or an element (of Collection) is a <br>
-> Java Bean, the property (or element) can be converted to a Map as long as the method <br>
-> BeanToMapInflateStrategy#needToBeInflated returns true. The process of converting property (or element) to Map is <br>
-> called 'Inflate'. <br>
+> 继续拆解(Inflate)的意思是, 在在Bean转Map的场景中, 如果一个Bean的属性或者一个集合的元素是一个Java Bean, 它可以继续被转换为Map, <br>
+> 只要你设置的BeanToMapInflateStrategy的方法返回true. 这个过程就称之为"继续拆解(Inflate)". <br>
 
-* Default BeanToMapInflateStrategy
+* 默认的继续拆解规则(BeanToMapInflateStrategy)
 
-| Default BeanToMapInflateStrategy | Comment |
+| 默认的继续拆解规则(BeanToMapInflateStrategy) | 说明 |
 | -------------------------------- | ------- |
-| null | All the properties of Bean will keep the original |
-| InflateUntilIndivisible | All properties inflate to Map until indivisible |
-| InflateCollectionElements | Inflate the elements of Root node's Collection property (including Map) |
+| null | 所有的属性都会保持原始类型 |
+| InflateUntilIndivisible | 所有的属性或元素都会被继续拆解成Map, 直到不可分割 |
+| InflateCollectionElements | 如果根节点的属性是集合(包括Map), 则拆解它的元素 |
 
-* `InflateUntilIndivisible` can specify the max depth, can specify which types keep the original type (do not inflate it)
+* `InflateUntilIndivisible` 可以指定最大拆解深度, 也可以指定哪些类型是不可分割的
 
 ```text
 /*
-    1.Declare which classes are indivisible in /META-INF/keep-types.properties file
-        Example: 
+    1.在文件中指定哪些类型不可分割: /META-INF/keep-types.properties
+        示例: 
             sviolet.slate.common.x.conversion.mapxbean.MapToBeanTest$Person1
             sviolet.slate.common.x.conversion.mapxbean.MapToBeanTest$Person2
-    2.Then load the properties file as Properties instance
-    3.Set new InflateUntilIndivisible(...)
-    4.Class 'MapToBeanTest$Person1' and 'MapToBeanTest$Person2' will not be inflated
+    2.然后将这个properties文件加载为Properties实例
+    3.设置继续拆解规则为: new InflateUntilIndivisible(properties)
+    4.那么在示例中 'MapToBeanTest$Person1' 和 'MapToBeanTest$Person2' 将不会被继续分割
 */
 Properties keepTypesProperties = new Properties();
 keepTypesProperties.load(getClass().getResourceAsStream("/META-INF/keep-types.properties"));
@@ -285,15 +277,15 @@ MapXBean.beanToMap()
     .build();
 ```
 
-* You can customize your own strategy by implements interface `BeanToMapInflateStrategy`
+* 你可以实现自定义的继续拆解规则, 实现接口`BeanToMapInflateStrategy`即可
 
 <br>
 
-### Customize isIndivisible / isBean judgment logic
+### 自定义 "是否不可分割 / 是否Bean" 的判断逻辑
 
-* Default Indivisible Types
+* 默认的不可分割类型
 
-| Default Indivisible Types |
+| 默认的不可分割类型 |
 | ------------------------- |
 | Class.isEnum |
 | PrimitiveUtils.isPrimitiveOrWrapper |
@@ -306,7 +298,7 @@ MapXBean.beanToMap()
 | instanceof Date (util.Date / sql.Date ...) |
 | instanceof Temporal (Instant / LocalDateTime ...) |
 
-* Default isBean judgment logic
+* 默认的 "是否Bean" 判断逻辑
 
 ```text
 !MxbTypeJudger.isIndivisible(type) &&
@@ -316,19 +308,19 @@ MapXBean.beanToMap()
 Has read methods (getter) or write methods (setter)
 ```
 
-* You can customize isIndivisible / isBean judgment logic by [Glaciion SPI extension point](https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md)
+* 你可以自定义 "是否不可分割 / 是否Bean" 的判断逻辑, 利用[Glaciion SPI 扩展点](https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md)
 
-| Extension Point | Default Implementation |
+| 扩展点 | 默认实现 |
 | --------------- | ---------------------- |
 | MxbTypeJudger | MxbTypeJudgerImpl |
 
 <br>
 
-### All Glaciion Extension Points
+### 所有 Glaciion 扩展点
 
-* [Glaciion SPI Document](https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md)
+* [Glaciion SPI 文档](https://github.com/shepherdviolet/glaciion/blob/master/docs/index.md)
 
-| Extension Point | Default Implementation |
+| 扩展点 | 默认实现 |
 | --------------- | ---------------------- |
 | MxbCollectionMapper | MxbCollectionMapperImpl |
 | MxbObjectInstantiator | MxbObjectInstantiatorImpl |
@@ -338,7 +330,7 @@ Has read methods (getter) or write methods (setter)
 
 <br>
 
-# Import dependencies from maven repository
+# 添加依赖
 
 ```gradle
 
