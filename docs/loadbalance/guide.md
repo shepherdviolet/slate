@@ -109,6 +109,10 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 * [同步发送请求](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-sync.md)
 * [异步发送请求](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/invoke-async.md)
 
+# 其他
+
+* [SSL相关文档(自定义SSL验证逻辑/访问自签名的服务端/改变域名验证)](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/ssl.md)
+
 # 关于日志
 
 * SLF4J日志包路径: `sviolet.slate.common.x.net.loadbalance`
