@@ -30,7 +30,9 @@ import sviolet.thistle.util.common.CloseableUtils;
 import sviolet.thistle.util.conversion.ByteUtils;
 import sviolet.thistle.util.judge.CheckUtils;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.X509TrustManager;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1121,7 +1123,15 @@ public class MultiHostOkHttpClient {
             builder.dns(settings.dns);
         }
         if (settings.sslSocketFactory != null) {
-            builder.sslSocketFactory(settings.sslSocketFactory);
+            if (settings.x509TrustManager != null) {
+                // 最好两个都有, 不然OkHttp3会用反射的方式清理证书链
+                builder.sslSocketFactory(settings.sslSocketFactory, settings.x509TrustManager);
+            } else {
+                builder.sslSocketFactory(settings.sslSocketFactory);
+            }
+        }
+        if (settings.hostnameVerifier != null) {
+            builder.hostnameVerifier(settings.hostnameVerifier);
         }
 
         return builder.build();
@@ -1330,6 +1340,8 @@ public class MultiHostOkHttpClient {
         private Proxy proxy;
         private Dns dns;
         private SSLSocketFactory sslSocketFactory;
+        private X509TrustManager x509TrustManager;
+        private HostnameVerifier hostnameVerifier;
         private DataConverter dataConverter;
         private String tag = LOG_PREFIX;
         private String rawTag = "";
@@ -1361,6 +1373,8 @@ public class MultiHostOkHttpClient {
                     ", proxy=" + proxy +
                     ", dns=" + dns +
                     ", sslSocketFactory=" + sslSocketFactory +
+                    ", x509TrustManager=" + x509TrustManager +
+                    ", hostnameVerifier=" + hostnameVerifier +
                     ", dataConverter=" + dataConverter +
                     ", httpCodeNeedBlock=" + httpCodeNeedBlock;
         }
@@ -1902,13 +1916,43 @@ public class MultiHostOkHttpClient {
 
     /**
      * [可运行时修改]
-     * SSLSocketFactory
+     * SSLSocketFactory, 建议配套X509TrustManager一起设置
      * @param sslSocketFactory SSLSocketFactory
      */
     public MultiHostOkHttpClient setSSLSocketFactory(SSLSocketFactory sslSocketFactory) {
         try {
             settingsSpinLock.lock();
             settings.sslSocketFactory = sslSocketFactory;
+        } finally {
+            settingsSpinLock.unlock();
+        }
+        return this;
+    }
+
+    /**
+     * [可运行时修改]
+     * X509TrustManager, 建议配套SSLSocketFactory一起设置
+     * @param x509TrustManager x509TrustManager
+     */
+    public MultiHostOkHttpClient setX509TrustManager(X509TrustManager x509TrustManager) {
+        try {
+            settingsSpinLock.lock();
+            settings.x509TrustManager = x509TrustManager;
+        } finally {
+            settingsSpinLock.unlock();
+        }
+        return this;
+    }
+
+    /**
+     * [可运行时修改]
+     * HostnameVerifier
+     * @param hostnameVerifier hostnameVerifier
+     */
+    public MultiHostOkHttpClient setHostnameVerifier(HostnameVerifier hostnameVerifier) {
+        try {
+            settingsSpinLock.lock();
+            settings.hostnameVerifier = hostnameVerifier;
         } finally {
             settingsSpinLock.unlock();
         }
