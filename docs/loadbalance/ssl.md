@@ -1,11 +1,11 @@
-# HttpClient SSL相关文档
+# HttpClient SSL相关配置
 
 ## 访问自签名的服务端 (根证书非官方)
 
 * 如果我们要访问一个服务器, 它的证书不是正规CA签发的, 我们可以向对方获取根证书, 然后用如下方法添加信任的根证书
 
 ```text
-    // 这里硬编码为例, 实际请按照文档配置为Spring Bean
+    // 这里以硬编码为例, Spring中请按照文档, 将客户端配置为Spring Bean, 然后参考本文档后面的"如何在Spring中设置?"章节操作
     SimpleOkHttpClient simpleOkHttpClient = (SimpleOkHttpClient) new SimpleOkHttpClient()
             .setHosts("https://127.0.0.1/");
     
@@ -27,7 +27,7 @@
 
 ```text
     // 方法2
-    // 这里硬编码为例, 实际请按照文档配置为Spring Bean
+    // 这里以硬编码为例, Spring中请按照文档, 将客户端配置为Spring Bean, 然后参考本文档后面的"如何在Spring中设置?"章节操作
     SimpleOkHttpClient simpleOkHttpClient = (SimpleOkHttpClient) new SimpleOkHttpClient()
             .setHosts("https://127.0.0.1/")//代理服务器地址
             .setHostnameVerifier(new SimpleHostnameVerifier() {
@@ -42,7 +42,7 @@
 * 如果我们希望限定服务端的DN为指定值, 即不信任其他任何DN的话, 可以这样做
 
 ```text
-    // 这里硬编码为例, 实际请按照文档配置为Spring Bean
+    // 这里以硬编码为例, Spring中请按照文档, 将客户端配置为Spring Bean, 然后参考本文档后面的"如何在Spring中设置?"章节操作
     SimpleOkHttpClient simpleOkHttpClient = (SimpleOkHttpClient) new SimpleOkHttpClient()
             .setHosts("https://127.0.0.1/")
             .setHostnameVerifier(new HostnameVerifier() {
@@ -66,9 +66,69 @@
 ## 自定义SSL验证逻辑
 
 ```text
+// 这里以硬编码为例, Spring中请按照文档, 将客户端配置为Spring Bean, 然后参考本文档后面的"如何在Spring中设置?"章节操作
+
 //1.可以自定义x509TrustManager
 SslUtils.setX509TrustManager(simpleOkHttpClient, x509TrustManager);
-//2.可以自定义SSLSocketFactory (X509TrustManager需要同事设置)
+
+//2.可以自定义SSLSocketFactory (X509TrustManager需要同时设置)
 simpleOkHttpClient.setSSLSocketFactory(sslSocketFactory);
 simpleOkHttpClient.setX509TrustManager(x509TrustManager)
+```
+
+<br>
+<br>
+
+# 如何在Spring中设置?
+
+### SpringBoot YML自动配置的客户端
+
+```text
+@Configuration
+public class HttpClientConfiguration {
+
+    @Autowired
+    public void configureHttpClients(HttpClients httpClients){
+        SimpleOkHttpClient client1 = httpClients.get("client1");
+        SslUtils.setCustomIssuers(client1, ...);
+        client1.setHostnameVerifier(...);
+        ...
+    }
+
+}
+```
+
+### Spring 注解手动配置的客户端
+
+```text
+    @Autowired
+    @Qualifier("simpleOkHttpClient")
+    public void configureHttpClients(SimpleOkHttpClient simpleOkHttpClient){
+        SslUtils.setCustomIssuers(simpleOkHttpClient, ...);
+        simpleOkHttpClient.setHostnameVerifier(...);
+        ...
+    }
+```
+
+### Spring XML手动配置的客户端
+
+* 编写一个Bean, 注入客户端(SimpleOkHttpClient), 实现InitializingBean接口, 在afterPropertiesSet方法中操作客户端
+
+```text
+public class HttpClientSslConfigurer implements InitializingBean {
+    
+    private SimpleOkHttpClient simpleOkHttpClient;
+
+    public void setSimpleOkHttpClient(SimpleOkHttpClient simpleOkHttpClient) {
+        this.simpleOkHttpClient = simpleOkHttpClient;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        SslUtils.setCustomIssuers(simpleOkHttpClient, ...);
+        simpleOkHttpClient.setHostnameVerifier(...);
+        ...
+    }
+
+}
 ```

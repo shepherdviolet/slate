@@ -1,4 +1,4 @@
-# HttpClient配置方法(XML)
+# HttpClient配置方法(Spring XML手动配置)
 
 * `Maven/Gradle依赖配置`在本文最后
 

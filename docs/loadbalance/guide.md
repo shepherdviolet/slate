@@ -100,9 +100,9 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 
 # 配置客户端
 
-* [Spring XML配置](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-xml.md)
-* [Spring 注解配置](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-annotation.md)
-* [SpringBoot YML自动配置](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-springboot.md)
+* [SpringBoot YML自动配置(推荐)](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-springboot.md)
+* [Spring 注解手动配置](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-annotation.md)
+* [Spring XML手动配置](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/config-xml.md)
 
 # 调用客户端
 
@@ -111,7 +111,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 
 # 其他
 
-* [SSL相关文档(自定义SSL验证逻辑/访问自签名的服务端/改变域名验证)](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/ssl.md)
+* [SSL相关配置(自定义SSL验证逻辑/访问自签名的服务端/改变域名验证)](https://github.com/shepherdviolet/slate/blob/master/docs/loadbalance/ssl.md)
 
 # 关于日志
 

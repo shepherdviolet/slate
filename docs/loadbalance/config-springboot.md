@@ -1,4 +1,4 @@
-# HttpClient配置方法(SpringBoot自动配置)
+# HttpClient配置方法(SpringBoot YML自动配置)
 
 * `Maven/Gradle依赖配置`在本文最后
 
