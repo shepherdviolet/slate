@@ -49,6 +49,11 @@ public class SslUtils {
         if (multiHostOkHttpClient == null) {
             return;
         }
+        if (trustManager == null) {
+            multiHostOkHttpClient.setSSLSocketFactory(null);
+            multiHostOkHttpClient.setX509TrustManager(null);
+            return;
+        }
         try {
             SSLContext sslContext = Platform.get().getSSLContext();
             sslContext.init(null, new TrustManager[]{trustManager}, null);
@@ -67,10 +72,7 @@ public class SslUtils {
      * @param customIssuers 自定义的根证书
      */
     public static void setCustomIssuers(MultiHostOkHttpClient multiHostOkHttpClient, X509Certificate[] customIssuers) throws CertificateException {
-        if (customIssuers == null) {
-            return;
-        }
-        setX509TrustManager(multiHostOkHttpClient, CustomIssuersX509TrustManager.newInstance(customIssuers));
+        setX509TrustManager(multiHostOkHttpClient, customIssuers != null ? CustomIssuersX509TrustManager.newInstance(customIssuers) : null);
     }
 
     /**
