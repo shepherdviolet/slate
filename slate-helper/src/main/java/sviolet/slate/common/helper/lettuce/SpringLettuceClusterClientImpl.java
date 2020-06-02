@@ -44,7 +44,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 一个在Spring中使用的简单的Lettuce Redis客户端, 连接Redis Cluster集群(或单机)
+ * 一个在Spring中使用的简单的Lettuce Redis客户端, 连接Redis Cluster集群(或单机).
+ *
+ * Lettuce用法请参考官方文档, Connection和Commands都是线程安全的, Connection无需手动关闭(保持连接).
  *
  * <pre>
  *     <code>@Bean</code>
@@ -92,7 +94,7 @@ public class SpringLettuceClusterClientImpl<K, V> implements SpringLettuceCluste
     }
 
     /**
-     * 获取单例的Redis连接 (线程安全)
+     * 获取单例的Redis连接 (线程安全), 请勿手动关闭连接
      */
     public StatefulConnection<K, V> getConnection(){
         return statefulConnection;
