@@ -25,10 +25,6 @@ import com.alicp.jetcache.MultiGetResult;
 import com.alicp.jetcache.redis.lettuce.RedisLettuceCache;
 import com.alicp.jetcache.redis.lettuce.RedisLettuceCacheBuilder;
 import com.alicp.jetcache.redis.lettuce.RedisLettuceCacheConfig;
-import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.cluster.ClusterClientOptions;
-import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
-import io.lettuce.core.cluster.RedisClusterClient;
 
 import java.util.Map;
 import java.util.Set;
@@ -50,24 +46,6 @@ public class SyncRedisLettuceCacheBuilder extends RedisLettuceCacheBuilder<SyncR
     public SyncRedisLettuceCacheBuilder() {
         buildFunc(config -> {
             RedisLettuceCacheConfig lettuceCacheConfig = (RedisLettuceCacheConfig)config;
-
-            /*
-                避免Redis集群拓扑变化时报出错误: Connection to ?:? not allowed. This connection point is not known in the cluster view
-                开启集群拓扑刷新(topologyRefreshOptions): 当服务端拓扑发生变化时, 短时间内还会出现连接错误, 刷新后才恢复
-                关闭集群节点验证(validateClusterNodeMembership): 当服务端拓扑发生变化时, 由于不验证, 能够更快恢复(但是, 官方默认开启验证, 应该是有某种原因的, 所以这里默认不用这个方案)
-             */
-            AbstractRedisClient redisClient = lettuceCacheConfig.getRedisClient();
-            if (redisClient instanceof RedisClusterClient) {
-                ((RedisClusterClient) redisClient).setOptions(ClusterClientOptions.builder()
-                        .topologyRefreshOptions(ClusterTopologyRefreshOptions.builder()
-                                .enablePeriodicRefresh()//开启定期刷新, 默认关闭
-//                                .refreshPeriod(Duration.ofMinutes(1))//默认1分钟
-                                .enableAdaptiveRefreshTrigger()//开启拓扑刷新, 默认关闭
-                                .enableAllAdaptiveRefreshTriggers()//启用全部拓扑刷新定时器
-                                .build())
-//                        .validateClusterNodeMembership(false)//直接关闭集群节点检查, 默认true(避免Redis集群拓扑变化时报出错误: Connection to ?:? not allowed. This connection point is not known in the cluster view)
-                        .build());
-            }
 
             /*
                 同步化
