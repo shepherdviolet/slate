@@ -18,6 +18,7 @@ dependencies {
             "com.alibaba:hessian-lite:$version_hessianlite",
             "org.objenesis:objenesis:$version_objenesis",
             "org.apache.rocketmq:rocketmq-client:$version_rocketmq",
+            "io.lettuce:lettuce-core:$version_lettuce",
             "com.alicp.jetcache:jetcache-starter-redis-lettuce:$version_jetcache",
             "com.ctrip.framework.apollo:apollo-client:$version_apollo",
             "com.google.code.gson:gson:$version_gson",
