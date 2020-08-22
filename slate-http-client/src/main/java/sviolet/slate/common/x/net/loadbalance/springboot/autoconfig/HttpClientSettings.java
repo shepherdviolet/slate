@@ -174,6 +174,54 @@ public class HttpClientSettings {
      */
     private boolean requestTraceEnabled = false;
 
+    /**
+     * <p>[可运行时修改]</p>
+     * <p>给MultiHostOkHttpClient添加自定义的根证书, 用于验证自签名的服务器.</p>
+     * <p>如果我们访问的服务端的证书是自己签发的, 根证书不合法, 可以用这个方法, 添加服务端的根证书为受信任的证书.</p>
+     * <p></p>
+     * <p>1.该参数优先级高于customServerIssuersEncoded, 同时设置该参数生效</p>
+     * <p>2.调用这个方法会覆盖 SSLSocketFactory 和 X509TrustManager</p>
+     * <p>3.如果需要实现自定义证书验证逻辑, 请调用SslUtils#setX509TrustManager设置自己的X509TrustManager</p>
+     */
+    private String customServerIssuerEncoded;
+
+    /**
+     * <p>[可运行时修改]</p>
+     * <p>给MultiHostOkHttpClient添加自定义的根证书, 用于验证自签名的服务器.</p>
+     * <p>如果我们访问的服务端的证书是自己签发的, 根证书不合法, 可以用这个方法, 添加服务端的根证书为受信任的证书.</p>
+     * <p></p>
+     * <p>1.该参数优先级低于customServerIssuerEncoded, 同时设置该参数无效</p>
+     * <p>2.调用这个方法会覆盖 SSLSocketFactory 和 X509TrustManager</p>
+     * <p>3.如果需要实现自定义证书验证逻辑, 请调用SslUtils#setX509TrustManager设置自己的X509TrustManager</p>
+     */
+    private String[] customServerIssuersEncoded;
+
+    /**
+     * <p>[可运行时修改]</p>
+     * <p>使用指定的域名验证服务端证书的DN. 如果设置为"UNSAFE-TRUST-ALL-DN"则不校验DN, 所有合法证书都通过, 不安全!!!</p>
+     * <p>示例: CN=baidu.com,O=Beijing Baidu Netcom Science Technology Co.\, Ltd,OU=service operation department,L=beijing,ST=beijing,C=CN</p>
+     * <p></p>
+     * <p>默认情况下, HTTP客户端会验证访问的域名和服务端证书的CN是否匹配. 你可以利用这个方法强制验证证书DN, 即你只信任指定DN的证书. </p>
+     * <p></p>
+     * <p>1.该参数优先级高于verifyServerCnByCustomHostname, 同时设置该参数生效</p>
+     * <p>2.调用这个方法会覆盖 HostnameVerifier</p>
+     */
+    public String verifyServerDnByCustomDn;
+
+    /**
+     * <p>[可运行时修改]</p>
+     * <p>使用指定的域名验证服务端证书的CN. 如果设置为"UNSAFE-TRUST-ALL-CN"则不校验CN, 所有合法证书都通过, 不安全!!!</p>
+     * <p>示例: www.baidu.com</p>
+     * <p></p>
+     * <p>默认情况下, HTTP客户端会验证访问的域名和服务端证书的CN是否匹配. 如果你通过一个代理访问服务端, 且访问代理的域名, 这样会导致
+     * 域名验证失败, 因为"客户端访问的域名与服务端证书的CN不符", 这种情况可以调用这个方法设置服务端的域名, 程序会改用指定的域名去匹配
+     * 服务端证书的CN. 除此之外, 你也可以利用这个方法强制验证证书CN, 即你只信任指定CN的证书. </p>
+     * <p></p>
+     * <p>1.该参数优先级低于verifyServerDnByCustomDn, 同时设置该参数无效</p>
+     * <p>2.调用这个方法会覆盖 HostnameVerifier</p>
+     */
+    public String verifyServerCnByCustomHostname;
+
     public String getHosts() {
         return hosts;
     }
@@ -350,6 +398,38 @@ public class HttpClientSettings {
         this.requestTraceEnabled = requestTraceEnabled;
     }
 
+    public String getCustomServerIssuerEncoded() {
+        return customServerIssuerEncoded;
+    }
+
+    public void setCustomServerIssuerEncoded(String customServerIssuerEncoded) {
+        this.customServerIssuerEncoded = customServerIssuerEncoded;
+    }
+
+    public String[] getCustomServerIssuersEncoded() {
+        return customServerIssuersEncoded;
+    }
+
+    public void setCustomServerIssuersEncoded(String[] customServerIssuersEncoded) {
+        this.customServerIssuersEncoded = customServerIssuersEncoded;
+    }
+
+    public String getVerifyServerDnByCustomDn() {
+        return verifyServerDnByCustomDn;
+    }
+
+    public void setVerifyServerDnByCustomDn(String verifyServerDnByCustomDn) {
+        this.verifyServerDnByCustomDn = verifyServerDnByCustomDn;
+    }
+
+    public String getVerifyServerCnByCustomHostname() {
+        return verifyServerCnByCustomHostname;
+    }
+
+    public void setVerifyServerCnByCustomHostname(String verifyServerCnByCustomHostname) {
+        this.verifyServerCnByCustomHostname = verifyServerCnByCustomHostname;
+    }
+
     @Override
     public String toString() {
         return "HttpClientSettings{" +
@@ -375,6 +455,11 @@ public class HttpClientSettings {
                 ", verboseLog=" + verboseLog +
                 ", txTimerEnabled=" + txTimerEnabled +
                 ", requestTraceEnabled=" + requestTraceEnabled +
+                ", customServerIssuerEncoded='" + customServerIssuerEncoded + '\'' +
+                ", customServerIssuersEncoded=" + Arrays.toString(customServerIssuersEncoded) +
+                ", verifyServerDnByCustomDn='" + verifyServerDnByCustomDn + '\'' +
+                ", verifyServerCnByCustomHostname='" + verifyServerCnByCustomHostname + '\'' +
                 '}';
     }
+
 }

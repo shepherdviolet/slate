@@ -155,7 +155,7 @@ public class LoadBalancedHostManager {
      */
     public LoadBalancedHostManager setHosts(String hosts){
         if (CheckUtils.isEmptyOrBlank(hosts)){
-            setHostList(new ArrayList<String>(0));
+            setHostList(new ArrayList<>(0));
             return this;
         }
         setHostArray(hosts.split(","));

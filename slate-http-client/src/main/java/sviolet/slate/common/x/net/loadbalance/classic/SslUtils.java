@@ -21,6 +21,8 @@ package sviolet.slate.common.x.net.loadbalance.classic;
 
 import okhttp3.internal.Util;
 import okhttp3.internal.platform.Platform;
+import sviolet.thistle.util.conversion.Base64Utils;
+import sviolet.thistle.util.crypto.CertificateUtils;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -45,6 +47,7 @@ public class SslUtils {
      * @param multiHostOkHttpClient multiHostOkHttpClient
      * @param trustManager trustManager
      */
+    @SuppressWarnings("deprecation")
     public static void setX509TrustManager(MultiHostOkHttpClient multiHostOkHttpClient, X509TrustManager trustManager) {
         if (multiHostOkHttpClient == null) {
             return;
@@ -83,6 +86,7 @@ public class SslUtils {
         private final X509TrustManager systemTrustManager;
         private final X509TrustManager customTrustManager;
         private final X509Certificate[] acceptedIssuers;
+        private final String[] customIssuersEncoded;
 
         /**
          * 能够添加自定义根证书的X509TrustManager
@@ -145,6 +149,12 @@ public class SslUtils {
             acceptedIssuers = new X509Certificate[systemIssuers.length + customIssuers.length];
             System.arraycopy(customIssuers, 0, acceptedIssuers, 0, customIssuers.length);
             System.arraycopy(systemIssuers, 0, acceptedIssuers, customIssuers.length, systemIssuers.length);
+
+            // For log
+            customIssuersEncoded = new String[customIssuers.length];
+            for (int i = 0 ; i < customIssuers.length ; i++) {
+                customIssuersEncoded[i] = Base64Utils.encodeToString(CertificateUtils.parseCertificateToEncoded(customIssuers[i]));
+            }
         }
 
         @Override
@@ -190,6 +200,13 @@ public class SslUtils {
         @Override
         public X509Certificate[] getAcceptedIssuers() {
             return acceptedIssuers;
+        }
+
+        @Override
+        public String toString() {
+            return "CustomIssuersX509TrustManager{" +
+                    Arrays.toString(customIssuersEncoded) +
+                    '}';
         }
 
     }

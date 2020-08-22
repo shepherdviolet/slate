@@ -44,6 +44,7 @@ public class SpringCglibUtils {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             // do something
+            // 注意如果接口方法返回类型是基本类型的话, 这里返回null会抛出空指针
             return null;
         }
     };
