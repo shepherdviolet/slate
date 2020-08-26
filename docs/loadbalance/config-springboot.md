@@ -25,6 +25,7 @@ slate:
       max-read-length: 10485760
       verbose-log: true
     client2:
+      # 方式二, 优先级低. 在properties中: slate.httpclients.client2.host-list[0]=http://127.0.0.1:8083
       host-list:
         - http://127.0.0.1:8083
         - http://127.0.0.1:8084
@@ -60,8 +61,12 @@ slate:
     apollo-namespace: application
   httpclients:
     client1:
-      # 后端列表
+      # 后端列表(方式一, 优先级高)
       hosts: http://127.0.0.1:8083,http://127.0.0.1:8084
+      # 后端列表(方式二, 优先级低), 在properties中: slate.httpclients.client1.host-list[0]=http://127.0.0.1:8083
+      host-list:
+        - http://127.0.0.1:8083
+        - http://127.0.0.1:8084
       # 健康主动探测间隔, 单位ms
       initiative-inspect-interval: 5000
       # true: 当所有后端都被阻断时不发送请求(抛异常), false: 当所有后端都被阻断时随机发送请求
@@ -100,6 +105,16 @@ slate:
       tx-timer-enabled: false
       # true: 开启简易的请求日志追踪(请求日志追加4位数追踪号), 默认false
       request-trace-enabled: false
+      # 添加自定义的根证书, 用于验证自签名的服务器(设置一个, 优先级高). 如果设置为"UNSAFE-TRUST-ALL-ISSUERS"则不校验服务端证书链, 信任一切服务端证书, 不安全!!!
+      custom-server-issuer-encoded: '自签名的服务端根证书X509-Base64字符串'
+      # 添加自定义的根证书, 用于验证自签名的服务器(设置多个, 优先级低). 在properties中: slate.httpclients.custom-server-issuers-encoded[0]=...
+      custom-server-issuers-encoded: 
+        - '自签名的服务端根证书X509-Base64字符串(1)'
+        - '自签名的服务端根证书X509-Base64字符串(2)'
+      # 使用指定的域名验证服务端证书的DN(方式一, 优先级高). 如果设置为"UNSAFE-TRUST-ALL-DN"则不校验DN, 所有合法证书都通过, 不安全!!!
+      verify-server-dn-by-customdn: 'CN=baidu.com,O=Beijing Baidu Netcom Science Technology Co.\, Ltd,OU=service operation department,L=beijing,ST=beijing,C=CN'
+      # 使用指定的域名验证服务端证书的CN(方式二, 优先级低). 如果设置为"UNSAFE-TRUST-ALL-CN"则不校验CN, 所有合法证书都通过, 不安全!!!
+      verify-server-cn-by-custom-hostname: 'www.baidu.com'
 ```
 
 <br>
