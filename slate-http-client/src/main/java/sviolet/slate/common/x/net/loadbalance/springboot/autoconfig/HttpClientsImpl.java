@@ -55,7 +55,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     private final Map<String, HttpClient> clients = new ConcurrentHashMap<>(16);
 
-    private final Map<String, Updater> clientUpdaters;
+    private final Map<String, Updater> clientUpdaters = new HashMap<>(32);
 
     private final LinkedBlockingQueue<OverrideSettings> unsolvedSettings = new LinkedBlockingQueue<>();
     private final ExecutorService updateExecutor = ThreadPoolExecutorUtils.createLazy(60, "Slate-HttpClients-update-%d");
@@ -68,7 +68,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
         }
 
         // Init client updaters
-        this.clientUpdaters = initClientUpdaters();
+        initClientUpdaters();
 
         // Create clients at startup
         createClientsAtStartup(slatePropertiesForHttpClient);
@@ -403,10 +403,11 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
     // Updaters /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private Map<String, Updater> initClientUpdaters() {
-        Map<String, Updater> clientUpdaters = new LinkedHashMap<>();
+    private void initClientUpdaters() {
 
-        clientUpdaters.put("hosts", new SingleOrArrayValueUpdater("hosts", "hostList") {
+        installUpdater(new SingleOrArrayValueUpdater(
+                Arrays.asList("hosts"),
+                Arrays.asList("hostList", "host-list")) {
             @Override
             public void applySingleSetting(HttpClient client, String value) throws Exception {
                 client.setHosts(value);
@@ -420,168 +421,170 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                 client.setHosts(null);
             }
         });
-        clientUpdaters.put("hostList", clientUpdaters.get("hosts"));
-        clientUpdaters.put("host-list", clientUpdaters.get("hosts"));
 
-        clientUpdaters.put("headers", new SingleValueUpdater("headers") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("headers")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setHeaders(SimpleKeyValueEncoder.decode(value));
             }
         });
 
-        clientUpdaters.put("initiativeInspectInterval", new SingleValueUpdater("initiativeInspectInterval") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("initiativeInspectInterval", "initiative-inspect-interval")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setInitiativeInspectInterval(Long.parseLong(value));
             }
         });
-        clientUpdaters.put("initiative-inspect-interval", clientUpdaters.get("initiativeInspectInterval"));
 
-        clientUpdaters.put("returnNullIfAllBlocked", new SingleValueUpdater("returnNullIfAllBlocked") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("returnNullIfAllBlocked", "return-null-if-all-blocked")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setReturnNullIfAllBlocked(Boolean.parseBoolean(value));
             }
         });
-        clientUpdaters.put("return-null-if-all-blocked", clientUpdaters.get("returnNullIfAllBlocked"));
 
-        clientUpdaters.put("httpGetInspectorUrlSuffix", new SingleValueUpdater("httpGetInspectorUrlSuffix") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("httpGetInspectorUrlSuffix", "http-get-inspector-url-suffix")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setHttpGetInspector(value);
             }
         });
-        clientUpdaters.put("http-get-inspector-url-suffix", clientUpdaters.get("httpGetInspectorUrlSuffix"));
 
-        clientUpdaters.put("inspectorVerboseLog", new SingleValueUpdater("inspectorVerboseLog") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("inspectorVerboseLog", "inspector-verbose-log")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setInspectorVerboseLog(Boolean.parseBoolean(value));
             }
         });
-        clientUpdaters.put("inspector-verbose-log", clientUpdaters.get("inspectorVerboseLog"));
 
-        clientUpdaters.put("passiveBlockDuration", new SingleValueUpdater("passiveBlockDuration") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("passiveBlockDuration", "passive-block-duration")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setPassiveBlockDuration(Long.parseLong(value));
             }
         });
-        clientUpdaters.put("passive-block-duration", clientUpdaters.get("passiveBlockDuration"));
 
-        clientUpdaters.put("mediaType", new SingleValueUpdater("mediaType") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("mediaType", "media-type")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setMediaType(value);
             }
         });
-        clientUpdaters.put("media-type", clientUpdaters.get("mediaType"));
 
-        clientUpdaters.put("encode", new SingleValueUpdater("encode") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("encode")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setEncode(value);
             }
         });
 
-        clientUpdaters.put("recoveryCoefficient", new SingleValueUpdater("recoveryCoefficient") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("recoveryCoefficient", "recovery-coefficient")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setRecoveryCoefficient(Integer.parseInt(value));
             }
         });
-        clientUpdaters.put("recovery-coefficient", clientUpdaters.get("recoveryCoefficient"));
 
-        clientUpdaters.put("maxIdleConnections", new SingleValueUpdater("maxIdleConnections") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("maxIdleConnections", "max-idle-connections")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setMaxIdleConnections(Integer.parseInt(value));
             }
         });
-        clientUpdaters.put("max-idle-connections", clientUpdaters.get("maxIdleConnections"));
 
-        clientUpdaters.put("maxThreads", new SingleValueUpdater("maxThreads") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("maxThreads", "max-threads")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setMaxThreads(Integer.parseInt(value));
             }
         });
-        clientUpdaters.put("max-threads", clientUpdaters.get("maxThreads"));
 
-        clientUpdaters.put("maxThreadsPerHost", new SingleValueUpdater("maxThreadsPerHost") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("maxThreadsPerHost", "max-threads-per-host")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setMaxThreadsPerHost(Integer.parseInt(value));
             }
         });
-        clientUpdaters.put("max-threads-per-host", clientUpdaters.get("maxThreadsPerHost"));
 
-        clientUpdaters.put("connectTimeout", new SingleValueUpdater("connectTimeout") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("connectTimeout", "connect-timeout")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setConnectTimeout(Long.parseLong(value));
             }
         });
-        clientUpdaters.put("connect-timeout", clientUpdaters.get("connectTimeout"));
 
-        clientUpdaters.put("writeTimeout", new SingleValueUpdater("writeTimeout") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("writeTimeout", "write-timeout")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setWriteTimeout(Long.parseLong(value));
             }
         });
-        clientUpdaters.put("write-timeout", clientUpdaters.get("writeTimeout"));
 
-        clientUpdaters.put("readTimeout", new SingleValueUpdater("readTimeout") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("readTimeout", "read-timeout")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setReadTimeout(Long.parseLong(value));
             }
         });
-        clientUpdaters.put("read-timeout", clientUpdaters.get("readTimeout"));
 
-        clientUpdaters.put("maxReadLength", new SingleValueUpdater("maxReadLength") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("maxReadLength", "max-read-length")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setMaxReadLength(Long.parseLong(value));
             }
         });
-        clientUpdaters.put("max-read-length", clientUpdaters.get("maxReadLength"));
 
-        clientUpdaters.put("httpCodeNeedBlock", new SingleValueUpdater("httpCodeNeedBlock") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("httpCodeNeedBlock", "http-code-need-block")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setHttpCodeNeedBlock(value);
             }
         });
-        clientUpdaters.put("http-code-need-block", clientUpdaters.get("httpCodeNeedBlock"));
 
-        clientUpdaters.put("verboseLog", new SingleValueUpdater("verboseLog") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("verboseLog", "verbose-log")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setVerboseLog(Boolean.parseBoolean(value));
             }
         });
-        clientUpdaters.put("verbose-log", clientUpdaters.get("verboseLog"));
 
-        clientUpdaters.put("txTimerEnabled", new SingleValueUpdater("txTimerEnabled") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("txTimerEnabled", "tx-timer-enabled")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setTxTimerEnabled(Boolean.parseBoolean(value));
             }
         });
-        clientUpdaters.put("tx-timer-enabled", clientUpdaters.get("txTimerEnabled"));
 
-        clientUpdaters.put("requestTraceEnabled", new SingleValueUpdater("requestTraceEnabled") {
+        installUpdater(new SingleValueUpdater(
+                Arrays.asList("requestTraceEnabled", "request-trace-enabled")) {
             @Override
             public void applySetting(HttpClient client, String value) throws Exception {
                 client.setRequestTraceEnabled(Boolean.parseBoolean(value));
             }
         });
-        clientUpdaters.put("request-trace-enabled", clientUpdaters.get("requestTraceEnabled"));
 
-        clientUpdaters.put("customServerIssuerEncoded", new SingleOrArrayValueUpdater("customServerIssuerEncoded", "customServerIssuersEncoded") {
+        installUpdater(new SingleOrArrayValueUpdater(
+                Arrays.asList("customServerIssuerEncoded", "custom-server-issuer-encoded"),
+                Arrays.asList("customServerIssuersEncoded", "custom-server-issuers-encoded")) {
             @Override
             public void applySingleSetting(HttpClient client, String value) throws Exception {
                 client.setCustomServerIssuerEncoded(value);
@@ -595,11 +598,10 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                 client.setCustomServerIssuerEncoded(null);
             }
         });
-        clientUpdaters.put("custom-server-issuer-encoded", clientUpdaters.get("customServerIssuerEncoded"));
-        clientUpdaters.put("customServerIssuersEncoded", clientUpdaters.get("customServerIssuerEncoded"));
-        clientUpdaters.put("custom-server-issuers-encoded", clientUpdaters.get("customServerIssuerEncoded"));
 
-        clientUpdaters.put("verifyServerDnByCustomDn", new SingleOrSingleValueUpdater("verifyServerDnByCustomDn", "verifyServerCnByCustomHostname") {
+        installUpdater(new SingleOrSingleValueUpdater(
+                Arrays.asList("verifyServerDnByCustomDn", "verify-server-dn-by-custom-dn"),
+                Arrays.asList("verifyServerCnByCustomHostname", "verify-server-cn-by-custom-hostname")) {
             @Override
             public void applySetting1(HttpClient client, String value) throws Exception {
                 client.setVerifyServerDnByCustomDn(value);
@@ -613,11 +615,13 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                 client.setVerifyServerDnByCustomDn(null);
             }
         });
-        clientUpdaters.put("verify-server-dn-by-custom-dn", clientUpdaters.get("verifyServerDnByCustomDn"));
-        clientUpdaters.put("verifyServerCnByCustomHostname", clientUpdaters.get("verifyServerDnByCustomDn"));
-        clientUpdaters.put("verify-server-cn-by-custom-hostname", clientUpdaters.get("verifyServerDnByCustomDn"));
 
-        return clientUpdaters;
+    }
+
+    private void installUpdater(Updater updater) {
+        for (String key : updater.getKeys()) {
+            clientUpdaters.put(key, updater);
+        }
     }
 
     private interface Updater {
@@ -625,6 +629,8 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
         void updateSetting(String tag, String key, int index, String value);
 
         void applySettings(Map<String, HttpClient> clients);
+
+        Collection<String> getKeys();
 
     }
 
@@ -642,11 +648,13 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
     private static abstract class SingleValueUpdater implements Updater {
 
         private final String settingName;
+        private final List<String> settingNames;
         private final Map<String, String> values = new HashMap<>();
         private final Set<String> tagToBeUpdated = new HashSet<>();
 
-        public SingleValueUpdater(String settingName) {
-            this.settingName = settingName;
+        public SingleValueUpdater(List<String> settingNames) {
+            this.settingName = settingNames.get(0);
+            this.settingNames = settingNames;
         }
 
         @Override
@@ -697,6 +705,11 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
             tagToBeUpdated.clear();
         }
 
+        @Override
+        public Collection<String> getKeys() {
+            return new ArrayList<>(settingNames);
+        }
+
         public abstract void applySetting(HttpClient client, String value) throws Exception;
 
     }
@@ -711,20 +724,24 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
         private final String settingName1;
         private final String settingName2;
+        private final List<String> settingNames1;
+        private final List<String> settingNames2;
         private final Map<String, String> values1 = new HashMap<>();
         private final Map<String, String> values2 = new HashMap<>();
         private final Set<String> tagToBeUpdated = new HashSet<>();
 
-        public SingleOrSingleValueUpdater(String settingName1, String settingName2) {
-            this.settingName1 = settingName1;
-            this.settingName2 = settingName2;
+        public SingleOrSingleValueUpdater(List<String> settingNames1, List<String> settingNames2) {
+            this.settingName1 = settingNames1.get(0);
+            this.settingName2 = settingNames2.get(0);
+            this.settingNames1 = settingNames1;
+            this.settingNames2 = settingNames2;
         }
 
         @Override
         public final void updateSetting(String tag, String key, int index, String value) {
-            if (settingName1.equals(key)) {
+            if (settingNames1.contains(key)) {
                 update0(tag, key, index, value, settingName1, values1);
-            } else if (settingName2.equals(key)) {
+            } else if (settingNames2.contains(key)) {
                 update0(tag, key, index, value, settingName2, values2);
             }
         }
@@ -796,6 +813,14 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
             }
         }
 
+        @Override
+        public Collection<String> getKeys() {
+            List<String> keys = new ArrayList<>();
+            keys.addAll(settingNames1);
+            keys.addAll(settingNames2);
+            return keys;
+        }
+
         public abstract void applySetting1(HttpClient client, String value) throws Exception;
 
         public abstract void applySetting2(HttpClient client, String value) throws Exception;
@@ -814,21 +839,25 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
         private final String singleSettingName;
         private final String arraySettingName;
+        private final List<String> singleSettingNames;
+        private final List<String> arraySettingNames;
         private final Map<String, String> singleValues = new HashMap<>();
         private final Map<String, Map<Integer, String>> oldArrayValues = new HashMap<>();
         private final Map<String, Map<Integer, String>> newArrayValues = new HashMap<>();
         private final Set<String> tagToBeUpdated = new HashSet<>();
 
-        public SingleOrArrayValueUpdater(String singleSettingName, String arraySettingName) {
-            this.singleSettingName = singleSettingName;
-            this.arraySettingName = arraySettingName;
+        public SingleOrArrayValueUpdater(List<String> singleSettingNames, List<String> arraySettingNames) {
+            this.singleSettingName = singleSettingNames.get(0);
+            this.arraySettingName = arraySettingNames.get(0);
+            this.singleSettingNames = singleSettingNames;
+            this.arraySettingNames = arraySettingNames;
         }
 
         @Override
         public final void updateSetting(String tag, String key, int index, String value) {
-            if (singleSettingName.equals(key)) {
+            if (singleSettingNames.contains(key)) {
                 updateSingleSetting(tag, key, index, value);
-            } else if (arraySettingName.equals(key)) {
+            } else if (arraySettingNames.contains(key)) {
                 updateArraySetting(tag, key, index, value);
             }
         }
@@ -936,6 +965,14 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
             oldArrayValues.putAll(newArrayValues);
             newArrayValues.clear();
             tagToBeUpdated.clear();
+        }
+
+        @Override
+        public Collection<String> getKeys() {
+            List<String> keys = new ArrayList<>();
+            keys.addAll(singleSettingNames);
+            keys.addAll(arraySettingNames);
+            return keys;
         }
 
         public abstract void applySingleSetting(HttpClient client, String value) throws Exception;
