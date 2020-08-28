@@ -1,4 +1,4 @@
-# Slate 20.1.4
+# Slate 20.1.5
 
 * Comprehensive Java library for spring framework (Java8+)
 * [Github Home](https://github.com/shepherdviolet/slate)
