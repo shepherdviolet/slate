@@ -39,6 +39,7 @@
 ## Module 'slate-txtimer'
 
 [![Depends](https://img.shields.io/badge/Depends-slate--common-6a5acd.svg?style=flat)](https://github.com/shepherdviolet/slate)
+[![Depends](https://img.shields.io/badge/Depends-glaciion--core-dc143c.svg?style=flat)](https://github.com/shepherdviolet/glaciion)
 
 > The module for statistic
 
@@ -83,6 +84,7 @@
 ## Module 'slate-mapxbean'
 
 [![Depends](https://img.shields.io/badge/Depends-slate--common-6a5acd.svg?style=flat)](https://github.com/shepherdviolet/slate)
+[![Depends](https://img.shields.io/badge/Depends-glaciion--core-dc143c.svg?style=flat)](https://github.com/shepherdviolet/glaciion)
 
 > Map - Bean converter
 
