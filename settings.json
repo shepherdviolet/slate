@@ -1,12 +1,12 @@
 {
-  "library": [
-    "slate-common",
-    "slate-txtimer",
-    "slate-mapxbean",
-    "slate-helper",
-    "slate-http-client"
-  ],
-  "bom": [
-    "slate-bom"
-  ]
+  "library": {
+    "slate-common": "slate-common",
+    "slate-txtimer": "slate-txtimer",
+    "slate-mapxbean": "slate-mapxbean",
+    "slate-helper": "slate-helper",
+    "slate-http-client": "slate-http-client"
+  },
+  "bom": {
+    "slate-bom": "slate-bom"
+  }
 }
