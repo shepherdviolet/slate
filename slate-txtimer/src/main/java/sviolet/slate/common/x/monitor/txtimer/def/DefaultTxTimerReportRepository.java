@@ -68,6 +68,7 @@ public interface DefaultTxTimerReportRepository <R> {
         private Map<String, Map<String, TreeMap<Long, Map<String, DefaultData>>>> data = new HashMap<>(16);
 
         @Override
+        @SuppressWarnings({"lgtm[java/integer-multiplication-cast-to-long]"})
         public void add(DefaultTxTimerReportParser.RawData rawData) throws Exception{
             //get startTime & endTime
             long startTime = rawData.getStartTime();
@@ -86,6 +87,7 @@ public interface DefaultTxTimerReportRepository <R> {
 
             //保存数据
             for (int i = 0; i < durationMinutes; i++) {
+                // About suppressed warnings: 'i * MINUTE_MILLIS' will not cause overflow, because their product will not be greater than 'rawData.getDuration()' (it's an integer)
                 DefaultData element = getElement(rawData.getGroup(), rawData.getName(), startTime + i * MINUTE_MILLIS, rawData.getRand());
                 element.count = count;
                 element.avgElapse = avgElapse;
@@ -113,6 +115,7 @@ public interface DefaultTxTimerReportRepository <R> {
          * [非线程安全 | Not Thread Safe] 获取数据, 请务必在报告处理完毕后获取, 因为非线程安全,
          * group -> name -> time -> random -> DefaultData
          */
+        @Override
         public Map<String, Map<String, TreeMap<Long, Map<String, DefaultData>>>> getData(){
             return data;
         }
