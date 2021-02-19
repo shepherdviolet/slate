@@ -36,6 +36,7 @@ public class MultiHostOkHttpClientTest {
 
     private static Logger logger = LoggerFactory.getLogger(MultiHostOkHttpClientTest.class);
 
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) throws NoHostException, RequestBuildException, HttpRejectException, IOException {
 
         LoadBalancedHostManager hostManager = new LoadBalancedHostManager()

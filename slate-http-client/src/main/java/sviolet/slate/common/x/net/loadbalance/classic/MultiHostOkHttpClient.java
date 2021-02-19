@@ -1612,6 +1612,7 @@ public class MultiHostOkHttpClient {
          */
         public abstract void onSucceed(T bean) throws Exception;
 
+        @SuppressWarnings("unchecked")
         @Override
         public final void onSucceed(byte[] body) throws Exception {
             DataConverter dataConverter = request.dataConverter != null ? request.dataConverter : settings.dataConverter;
@@ -2148,6 +2149,7 @@ public class MultiHostOkHttpClient {
             return this;
         }
         setHostnameVerifier(new HostnameVerifier() {
+            @Override
             public boolean verify(String hostname, SSLSession session) {
                 // 全部通过, 不校验DN
                 if ("UNSAFE-TRUST-ALL-DN".equals(customDn)) {

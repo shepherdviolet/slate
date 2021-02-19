@@ -21,7 +21,6 @@ package sviolet.slate.common.helper.jsch;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
-import sviolet.slate.common.helper.jsch.JschHelper;
 import sviolet.slate.common.helper.jsch.sftp.JschSftpCommand;
 import sviolet.slate.common.helper.jsch.sftp.JschSftpHelper;
 
@@ -53,6 +52,7 @@ public class JschSftpHelperTest {
 
         //创建连接, 执行一系列操作, 关闭连接
         String result = helper.command(new JschSftpCommand<String>() {
+            @SuppressWarnings("unchecked")
             @Override
             public String onCommand(ChannelSftp channel) throws SftpException {
                 //cd
