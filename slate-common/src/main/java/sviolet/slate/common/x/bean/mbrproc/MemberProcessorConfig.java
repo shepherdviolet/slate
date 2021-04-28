@@ -48,7 +48,7 @@ public class MemberProcessorConfig {
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     public static BeanPostProcessor memberProcessorBeanPostProcessor(){
         if (logger.isInfoEnabled()) {
-            logger.info("MemberProcessor Enabled");
+            logger.info("MemberProcessor | Enabled");
         }
         return new MemberProcessorBeanPostProcessor(MemberProcessorSelector.annotationAttributesList);
     }

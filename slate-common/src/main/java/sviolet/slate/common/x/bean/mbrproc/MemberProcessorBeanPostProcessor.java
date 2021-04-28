@@ -95,7 +95,7 @@ class MemberProcessorBeanPostProcessor extends MemberVisitBeanPostProcessor impl
         }
         processors.put(annotationClass, processor);
         if (logger.isInfoEnabled()) {
-            logger.info("Add MemberProcessor " + processorClass.getName() + " for annotation " + annotationClass.getName());
+            logger.info("MemberProcessor | Add MemberProcessor " + processorClass.getName() + " for annotation " + annotationClass.getName());
         }
     }
 
