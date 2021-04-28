@@ -150,6 +150,45 @@ public class HttpClientsConfig {
 <br>
 <br>
 
+# 高级用法
+
+## 自定义`开关注解`(@Enable...)
+
+* 定义`Selector`
+
+```text
+public class CustomMemberProcessorSelector extends MemberProcessorSelector {
+    @Override
+    protected Class<? extends Annotation> getEnableAnnotationType() {
+        //对应自定义的开关注解
+        return EnableMyFunction.class;
+    }
+}
+```
+
+* 定义`开关注解`
+* 必须包含 value 参数
+* 只需要修改: 注解名称, Import的`Selector`
+
+```text
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Import({CustomMemberProcessorSelector.class})//对应自定义的Selector
+public @interface EnableMyFunction {
+
+    Class<? extends MemberProcessor>[] value();
+
+}
+
+```
+
+* 这样就可以用自定义注解`@EnableMyFunction`开启成员处理器了
+
+<br>
+<br>
+<br>
+
 # 依赖
 
 * gradle

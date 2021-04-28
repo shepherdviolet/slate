@@ -23,6 +23,7 @@ import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 
+import java.lang.annotation.Annotation;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ import java.util.List;
  *
  * @author S.Violet
  */
-public class MemberProcessorSelector implements ImportSelector {
+public abstract class MemberProcessorSelector implements ImportSelector {
 
     static List<AnnotationAttributes> annotationAttributesList = new LinkedList<>();
 
@@ -40,12 +41,17 @@ public class MemberProcessorSelector implements ImportSelector {
         /*
          * 此处用静态变量持有注解参数, 原因同InterfaceInstConfig
          */
-        AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableMemberProcessor.class.getName(), false));
+        AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(getEnableAnnotationType().getName(), false));
         if (annotationAttributes != null) {
             annotationAttributesList.add(annotationAttributes);
         }
         //指定配置类
         return new String[]{MemberProcessorConfig.class.getName()};
     }
+
+    /**
+     * 自定义开关注解的类型, 默认EnableMemberProcessor
+     */
+    protected abstract Class<? extends Annotation> getEnableAnnotationType();
 
 }

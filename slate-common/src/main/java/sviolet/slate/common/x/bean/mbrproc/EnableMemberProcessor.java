@@ -82,7 +82,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({MemberProcessorSelector.class})
+@Import({DefaultMemberProcessorSelector.class})
 public @interface EnableMemberProcessor {
 
     Class<? extends MemberProcessor>[] value();
