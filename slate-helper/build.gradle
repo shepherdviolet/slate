@@ -33,7 +33,7 @@ dependencies {
     [
             "com.alibaba:fastjson:$version_fastjson", //Fix security bugs of fastjson
 
-    ].forEach{ compileOnly (it) { force = true }; testImplementation (it) { force = true } }
+    ].forEach{ compileOnly (it) { version { strictly it.version } }; testImplementation (it) { version { strictly it.version } } }
 
     //test
     [
