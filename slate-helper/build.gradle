@@ -26,6 +26,7 @@ dependencies {
             //version alignment
             "ch.qos.logback:logback-classic:$version_logback",
             "org.springframework.boot:spring-boot-starter:$version_spring_boot",
+            "org.yaml:snakeyaml:$version_snakeyaml",
 
     ].forEach{ compileOnly it; testImplementation it }
 
