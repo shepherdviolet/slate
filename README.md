@@ -1,4 +1,4 @@
-# Slate 21.1.0
+# Slate 21.1.1
 
 [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/shepherdviolet/slate.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/shepherdviolet/slate/context:java)
 
