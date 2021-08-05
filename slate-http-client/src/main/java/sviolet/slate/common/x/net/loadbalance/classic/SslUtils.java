@@ -54,7 +54,6 @@ public class SslUtils {
      * @param multiHostOkHttpClient multiHostOkHttpClient
      * @param trustManager trustManager
      */
-    @SuppressWarnings("deprecation")
     public static void setX509TrustManager(MultiHostOkHttpClient multiHostOkHttpClient, X509TrustManager trustManager) {
         if (multiHostOkHttpClient == null) {
             return;
