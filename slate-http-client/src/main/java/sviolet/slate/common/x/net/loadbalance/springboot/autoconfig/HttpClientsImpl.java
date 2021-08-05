@@ -25,6 +25,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import sviolet.slate.common.x.net.loadbalance.classic.DataConverter;
 import sviolet.slate.common.x.net.loadbalance.classic.SimpleOkHttpClient;
+import sviolet.slate.common.x.net.loadbalance.classic.SslUtils;
 import sviolet.slate.common.x.net.loadbalance.springboot.HttpClients;
 import sviolet.thistle.entity.function.ThrowableBiConsumer;
 import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
@@ -33,6 +34,7 @@ import sviolet.thistle.util.judge.CheckUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.security.cert.CertificateException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -219,17 +221,21 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
         }
 
         //custom issuer
-        if (!CheckUtils.isEmptyOrBlank(settings.getCustomServerIssuerEncoded())) {
-            client.setCustomServerIssuerEncoded(settings.getCustomServerIssuerEncoded());
-        } else if (settings.getCustomServerIssuersEncoded() != null && settings.getCustomServerIssuersEncoded().length > 0){
-            client.setCustomServerIssuersEncoded(settings.getCustomServerIssuersEncoded());
+        try {
+            if (!CheckUtils.isEmptyOrBlank(settings.getCustomServerIssuerEncoded())) {
+                SslUtils.setCustomServerIssuerEncoded(client, settings.getCustomServerIssuerEncoded());
+            } else if (settings.getCustomServerIssuersEncoded() != null && settings.getCustomServerIssuersEncoded().length > 0){
+                SslUtils.setCustomServerIssuersEncoded(client, settings.getCustomServerIssuersEncoded());
+            }
+        } catch (CertificateException e) {
+            throw new RuntimeException("Error while setting custom server issuers", e);
         }
 
         //custom dn/cn verification
         if (!CheckUtils.isEmptyOrBlank(settings.getVerifyServerDnByCustomDn())) {
-            client.setVerifyServerDnByCustomDn(settings.getVerifyServerDnByCustomDn());
+            SslUtils.setVerifyServerDnByCustomDn(client, settings.getVerifyServerDnByCustomDn());
         } else if (!CheckUtils.isEmptyOrBlank(settings.getVerifyServerCnByCustomHostname())){
-            client.setVerifyServerCnByCustomHostname(settings.getVerifyServerCnByCustomHostname());
+            SslUtils.setVerifyServerCnByCustomHostname(client, settings.getVerifyServerCnByCustomHostname());
         }
 
         //properties
@@ -587,15 +593,15 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                 Arrays.asList("customServerIssuersEncoded", "custom-server-issuers-encoded")) {
             @Override
             public void applySingleSetting(HttpClient client, String value) throws Exception {
-                client.setCustomServerIssuerEncoded(value);
+                SslUtils.setCustomServerIssuerEncoded(client, value);
             }
             @Override
             public void applyArraySetting(HttpClient client, String[] value) throws Exception {
-                client.setCustomServerIssuersEncoded(value);
+                SslUtils.setCustomServerIssuersEncoded(client, value);
             }
             @Override
-            public void applyReset(HttpClient client) {
-                client.setCustomServerIssuerEncoded(null);
+            public void applyReset(HttpClient client) throws Exception {
+                SslUtils.setCustomServerIssuerEncoded(client, null);
             }
         });
 
@@ -604,15 +610,15 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
                 Arrays.asList("verifyServerCnByCustomHostname", "verify-server-cn-by-custom-hostname")) {
             @Override
             public void applySetting1(HttpClient client, String value) throws Exception {
-                client.setVerifyServerDnByCustomDn(value);
+                SslUtils.setVerifyServerDnByCustomDn(client, value);
             }
             @Override
             public void applySetting2(HttpClient client, String value) throws Exception {
-                client.setVerifyServerCnByCustomHostname(value);
+                SslUtils.setVerifyServerCnByCustomHostname(client, value);
             }
             @Override
-            public void applyReset(HttpClient client) {
-                client.setVerifyServerDnByCustomDn(null);
+            public void applyReset(HttpClient client) throws Exception {
+                SslUtils.setVerifyServerDnByCustomDn(client, null);
             }
         });
 
@@ -825,7 +831,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
         public abstract void applySetting2(HttpClient client, String value) throws Exception;
 
-        public abstract void applyReset(HttpClient client);
+        public abstract void applyReset(HttpClient client) throws Exception;
 
     }
 
@@ -979,7 +985,7 @@ class HttpClientsImpl implements HttpClients, Closeable, InitializingBean, Dispo
 
         public abstract void applyArraySetting(HttpClient client, String[] value) throws Exception;
 
-        public abstract void applyReset(HttpClient client);
+        public abstract void applyReset(HttpClient client) throws Exception;
 
     }
 

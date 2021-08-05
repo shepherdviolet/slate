@@ -26,10 +26,10 @@ slate:
 
 ```text
 //四选一
-client.setCustomServerIssuers(...)
-client.setCustomServerIssuer(...)
-client.setCustomServerIssuersEncoded(...)
-client.setCustomServerIssuerEncoded(...)
+SslUtils.setCustomServerIssuers(simpleOkHttpClient, ...)
+SslUtils.setCustomServerIssuer(simpleOkHttpClient, ...)
+SslUtils.setCustomServerIssuersEncoded(simpleOkHttpClient, ...)
+SslUtils.setCustomServerIssuerEncoded(simpleOkHttpClient, ...)
 ```
 
 ## 强制指定证书域名(CN)/DN
@@ -54,8 +54,8 @@ slate:
 * 调用如下方法设置根证书, 或在Spring XML中设置如下参数
 
 ```text
-client.setVerifyServerCnByCustomHostname(...)
-client.setVerifyServerDnByCustomDn(...)
+SslUtils.setVerifyServerCnByCustomHostname(simpleOkHttpClient, ...)
+SslUtils.setVerifyServerDnByCustomDn(simpleOkHttpClient, ...)
 ```
 
 <br>
