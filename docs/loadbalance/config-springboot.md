@@ -123,7 +123,7 @@ slate:
 
 # 配置数据转换器`dataConverter`(可选)
 
-* 如果你希望直接发送一个Bean对象, 或接收一个Bean对象作为响应, 请配置`dataConverter`
+* 如果你希望直接发送一个Bean对象(支持Map), 或接收一个Bean对象(支持Map)作为响应, 请配置`dataConverter`
 * SpringBoot自动配置模式下, 如果你的工程依赖了`com.google.code.gson:gson`会自动配置一个`GsonDataConverter`
 * 如果你的工程未依赖`com.google.code.gson:gson`, 或希望自行实现转换逻辑, 请自行配置一个:
 

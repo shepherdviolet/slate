@@ -35,7 +35,7 @@ public class MyConfiguration {
                 .setWriteTimeout(10000L)//写超时时间, 单位ms
                 .setReadTimeout(10000L)//读超时时间, 单位ms
                 .setMaxReadLength(10L * 1024L * 1024L)//数据最大读取长度, 单位字节
-                .setDataConverter(new GsonDataConverter())//设置数据转换器
+                .setDataConverter(new GsonDataConverter())//设置数据转换器, 详见'关于数据转换器`dataConverter`(可选)'章节
                 .setVerboseLog(true);//true: INFO级别可打印更多的日志(请求报文/响应码等), 默认false
                 //.setVerboseLogConfig(0x00000110)//微调输出的日志内容(详见源码)
                 //.setHttpGetInspector("/health")//启用HTTP Get方式进行主动健康探测, URL为http://127.0.0.1:8083/health和http://127.0.0.1:8084/health, (设置+telnet+改回TELNET方式)
@@ -97,11 +97,27 @@ public class MyConfiguration {
                 .setWriteTimeout(10000L)//写超时时间, 单位ms
                 .setReadTimeout(10000L)//读超时时间, 单位ms
                 .setMaxReadLength(10L * 1024L * 1024L)//数据最大读取长度, 单位字节
+                .setDataConverter(new GsonDataConverter())//设置数据转换器, 详见'关于数据转换器`dataConverter`(可选)'章节
                 .setVerboseLog(true);//为true时会输出更多日志
     }
 
 }
 ```
+
+<br>
+<br>
+<br>
+
+# 关于数据转换器`dataConverter`(可选)
+
+* 如果你希望直接发送一个Bean对象(支持Map), 或接收一个Bean对象(支持Map)作为响应, 请配置`dataConverter`
+* 使用默认数据转换器`GsonDataConverter` (请添加依赖`com.google.code.gson:gson`)
+
+```text
+httpClient.setDataConverter(new GsonDataConverter())//设置数据转换器
+```
+
+* 也可以自行实现数据转换器
 
 <br>
 <br>

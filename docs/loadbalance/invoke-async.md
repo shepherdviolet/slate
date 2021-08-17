@@ -98,7 +98,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
          //.formBody(formBody)//表单提交
-         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
+         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter, 见配置文档
          //.httpHeader("Accept", "application/json;charset=utf-8")
          //.mediaType("application/json;charset=utf-8")
          //.encode("utf-8")
@@ -129,7 +129,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
          //.formBody(formBody)//表单提交
-         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
+         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter, 见配置文档
          //.autoClose(false)//默认为true
          //.httpHeader("Accept", "application/json;charset=utf-8")
          //.mediaType("application/json;charset=utf-8")
@@ -161,7 +161,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
          .urlParam("traceId", "000000001")
          .body("hello world".getBytes())
          //.formBody(formBody)//表单提交
-         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
+         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter, 见配置文档
          //.autoClose(false)//默认为true
          //.httpHeader("Accept", "application/json;charset=utf-8")
          //.mediaType("application/json;charset=utf-8")
@@ -185,7 +185,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 ```
 
 * 异步POST:请求报文体Map, 返回报文体Map
-* 注意:必须要配置dataConverter
+* 注意:必须要配置dataConverter, 见配置文档
 
 ```text
 Map<String, Object> requestMap = new HashMap<>(2);
@@ -210,6 +210,37 @@ client.post("/path/path")
                 //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
             }
         });
+```
+
+* 异步POST:返回JavaBean类型的响应
+* 注意:必须要配置dataConverter, 见配置文档
+
+ ```text
+ //返回JavaBean类型的响应
+ client.post("/path/path")
+         .urlParam("traceId", "000000001")
+         .body("hello world".getBytes())
+         //.formBody(formBody)//表单提交
+         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter, 见配置文档
+         //.httpHeader("Accept", "application/json;charset=utf-8")
+         //.mediaType("application/json;charset=utf-8")
+         //.encode("utf-8")
+         .enqueue(new MultiHostOkHttpClient.BeanCallback<ResponseBean>() {
+             public void onSucceed(ResponseBean response) {
+                 ......
+             }
+             protected void onErrorBeforeSend(Exception e) {
+                 //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+                 //RequestBuildException: 在网络请求未发送前抛出的异常
+             }
+             protected void onErrorAfterSend(Exception e) {
+                 //IOException: 网络异常
+                 //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+                 //获得拒绝码 e.getResponseCode()
+                 //获得拒绝信息 e.getResponseMessage()
+                 //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+             }
+         });
 ```
 
 ### GET
@@ -303,7 +334,7 @@ client.post("/path/path")
 ```
 
 * 异步GET:返回报文体Map
-* 注意:必须要配置dataConverter
+* 注意:必须要配置dataConverter, 见配置文档
 
 ```text
 client.get("/path/path")
@@ -326,4 +357,33 @@ client.get("/path/path")
                 //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
             }
         });
+```
+
+* 异步GET:返回JavaBean类型的响应
+* 注意:必须要配置dataConverter, 见配置文档
+
+ ```text
+ //返回JavaBean类型的响应
+ client.get("/path/path")
+         .urlParam("name", "000000001")
+         .urlParam("key", "000000001")
+         //.httpHeader("Accept", "application/json;charset=utf-8")
+         //.mediaType("application/json;charset=utf-8")
+         //.encode("utf-8")
+         .enqueue(new MultiHostOkHttpClient.BeanCallback<ResponseBean>() {
+             public void onSucceed(ResponseBean response) {
+                 ......
+             }
+             protected void onErrorBeforeSend(Exception e) {
+                 //NoHostException: 当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+                 //RequestBuildException: 在网络请求未发送前抛出的异常
+             }
+             protected void onErrorAfterSend(Exception e) {
+                 //IOException: 网络异常
+                 //HttpRejectException: HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+                 //获得拒绝码 e.getResponseCode()
+                 //获得拒绝信息 e.getResponseMessage()
+                 //另外, 如果onSucceed方法中抛出异常, 默认会将异常转交到这个方法处理
+             }
+         });
 ```

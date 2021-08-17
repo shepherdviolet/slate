@@ -97,7 +97,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
               .urlParam("traceId", "000000001")
               .body("hello world".getBytes())
               //.formBody(formBody)//表单提交
-              //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
+              //.beanBody(bean)//发送JavaBean, 需要配置dataConverter, 见配置文档
               //.httpHeader("Accept", "application/json;charset=utf-8")
               //.mediaType("application/json;charset=utf-8")
               //.encode("utf-8")
@@ -122,7 +122,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
  try (InputStream inputStream = client.post("/path/path")
          .body("hello world".getBytes())
          //.formBody(formBody)//表单提交
-         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
+         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter, 见配置文档
          //.httpHeader("Accept", "application/json;charset=utf-8")
          //.mediaType("application/json;charset=utf-8")
          //.encode("utf-8")
@@ -150,7 +150,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
  try (MultiHostOkHttpClient.ResponsePackage responsePackage = client.post("/path/path")
          .body("hello world".getBytes())
          //.formBody(formBody)//表单提交
-         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter
+         //.beanBody(bean)//发送JavaBean, 需要配置dataConverter, 见配置文档
          //.httpHeader("Accept", "application/json;charset=utf-8")
          //.mediaType("application/json;charset=utf-8")
          //.encode("utf-8")
@@ -172,7 +172,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 ```
 
 * 同步POST:请求报文体Map, 返回报文体Map
-* 注意:必须要配置dataConverter
+* 注意:必须要配置dataConverter, 见配置文档
 
 ```text
  try {
@@ -194,6 +194,33 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
      //获得拒绝信息 e.getResponseMessage()
  }
 ```
+
+* 同步POST:返回JavaBean类型的响应
+* 注意:必须要配置dataConverter, 见配置文档
+
+ ```text
+  try {
+      ResponseBean response = client.post("/path/path")
+              .urlParam("traceId", "000000001")
+              .body("hello world".getBytes())
+              //.formBody(formBody)//表单提交
+              //.beanBody(bean)//发送JavaBean, 需要配置dataConverter, 见配置文档
+              //.httpHeader("Accept", "application/json;charset=utf-8")
+              //.mediaType("application/json;charset=utf-8")
+              //.encode("utf-8")
+              .sendForBean(ResponseBean.class);
+  } catch (NoHostException e) {
+      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+  } catch (RequestBuildException e) {
+      //在网络请求未发送前抛出的异常
+  } catch (IOException e) {
+      //网络异常
+  } catch (HttpRejectException e) {
+      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+      //获得拒绝码 e.getResponseCode()
+      //获得拒绝信息 e.getResponseMessage()
+  }
+ ```
 
 ### GET
 
@@ -276,7 +303,7 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
 ```
 
 * 同步GET:返回报文体Map
-* 注意:必须要配置dataConverter
+* 注意:必须要配置dataConverter, 见配置文档
 
 ```text
  try {
@@ -296,3 +323,28 @@ The wrong way is: to invoke the setter method (adjust configurations) before sen
      //获得拒绝信息 e.getResponseMessage()
  }
 ```
+
+* 同步GET:返回JavaBean类型的响应
+* 注意:必须要配置dataConverter, 见配置文档
+
+ ```text
+  try {
+      ResponseBean response = client.get("/path/path")
+              .urlParam("name", "000000001")
+              .urlParam("key", "000000001")
+              //.httpHeader("Accept", "application/json;charset=utf-8")
+              //.mediaType("application/json;charset=utf-8")
+              //.encode("utf-8")
+              .sendForBean(ResponseBean.class);
+  } catch (NoHostException e) {
+      //当hosts没有配置任何后端地址, 或配置returnNullIfAllBlocked=true时所有后端都处于异常状态, 则抛出该异常
+  } catch (RequestBuildException e) {
+      //在网络请求未发送前抛出的异常
+  } catch (IOException e) {
+      //网络异常
+  } catch (HttpRejectException e) {
+      //HTTP拒绝, 即HTTP返回码不为200(2??)时, 抛出该异常
+      //获得拒绝码 e.getResponseCode()
+      //获得拒绝信息 e.getResponseMessage()
+  }
+ ```

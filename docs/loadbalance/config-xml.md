@@ -24,7 +24,7 @@
         <property name="writeTimeout" value="10000"/><!-- 写超时时间, 单位ms -->
         <property name="readTimeout" value="10000"/><!-- 读超时时间, 单位ms -->
         <property name="maxReadLength" value="10485760"/><!-- 数据最大读取长度, 单位字节 -->
-        <property name="dataConverter" ref="dataConverter"/><!-- 设置数据转换器 -->
+        <property name="dataConverter" ref="dataConverter"/><!-- 设置数据转换器, 详见'关于数据转换器`dataConverter`(可选)'章节 -->
         <property name="verboseLog" value="true"/><!-- 为true时会输出更多日志 -->
         <!--<property name="verboseLogConfig" value="0x00000110"/> 微调输出的日志内容(详见源码)-->
         <!--<property name="httpGetInspector" ref="/health"/> 启用HTTP Get方式进行主动健康探测, URL为http://127.0.0.1:8083/health和http://127.0.0.1:8084/health, (设置+telnet+改回TELNET方式)-->
@@ -64,12 +64,36 @@
         <property name="writeTimeout" value="10000"/><!-- 写超时时间, 单位ms -->
         <property name="readTimeout" value="10000"/><!-- 读超时时间, 单位ms -->
         <property name="maxReadLength" value="10485760"/><!-- 数据最大读取长度, 单位字节 -->
-        <property name="dataConverter" ref="dataConverter"/><!-- 设置数据转换器 -->
+        <property name="dataConverter" ref="dataConverter"/><!-- 设置数据转换器, 详见'关于数据转换器`dataConverter`(可选)'章节 -->
         <property name="verboseLog" value="true"/><!-- true: INFO级别可打印更多的日志(请求报文/响应码等), 默认false -->
         <!--<property name="verboseLogConfig" value="0x00000110"/> 微调输出的日志内容(详见源码)-->
     </bean>
     
 ```
+
+<br>
+<br>
+<br>
+
+# 关于数据转换器`dataConverter`(可选)
+
+* 如果你希望直接发送一个Bean对象(支持Map), 或接收一个Bean对象(支持Map)作为响应, 请配置`dataConverter`
+* 使用默认数据转换器`GsonDataConverter` (请添加依赖`com.google.code.gson:gson`)
+
+```text
+    <!-- HTTP请求客户端 -->
+    <!-- 调用该实例发送请求 -->
+    <bean id="multiHostOkHttpClient" class="sviolet.slate.common.x.net.loadbalance.classic.MultiHostOkHttpClient">
+        ......
+        <property name="dataConverter" ref="dataConverter"/><!-- 设置数据转换器 -->
+    </bean>
+    
+    <!-- 数据转换器 -->
+    <bean id="dataConverter" class="sviolet.slate.common.x.net.loadbalance.classic.GsonDataConverter">
+    </bean>
+```
+
+* 也可以自行实现数据转换器
 
 <br>
 <br>
