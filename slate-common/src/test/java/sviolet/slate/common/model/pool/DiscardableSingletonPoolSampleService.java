@@ -28,23 +28,67 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author shepherdviolet
  */
 @Service
-public class DiscardableSingletonPoolSampleService {
+public class DiscardableSingletonPoolSampleService
+        implements DiscardableSingletonPool.InstanceManager<DiscardableSingletonPoolSampleService.Client, DiscardableSingletonPoolSampleService.ClientCreateParam> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
-     * [可选: 创建参数]
+     * [必要: 对象池]
+     *
+     * P.S. DiscardableSingletonPoolSampleService实现了DiscardableSingletonPool.InstanceManager接口, 实现实例创建/销毁等逻辑. 也可以在内部类中实现这个接口.
      */
-    private Map<String, ClientCreateParam> clientCreateParams = new HashMap<>();
+    private final DiscardableSingletonPool<Client, ClientCreateParam> clientPool = new DiscardableSingletonPool<>(this);
 
     /**
-     * [可选: 创建参数]
+     * [必要: 对象池]
      *
-     * 注入所有客户端创建参数ClientCreateParam (注入所有类型为ClientCreateParam的Spring Bean)
+     * 创建对象
+     *
+     * P.S. DiscardableSingletonPoolSampleService实现了DiscardableSingletonPool.InstanceManager接口, 实现实例创建/销毁等逻辑. 也可以在内部类中实现这个接口.
+     *
+     * @param key         对象名称
+     * @param createParam 创建参数, 可为空, 由DiscardableSingletonPool#getInstanceProvider传入
+     * @return 创建出来的对象
+     * @throws Exception 这里抛出的异常会被封装为InstanceCreateException抛出
      */
-    @Autowired
-    public void setClientCreateParams(Map<String, ClientCreateParam> clientCreateParams) {
-        this.clientCreateParams = clientCreateParams;
+    @Override
+    public Client createInstance(String key, ClientCreateParam createParam) throws Exception {
+        // 在这里实现客户端的创建
+        return new Client(key, createParam);
+    }
+
+    /**
+     * [必要: 对象池]
+     *
+     * 销毁对象, 如果这里抛出异常, 会回调onInstanceDestroyError方法
+     *
+     * P.S. DiscardableSingletonPoolSampleService实现了DiscardableSingletonPool.InstanceManager接口, 实现实例创建/销毁等逻辑. 也可以在内部类中实现这个接口.
+     *
+     * @param info     对象信息
+     * @param instance 对象实例(销毁它)
+     */
+    @Override
+    public void destroyInstance(DiscardableSingletonPool.InstanceInfo info, Client instance) throws Exception {
+        // 在这里实现客户端的销毁
+        instance.destroy();
+    }
+
+    /**
+     * [必要: 对象池]
+     *
+     * 处理destroyInstance方法抛出的异常, 一般就打印日志
+     *
+     * P.S. DiscardableSingletonPoolSampleService实现了DiscardableSingletonPool.InstanceManager接口, 实现实例创建/销毁等逻辑. 也可以在内部类中实现这个接口.
+     *
+     * @param info     对象信息
+     * @param instance 对象实例
+     * @param t        异常
+     */
+    @Override
+    public void onInstanceDestroyError(DiscardableSingletonPool.InstanceInfo info, Client instance, Throwable t) {
+        // 一般就打个日志
+        logger.error("Error when destroy Client: " + info, t);
     }
 
     /**
@@ -102,56 +146,19 @@ public class DiscardableSingletonPoolSampleService {
     }
 
     /**
-     * [必要: 配置对象池]
+     * [可选: 创建参数]
      */
-    private final DiscardableSingletonPool<Client, ClientCreateParam> clientPool = new DiscardableSingletonPool<>(new DiscardableSingletonPool.InstanceManager<Client, ClientCreateParam>() {
+    private Map<String, ClientCreateParam> clientCreateParams = new HashMap<>();
 
-        /**
-         * [必要: 配置对象池]
-         *
-         * 创建对象
-         *
-         * @param key 对象名称
-         * @param createParam 创建参数, 可为空, 由DiscardableSingletonPool#getInstanceProvider传入
-         * @return 创建出来的对象
-         * @throws Exception 这里抛出的异常会被封装为InstanceCreateException抛出
-         */
-        @Override
-        public Client createInstance(String key, ClientCreateParam createParam) throws Exception {
-            // 在这里实现客户端的创建
-            return new Client(key, createParam);
-        }
-
-        /**
-         * [必要: 配置对象池]
-         *
-         * 销毁对象, 如果这里抛出异常, 会回调onDestroyError方法
-         *
-         * @param info 对象信息
-         * @param instance 对象实例(销毁它)
-         */
-        @Override
-        public void destroyInstance(DiscardableSingletonPool.InstanceInfo info, Client instance) throws Exception {
-            // 在这里实现客户端的销毁
-            instance.destroy();
-        }
-
-        /**
-         * [必要: 配置对象池]
-         *
-         * 处理destroyInstance方法抛出的异常, 一般就打印日志
-         *
-         * @param info 对象信息
-         * @param instance 对象实例
-         * @param t 异常
-         */
-        @Override
-        public void onDestroyError(DiscardableSingletonPool.InstanceInfo info, Client instance, Throwable t) {
-            // 一般就打个日志
-            logger.error("Error when destroy Client: " + info, t);
-        }
-
-    });
+    /**
+     * [可选: 创建参数]
+     *
+     * 注入所有客户端创建参数ClientCreateParam (注入所有类型为ClientCreateParam的Spring Bean)
+     */
+    @Autowired
+    public void setClientCreateParams(Map<String, ClientCreateParam> clientCreateParams) {
+        this.clientCreateParams = clientCreateParams;
+    }
 
     /**
      * [可选: 强制销毁]
