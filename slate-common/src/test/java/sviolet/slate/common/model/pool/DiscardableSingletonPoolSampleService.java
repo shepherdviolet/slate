@@ -4,14 +4,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import sviolet.thistle.compat.concurrent.CompatThreadFactoryBuilder;
+import sviolet.thistle.util.concurrent.ThreadPoolExecutorUtils;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -33,8 +35,12 @@ public class DiscardableSingletonPoolSampleService
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    // 必要项 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * [必要: 对象池]
+     *
+     * 对象池
      *
      * P.S. DiscardableSingletonPoolSampleService实现了DiscardableSingletonPool.InstanceManager接口, 实现实例创建/销毁等逻辑. 也可以在内部类中实现这个接口.
      */
@@ -145,8 +151,12 @@ public class DiscardableSingletonPoolSampleService
 
     }
 
+    // 可选项 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * [可选: 创建参数]
+     *
+     * 客户端创建参数
      */
     private Map<String, ClientCreateParam> clientCreateParams = new HashMap<>();
 
@@ -160,13 +170,26 @@ public class DiscardableSingletonPoolSampleService
         this.clientCreateParams = clientCreateParams;
     }
 
+    // 可选项(Java定时方式) ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
-     * [可选: 强制销毁]
+     * [可选: 定时任务]
      *
-     * 强制销毁丢弃超过10分钟的对象.
+     * 定时执行器
      *
-     * [温馨提示] 如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一.
-     * 本使用示例保证了每次使用都释放引用, 所以这个设置在这里没有意义, 供需要的人参考.
+     * ------------------------------------------------------------------------------------------------------------
+     *
+     * 注意要设置为守护线程, 否则会影响JVM自然结束
+     */
+    private final ScheduledExecutorService executorService = ThreadPoolExecutorUtils.createScheduled(1,
+            new CompatThreadFactoryBuilder().setNameFormat("sample-service-schedule-%d").setDaemon(true).build());
+
+    // -----------------------------------------------------
+
+    /**
+     * [可选: 强制销毁] 强制销毁丢弃超过10分钟的对象.
+     *
+     * 设置对象强制销毁到期时间 (超过该时间就可以被强制销毁)
      *
      * 正常情况下, 被丢弃的对象由"销毁器"负责, 在它们使用完毕后(引用计数为0)销毁. 设置了这个参数后, "销毁器"在判断对象是否可以销毁时,
      * 追加了一种情况, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象, 无视对象的引用计数情况.
@@ -174,77 +197,375 @@ public class DiscardableSingletonPoolSampleService
      * 注意!! 仅仅设置这个参数并不能保证对象在"到期"后立刻被销毁, 因为"销毁器"触发有条件(见6.2). 如果对象"到期"后, 没有人触发丢弃(discard),
      * 也没有被丢弃的对象引用计数归0, 那就只能手动触发"销毁器"了.
      *
-     * 所以, 这里配套了一个定时器(见notifyDestroyer方法), 定期调用DiscardableSingletonPool#notifyDestroyDiscardedInstances方法,
+     * 所以, 这里配套了一个定时器(见setNotifyDestroyDiscardedInstancesPeriodMillis方法), 定期调用DiscardableSingletonPool#notifyDestroyDiscardedInstances方法,
      * 唤醒"销毁器"将"已到期"的对象强制销毁.
+     *
+     * ------------------------------------------------------------------------------------------------------------
+     *
+     * [温馨提示] 如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一.
+     * 本使用示例保证了每次使用都释放引用, 所以这个设置在这里没有意义, 供需要的人参考.
      */
     @Value("${sample-service.force-destroy-discarded-instance-after-millis:600000}")
     public void setForceDestroyDiscardedInstanceAfterMillis(long forceDestroyDiscardedInstanceAfterMillis){
+        if (logger.isInfoEnabled()) {
+            logger.info("sample-service | setForceDestroyDiscardedInstanceAfterMillis=" + forceDestroyDiscardedInstanceAfterMillis);
+        }
         clientPool.setForceDestroyDiscardedInstanceAfterMillis(forceDestroyDiscardedInstanceAfterMillis);
     }
 
     /**
-     * [可选: 强制销毁]
+     * [可选: 强制销毁] 强制销毁丢弃超过10分钟的对象.
      *
-     * 强制销毁丢弃超过10分钟的对象. 每隔10分钟通知一次"销毁器".
+     * 用于取消任务
+     *
+     * ------------------------------------------------------------------------------------------------------------
+     *
+     * [温馨提示] 如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一.
+     * 本使用示例保证了每次使用都释放引用, 所以这个设置在这里没有意义, 供需要的人参考.
+     */
+    private ScheduledFuture<?> notifyDestroyDiscardedInstancesTask;
+
+    /**
+     * [可选: 强制销毁] 强制销毁丢弃超过10分钟的对象.
+     *
+     * 每隔10分钟通知一次"销毁器", 设置为-1表示关闭. 配合setForceDestroyDiscardedInstanceAfterMillis方法实现可靠的"强制销毁"功能.
+     *
+     * ------------------------------------------------------------------------------------------------------------
      *
      * [温馨提示] 如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一.
      * 本使用示例保证了每次使用都释放引用, 所以这个设置在这里没有意义, 供需要的人参考.
      *
-     * 配合setForceDestroyDiscardedInstanceAfterMillis方法实现可靠的"强制销毁"功能.
      */
-    @Scheduled(fixedRateString = "${sample-service.notify-destroy-discarded-instances:600000}")
-    public void notifyDestroyer(){
-        clientPool.notifyDestroyDiscardedInstances();
+    @Value("${sample-service.notify-destroy-discarded-instances-period-millis:600000}")
+    public void setNotifyDestroyDiscardedInstancesPeriodMillis(long notifyDestroyDiscardedInstancesPeriodMillis) {
+        if (logger.isInfoEnabled()) {
+            logger.info("sample-service | setNotifyDestroyDiscardedInstancesPeriodMillis=" + notifyDestroyDiscardedInstancesPeriodMillis);
+        }
+        synchronized (this) {
+            if (notifyDestroyDiscardedInstancesTask != null) {
+                notifyDestroyDiscardedInstancesTask.cancel(false);
+                notifyDestroyDiscardedInstancesTask = null;
+            }
+            if (notifyDestroyDiscardedInstancesPeriodMillis > 0) {
+                notifyDestroyDiscardedInstancesTask = executorService.scheduleAtFixedRate(
+                        () -> {
+                            if (logger.isTraceEnabled()) {
+                                logger.trace("sample-service | Execute NotifyDestroyDiscardedInstances, PeriodMillis=" + notifyDestroyDiscardedInstancesPeriodMillis);
+                            }
+                            try {
+                                clientPool.notifyDestroyDiscardedInstances();
+                            } catch (Throwable t) {
+                                logger.error("Error when clientPool.notifyDestroyDiscardedInstances()", t);
+                            }
+                        },
+                        notifyDestroyDiscardedInstancesPeriodMillis,
+                        notifyDestroyDiscardedInstancesPeriodMillis,
+                        TimeUnit.MILLISECONDS);
+            }
+        }
+    }
+
+    // -----------------------------------------------------
+
+    /**
+     * [可选: 定时丢弃] 每小时丢弃不怎么用的对象 (50分钟没用的对象)
+     *
+     * 对象低使用率判定时间 (超过指定时间未使用判定为低使用率)
+     */
+    private long discardLowUsageInstancesExpireTime = -1;
+
+    /**
+     * [可选: 定时丢弃] 每小时丢弃不怎么用的对象 (50分钟没用的对象)
+     *
+     * 设置对象低使用率判定时间 (超过指定时间未使用判定为低使用率)
+     */
+    @Value("${sample-service.discard-low-usage-instances-expire-time:3000000}")
+    public void setDiscardLowUsageInstancesExpireTime(long discardLowUsageInstancesExpireTime) {
+        this.discardLowUsageInstancesExpireTime = discardLowUsageInstancesExpireTime;
     }
 
     /**
-     * [可选: 定时丢弃]
+     * [可选: 强制销毁] 每小时丢弃不怎么用的对象 (50分钟没用的对象)
      *
-     * 每小时丢弃不怎么用的对象 (50分钟没用的对象)
+     * 用于取消任务
      */
-    private long discardUselessExpireTime;
+    private ScheduledFuture<?> discardLowUsageInstancesTask;
 
     /**
-     * [可选: 定时丢弃]
+     * [可选: 定时丢弃] 每小时丢弃不怎么用的对象 (50分钟没用的对象)
      *
-     * 每小时丢弃不怎么用的对象 (50分钟没用的对象)
+     * 设置低使用率对象检查/丢弃时间间隔, 设置为-1表示关闭
      */
-    @Value("${sample-service.discard-useless-expire-time:3000000}")
-    public void setDiscardUselessExpireTime(long discardUselessExpireTime) {
-        this.discardUselessExpireTime = discardUselessExpireTime;
+    @Value("${sample-service.discard-low-usage-instances-period:3600000}")
+    public void setDiscardLowUsageInstancesPeriod(long discardLowUsageInstancesPeriod){
+        if (logger.isInfoEnabled()) {
+            logger.info("sample-service | setDiscardLowUsageInstancesPeriod=" + discardLowUsageInstancesPeriod);
+        }
+        synchronized (this) {
+            if (discardLowUsageInstancesTask != null) {
+                discardLowUsageInstancesTask.cancel(false);
+                discardLowUsageInstancesTask = null;
+            }
+            if (discardLowUsageInstancesPeriod > 0) {
+                discardLowUsageInstancesTask = executorService.scheduleAtFixedRate(
+                        () -> {
+                            if (logger.isInfoEnabled()) {
+                                logger.info("sample-service | Execute DiscardLowUsageInstances, Period=" + discardLowUsageInstancesPeriod);
+                            }
+                            try {
+                                clientPool.discard((instance, info) -> (System.currentTimeMillis() - info.getLastUsedTimeMillis()) > discardLowUsageInstancesExpireTime);
+                            } catch (Throwable t) {
+                                logger.error("Error when clientPool.discard()", t);
+                            }
+                        },
+                        discardLowUsageInstancesPeriod,
+                        discardLowUsageInstancesPeriod,
+                        TimeUnit.MILLISECONDS);
+            }
+        }
+    }
+
+    // -----------------------------------------------------
+
+    /**
+     * [可选: 定时全部丢弃] 每天2点多丢弃所有对象
+     *
+     * 每天丢弃所有对象的大致时间(24小时制), 设置为-1表示关闭. 例如: 设置为2, 表示每天凌晨2点多丢弃所有对象, 时间不精确.
+     */
+    private int discardAllEverydayAtHour = -1;
+
+    /**
+     * [可选: 定时全部丢弃] 每天2点丢弃所有对象
+     *
+     * 用于取消任务
+     */
+    private ScheduledFuture<?> discardAllEverydayTask;
+
+    /**
+     * [可选: 定时全部丢弃] 每天2点多丢弃所有对象
+     *
+     * 设置每天丢弃所有对象的大致时间(24小时制), 设置为-1表示关闭. 例如: 设置为2, 表示每天凌晨2点多丢弃所有对象, 时间不精确.
+     */
+    @Value("${sample-service.discard-all-everyday-at-hour:2}")
+    public void setDiscardAllEverydayAtHour(int discardAllEverydayAtHour){
+        if (logger.isInfoEnabled()) {
+            logger.info("sample-service | setDiscardAllEverydayAtHour=" + discardAllEverydayAtHour);
+        }
+        if (discardAllEverydayAtHour > 23) {
+            discardAllEverydayAtHour = discardAllEverydayAtHour % 24;
+        }
+        synchronized (this) {
+            this.discardAllEverydayAtHour = discardAllEverydayAtHour;
+            if (discardAllEverydayAtHour >= 0) {
+                // 启用定时任务
+                if (discardAllEverydayTask == null) {
+                    discardAllEverydayTask = executorService.scheduleAtFixedRate(discardAllEveryDayRunnable,
+                            discardAllCheckPeriod,
+                            discardAllCheckPeriod,
+                            TimeUnit.MILLISECONDS);
+                }
+            } else {
+                // 取消定时任务
+                if (discardAllEverydayTask != null) {
+                    discardAllEverydayTask.cancel(false);
+                    discardAllEverydayTask = null;
+                }
+            }
+        }
     }
 
     /**
-     * [可选: 定时丢弃]
+     * [可选: 定时全部丢弃] 每天2点丢弃所有对象
      *
-     * 每小时丢弃不怎么用的对象 (50分钟没用的对象)
+     * 用于实现定时逻辑
      */
-    @Scheduled(fixedRateString = "${sample-service.discard-useless-client-rate:3600000}")
-    public void discardUselessClient(){
-        clientPool.discard((instance, info) -> (System.currentTimeMillis() - info.getLastUsedTimeMillis()) > discardUselessExpireTime);
+    private ZoneId zoneId = ZoneId.systemDefault();
+    private int lastDiscardAllDay = -1;
+    private long discardAllCheckPeriod = 900000; // 每天丢弃全部的检查间隔, 这个正常不允许修改, 这里为了测试才允许修改
+
+    /**
+     * [可选: 定时全部丢弃] 每天2点丢弃所有对象
+     *
+     * 设置系统时区
+     */
+    @Value("${sample-service.time-zone:}")
+    public void setZone(String zone) {
+        if (logger.isInfoEnabled()) {
+            logger.info("sample-service | setZone=" + zone);
+        }
+        if (zone == null || "".equals(zone)) {
+            zoneId = ZoneId.systemDefault();
+        } else {
+            zoneId = ZoneId.of(zone); // 例如 "UTC+8"
+        }
     }
 
     /**
-     * [可选: 定时全部丢弃]
+     * [可选: 定时全部丢弃] 每天2点丢弃所有对象
      *
-     * 每天2点丢弃所有对象
+     * 每天丢弃所有对象
      */
-    @Scheduled(cron = "${sample-service.discard-all-client-cron:0 0 2 * * ?}")
-    public void discardAllClient(){
+    private final Runnable discardAllEveryDayRunnable = () -> {
+        if (logger.isTraceEnabled()) {
+            logger.trace("sample-service | Check DiscardAllEveryday");
+        }
+        try {
+            ZonedDateTime currentTime = ZonedDateTime.now(zoneId);
+            int currentHour = currentTime.getHour();
+            int currentDay = currentTime.getDayOfYear();
+            // 判断当前小时 = 指定小时 && 当前天 != 上次执行的天
+            if (currentHour == discardAllEverydayAtHour && currentDay != lastDiscardAllDay) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("sample-service | Execute DiscardAllEveryday, atHour=" + discardAllEverydayAtHour);
+                }
+                // 记录上次执行的天, 防止同一个小时内重复执行
+                lastDiscardAllDay = currentDay;
+                discardAllClient();
+            }
+        } catch (Throwable t) {
+            logger.error("Error when discardAllEveryDayRunnable.run()", t);
+        }
+    };
+
+    /**
+     * [可选: 手动全部丢弃] 丢弃所有客户端
+     *
+     * 丢弃所有客户端
+     */
+    public void discardAllClient() {
         clientPool.discardAll();
     }
 
+    // -----------------------------------------------------
+
     /**
-     * [可选: 统计信息输出]
+     * [可选: 统计信息输出] 每隔10分钟输出统计日志
      *
-     * 定时输出统计信息
+     * 用于取消任务
      */
-    @Scheduled(fixedRateString = "${sample-service.statistic-info:10000}")
-    public void printPoolStatisticInfo(){
+    private ScheduledFuture<?> printStatisticInfoTask;
+
+    /**
+     * [可选: 统计信息输出] 每隔10分钟输出统计日志
+     *
+     * 设置统计日志输出时间间隔, 设置为-1表示关闭
+     */
+    @Value("${sample-service.print-statistic-info-period:600000}")
+    public void setPrintStatisticInfoPeriod(long printStatisticInfoPeriod){
         if (logger.isInfoEnabled()) {
-            logger.info("sample-service | pool statistic: " + clientPool);
+            logger.info("sample-service | setPrintStatisticInfoPeriod=" + printStatisticInfoPeriod);
+        }
+        synchronized (this) {
+            if (printStatisticInfoTask != null) {
+                printStatisticInfoTask.cancel(false);
+            }
+            if (printStatisticInfoPeriod > 0) {
+                printStatisticInfoTask = executorService.scheduleAtFixedRate(
+                        this::printStatisticInfo,
+                        printStatisticInfoPeriod,
+                        printStatisticInfoPeriod,
+                        TimeUnit.MILLISECONDS);
+            }
         }
     }
+
+    /**
+     *  [可选: 统计信息输出] 手动输出统计信息
+     *
+     *  手动输出统计信息
+     */
+    public void printStatisticInfo() {
+        if (logger.isInfoEnabled()) {
+            logger.info("sample-service | Pool-Statistic: " + clientPool);
+        }
+    }
+
+    // 可选项(Spring定时方式) ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//    /**
+//     * [可选: 强制销毁] 强制销毁丢弃超过10分钟的对象.
+//     *
+//     * 设置对象强制销毁到期时间 (超过该时间就可以被强制销毁)
+//     *
+//     * 正常情况下, 被丢弃的对象由"销毁器"负责, 在它们使用完毕后(引用计数为0)销毁. 设置了这个参数后, "销毁器"在判断对象是否可以销毁时,
+//     * 追加了一种情况, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象, 无视对象的引用计数情况.
+//     *
+//     * 注意!! 仅仅设置这个参数并不能保证对象在"到期"后立刻被销毁, 因为"销毁器"触发有条件(见6.2). 如果对象"到期"后, 没有人触发丢弃(discard),
+//     * 也没有被丢弃的对象引用计数归0, 那就只能手动触发"销毁器"了.
+//     *
+//     * 所以, 这里配套了一个定时器(见notifyDestroyer方法), 定期调用DiscardableSingletonPool#notifyDestroyDiscardedInstances方法,
+//     * 唤醒"销毁器"将"已到期"的对象强制销毁.
+//     *
+//     * ------------------------------------------------------------------------------------------------------------
+//     *
+//     * [温馨提示] 如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一.
+//     * 本使用示例保证了每次使用都释放引用, 所以这个设置在这里没有意义, 供需要的人参考.
+//     */
+//    @Value("${sample-service.force-destroy-discarded-instance-after-millis:600000}")
+//    public void setForceDestroyDiscardedInstanceAfterMillis(long forceDestroyDiscardedInstanceAfterMillis){
+//        clientPool.setForceDestroyDiscardedInstanceAfterMillis(forceDestroyDiscardedInstanceAfterMillis);
+//    }
+//
+//     /**
+//     * [可选: 强制销毁] 强制销毁丢弃超过10分钟的对象.
+//     *
+//     * 每隔10分钟通知一次"销毁器". 配合setForceDestroyDiscardedInstanceAfterMillis方法实现可靠的"强制销毁"功能.
+//     *
+//     * ------------------------------------------------------------------------------------------------------------
+//     *
+//     * [温馨提示] 如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一.
+//     * 本使用示例保证了每次使用都释放引用, 所以这个设置在这里没有意义, 供需要的人参考.
+//     *
+//     */
+//    @Scheduled(fixedRateString = "${sample-service.notify-destroy-discarded-instances-period-millis:600000}")
+//    public void notifyDestroyer(){
+//        clientPool.notifyDestroyDiscardedInstances();
+//    }
+//
+//    /**
+//     * [可选: 定时丢弃] 每小时丢弃不怎么用的对象 (50分钟没用的对象)
+//     *
+//     * 对象低使用率判定时间 (超过指定时间未使用判定为低使用率)
+//     */
+//    private long discardLowUsageInstancesExpireTime;
+//
+//    /**
+//     * [可选: 定时丢弃] 每小时丢弃不怎么用的对象 (50分钟没用的对象)
+//     *
+//     * 设置对象低使用率判定时间 (超过指定时间未使用判定为低使用率)
+//     */
+//    @Value("${sample-service.discard-low-usage-instances-expire-time:3000000}")
+//    public void setDiscardLowUsageInstancesExpireTime(long discardLowUsageInstancesExpireTime) {
+//        this.discardLowUsageInstancesExpireTime = discardLowUsageInstancesExpireTime;
+//    }
+//
+//    /**
+//     * [可选: 定时丢弃] 每小时丢弃不怎么用的对象 (50分钟没用的对象)
+//     *
+//     * 每个60分钟丢弃不怎么用的对象
+//     */
+//    @Scheduled(fixedRateString = "${sample-service.discard-low-usage-instances-period:3600000}")
+//    public void discardLowUsageInstances(){
+//        clientPool.discard((instance, info) -> (System.currentTimeMillis() - info.getLastUsedTimeMillis()) > discardLowUsageInstancesExpireTime);
+//    }
+//
+//    /**
+//     * [可选: 定时全部丢弃] 每天2点丢弃所有对象
+//     */
+//    @Scheduled(cron = "${sample-service.discard-all-client-cron:0 0 2 * * ?}")
+//    public void discardAllClient(){
+//        clientPool.discardAll();
+//    }
+//
+//    /**
+//     * [可选: 统计信息输出] 定时输出统计日志
+//     */
+//    @Scheduled(fixedRateString = "${sample-service.print-statistic-info-period:600000}")
+//    public void printPoolStatisticInfo(){
+//        if (logger.isInfoEnabled()) {
+//            logger.info("sample-service | Pool-Statistic: " + clientPool);
+//        }
+//    }
 
 
 
@@ -267,7 +588,7 @@ public class DiscardableSingletonPoolSampleService
      * [MOCK] 测试的时候比较客户端是不是真的被销毁了, 测试的时候看客户端是不是走对, 没走到别的客户端里
      */
     public void printClientStatistic() {
-        logger.info("sample-service | client statistic: {" +
+        logger.info("sample-service | Client-Statistic: {" +
                 "clientCount='" + clientCount.get() + '\'' +
                 ", clientDestroyCount=" + clientDestroyCount.get() +
                 ", clientPostCountMap=" + clientPostCountMap +
@@ -310,6 +631,13 @@ public class DiscardableSingletonPoolSampleService
             throw e;
         }
 
+    }
+
+    /**
+     * [MOCK] 每天丢弃全部的检查间隔, 这个正常不允许修改, 这里为了测试才允许修改
+     */
+    public void setDiscardAllCheckPeriod(long discardAllCheckPeriod) {
+        this.discardAllCheckPeriod = discardAllCheckPeriod;
     }
 
     /**
