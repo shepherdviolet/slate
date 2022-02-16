@@ -558,10 +558,10 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
                     }
                     // 销毁失败处理, 一般就打日志
                     try {
-                        instanceManager.onDestroyError(instanceHolder.getInfo(), instanceHolder.getInstance(), t);
+                        instanceManager.onInstanceDestroyError(instanceHolder.getInfo(), instanceHolder.getInstance(), t);
                     } catch (Throwable t2) {
                         if (logger.isWarnEnabled()) {
-                            logger.warn("DiscardableSingletonPool | destroyer | Uncaught exception from instanceManager#onDestroyError, instance info: " + instanceHolder, t2);
+                            logger.warn("DiscardableSingletonPool | destroyer | Uncaught exception from instanceManager#onInstanceDestroyError, instance info: " + instanceHolder, t2);
                         }
                     }
                 }
@@ -938,7 +938,7 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
         InstanceType createInstance(String key, CreateParamType createParam) throws Exception;
 
         /**
-         * 销毁对象, 如果这里抛出异常, 会回调onDestroyError方法
+         * 销毁对象, 如果这里抛出异常, 会回调onInstanceDestroyError方法
          * @param info 对象信息
          * @param instance 对象实例(销毁它)
          */
@@ -950,7 +950,7 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
          * @param instance 对象实例
          * @param t 异常
          */
-        void onDestroyError(InstanceInfo info, InstanceType instance, Throwable t);
+        void onInstanceDestroyError(InstanceInfo info, InstanceType instance, Throwable t);
 
     }
 
