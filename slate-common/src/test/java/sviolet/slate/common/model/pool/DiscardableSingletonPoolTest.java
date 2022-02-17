@@ -49,9 +49,9 @@
 //
 //    /**
 //     * 无特殊设置, 正常压测, 20%失败率, 看看discard/destroy逻辑是否正常
-//     * 对比tester统计信息里, 每个id的发送量, 和client统计信息里的是否相符, 看看会不会发错client
-//     * 对比client和pool统计信息, 看看pool统计信息里创建次数, 是否和client统计信息里实际创建次数相等
-//     * 对比client和pool统计信息, 看看pool统计信息里丢弃/销毁的数量, 是否和client统计信息里实际销毁次数相等
+//     * 对比Tester统计信息里, 每个id的发送量, 和Mock-Client统计信息里的是否相符, 看看会不会发错client
+//     * 对比Mock-Client和Pool统计信息, 看看Pool统计信息里创建次数, 是否和Mock-Client统计信息里实际创建次数相等
+//     * 对比Mock-client和Pool统计信息, 看看Pool统计信息里丢弃/销毁的数量, 是否和Mock-Client统计信息里实际销毁次数相等
 //     * 观察pool统计信息, 看看所有丢弃的是否都被销毁
 //     * 观察tester统计信息, postToClosedClient是不是0 (不为0说明有调用被销毁的实例)
 //     */
@@ -439,7 +439,7 @@
 //    private static void printStatistic(DiscardableSingletonPoolSampleService service) {
 //        // pool 统计信息
 //        service.printStatisticInfo();
-//        // client 统计信息
+//        // mock client 统计信息
 //        service.printClientStatistic();
 //        // tester 统计信息
 //        logger.info("sample-service | Tester-Statistic: {" +
@@ -457,7 +457,7 @@
 //        executorService.scheduleAtFixedRate(() -> {
 //            // pool 统计信息
 //            service.printStatisticInfo();
-//            // client 统计信息
+//            // mock client 统计信息
 //            service.printClientStatistic();
 //        }, printPeriod, printPeriod, TimeUnit.MILLISECONDS);
 //    }
