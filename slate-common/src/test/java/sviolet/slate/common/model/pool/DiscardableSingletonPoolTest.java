@@ -498,7 +498,7 @@
 //    @SuppressWarnings("SameParameterValue")
 //    private static void configForceDestroy(DiscardableSingletonPoolSampleService service, long forceDestroyPeriod) {
 //        // 强制销毁丢弃超过30s的对象.
-//        service.setForceDestroyDiscardedInstanceAfterMillis(forceDestroyPeriod);
+//        service.setForceDestroyDiscardedInstancesAfterMillis(forceDestroyPeriod);
 //        // 模拟定时30秒一次触发"销毁器"
 //        service.setNotifyDestroyDiscardedInstancesPeriodMillis(forceDestroyPeriod);
 //    }
