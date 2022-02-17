@@ -204,7 +204,7 @@ public class DiscardableSingletonPoolSampleService
      * 设置对象强制销毁到期时间 (超过该时间就可以被强制销毁)
      *
      * 正常情况下, 被丢弃的对象由"销毁器"负责, 在它们使用完毕后(引用计数为0)销毁. 设置了这个参数后, "销毁器"在判断对象是否可以销毁时,
-     * 追加了一种情况, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象, 无视对象的引用计数情况.
+     * 追加了一种情况, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象, 无视对象的引用计数情况.
      *
      * 注意!! 仅仅设置这个参数并不能保证对象在"到期"后立刻被销毁, 因为"销毁器"触发有条件(见6.2). 如果对象"到期"后, 没有人触发丢弃(discard),
      * 也没有被丢弃的对象引用计数归0, 那就只能手动触发"销毁器"了.
@@ -217,12 +217,12 @@ public class DiscardableSingletonPoolSampleService
      * [温馨提示] 如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一.
      * 本使用示例保证了每次使用都释放引用, 所以这个设置在这里没有意义, 供需要的人参考.
      */
-    @Value("${sample-service.force-destroy-discarded-instance-after-millis:600000}")
-    public void setForceDestroyDiscardedInstanceAfterMillis(long forceDestroyDiscardedInstanceAfterMillis){
+    @Value("${sample-service.force-destroy-discarded-instances-after-millis:600000}")
+    public void setForceDestroyDiscardedInstancesAfterMillis(long forceDestroyDiscardedInstancesAfterMillis){
         if (logger.isInfoEnabled()) {
-            logger.info("sample-service | setForceDestroyDiscardedInstanceAfterMillis=" + forceDestroyDiscardedInstanceAfterMillis);
+            logger.info("sample-service | setForceDestroyDiscardedInstancesAfterMillis=" + forceDestroyDiscardedInstancesAfterMillis);
         }
-        clientPool.setForceDestroyDiscardedInstanceAfterMillis(forceDestroyDiscardedInstanceAfterMillis);
+        clientPool.setForceDestroyDiscardedInstancesAfterMillis(forceDestroyDiscardedInstancesAfterMillis);
     }
 
     /**
@@ -240,7 +240,7 @@ public class DiscardableSingletonPoolSampleService
     /**
      * [可选: 强制销毁] 强制销毁丢弃超过10分钟的对象.
      *
-     * 每隔10分钟通知一次"销毁器", 设置为-1表示关闭. 配合setForceDestroyDiscardedInstanceAfterMillis方法实现可靠的"强制销毁"功能.
+     * 每隔10分钟通知一次"销毁器", 设置为-1表示关闭. 配合setForceDestroyDiscardedInstancesAfterMillis方法实现可靠的"强制销毁"功能.
      *
      * ------------------------------------------------------------------------------------------------------------
      *
@@ -512,7 +512,7 @@ public class DiscardableSingletonPoolSampleService
 //     * 设置对象强制销毁到期时间 (超过该时间就可以被强制销毁)
 //     *
 //     * 正常情况下, 被丢弃的对象由"销毁器"负责, 在它们使用完毕后(引用计数为0)销毁. 设置了这个参数后, "销毁器"在判断对象是否可以销毁时,
-//     * 追加了一种情况, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象, 无视对象的引用计数情况.
+//     * 追加了一种情况, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象, 无视对象的引用计数情况.
 //     *
 //     * 注意!! 仅仅设置这个参数并不能保证对象在"到期"后立刻被销毁, 因为"销毁器"触发有条件(见6.2). 如果对象"到期"后, 没有人触发丢弃(discard),
 //     * 也没有被丢弃的对象引用计数归0, 那就只能手动触发"销毁器"了.
@@ -526,14 +526,14 @@ public class DiscardableSingletonPoolSampleService
 //     * 本使用示例保证了每次使用都释放引用, 所以这个设置在这里没有意义, 供需要的人参考.
 //     */
 //    @Value("${sample-service.force-destroy-discarded-instance-after-millis:600000}")
-//    public void setForceDestroyDiscardedInstanceAfterMillis(long forceDestroyDiscardedInstanceAfterMillis){
-//        clientPool.setForceDestroyDiscardedInstanceAfterMillis(forceDestroyDiscardedInstanceAfterMillis);
+//    public void setForceDestroyDiscardedInstancesAfterMillis(long forceDestroyDiscardedInstancesAfterMillis){
+//        clientPool.setForceDestroyDiscardedInstancesAfterMillis(forceDestroyDiscardedInstancesAfterMillis);
 //    }
 //
 //     /**
 //     * [可选: 强制销毁] 强制销毁丢弃超过10分钟的对象.
 //     *
-//     * 每隔10分钟通知一次"销毁器". 配合setForceDestroyDiscardedInstanceAfterMillis方法实现可靠的"强制销毁"功能.
+//     * 每隔10分钟通知一次"销毁器". 配合setForceDestroyDiscardedInstancesAfterMillis方法实现可靠的"强制销毁"功能.
 //     *
 //     * ------------------------------------------------------------------------------------------------------------
 //     *

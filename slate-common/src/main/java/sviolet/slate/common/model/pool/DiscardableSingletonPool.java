@@ -85,13 +85,13 @@ import java.util.function.BiFunction;
  * <p>6.1.被丢弃的对象由"销毁器"负责, 在它们使用完毕后(引用计数为0)销毁, 销毁过程异步执行. </p>
  * <p>6.2.三种情况会触发"销毁器"执行销毁流程: 对象被丢弃(discard), 被丢弃的对象引用计数归0, 手动触发(DiscardableSingletonPool#notifyDestroyDiscardedInstances). </p>
  * <p>6.3.销毁器执行流程: </p>
- * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
- * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+ * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
+ * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
  * <p>----6.3.3.本轮未被销毁的对象, 会加入丢弃池, 等待下一轮 (等待触发). </p>
- * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstanceAfterMillis": </p>
+ * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstancesAfterMillis": </p>
  * <p>----6.4.1.该参数默认为Long.MAX_VALUE, 默认不强制销毁. </p>
  * <p>----6.4.2.如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一. </p>
- * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+ * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
  * <p>----6.4.4.注意!! 仅仅设置这个参数并不能保证对象在"到期"后立刻被销毁, 因为"销毁器"触发有条件(见6.2). 如果对象"到期"后, 没有人触发丢弃(discard),
  *              也没有被丢弃的对象引用计数归0, 那就只能手动触发"销毁器"了. 所以, 建议配套一个定时器, 定期调用DiscardableSingletonPool#notifyDestroyDiscardedInstances
  *              方法, 唤醒"销毁器"将"已到期"的对象强制销毁. </p>
@@ -106,7 +106,7 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
     private final InstanceManager<InstanceType, CreateParamType> instanceManager;
 
     // [参数] 强制销毁时间, 如果设置了这个参数, 对象在被丢弃后超过指定时间, 即使 "引用计数大于0" 也会被强制销毁
-    private long forceDestroyDiscardedInstanceAfterMillis = Long.MAX_VALUE;
+    private long forceDestroyDiscardedInstancesAfterMillis = Long.MAX_VALUE;
 
     // 对象池
     private final ConcurrentHashMap<String, InstanceHolder<InstanceType>> instances;
@@ -260,13 +260,13 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
      * <p>6.1.被丢弃的对象由"销毁器"负责, 在它们使用完毕后(引用计数为0)销毁, 销毁过程异步执行. </p>
      * <p>6.2.三种情况会触发"销毁器"执行销毁流程: 对象被丢弃(discard), 被丢弃的对象引用计数归0, 手动触发(DiscardableSingletonPool#notifyDestroyDiscardedInstances). </p>
      * <p>6.3.销毁器执行流程: </p>
-     * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
-     * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
      * <p>----6.3.3.本轮未被销毁的对象, 会加入丢弃池, 等待下一轮 (等待触发). </p>
-     * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstanceAfterMillis": </p>
+     * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstancesAfterMillis": </p>
      * <p>----6.4.1.该参数默认为Long.MAX_VALUE, 默认不强制销毁. </p>
      * <p>----6.4.2.如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一. </p>
-     * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
      * <p>----6.4.4.注意!! 仅仅设置这个参数并不能保证对象在"到期"后立刻被销毁, 因为"销毁器"触发有条件(见6.2). 如果对象"到期"后, 没有人触发丢弃(discard),
      *              也没有被丢弃的对象引用计数归0, 那就只能手动触发"销毁器"了. 所以, 建议配套一个定时器, 定期调用DiscardableSingletonPool#notifyDestroyDiscardedInstances
      *              方法, 唤醒"销毁器"将"已到期"的对象强制销毁. </p>
@@ -297,13 +297,13 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
      * <p>6.1.被丢弃的对象由"销毁器"负责, 在它们使用完毕后(引用计数为0)销毁, 销毁过程异步执行. </p>
      * <p>6.2.三种情况会触发"销毁器"执行销毁流程: 对象被丢弃(discard), 被丢弃的对象引用计数归0, 手动触发(DiscardableSingletonPool#notifyDestroyDiscardedInstances). </p>
      * <p>6.3.销毁器执行流程: </p>
-     * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
-     * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
      * <p>----6.3.3.本轮未被销毁的对象, 会加入丢弃池, 等待下一轮 (等待触发). </p>
-     * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstanceAfterMillis": </p>
+     * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstancesAfterMillis": </p>
      * <p>----6.4.1.该参数默认为Long.MAX_VALUE, 默认不强制销毁. </p>
      * <p>----6.4.2.如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一. </p>
-     * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
      * <p>----6.4.4.注意!! 仅仅设置这个参数并不能保证对象在"到期"后立刻被销毁, 因为"销毁器"触发有条件(见6.2). 如果对象"到期"后, 没有人触发丢弃(discard),
      *              也没有被丢弃的对象引用计数归0, 那就只能手动触发"销毁器"了. 所以, 建议配套一个定时器, 定期调用DiscardableSingletonPool#notifyDestroyDiscardedInstances
      *              方法, 唤醒"销毁器"将"已到期"的对象强制销毁. </p>
@@ -339,13 +339,13 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
      * <p>6.1.被丢弃的对象由"销毁器"负责, 在它们使用完毕后(引用计数为0)销毁, 销毁过程异步执行. </p>
      * <p>6.2.三种情况会触发"销毁器"执行销毁流程: 对象被丢弃(discard), 被丢弃的对象引用计数归0, 手动触发(DiscardableSingletonPool#notifyDestroyDiscardedInstances). </p>
      * <p>6.3.销毁器执行流程: </p>
-     * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
-     * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
      * <p>----6.3.3.本轮未被销毁的对象, 会加入丢弃池, 等待下一轮 (等待触发). </p>
-     * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstanceAfterMillis": </p>
+     * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstancesAfterMillis": </p>
      * <p>----6.4.1.该参数默认为Long.MAX_VALUE, 默认不强制销毁. </p>
      * <p>----6.4.2.如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一. </p>
-     * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
      * <p>----6.4.4.注意!! 仅仅设置这个参数并不能保证对象在"到期"后立刻被销毁, 因为"销毁器"触发有条件(见6.2). 如果对象"到期"后, 没有人触发丢弃(discard),
      *              也没有被丢弃的对象引用计数归0, 那就只能手动触发"销毁器"了. 所以, 建议配套一个定时器, 定期调用DiscardableSingletonPool#notifyDestroyDiscardedInstances
      *              方法, 唤醒"销毁器"将"已到期"的对象强制销毁. </p>
@@ -361,13 +361,13 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
      * <p>6.1.被丢弃的对象由"销毁器"负责, 在它们使用完毕后(引用计数为0)销毁, 销毁过程异步执行. </p>
      * <p>6.2.三种情况会触发"销毁器"执行销毁流程: 对象被丢弃(discard), 被丢弃的对象引用计数归0, 手动触发(DiscardableSingletonPool#notifyDestroyDiscardedInstances). </p>
      * <p>6.3.销毁器执行流程: </p>
-     * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
-     * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
      * <p>----6.3.3.本轮未被销毁的对象, 会加入丢弃池, 等待下一轮 (等待触发). </p>
-     * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstanceAfterMillis": </p>
+     * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstancesAfterMillis": </p>
      * <p>----6.4.1.该参数默认为Long.MAX_VALUE, 默认不强制销毁. </p>
      * <p>----6.4.2.如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一. </p>
-     * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
      * <p>----6.4.4.注意!! 仅仅设置这个参数并不能保证对象在"到期"后立刻被销毁, 因为"销毁器"触发有条件(见6.2). 如果对象"到期"后, 没有人触发丢弃(discard),
      *              也没有被丢弃的对象引用计数归0, 那就只能手动触发"销毁器"了. 所以, 建议配套一个定时器, 定期调用DiscardableSingletonPool#notifyDestroyDiscardedInstances
      *              方法, 唤醒"销毁器"将"已到期"的对象强制销毁. </p>
@@ -402,19 +402,19 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
      * <p>设置强制销毁时间</p>
      * <p></p>
      * <p>正常情况下, 被丢弃的对象由"销毁器"负责, 在它们使用完毕后(引用计数为0)销毁. 设置了这个参数后, "销毁器"在判断对象是否可以销毁时,
-     * 追加了一种情况, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象, 无视对象的引用计数情况.
+     * 追加了一种情况, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象, 无视对象的引用计数情况.
      * 注意!! 仅仅设置这个参数并不能保证对象在"到期"后立刻被销毁, 因为"销毁器"触发有条件(见6.2). 如果对象"到期"后, 没有人触发丢弃(discard),
      * 也没有被丢弃的对象引用计数归0, 那就只能手动触发"销毁器"了. 所以, 建议配套一个定时器, 定期调用DiscardableSingletonPool#notifyDestroyDiscardedInstances
      * 方法, 唤醒"销毁器"将"已到期"的对象强制销毁. </p>
      * <p></p>
      * <pre>
      *     // 设置强制销毁时间为10分钟
-     *     <code>@Value("${force-destroy-discarded-instance-after-millis:600000}")</code>
-     *     public void setForceDestroyDiscardedInstanceAfterMillis(long forceDestroyDiscardedInstanceAfterMillis){
-     *         discardableSingletonPool.setForceDestroyDiscardedInstanceAfterMillis(forceDestroyDiscardedInstanceAfterMillis);
+     *     <code>@Value("${force-destroy-discarded-instances-after-millis:600000}")</code>
+     *     public void setForceDestroyDiscardedInstancesAfterMillis(long forceDestroyDiscardedInstancesAfterMillis){
+     *         discardableSingletonPool.setForceDestroyDiscardedInstancesAfterMillis(forceDestroyDiscardedInstancesAfterMillis);
      *     }
      *     // 定时, 每隔10分钟通知"销毁器"执行销毁, 这样即使没人触发丢弃(discard)也没有被丢弃的对象引用计数归0, "到期"的对象依然会被强制销毁了
-     *     <code>@Scheduled(fixedRateString = "${notify-destroy-discarded-instances:600000}")</code>
+     *     <code>@Scheduled(fixedRateString = "${notify-destroy-discarded-instances-period-millis:600000}")</code>
      *     public void notifyDestroyer(){
      *         discardableSingletonPool.notifyDestroyDiscardedInstances();
      *     }
@@ -424,23 +424,23 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
      * <p>6.1.被丢弃的对象由"销毁器"负责, 在它们使用完毕后(引用计数为0)销毁, 销毁过程异步执行. </p>
      * <p>6.2.三种情况会触发"销毁器"执行销毁流程: 对象被丢弃(discard), 被丢弃的对象引用计数归0, 手动触发(DiscardableSingletonPool#notifyDestroyDiscardedInstances). </p>
      * <p>6.3.销毁器执行流程: </p>
-     * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
-     * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
      * <p>----6.3.3.本轮未被销毁的对象, 会加入丢弃池, 等待下一轮 (等待触发). </p>
-     * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstanceAfterMillis": </p>
+     * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstancesAfterMillis": </p>
      * <p>----6.4.1.该参数默认为Long.MAX_VALUE, 默认不强制销毁. </p>
      * <p>----6.4.2.如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一. </p>
-     * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
      * <p>----6.4.4.注意!! 仅仅设置这个参数并不能保证对象在"到期"后立刻被销毁, 因为"销毁器"触发有条件(见6.2). 如果对象"到期"后, 没有人触发丢弃(discard),
      *              也没有被丢弃的对象引用计数归0, 那就只能手动触发"销毁器"了. 所以, 建议配套一个定时器, 定期调用DiscardableSingletonPool#notifyDestroyDiscardedInstances
      *              方法, 唤醒"销毁器"将"已到期"的对象强制销毁. </p>
      *
      * @param forceDestroyAfterMillis 设置强制销毁时间, 单位毫秒(ms), 默认: Long.MAX_VALUE (默认不强制销毁)
      */
-    public DiscardableSingletonPool<InstanceType, CreateParamType> setForceDestroyDiscardedInstanceAfterMillis(long forceDestroyAfterMillis) {
-        this.forceDestroyDiscardedInstanceAfterMillis = forceDestroyAfterMillis;
+    public DiscardableSingletonPool<InstanceType, CreateParamType> setForceDestroyDiscardedInstancesAfterMillis(long forceDestroyAfterMillis) {
+        this.forceDestroyDiscardedInstancesAfterMillis = forceDestroyAfterMillis;
         if (logger.isInfoEnabled()) {
-            logger.info("DiscardableSingletonPool | setForceDestroyDiscardedInstanceAfterMillis: " + forceDestroyAfterMillis);
+            logger.info("DiscardableSingletonPool | setForceDestroyDiscardedInstancesAfterMillis: " + forceDestroyAfterMillis);
         }
         return this;
     }
@@ -450,7 +450,7 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
         return "DiscardableSingletonPool{" +
                 "instancesNum=" + getInstancesNum() +
                 ", discardedInstancesNum=" + getDiscardedInstancesNum() +
-                ", forceDestroyDiscardedInstanceAfterMillis=" + forceDestroyDiscardedInstanceAfterMillis +
+                ", forceDestroyDiscardedInstancesAfterMillis=" + forceDestroyDiscardedInstancesAfterMillis +
                 ", statisticInfo=" + statisticInfo +
                 '}';
     }
@@ -480,13 +480,13 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
      * <p>6.1.被丢弃的对象由"销毁器"负责, 在它们使用完毕后(引用计数为0)销毁, 销毁过程异步执行. </p>
      * <p>6.2.三种情况会触发"销毁器"执行销毁流程: 对象被丢弃(discard), 被丢弃的对象引用计数归0, 手动触发(DiscardableSingletonPool#notifyDestroyDiscardedInstances). </p>
      * <p>6.3.销毁器执行流程: </p>
-     * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
-     * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.3.1.遍历"丢弃池"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.3.2.遍历"丢弃队列"中的对象, 若 "引用计数为0" 则销毁. 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
      * <p>----6.3.3.本轮未被销毁的对象, 会加入丢弃池, 等待下一轮 (等待触发). </p>
-     * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstanceAfterMillis": </p>
+     * <p>6.4.关于参数 "强制销毁时间 forceDestroyDiscardedInstancesAfterMillis": </p>
      * <p>----6.4.1.该参数默认为Long.MAX_VALUE, 默认不强制销毁. </p>
      * <p>----6.4.2.如果你正确地在每次使用完对象后释放引用, 这个参数是没有必要设置的. 如果你担心自己不小心持有对象, 忘记释放引用的话, 那就设置这个参数以防万一. </p>
-     * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstanceAfterMillis" 则强制销毁对象. </p>
+     * <p>----6.4.3.如果设置了这个参数, 在"销毁器"执行流程中, 若 "当前时间 - 丢弃时间 > forceDestroyDiscardedInstancesAfterMillis" 则强制销毁对象. </p>
      * <p>----6.4.4.注意!! 仅仅设置这个参数并不能保证对象在"到期"后立刻被销毁, 因为"销毁器"触发有条件(见6.2). 如果对象"到期"后, 没有人触发丢弃(discard),
      *              也没有被丢弃的对象引用计数归0, 那就只能手动触发"销毁器"了. 所以, 建议配套一个定时器, 定期调用DiscardableSingletonPool#notifyDestroyDiscardedInstances
      *              方法, 唤醒"销毁器"将"已到期"的对象强制销毁. </p>
@@ -534,7 +534,7 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
             }
 
             // 判断是否能被销毁
-            if (instanceHolder.canDestroy(forceDestroyDiscardedInstanceAfterMillis)) {
+            if (instanceHolder.canDestroy(forceDestroyDiscardedInstancesAfterMillis)) {
                 if (instanceHolder.getRefCount() > 0) {
                     if (logger.isInfoEnabled()) {
                         logger.info("DiscardableSingletonPool | destroyer | Destroy-Discarded-Instance (Force): " + instanceHolder);
@@ -657,17 +657,17 @@ public class DiscardableSingletonPool<InstanceType, CreateParamType> {
 
         /**
          * 判断是否能被销毁
-         * @param forceDestroyDiscardedInstanceAfterMillis 强制销毁时间, 如果设置了这个参数, 对象在被丢弃后超过指定时间, 即使 "引用计数大于0" 也会被强制销毁
+         * @param forceDestroyDiscardedInstancesAfterMillis 强制销毁时间, 如果设置了这个参数, 对象在被丢弃后超过指定时间, 即使 "引用计数大于0" 也会被强制销毁
          * @return true: 能被销毁
          */
-        private boolean canDestroy(long forceDestroyDiscardedInstanceAfterMillis) {
+        private boolean canDestroy(long forceDestroyDiscardedInstancesAfterMillis) {
             /*
              * 被销毁的条件:
-             * 已被丢弃 && ( 引用计数为0 || 被丢弃时间大于forceDestroyDiscardedInstanceAfterMillis )
+             * 已被丢弃 && ( 引用计数为0 || 被丢弃时间大于forceDestroyDiscardedInstancesAfterMillis )
              */
             return discarded.get() && (
                     refCount.get() <= 0 ||
-                    (System.currentTimeMillis() - info.getDiscardTimeMillis()) > forceDestroyDiscardedInstanceAfterMillis
+                    (System.currentTimeMillis() - info.getDiscardTimeMillis()) > forceDestroyDiscardedInstancesAfterMillis
             );
         }
 
