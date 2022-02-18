@@ -371,6 +371,9 @@ public class DiscardableSingletonPoolSampleService
      */
     @Value("${sample-service.discard-low-usage-instances-expire-time:3000000}")
     public void setDiscardLowUsageInstancesExpireTime(long discardLowUsageInstancesExpireTime) {
+        if (logger.isInfoEnabled()) {
+            logger.info("sample-service | setDiscardLowUsageInstancesExpireTime=" + discardLowUsageInstancesExpireTime);
+        }
         this.discardLowUsageInstancesExpireTime = discardLowUsageInstancesExpireTime;
     }
 
